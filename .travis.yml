@@ -1,12 +1,26 @@
 sudo: false
 language: python
-python:
-  - '3.6'
-
+cache: pip
+env:
+  - TOXENV=py36
+  - TOXENV=pypy
+addons:
+    apt:
+        packages:
+            - pypy-dev
+            - liblapack-dev
 install:
-  - pip install --upgrade pip setuptools wheel
-  - pip install coveralls pytest
-  # - pip install -r requirements.txt
-
+    - |
+        if [[ "$TOXENV" = "pypy" ]]; then
+            git clone https://github.com/yyuu/pyenv.git ~/.pyenv
+            PYENV_ROOT="$HOME/.pyenv"
+            PATH="$PYENV_ROOT/bin:$PATH"
+            eval "$(pyenv init -)"
+            pyenv install pypy3.5-6.0.0
+            pyenv global pypy3.5-6.0.0
+        fi
+    - pip install tox coveralls
 script:
-  - pytest
+    - tox -e $TOXENV
+after_success:
+    - coveralls
