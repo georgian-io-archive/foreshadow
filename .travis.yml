@@ -19,7 +19,7 @@ install:
             pyenv install pypy3.5-6.0.0
             pyenv global pypy3.5-6.0.0
         fi
-    - pip install tox coveralls
+    - pip install tox-travis tox coveralls
 script:
     - tox -e $TOXENV
 after_success:
