@@ -1,16 +1,10 @@
 # foreshadow
-
-|[]()           |                 |
-|---------------|-----------------|
-|Latest Relase  | ![Status](TODO) |
-|Package Status | ![Status](TODO) |
-|License        | ![Status](TODO) |
-|Build Status   | ![Status](TODO) |
-|Coverage       | ![Status](TODO) |
-|Gitter         | ![Status](TODO) |
+![License](https://github.com/georgianpartners/foreshadow/blob/master/LICENSE "License") [![BuildStatus](https://travis-ci.org/georgianpartners/foreshadow.svg?branch=master "Build Status")](https://travis-ci.org/georgianpartners/foreshadow) [![Coverage](https://coveralls.io/repos/github/georgianpartners/foreshadow/badge.svg?branch=development "Coverage")](https://coveralls.io/github/georgianpartners/foreshadow)
 
 # Manually running tests
 * setup pyenv for 3.6.5 
-* setup pyenv for pypy3.5-6.0.0
-* pip install -r test_requirements.txt
-* tox -r
+* setup pyenv for pypy3.5-6.0.0. 
+```bash
+(testenvforeshadow) $ pip install -r test_requirements.txt
+(testenvforeshadow) $ tox -r
+```
