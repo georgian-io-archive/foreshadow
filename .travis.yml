@@ -4,8 +4,6 @@ cache: pip
 python:
   - "3.5"
   - "3.6"
-  - "3.7"
-  - pypy
 install:
     - pip install tox tox-travis coveralls
 script:
