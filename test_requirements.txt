@@ -5,6 +5,7 @@ coverage==4.5.1
 execnet==1.5.0
 more-itertools==4.2.0
 pep8==1.7.1
+pip-autoremove==0.9.1
 pluggy==0.6.0
 py==1.5.4
 pytest==3.6.2
