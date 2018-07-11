@@ -169,8 +169,8 @@ def test_samename_subclass():
         multi_pipeline_spec = "TEST"
 
         def __init__(self):
-            self.single_pipeline = self.single_pipeline_spec
-            self.multi_pipeline = self.multi_pipeline_spec
+            self.single_pipeline = self.single_pipeline_spec  # pragma: no cover
+            self.multi_pipeline = self.multi_pipeline_spec  # pragma: no cover
 
     with pytest.raises(TypeError) as e:
 
@@ -183,8 +183,8 @@ def test_samename_subclass():
             multi_pipeline_spec = "TEST"
 
             def __init__(self):
-                self.single_pipeline = self.single_pipeline_spec
-                self.multi_pipeline = self.multi_pipeline_spec
+                self.single_pipeline = self.single_pipeline_spec  # pragma: no cover
+                self.multi_pipeline = self.multi_pipeline_spec  # pragma: no cover
 
     unregister_intent(TestIntent.__name__)
     assert str(e.value) == ("Intent already exists in registry, use a different name")
@@ -200,8 +200,8 @@ def test_get_registry():
         multi_pipeline_spec = "TEST"
 
         def __init__(self):
-            self.single_pipeline = self.single_pipeline_spec
-            self.multi_pipeline = self.multi_pipeline_spec
+            self.single_pipeline = self.single_pipeline_spec  # pragma: no cover
+            self.multi_pipeline = self.multi_pipeline_spec  # pragma: no cover
 
     g = get_registry()
     assert g[TestIntent.__name__] is TestIntent
