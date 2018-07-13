@@ -1,0 +1,5 @@
+include tox.ini
+include setup.py
+include requirements.txt
+
+global-exclude __pycache__
