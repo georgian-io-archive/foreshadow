@@ -32,19 +32,11 @@ class IntentRegistry(type):
             _register_intent(cls)
         return cls
 
-    def __call__(cls, *args, **kwargs):
-        obj = type.__call__(cls, *args, **kwargs)
-        obj._verify_pipeline_setup()
-        return obj
-
 
 class BaseIntent(object, metaclass=IntentRegistry):
     intent = None
     dtype = None
-    parent = None
     children = None
-    single_pipeline_spec = None
-    multi_pipeline_spec = None
 
     def __new__(cls, *args, **kwargs):
         if cls is BaseIntent:
@@ -52,14 +44,22 @@ class BaseIntent(object, metaclass=IntentRegistry):
         return object.__new__(cls, *args, **kwargs)
 
     @classmethod
-    def is_fit(cls, series):
+    def is_intent(cls, df):
         """Determines whether intent is the appropriate fit
 
-        :param series (pd.Series): data to determine intent fit
+        :param df (pd.DataFrame): data to determine intent fit
 
         :returns: bool
         """
-        raise NotImplementedError("Function is not immplemented")
+        raise NotImplementedError("is_fit is not immplemented")
+
+    @classmethod
+    def get_best_single_pipeline(cls, df):
+        raise NotImplementedError("get_best_single_pipeline is not immplemented")
+
+    @classmethod
+    def get_best_multi_pipeline(cls, df):
+        raise NotImplementedError("get_best_multi_pipeline is not immplemented")
 
     @classmethod
     def _check_required_class_attributes(cls):
@@ -79,51 +79,10 @@ class BaseIntent(object, metaclass=IntentRegistry):
                     "cls.dtype", "This attribute should define the dtype of the intent."
                 )
             )
-        elif cls.parent is None:
-            raise NotImplementedError(
-                not_implemented(
-                    "cls.parent",
-                    "This attribute should define the parent of the intent.",
-                )
-            )
         elif cls.children is None:
             raise NotImplementedError(
                 not_implemented(
                     "cls.children",
                     "This attribute should define the children of the intent.",
                 )
-            )
-        elif cls.single_pipeline_spec is None:
-            raise NotImplementedError(
-                not_implemented(
-                    "cls.single_pipeline_spec",
-                    (
-                        "This attribute should define the sklearn single "
-                        "pipeline spec of the intent."
-                    ),
-                )
-            )
-        elif cls.multi_pipeline_spec is None:
-            raise NotImplementedError(
-                not_implemented(
-                    "cls.multi_pipeline_spec",
-                    (
-                        "This attribute should define the sklearn multi pipeline "
-                        "spec of the intent."
-                    ),
-                )
-            )
-
-    def _verify_pipeline_setup(self):
-        not_implemented = lambda x, y: "Subclass initialize {} to {}".format(x, y)
-        if (
-            not hasattr(self, "single_pipeline")
-            or self.single_pipeline_spec != self.single_pipeline
-        ):
-            raise NotImplementedError(
-                not_implemented("self.single_pipeline", "self.single_pipeline_spec")
-            )
-        elif not hasattr(self, "multi_pipeline"):
-            raise NotImplementedError(
-                not_implemented("self.multi_pipeline", "self.multi_pipeline_spec")
             )
