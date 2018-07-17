@@ -11,6 +11,7 @@ import numpy.ma as ma
 from .intents_base import BaseIntent
 from .intents_registry import get_registry
 
+
 class GenericIntent(BaseIntent):
     dtype = "str"
     children = ["NumericIntent", "CategoricalIntent"]
@@ -72,6 +73,7 @@ class GenericIntent(BaseIntent):
             pipeline += (s, f())
 
         return [s for s in pipeline if not s[1] is None]
+
 
 class NumericIntent(GenericIntent):
     dtype = "float"

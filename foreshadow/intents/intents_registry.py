@@ -17,10 +17,7 @@ def _register_intent(cls_target):
 
 def unregister_intent(cls_target):
     global _registry
-    if (
-        not isinstance(cls_target, str)
-        and all(isinstance(s, str) for s in cls_target)
-    ):
+    if not isinstance(cls_target, str) and all(isinstance(s, str) for s in cls_target):
         for c in cls_target:
             if c in _registry:
                 del _registry[c]

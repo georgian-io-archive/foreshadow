@@ -42,6 +42,7 @@ def test_valid_mock_subclass():
 
         def __init__(self):
             pass
+
     t = TestIntent()
     unregister_intent(TestIntent.__name__)
 
@@ -74,10 +75,9 @@ def test_to_string():
         "TestIntent11",
         "TestIntent12",
     ]
-    assert (
-        str(TestIntent)
-        == ("TestIntent\n\tTestIntent1\n\t\tTestIntent11\n\t\tTestIntent12\n\t"
-            "TestIntent2\n")
+    assert str(TestIntent) == (
+        "TestIntent\n\tTestIntent1\n\t\tTestIntent11\n\t\tTestIntent12\n\t"
+        "TestIntent2\n"
     )
     unregister_intent(class_list)
 

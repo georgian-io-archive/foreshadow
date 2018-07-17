@@ -4,6 +4,7 @@ Intent base and registry defentions
 
 from .intents_registry import IntentRegistry, registry_eval
 
+
 class BaseIntent(object, metaclass=IntentRegistry):
     dtype = None
     children = None
@@ -15,20 +16,22 @@ class BaseIntent(object, metaclass=IntentRegistry):
 
     @classmethod
     def tostring(cls, level=0):
-        ret = '\t'*level+str(cls.__name__)+'\n'
+        ret = "\t" * level + str(cls.__name__) + "\n"
         for c in cls.children:
             klass = registry_eval(c)
-            temp = klass.tostring(level+1)
+            temp = klass.tostring(level + 1)
             ret += temp
         return ret
 
     @classmethod
     def priority_traverse(cls):
         lqueue = [cls]
-        while(len(lqueue) > 0):
+        while len(lqueue) > 0:
             yield lqueue[0]
             node = lqueue.pop(0)
-            node_children = filter(lambda x: not x is None, map(registry_eval, reversed(node.children)))
+            node_children = filter(
+                lambda x: not x is None, map(registry_eval, reversed(node.children))
+            )
             lqueue.extend(node_children)
 
     @classmethod
