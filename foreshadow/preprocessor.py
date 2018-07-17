@@ -4,7 +4,8 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 
 from ..transformers import ParallelProcessor
-from ..intents import intents_base
+from ..intents.intents_registry import registry_eval
+from ..intents import GenericIntent
 
 
 class Preprocessor(BaseEstimator, TransformerMixin):
@@ -38,14 +39,23 @@ class Preprocessor(BaseEstimator, TransformerMixin):
     def get_columns(self, intent):
         return [k for k, v in self.intent_map.items() if v == intent]
 
-    def map_intents(self, X):
-        #TODO: NOT FINAL VERSION
-        self.intent_map = {col: intents_base.get_registry()['NumericIntent']
-                           for col in X
-                           if col not in self.intent_map.keys()}
-        self.choice_map = {col: [intents_base.get_registry()['NumericIntent']]
-                           for col in X
-                           if col not in self.intent_map.keys()}
+    def map_intents(self, X_df):
+        columns = X_df.columns
+        if len(x) > len(set(x)):
+            raise ValueError("Input dataframe columns must not have the same name.")
+        for c in columns:
+            col_data = X_df.loc[:, [c]]
+            valid_cols = [
+                (i, k)
+                for i, k in enumerate(GenericIntent.level_order_traverse())
+                if k.is_intent(col_data)
+            ]
+            if len(valid_cols) == 0:
+                self.intent_rslts[c] = None
+                self.intent_mapping[c] = None
+            else:
+                self.intent_rslts[c] = valid_cols
+                self.intent_mapping[c] = valid_cols[-1]
 
     def map_pipelines(self):
         self.pipeline_map = {**{k: v.get_pipeline()
@@ -78,9 +88,6 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
         self.pipeline = Pipeline([('single', parallel), ('multi', multi)])
 
-    def resolve_intent(self, intent_str):
-        return intents_base.get_registry()[intent_str]
-
     def resolve_pipeline(self, pipeline_json):
         pipe = []
         for trans in pipeline_json:
@@ -98,7 +105,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
     def init_json(self, config):
         for k, v in config['columns'].items():
             # Assign custom intent map
-            self.intent_map[k] = self.resolve_intent(v[0])
+            self.intent_map[k] = registry_eval(v[0])
 
             # Assign custom pipeline map
             if len(v) > 1:

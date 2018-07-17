@@ -7,17 +7,14 @@ from functools import partial
 import pandas as pd
 import numpy as np
 import numpy.ma as ma
-from sklearn.base import TransformerMixin
 
 from .intents_base import BaseIntent
-
-# from transforms import Binarizer, Imputer, RobustScaler, StandardScaler, OneHo #ToNumeric,
+from .intents_registry import get_registry
 
 
 class GenericIntent(BaseIntent):
-    intent = "generic"
     dtype = "str"
-    children = ["NumericIntent"]
+    children = ["NumericIntent", "CategoricalIntent"]
 
     def __init__(self, df, single_pipeline=True):
         if single_pipeline == True:
@@ -79,7 +76,6 @@ class GenericIntent(BaseIntent):
 
 
 class NumericIntent(GenericIntent):
-    intent = "numeric"
     dtype = "float"
     children = []
 
@@ -130,7 +126,6 @@ class NumericIntent(GenericIntent):
 
 
 class CategoricalIntent(GenericIntent):
-    intent = "numeric"
     dtype = "int"
     children = []
 

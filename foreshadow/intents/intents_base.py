@@ -2,39 +2,10 @@
 Intent base and registry defentions
 """
 
-_registry = {}
-
-
-def _register_intent(cls_target):
-    global _registry
-    if cls_target.__name__ in _registry:
-        raise TypeError("Intent already exists in registry, use a different name")
-
-    _registry[cls_target.__name__] = cls_target
-
-
-def unregister_intent(cls_target_str):
-    global _registry
-    if cls_target_str in _registry:
-        del _registry[cls_target_str]
-
-
-def get_registry():
-    global _registry
-    return _registry
-
-
-class IntentRegistry(type):
-    def __new__(meta, name, bases, class_dict):
-        cls = type.__new__(meta, name, bases, class_dict)
-        if not name == "BaseIntent":
-            cls._check_required_class_attributes()
-            _register_intent(cls)
-        return cls
+from .intents_registry import IntentRegistry, registry_eval
 
 
 class BaseIntent(object, metaclass=IntentRegistry):
-    intent = None
     dtype = None
     children = None
 
@@ -42,6 +13,26 @@ class BaseIntent(object, metaclass=IntentRegistry):
         if cls is BaseIntent:
             raise TypeError("BaseIntent may not be instantiated")
         return object.__new__(cls, *args, **kwargs)
+
+    @classmethod
+    def tostring(cls, level=0):
+        ret = "\t" * level + str(cls.__name__) + "\n"
+        for c in cls.children:
+            klass = registry_eval(c)
+            temp = klass.tostring(level + 1)
+            ret += temp
+        return ret
+
+    @classmethod
+    def priority_traverse(cls):
+        lqueue = [cls]
+        while len(lqueue) > 0:
+            yield lqueue[0]
+            node = lqueue.pop(0)
+            node_children = filter(
+                lambda x: not x is None, map(registry_eval, reversed(node.children))
+            )
+            lqueue.extend(node_children)
 
     @classmethod
     def is_intent(cls, df):
@@ -67,13 +58,7 @@ class BaseIntent(object, metaclass=IntentRegistry):
         not_implemented = lambda x, y: "Subclass must define {} attribute.\n{}".format(
             x, y
         )
-        if cls.intent is None:
-            raise NotImplementedError(
-                not_implemented(
-                    "cls.intent", "This attribute should define the name of the intent."
-                )
-            )
-        elif cls.dtype is None:
+        if cls.dtype is None:
             raise NotImplementedError(
                 not_implemented(
                     "cls.dtype", "This attribute should define the dtype of the intent."
