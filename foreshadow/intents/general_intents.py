@@ -10,11 +10,14 @@ import numpy.ma as ma
 
 from .intents_base import BaseIntent
 from .intents_registry import get_registry
+from ..transformers import Imputer, PCA
 
 
 class GenericIntent(BaseIntent):
     dtype = "str"
     children = ["NumericIntent", "CategoricalIntent"]
+
+    multi_pipeline = [('pca', PCA(n_components=5))]
 
     def __init__(self, df, single_pipeline=True):
         if single_pipeline == True:
@@ -66,7 +69,8 @@ class GenericIntent(BaseIntent):
     def get_best_multi_pipeline(self):
         steps = [
             ("adv_impute", self.adv_impute),
-            ("boruta", self.boruta)("dim_red", self.dim_red),
+            ("boruta", self.boruta),
+            ("dim_red", self.dim_red),
         ]
         pipeline = []
         for s, f in steps:
@@ -83,8 +87,12 @@ class NumericIntent(GenericIntent):
         self.data = df.ix[:, 0] if single_pipeline else df
         self.temp_data = self.data.copy()
 
+    single_pipeline = [('impute', Imputer(strategy='mean'))]
+    multi_pipeline = []
+
     @classmethod
     def is_intent(cls, df):
+        return True
         numeric_data = pd.to_numeric(df.ix[:, 0], errors="coerce")
         return (s.isnull().sum() / len(numeric_data)) > 0.5
 
@@ -135,11 +143,12 @@ class CategoricalIntent(GenericIntent):
     @classmethod
     def is_intent(cls, df):
         """input pandas dataframe with single column"""
+        return False
         data = df.ix[:, 0]
         if data.dtype != np.number:
             return True
         else:
-            if cls.check_outliers(data):
+            if cls.has_outliers(data):
                 # check if the top 10 values account for a large percentage of feature
                 return 1. * data.value_counts(normalize=True).head(10) > 0.8
             else:

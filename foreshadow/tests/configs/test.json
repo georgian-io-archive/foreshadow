@@ -1,0 +1,19 @@
+{
+  "columns":{
+    "crim":["NumericalIntent",
+            [
+              ["StandardScaler", "Scaler", {"with_mean":false}]
+            ]]
+  },
+
+  "postprocess":[
+    ["pca",["crim","indus","nox"],[
+      ["PCA", "PCA", {"n_components":2}]
+    ]]
+  ],
+
+  "intents":{
+  }
+
+
+}
