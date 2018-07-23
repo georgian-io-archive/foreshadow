@@ -13,9 +13,10 @@ def test_transformer_wrapper_init():
 
 def test_transformer_wrapper_function():
 
-    from ..transformers import StandardScaler as CustomScaler
-    from sklearn.preprocessing import StandardScaler as StandardScaler
+    import numpy as np
     import pandas as pd
+    from sklearn.preprocessing import StandardScaler as StandardScaler
+    from ..transformers import StandardScaler as CustomScaler
 
     df = pd.read_csv(
         "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv"
@@ -30,12 +31,12 @@ def test_transformer_wrapper_function():
     custom_tf = custom.transform(df[["crim"]])
     sklearn_tf = custom.transform(df[["crim"]])
 
-    assert custom_tf.equals(sklearn_tf)
+    assert np.array_equal(custom_tf.values, sklearn_tf)
 
     custom_tf = custom.fit_transform(df[["crim"]])
     sklearn_tf = sklearn.fit_transform(df[["crim"]])
 
-    assert custom_tf.equals(sklearn_tf)
+    assert np.array_equal(custom_tf.values, sklearn_tf)
 
 
 def test_transformer_naming_override():
@@ -86,11 +87,10 @@ def test_transformer_arallel_invalid():
     with pytest.raises(TypeError) as e:
         proc = ParallelProcessor([("scaled", ["crim", "zn", "indus"], t)])
 
-    assert str(
-        e.value
-    ) == "All estimators should implement fit and " "transform. '%s' (type %s) doesn't" % (
-        t,
-        type(t),
+    assert str(e.value) == (
+        "All estimators should implement fit and "
+        "transform. '{}'"
+        " (type {}) doesn't".format(t, type(t))
     )
 
 

@@ -1,5 +1,6 @@
-import inspect
+from copy import deepcopy
 import glob
+import inspect
 import os
 
 import numpy as np
@@ -46,7 +47,8 @@ def get_modules():
     ]
 
     for t in transformers:
-        globals()[t.__name__] = wrap_transformer(t)
+        copied_t = type(t.__name__, t.__bases__, dict(t.__dict__))
+        globals()[copied_t.__name__] = wrap_transformer(copied_t)
 
     return len(transformers)
 
