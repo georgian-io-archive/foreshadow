@@ -2,13 +2,19 @@
 Intent Registry
 """
 
-from collections import Iterable
-
 _registry = {}
 _intent_tree = None
 
 
 def _register_intent(cls_target):
+    """Uses the trained estimator to predict the response for an input dataset
+
+    Args:
+        data_df (pandas.DataFrame or numpy.ndarray): The test input data
+
+    Returns:
+        pandas.DataFrame: The response variable output (transformed if necessary)
+    """
     global _registry, _intent_tree
     if cls_target.__name__ in _registry:
         raise TypeError("Intent already exists in registry, use a different name")
@@ -27,16 +33,20 @@ def unregister_intent(cls_target):
 
 
 def get_registry():
+    """Global registry of defined intents"""
     global _registry
     return _registry
 
 
 def registry_eval(cls_target):
+    """Retrieve intent class from registry dictionary"""
     global _registry
     return _registry.get(cls_target, None)
 
 
 class IntentRegistry(type):
+    """Metaclass for intents that registers defined intent classes"""
+
     def __new__(meta, name, bases, class_dict):
         klass = type.__new__(meta, name, bases, class_dict)
         if not name == "BaseIntent":

@@ -195,9 +195,6 @@ def test_transformer_pipeline():
     sklearn.fit(df, target)
     custom.fit(df, target)
 
-    print(custom.predict(test))
-    print(sklearn.predict(test))
-
     assert np.array_equal(custom.predict(test), sklearn.predict(test))
 
 

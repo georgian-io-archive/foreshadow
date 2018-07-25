@@ -1,16 +1,16 @@
 import pytest
 
-from ..intents.intents_registry import unregister_intent
-from ..intents.intents_base import BaseIntent
-
 
 def test_instantiate_base():
+    from ..intents.intents_base import BaseIntent
+
     with pytest.raises(TypeError) as e:
         b = BaseIntent()
     assert str(e.value) == "BaseIntent may not be instantiated"
 
 
 def test_mock_subclass_missing_dtype():
+    from ..intents.intents_base import BaseIntent
 
     with pytest.raises(NotImplementedError) as e:
 
@@ -24,6 +24,8 @@ def test_mock_subclass_missing_dtype():
 
 
 def test_mock_subclass_missing_children():
+    from ..intents.intents_base import BaseIntent
+
     with pytest.raises(NotImplementedError) as e:
 
         class TestIntent(BaseIntent):
@@ -36,6 +38,9 @@ def test_mock_subclass_missing_children():
 
 
 def test_valid_mock_subclass():
+    from ..intents.intents_registry import unregister_intent
+    from ..intents.intents_base import BaseIntent
+
     class TestIntent(BaseIntent):
         dtype = "TEST"
         children = []
@@ -48,6 +53,9 @@ def test_valid_mock_subclass():
 
 
 def test_to_string():
+    from ..intents.intents_registry import unregister_intent
+    from ..intents.intents_base import BaseIntent
+
     class TestIntent(BaseIntent):
         dtype = "TEST"
         children = ["TestIntent1", "TestIntent2"]
@@ -83,6 +91,9 @@ def test_to_string():
 
 
 def test_priority_traverse():
+    from ..intents.intents_registry import unregister_intent
+    from ..intents.intents_base import BaseIntent
+
     class TestIntent(BaseIntent):
         dtype = "TEST"
         children = ["TestIntent1", "TestIntent2"]
@@ -110,6 +121,9 @@ def test_priority_traverse():
 
 def test_is_intent_implementation():
     import pandas as pd
+
+    from ..intents.intents_registry import unregister_intent
+    from ..intents.intents_base import BaseIntent
 
     X_df = pd.DataFrame([[1]], columns=["A"])
 
