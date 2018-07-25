@@ -1,5 +1,6 @@
-numpy==1.14.5
 pandas==0.23.3
-scikit-learn==0.19.1
+scikit-learn==0.19.2
 scipy==1.1.0
 sklearn==0.0
+auto_sklearn==0.4.0
+TPOT==0.9.3
