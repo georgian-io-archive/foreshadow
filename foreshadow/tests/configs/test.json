@@ -2,17 +2,21 @@
   "columns":{
     "crim":["NumericalIntent",
             [
-              ["StandardScaler", "Scaler", {"with_mean":false}]
+              ["StandardScaler", "Scaler", {"with_mean":true}]
             ]]
   },
 
   "postprocess":[
-    ["pca",["crim","indus","nox"],[
-      ["PCA", "PCA", {"n_components":2}]
-    ]]
+
   ],
 
   "intents":{
+    "NumericIntent":{
+      "single":[
+        ["Imputer", "Imputer", {"strategy":"mean"}]
+      ],
+      "multi":[]
+    }
   }
 
 

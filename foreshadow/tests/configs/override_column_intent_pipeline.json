@@ -1,0 +1,22 @@
+{
+  "columns":{
+    "crim":["GenericIntent",
+            [
+              ["StandardScaler", "Scaler", {"with_mean":false}]
+            ]]
+  },
+
+  "postprocess":[],
+
+  "intents":{
+    "NumericIntent":{
+      "single":[
+        ["Imputer", "impute", {"strategy":"mean"}]
+      ],
+      "multi":[
+        ["PCA", "pca", {"n_components":3}]
+      ]
+    }
+  }
+
+}

@@ -17,7 +17,8 @@ class GenericIntent(BaseIntent):
     dtype = "str"
     children = ["NumericIntent", "CategoricalIntent"]
 
-    multi_pipeline = [('pca', PCA(n_components=5))]
+    multi_pipeline = [("pca", PCA(n_components=2))]
+    single_pipeline = []
 
     def __init__(self, df, single_pipeline=True):
         if single_pipeline == True:
@@ -87,7 +88,7 @@ class NumericIntent(GenericIntent):
         self.data = df.ix[:, 0] if single_pipeline else df
         self.temp_data = self.data.copy()
 
-    single_pipeline = [('impute', Imputer(strategy='mean'))]
+    single_pipeline = [("impute", Imputer(strategy="mean"))]
     multi_pipeline = []
 
     @classmethod

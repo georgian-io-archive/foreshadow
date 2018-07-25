@@ -1,0 +1,17 @@
+{
+  "columns":{},
+
+  "postprocess":[],
+
+  "intents":{
+    "NumericIntent":{
+      "single":[],
+      "multi":[]
+    },
+    "GenericIntent":{
+      "single":[],
+      "multi":[]
+    }
+  }
+
+}

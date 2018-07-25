@@ -18,9 +18,7 @@ def test_transformer_wrapper_function():
     from sklearn.preprocessing import StandardScaler as StandardScaler
     from ..transformers import StandardScaler as CustomScaler
 
-    df = pd.read_csv(
-        "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv"
-    )
+    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
 
     custom = CustomScaler()
     sklearn = StandardScaler()
@@ -44,9 +42,7 @@ def test_transformer_naming_override():
     from ..transformers import StandardScaler
     import pandas as pd
 
-    df = pd.read_csv(
-        "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv"
-    )
+    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
 
     scaler = StandardScaler(name="test", keep_columns=False)
     out = scaler.fit_transform(df[["crim"]])
@@ -59,9 +55,7 @@ def test_transformer_naming_default():
     from ..transformers import StandardScaler
     import pandas as pd
 
-    df = pd.read_csv(
-        "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv"
-    )
+    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
 
     scaler = StandardScaler(keep_columns=False)
     out = scaler.fit_transform(df[["crim"]])
@@ -72,12 +66,7 @@ def test_transformer_naming_default():
 def test_transformer_arallel_invalid():
 
     import pandas as pd
-
     from ..transformers import ParallelProcessor
-
-    df = pd.read_csv(
-        "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv"
-    )
 
     class InvalidTransformer:
         pass
@@ -85,7 +74,7 @@ def test_transformer_arallel_invalid():
     t = InvalidTransformer()
 
     with pytest.raises(TypeError) as e:
-        proc = ParallelProcessor([("scaled", ["crim", "zn", "indus"], t)])
+        ParallelProcessor([("scaled", ["crim", "zn", "indus"], t)])
 
     assert str(e.value) == (
         "All estimators should implement fit and "
@@ -97,22 +86,27 @@ def test_transformer_arallel_invalid():
 def test_transformer_parallel_empty():
 
     import pandas as pd
-    import numpy as np
-
     from ..transformers import ParallelProcessor
+    from ..transformers import StandardScaler
 
-    df = pd.read_csv(
-        "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv"
+    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
+
+    proc = ParallelProcessor(
+        [
+            (
+                "scaled",
+                ["crim", "zn", "indus"],
+                ParallelProcessor([("cscale", ["crim"], None)]),
+            )
+        ]
     )
 
-    proc = ParallelProcessor([("scaled", ["crim", "zn", "indus"], None)])
-
-    proc.fit(df)
-    tf = proc.transform(df)
+    proc.fit(df[[]])
+    tf = proc.transform(df[[]])
 
     assert tf.equals(df[[]])
 
-    tf = proc.fit_transform(df)
+    tf = proc.fit_transform(df[[]])
 
     assert tf.equals(df[[]])
 
@@ -124,23 +118,32 @@ def test_transformer_parallel():
     from ..transformers import ParallelProcessor
     from ..transformers import StandardScaler
 
-    df = pd.read_csv(
-        "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv"
-    )
+    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
 
     ss = StandardScaler(name="scaled")
 
     proc = ParallelProcessor(
-        [("scaled", ["crim", "zn", "indus"], StandardScaler(keep_columns=False))]
+        [("scaled", ["crim", "zn", "indus"], StandardScaler(keep_columns=False))],
+        collapse_index=True,
     )
 
     ss.fit(df[["crim", "zn", "indus"]])
     proc.fit(df)
 
     tf = proc.transform(df)
-    tf_norm = ss.transform(df[["crim", "zn", "indus"]])
+    tf_2 = proc.fit_transform(df)
 
-    assert tf.equals(tf_norm)
+    assert tf.equals(tf_2)
+
+    tf_norm = ss.transform(df[["crim", "zn", "indus"]])
+    tf_others = df.drop(["crim", "zn", "indus"], axis=1)
+    tf_test = pd.concat([tf_norm, tf_others], axis=1)
+    tf_test.columns = tf_test.columns.rename("new")
+
+    tf.sort_values("new", axis=1, inplace=True)
+    tf_test.sort_values("new", axis=1, inplace=True)
+
+    assert tf.equals(tf_test)
 
 
 def test_transformer_pipeline():
@@ -159,9 +162,7 @@ def test_transformer_pipeline():
     from sklearn.pipeline import Pipeline
     from sklearn.linear_model import LinearRegression
 
-    df = pd.read_csv(
-        "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv"
-    )
+    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
 
     target = df["medv"]
     df = df[["crim", "zn", "indus"]]
@@ -206,11 +207,8 @@ def test_smarttransformer_notimplemented():
     import pandas as pd
 
     from ..transformers import SmartTransformer
-    from ..transformers import StandardScaler
 
-    df = pd.read_csv(
-        "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv"
-    )
+    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
 
     class TestSmartTransformer(SmartTransformer):
         pass
@@ -228,11 +226,8 @@ def test_smarttransformer_attributeerror():
     import pandas as pd
 
     from ..transformers import SmartTransformer
-    from ..transformers import StandardScaler
 
-    df = pd.read_csv(
-        "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv"
-    )
+    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
 
     class TestSmartTransformer(SmartTransformer):
         def _get_transformer(self, X, **fit_params):
@@ -254,11 +249,8 @@ def test_smarttransformer_invalidtransformer():
     import pandas as pd
 
     from ..transformers import SmartTransformer
-    from ..transformers import StandardScaler
 
-    df = pd.read_csv(
-        "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv"
-    )
+    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
 
     class InvalidClass:
         pass
@@ -285,9 +277,7 @@ def test_smarttransformer_function():
     from ..transformers import SmartTransformer
     from ..transformers import StandardScaler
 
-    df = pd.read_csv(
-        "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv"
-    )
+    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
 
     class TestSmartTransformer(SmartTransformer):
         def _get_transformer(self, X, **fit_params):
@@ -297,6 +287,35 @@ def test_smarttransformer_function():
     smart_data = smart.fit_transform(df[["crim"]])
 
     std = StandardScaler()
+    std_data = std.fit_transform(df[["crim"]])
+
+    assert smart_data.equals(std_data)
+
+    smart.fit(df[["crim"]])
+    smart_data = smart.transform(df[["crim"]])
+
+    std.fit(df[["crim"]])
+    std_data = std.transform(df[["crim"]])
+
+    assert smart_data.equals(std_data)
+
+
+def test_smarttransformer_function_override():
+
+    import pandas as pd
+
+    from ..transformers import SmartTransformer
+    from ..transformers import Imputer
+
+    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
+
+    class TestSmartTransformer(SmartTransformer):
+        pass
+
+    smart = TestSmartTransformer(override=Imputer())
+    smart_data = smart.fit_transform(df[["crim"]])
+
+    std = Imputer()
     std_data = std.fit_transform(df[["crim"]])
 
     assert smart_data.equals(std_data)

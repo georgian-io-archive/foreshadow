@@ -1,0 +1,27 @@
+{
+  "columns":{
+    "crim":["GenericIntent",
+            [
+              ["StandardScaler", "Scaler", {"with_mean":false}]
+            ]],
+    "indus":["GenericIntent"]
+  },
+
+  "postprocess":[
+    ["pca",["crim","indus","nox"],[
+      ["PCA", "PCA", {"n_components":4}]
+    ]]
+  ],
+
+  "intents":{
+    "NumericIntent":{
+      "single":[
+        ["impute", "THISDOESNOTEXIST", {"strategy":"mean"}]
+      ],
+      "multi":[
+        ["pca", "DOESNOTEXIST", {"n_components":5}]
+      ]
+    }
+  }
+
+}
