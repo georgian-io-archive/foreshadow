@@ -354,6 +354,9 @@ def test_preprocessor_make_pipeline():
         )
     )
 
+    print(proc.pipeline_map)
+    print(proc.intent_map)
+
     proc.fit(df)
 
     assert len(proc.pipeline.steps) == 3
@@ -366,24 +369,28 @@ def test_preprocessor_make_pipeline():
     assert type(proc.pipeline.steps[1][1]).__name__ == "Pipeline"
     assert type(proc.pipeline.steps[2][1]).__name__ == "ParallelProcessor"
 
-    assert Counter([
-        t.steps[0][0] for t in list(zip(*proc.pipeline.steps[0][
-            1].transformer_list))[2]
-    ]) == Counter([
-        "impute",
-        "impute",
-        "impute",
-        "impute",
-        "impute",
-        "impute",
-        "impute",
-        "impute",
-        "impute",
-        "impute",
-        "impute",
-        "impute",
-        "Scaler",
-    ])
+    assert Counter(
+        [
+            t.steps[0][0]
+            for t in list(zip(*proc.pipeline.steps[0][1].transformer_list))[2]
+        ]
+    ) == Counter(
+        [
+            "impute",
+            "impute",
+            "impute",
+            "impute",
+            "impute",
+            "impute",
+            "impute",
+            "impute",
+            "impute",
+            "impute",
+            "impute",
+            "impute",
+            "Scaler",
+        ]
+    )
 
     assert len(proc.pipeline.steps[1][1].steps) == 3
 
@@ -423,7 +430,9 @@ def test_preprocessor_fit_transform():
     proc.fit(df)
     out = proc.transform(df)
 
-    assert set(list(out)) == set(list(truth))
+    assert set([c for l in list(out) for c in l.split("_")]) == set(
+        [c for l in list(truth) for c in l.split("_")]
+    )
 
 
 def test_preprocessor_get_params():
