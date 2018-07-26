@@ -343,6 +343,7 @@ def test_preprocessor_make_pipeline():
 
     import json
     import pandas as pd
+    from collections import Counter
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.intents.intents_registry import registry_eval
 
@@ -365,9 +366,10 @@ def test_preprocessor_make_pipeline():
     assert type(proc.pipeline.steps[1][1]).__name__ == "Pipeline"
     assert type(proc.pipeline.steps[2][1]).__name__ == "ParallelProcessor"
 
-    assert [
-        t.steps[0][0] for t in list(zip(*proc.pipeline.steps[0][1].transformer_list))[2]
-    ] == [
+    assert Counter([
+        t.steps[0][0] for t in list(zip(*proc.pipeline.steps[0][
+            1].transformer_list))[2]
+    ]) == Counter([
         "impute",
         "impute",
         "impute",
@@ -381,7 +383,7 @@ def test_preprocessor_make_pipeline():
         "impute",
         "impute",
         "Scaler",
-    ]
+    ])
 
     assert len(proc.pipeline.steps[1][1].steps) == 3
 
