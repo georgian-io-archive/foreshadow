@@ -3,6 +3,8 @@ language: python
 cache: pip
 addons:
   apt_packages:
+    - gcc-8
+    - g++-8
     - swig
 python:
   - "3.5"
