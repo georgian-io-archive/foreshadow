@@ -508,12 +508,13 @@ def _slice_cols(X, cols, drop_level=True):
         ],
         axis=1,
     )
+
     return df
 
 
 def _pandas_transform_one(transformer, weight, X, cols):
     """Transforms dataframe using sklearn transformer then adds multi-index"""
-    colname = cols[0]
+    colname = sorted(cols)[0]
     res = _transform_one(transformer, weight, X)
     res.columns = [[colname] * len(list(res)), list(res)]
     res.columns = res.columns.rename(["origin", "new"])
@@ -522,7 +523,7 @@ def _pandas_transform_one(transformer, weight, X, cols):
 
 def _pandas_fit_transform_one(transformer, weight, X, y, cols, **fit_params):
     """Fits pandas dataframe, executes transformation, then adds multi-index. """
-    colname = cols[0]
+    colname = sorted(cols)[0]
     res, t = _fit_transform_one(transformer, weight, X, y, **fit_params)
     res.columns = [[colname] * len(list(res)), list(res)]
     res.columns = res.columns.rename(["origin", "new"])

@@ -8,7 +8,7 @@
   },
 
   "postprocess":[
-    ["pca",["crim","indus","nox"],[
+    ["pca",["age"],[
       ["PCA", "PCA", {"n_components":2}]
     ]]
   ],

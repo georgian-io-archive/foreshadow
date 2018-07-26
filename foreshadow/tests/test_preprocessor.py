@@ -354,6 +354,9 @@ def test_preprocessor_make_pipeline():
         )
     )
 
+    print(proc.pipeline_map)
+    print(proc.intent_map)
+
     proc.fit(df)
 
     assert len(proc.pipeline.steps) == 3
@@ -427,7 +430,9 @@ def test_preprocessor_fit_transform():
     proc.fit(df)
     out = proc.transform(df)
 
-    assert set(list(out)) == set(list(truth))
+    assert set([c for l in list(out) for c in l.split("_")]) == set(
+        [c for l in list(truth) for c in l.split("_")]
+    )
 
 
 def test_preprocessor_get_params():
@@ -568,4 +573,7 @@ def test_preprocessor_serialize():
     proc.fit(df)
     out = proc.serialize()
 
-    assert json.dumps(truth) == json.dumps(out)
+    print(json.dumps(truth))
+    print(json.dumps(out))
+
+    assert json.loads(json.dumps(truth)) == json.loads(json.dumps(out))
