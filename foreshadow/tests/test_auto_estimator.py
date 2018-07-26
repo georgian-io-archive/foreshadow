@@ -158,9 +158,9 @@ def test_auto_estimator_default_to_autosklearn():
 
     raise Exception()
 
-    assert np.array_equal(ae_predict, expected_predict)
-    assert np.array_equal(ae_predict_proba, expected_predict_proba)
-    assert np.array_equal(ae_score, expected_score)
+    assert np.allclose(ae_predict, expected_predict)
+    assert np.allclose(ae_predict_proba, expected_predict_proba)
+    assert np.allclose(ae_score, expected_score)
 
 
 @pytest.mark.slow
@@ -212,5 +212,5 @@ def test_auto_estimator_default_to_tpot():
     )
     expected_score = -0.8640193307896562
 
-    assert np.array_equal(ae_predict, expected_predict)
-    assert np.array_equal(ae_score, expected_score)
+    assert np.allclose(ae_predict, expected_predict)
+    assert np.allclose(ae_score, expected_score)
