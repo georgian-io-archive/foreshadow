@@ -573,4 +573,7 @@ def test_preprocessor_serialize():
     proc.fit(df)
     out = proc.serialize()
 
-    assert json.dumps(truth) == json.dumps(out)
+    print(json.dumps(truth))
+    print(json.dumps(out))
+
+    assert json.loads(json.dumps(truth)) == json.loads(json.dumps(out))
