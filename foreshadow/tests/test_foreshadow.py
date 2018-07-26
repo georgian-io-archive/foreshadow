@@ -184,9 +184,9 @@ def test_foreshadow_custom_fit_estimate(X_preprocessor):
     )
     expected_score = 1.0
 
-    assert np.array_equal(foreshadow_predict, expected_predict)
-    assert np.array_equal(foreshadow_predict_proba, expected_predict_proba)
-    assert np.array_equal(foreshadow_score, expected_score)
+    assert np.allclose(foreshadow_predict, expected_predict)
+    assert np.allclose(foreshadow_predict_proba, expected_predict_proba)
+    assert np.allclose(foreshadow_score, expected_score)
 
 
 @patch(
@@ -234,8 +234,8 @@ def test_foreshadow_y_preprocessor(y_preprocessor):
     )
     expected_score = -0.3576910440975052
 
-    assert np.array_equal(foreshadow_predict, expected_predict)
-    assert np.array_equal(foreshadow_score, expected_score)
+    assert np.allclose(foreshadow_predict, expected_predict)
+    assert np.allclose(foreshadow_score, expected_score)
 
 
 def test_foreshadow_without_x_processor():
@@ -280,7 +280,7 @@ def test_foreshadow_without_x_processor():
         ]
     )
 
-    assert np.array_equal(foreshadow_predict, expected_predict)
+    assert np.allclose(foreshadow_predict, expected_predict)
 
 
 def test_foreshadow_predict_before_fit():

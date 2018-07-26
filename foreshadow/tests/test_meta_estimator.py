@@ -22,7 +22,7 @@ def test_metaestimator_predict():
     # comapre
     scaler = StandardScaler().fit(y_train)
     est = LinearRegression().fit(X_train, scaler.transform(y_train))
-    assert np.array_equal(
+    assert np.allclose(
         me.predict(X_test), scaler.inverse_transform(est.predict(X_test))
     )
 
@@ -48,7 +48,7 @@ def test_metaestimator_predict_proba():
     # comapre
     scaler = LabelEncoder().fit(y_train)
     est = LogisticRegression().fit(X_train, scaler.transform(y_train))
-    assert np.array_equal(me.predict_proba(X_test), est.predict_proba(X_test))
+    assert np.allclose(me.predict_proba(X_test), est.predict_proba(X_test))
 
 
 def test_metaestimator_score():
@@ -72,13 +72,13 @@ def test_metaestimator_score():
     # comapre
     scaler = LabelEncoder().fit(y_train)
     est = LogisticRegression().fit(X_train, scaler.transform(y_train))
-    assert np.array_equal(
+    assert np.allclose(
         me.score(X_test, y_test), est.score(X_test, scaler.transform(y_test))
     )
 
     # test score parameter
     sample_weight = np.random.randint(1, 10, y_test.size)
-    assert np.array_equal(
+    assert np.allclose(
         me.score(X_test, y_test, sample_weight=sample_weight),
         est.score(X_test, scaler.transform(y_test), sample_weight=sample_weight),
     )
