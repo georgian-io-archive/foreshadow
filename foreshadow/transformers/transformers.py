@@ -409,17 +409,17 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         self.transformer = None
         super(SmartTransformer, self).__init__()
 
-    def _get_transformer(self, X, **fit_params):
+    def _get_transformer(self, X, y=None, **fit_params):
         raise NotImplementedError(
             "WrappedTransformer _get_transformer was not implimented."
         )
 
-    def _verify_transformer(self, X, **fit_params):
+    def _verify_transformer(self, X, y=None, **fit_params):
 
         if self.transformer:
             return
 
-        self.transformer = self._get_transformer(X, **fit_params)
+        self.transformer = self._get_transformer(X, y, **fit_params)
 
         if not self.transformer:
             raise AttributeError(
@@ -439,7 +439,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         """See base class."""
         if self.override is not None:
             return self.override.fit_transform(X, y, **fit_params)
-        self._verify_transformer(X, **fit_params)
+        self._verify_transformer(X, y, **fit_params)
         return self.transformer.fit_transform(X, y, **fit_params)
 
     def transform(self, X, **kwargs):
@@ -452,7 +452,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         """See base class."""
         if self.override is not None:
             return self.override.fit(X, y, **kwargs)
-        self._verify_transformer(X)
+        self._verify_transformer(X, y)
         return self.transformer.fit(X, y, **kwargs)
 
 

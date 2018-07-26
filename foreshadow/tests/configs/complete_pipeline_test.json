@@ -22,6 +22,10 @@
         ["PCA", "pca", {"n_components":5}]
       ]
     }
+  },
+
+  "experiments": {
+    "itnetns.NumericIntent.single.impute": "range(1,20)"
   }
 
 }

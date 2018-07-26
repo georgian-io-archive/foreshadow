@@ -227,7 +227,7 @@ def test_smarttransformer_attributeerror():
     df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
 
     class TestSmartTransformer(SmartTransformer):
-        def _get_transformer(self, X, **fit_params):
+        def _get_transformer(self, X, y=None, **fit_params):
             return None
 
     transformer = TestSmartTransformer()
@@ -253,7 +253,7 @@ def test_smarttransformer_invalidtransformer():
         pass
 
     class TestSmartTransformer(SmartTransformer):
-        def _get_transformer(self, X, **fit_params):
+        def _get_transformer(self, X, y=None, **fit_params):
             return InvalidClass()
 
     transformer = TestSmartTransformer()
@@ -277,7 +277,7 @@ def test_smarttransformer_function():
     df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
 
     class TestSmartTransformer(SmartTransformer):
-        def _get_transformer(self, X, **fit_params):
+        def _get_transformer(self, X, y=None, **fit_params):
             return StandardScaler()
 
     smart = TestSmartTransformer()
