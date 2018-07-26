@@ -1,0 +1,14 @@
+{
+  "columns":{},
+
+  "postprocess":[],
+
+  "intents":{
+    "NumericIntent":{
+      "multi":[
+        ["PCA", "pca", {"n_components":3}]
+      ]
+    }
+  }
+
+}

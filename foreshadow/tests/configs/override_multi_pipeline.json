@@ -1,0 +1,12 @@
+{
+  "columns":{},
+
+  "postprocess":[
+    ["pca",["crim","indus","nox"],[
+      ["PCA", "PCA", {"n_components":2}]
+    ]]
+  ],
+
+  "intents":{}
+
+}

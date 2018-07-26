@@ -1,0 +1,14 @@
+{
+  "columns":{},
+
+  "postprocess":[],
+
+  "intents":{
+    "NumericIntent":{
+      "single":[
+        ["Imputer", "impute", {"strategy":"mean"}]
+      ]
+    }
+  }
+
+}
