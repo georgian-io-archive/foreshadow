@@ -1,24 +1,13 @@
 language: python
-os:
-  - linux
-  - osx
-matrix:
-  allow_failures:
-    - os: osx
 cache: pip
 python:
   - "3.5"
   - "3.6"
 before_install:
-  - echo $TRAVIS_OS_NAME
   # linux
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install swig3.0; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ln -s /usr/bin/swig3.0 /usr/bin/swig; fi
-  # OSX
-  # - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew update; fi
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install swig; fi
-  - swig -version
 install:
   - pip install tox tox-travis coveralls
 script:
