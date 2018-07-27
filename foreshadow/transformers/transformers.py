@@ -19,20 +19,36 @@ from sklearn.externals.joblib import Parallel, delayed
 def _get_classes():
     """Returns list of classes found in transforms directory."""
 
-    files = glob.glob(os.path.dirname(__file__) + "/*.py")
-    imports = [
-        os.path.basename(f)[:-3]
-        for f in files
-        if os.path.isfile(f)
-        and not f.endswith("__init__.py")
-        and not f.endswith("transformers.py")
-    ]
-    modules = [__import__(i, globals(), locals(), ["object"], 1) for i in imports]
-    classes = [
-        c[1] for m in modules for c in inspect.getmembers(m) if inspect.isclass(c[1])
+    module = __import__("externals", globals(), locals(), ["object"], 1)
+    classes = [c[1] for c in inspect.getmembers(module) if inspect.isclass(c[1])]
+
+    return classes
+
+
+def _get_modules():
+    """Imports sklearn transformers from transformers directory.
+
+    Searches transformers directory for classes implementing BaseEstimator and
+    TransformerMixin and duplicates them, wraps their init methods and public functions
+    to support pandas dataframes, and exposes them as foreshadow.transformers.[name]
+
+    Returns:
+        The number of transformers wrapped.
+
+    """
+
+    transformers = [
+        cls
+        for cls in _get_classes()
+        if issubclass(cls, TransformerMixin) and issubclass(cls, BaseEstimator)
     ]
 
-    return [c for c in classes if c.__name__ not in ["SmartTransformer"]]
+    for t in transformers:
+        copied_t = type(t.__name__, t.__bases__, dict(t.__dict__))
+        copied_t.__module__ = "foreshadow.transformers"
+        globals()[copied_t.__name__] = wrap_transformer(copied_t)
+
+    return len(transformers)
 
 
 def wrap_transformer(transformer):
@@ -403,8 +419,11 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
 
     """
 
-    def __init__(self, override=None):
+    def __init__(self, override=None, name=None, keep_columns=False, **kwargs):
         """Initializes SmartTransformer Object"""
+        self.kwargs = kwargs
+        self.name = name
+        self.keep_columns = keep_columns
         self.override = override
         self.transformer = None
         super(SmartTransformer, self).__init__()
@@ -419,7 +438,11 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         if self.transformer:
             return
 
-        self.transformer = self._get_transformer(X, y, **fit_params)
+        if self.override is not None:
+            ovr = globals()[self.override]
+            self.transformer = ovr(**self.kwargs)
+        else:
+            self.transformer = self._get_transformer(X, y, **fit_params)
 
         if not self.transformer:
             raise AttributeError(
@@ -430,28 +453,29 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         fittf = getattr(self.transformer, "fit_transform", None)
         fit = getattr(self.transformer, "fit", None)
 
-        if not (callable(tf) and callable(fittf) and callable(fit)):
+        nm = hasattr(self.transformer, "name")
+        keep = hasattr(self.transformer, "keep_columns")
+
+        if not (callable(tf) and callable(fittf) and callable(fit) and nm and keep):
             raise AttributeError(
                 "Invalid WrappedTransformer. Get transformer returns invalid object"
             )
 
+        self.transformer.name = self.name
+        self.transformer.keep_columns = self.keep_columns
+
     def fit_transform(self, X, y=None, **fit_params):
         """See base class."""
-        if self.override is not None:
-            return self.override.fit_transform(X, y, **fit_params)
         self._verify_transformer(X, y, **fit_params)
         return self.transformer.fit_transform(X, y, **fit_params)
 
     def transform(self, X, **kwargs):
         """See base class."""
-        if self.override is not None:
-            return self.override.transform(X, **kwargs)
+        self._verify_transformer(X, **kwargs)
         return self.transformer.transform(X, **kwargs)
 
     def fit(self, X, y=None, **kwargs):
         """See base class."""
-        if self.override is not None:
-            return self.override.fit(X, y, **kwargs)
         self._verify_transformer(X, y)
         return self.transformer.fit(X, y, **kwargs)
 
@@ -502,3 +526,8 @@ def _pandas_fit_transform_one(transformer, weight, X, y, cols, **fit_params):
     res.columns = [[colname] * len(list(res)), list(res)]
     res.columns = res.columns.rename(["origin", "new"])
     return res, t
+
+
+print("Loading transformers....")
+n = _get_modules()
+print("Loaded {} transformer plugins".format(n))

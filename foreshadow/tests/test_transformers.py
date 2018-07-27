@@ -309,10 +309,12 @@ def test_smarttransformer_function_override():
     class TestSmartTransformer(SmartTransformer):
         pass
 
-    smart = TestSmartTransformer(override=Imputer())
+    smart = TestSmartTransformer(override="Imputer", name="impute")
     smart_data = smart.fit_transform(df[["crim"]])
 
-    std = Imputer()
+    assert smart.transformer.name == "impute"
+
+    std = Imputer(name="impute")
     std_data = std.fit_transform(df[["crim"]])
 
     assert smart_data.equals(std_data)
