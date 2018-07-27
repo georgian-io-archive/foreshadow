@@ -6,17 +6,4 @@ wrapped or transformed. Only classes extending SmartTransformer should exist her
 
 """
 
-from .transformers import SmartTransformer
-from .transformers import Imputer
-
-
-class SimpleImputer(SmartTransformer):
-    def _get_transformer(self, X, y=None, **fit_params):
-
-        return Imputer()
-
-
-class MultiImputer(SmartTransformer):
-    def _get_transformer(self, X, y=None, **fit_params):
-
-        return Imputer()
+from .imputer import SimpleImputer, MultiImputer

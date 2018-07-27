@@ -11,4 +11,5 @@ def test_transformer_impute_simple():
     df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
 
     data = df[["crim"]]
+
     impute.fit(data)

@@ -14,6 +14,7 @@ from sklearn.pipeline import (
     _transform_one,
 )
 from sklearn.externals.joblib import Parallel, delayed
+from ..utils import check_df
 
 
 def _get_classes():
@@ -456,7 +457,17 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         nm = hasattr(self.transformer, "name")
         keep = hasattr(self.transformer, "keep_columns")
 
-        if not (callable(tf) and callable(fittf) and callable(fit) and nm and keep):
+        pipe = hasattr(self.transformer, "steps")
+        parallel = hasattr(self.transformer, "transformer_list")
+
+        if not (
+            callable(tf)
+            and callable(fittf)
+            and callable(fit)
+            and (nm and keep)
+            or pipe
+            or parallel
+        ):
             raise AttributeError(
                 "Invalid WrappedTransformer. Get transformer returns invalid object"
             )
@@ -466,16 +477,19 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
 
     def fit_transform(self, X, y=None, **fit_params):
         """See base class."""
+        X = check_df(X)
         self._verify_transformer(X, y, **fit_params)
         return self.transformer.fit_transform(X, y, **fit_params)
 
     def transform(self, X, **kwargs):
         """See base class."""
+        X = check_df(X)
         self._verify_transformer(X, **kwargs)
         return self.transformer.transform(X, **kwargs)
 
     def fit(self, X, y=None, **kwargs):
         """See base class."""
+        X = check_df(X)
         self._verify_transformer(X, y)
         return self.transformer.fit(X, y, **kwargs)
 
