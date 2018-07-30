@@ -3,7 +3,7 @@ import pytest
 
 def test_transformer_wrapper_init():
 
-    from ..transformers import StandardScaler
+    from ...transformers import StandardScaler
 
     scaler = StandardScaler(name="test-scaler", keep_columns=True)
 
@@ -16,9 +16,9 @@ def test_transformer_wrapper_function():
     import numpy as np
     import pandas as pd
     from sklearn.preprocessing import StandardScaler as StandardScaler
-    from ..transformers import StandardScaler as CustomScaler
+    from ...transformers import StandardScaler as CustomScaler
 
-    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
     custom = CustomScaler()
     sklearn = StandardScaler()
@@ -39,10 +39,10 @@ def test_transformer_wrapper_function():
 
 def test_transformer_naming_override():
 
-    from ..transformers import StandardScaler
+    from ...transformers import StandardScaler
     import pandas as pd
 
-    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
     scaler = StandardScaler(name="test", keep_columns=False)
     out = scaler.fit_transform(df[["crim"]])
@@ -52,10 +52,10 @@ def test_transformer_naming_override():
 
 def test_transformer_naming_default():
 
-    from ..transformers import StandardScaler
+    from ...transformers import StandardScaler
     import pandas as pd
 
-    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
     scaler = StandardScaler(keep_columns=False)
     out = scaler.fit_transform(df[["crim"]])
@@ -66,7 +66,7 @@ def test_transformer_naming_default():
 def test_transformer_arallel_invalid():
 
     import pandas as pd
-    from ..transformers import ParallelProcessor
+    from ...transformers import ParallelProcessor
 
     class InvalidTransformer:
         pass
@@ -86,10 +86,10 @@ def test_transformer_arallel_invalid():
 def test_transformer_parallel_empty():
 
     import pandas as pd
-    from ..transformers import ParallelProcessor
-    from ..transformers import StandardScaler
+    from ...transformers import ParallelProcessor
+    from ...transformers import StandardScaler
 
-    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
     proc = ParallelProcessor(
         [
@@ -115,10 +115,10 @@ def test_transformer_parallel():
 
     import pandas as pd
 
-    from ..transformers import ParallelProcessor
-    from ..transformers import StandardScaler
+    from ...transformers import ParallelProcessor
+    from ...transformers import StandardScaler
 
-    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
     ss = StandardScaler(name="scaled")
 
@@ -153,8 +153,8 @@ def test_transformer_pipeline():
 
     np.random.seed(1337)
 
-    from ..transformers import StandardScaler as CustomScaler
-    from ..transformers import ParallelProcessor
+    from ...transformers import StandardScaler as CustomScaler
+    from ...transformers import ParallelProcessor
 
     from sklearn.preprocessing import StandardScaler
     from sklearn.pipeline import FeatureUnion
@@ -162,7 +162,7 @@ def test_transformer_pipeline():
     from sklearn.pipeline import Pipeline
     from sklearn.linear_model import LinearRegression
 
-    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
     target = df["medv"]
     df = df[["crim", "zn", "indus"]]
@@ -203,9 +203,9 @@ def test_smarttransformer_notimplemented():
 
     import pandas as pd
 
-    from ..transformers import SmartTransformer
+    from ...transformers import SmartTransformer
 
-    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
     class TestSmartTransformer(SmartTransformer):
         pass
@@ -222,9 +222,9 @@ def test_smarttransformer_attributeerror():
 
     import pandas as pd
 
-    from ..transformers import SmartTransformer
+    from ...transformers import SmartTransformer
 
-    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
     class TestSmartTransformer(SmartTransformer):
         def _get_transformer(self, X, y=None, **fit_params):
@@ -245,9 +245,9 @@ def test_smarttransformer_invalidtransformer():
 
     import pandas as pd
 
-    from ..transformers import SmartTransformer
+    from ...transformers import SmartTransformer
 
-    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
     class InvalidClass:
         pass
@@ -271,10 +271,10 @@ def test_smarttransformer_function():
 
     import pandas as pd
 
-    from ..transformers import SmartTransformer
-    from ..transformers import StandardScaler
+    from ...transformers import SmartTransformer
+    from ...transformers import StandardScaler
 
-    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
     class TestSmartTransformer(SmartTransformer):
         def _get_transformer(self, X, y=None, **fit_params):
@@ -301,10 +301,10 @@ def test_smarttransformer_function_override():
 
     import pandas as pd
 
-    from ..transformers import SmartTransformer
-    from ..transformers import Imputer
+    from ...transformers import SmartTransformer
+    from ...transformers import Imputer
 
-    df = pd.read_csv("./foreshadow/tests/data/boston_housing.csv")
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
     class TestSmartTransformer(SmartTransformer):
         pass

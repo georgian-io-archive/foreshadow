@@ -8,7 +8,7 @@ def test_metaestimator_predict():
     from sklearn.linear_model import LinearRegression
     from sklearn.model_selection import train_test_split
 
-    from ..estimators.meta_estimator import MetaEstimator
+    from ...estimators.meta_estimator import MetaEstimator
 
     np.random.seed(0)
 
@@ -34,7 +34,7 @@ def test_metaestimator_predict_proba():
     from sklearn.linear_model import LogisticRegression
     from sklearn.model_selection import train_test_split
 
-    from ..estimators.meta_estimator import MetaEstimator
+    from ...estimators.meta_estimator import MetaEstimator
 
     np.random.seed(0)
 
@@ -58,7 +58,7 @@ def test_metaestimator_score():
     from sklearn.linear_model import LogisticRegression
     from sklearn.model_selection import train_test_split
 
-    from ..estimators.meta_estimator import MetaEstimator
+    from ...estimators.meta_estimator import MetaEstimator
 
     np.random.seed(0)
 

@@ -4,7 +4,7 @@ import pytest
 
 
 def test_auto_estimator_config_get_tpot_config():
-    from ..estimators.config import get_tpot_config
+    from ...estimators.config import get_tpot_config
 
     setup1 = get_tpot_config("classification", include_preprocessors=True)
     setup2 = get_tpot_config("regression", include_preprocessors=True)
@@ -31,7 +31,7 @@ def test_auto_estimator_config_get_tpot_config():
 
 
 def test_invalid_problem_type():
-    from ..estimators.auto_estimator import AutoEstimator
+    from ...estimators.auto_estimator import AutoEstimator
 
     with pytest.raises(ValueError) as e:
         ae = AutoEstimator(problem_type="test")
@@ -39,7 +39,7 @@ def test_invalid_problem_type():
 
 
 def test_invalid_auto_estimator():
-    from ..estimators.auto_estimator import AutoEstimator
+    from ...estimators.auto_estimator import AutoEstimator
 
     with pytest.raises(ValueError) as e:
         ae = AutoEstimator(auto_estimator="test")
@@ -47,7 +47,7 @@ def test_invalid_auto_estimator():
 
 
 def test_invalid_kwargs_vague_estimator():
-    from ..estimators.auto_estimator import AutoEstimator
+    from ...estimators.auto_estimator import AutoEstimator
 
     with pytest.raises(ValueError) as e:
         ae = AutoEstimator(estimator_kwargs="test")
@@ -58,7 +58,7 @@ def test_invalid_kwargs_vague_estimator():
 
 
 def test_invalid_kwargs_not_dict():
-    from ..estimators.auto_estimator import AutoEstimator
+    from ...estimators.auto_estimator import AutoEstimator
 
     with pytest.raises(ValueError) as e:
         ae = AutoEstimator(
@@ -72,7 +72,7 @@ def test_invalid_kwargs_not_dict():
     list(itertools.product(["regression", "classification"], ["tpot", "autosklearn"])),
 )
 def test_invalid_kwarg_dict(problem_type, auto_estimator):
-    from ..estimators.auto_estimator import AutoEstimator
+    from ...estimators.auto_estimator import AutoEstimator
 
     with pytest.raises(ValueError) as e:
         ae = AutoEstimator(
@@ -88,7 +88,7 @@ def test_default_estimator_setup_classification():
     import pandas as pd
     from autosklearn.classification import AutoSklearnClassifier
 
-    from ..estimators.auto_estimator import AutoEstimator
+    from ...estimators.auto_estimator import AutoEstimator
 
     y = pd.DataFrame(np.array([0] * 50 + [1] * 50))
     ae = AutoEstimator()
@@ -101,7 +101,7 @@ def test_default_estimator_setup_regression():
     import pandas as pd
     from tpot import TPOTRegressor
 
-    from ..estimators.auto_estimator import AutoEstimator
+    from ...estimators.auto_estimator import AutoEstimator
 
     y = pd.DataFrame(np.random.normal(0, 1, 200))
     ae = AutoEstimator()
@@ -117,7 +117,7 @@ def test_auto_estimator_default_to_autosklearn():
     import pandas as pd
     from sklearn.model_selection import train_test_split
 
-    from ..estimators.auto_estimator import AutoEstimator
+    from ...estimators.auto_estimator import AutoEstimator
 
     seed = 0
     np.random.seed(seed)
@@ -169,7 +169,7 @@ def test_auto_estimator_default_to_tpot():
     import pandas as pd
     from sklearn.model_selection import train_test_split
 
-    from ..estimators.auto_estimator import AutoEstimator
+    from ...estimators.auto_estimator import AutoEstimator
 
     seed = 0
     np.random.seed(seed)

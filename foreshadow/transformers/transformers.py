@@ -180,7 +180,7 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
     except:
         pass
 
-    init_cols = [col for col in df]
+    init_cols = [str(col) for col in df]
     out = func(self, df, *args, **kwargs)
 
     # If output is numpy array (transform has occurred)
@@ -427,7 +427,6 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         self.keep_columns = keep_columns
         self.override = override
         self.transformer = None
-        super(SmartTransformer, self).__init__()
 
     def _get_transformer(self, X, y=None, **fit_params):
         raise NotImplementedError(
