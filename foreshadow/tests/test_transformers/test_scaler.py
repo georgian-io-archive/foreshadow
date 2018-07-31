@@ -3,7 +3,7 @@ def test_box_cox():
     import pandas as pd
     import scipy.stats as ss
 
-    from ...transformers import BoxCoxTransformer
+    from foreshadow.transformers import BoxCoxTransformer
 
     np.random.seed(0)
     data = pd.DataFrame(ss.lognorm.rvs(size=100, s=0.954))

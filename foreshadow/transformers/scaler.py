@@ -9,9 +9,6 @@ from sklearn.utils.validation import check_is_fitted
 class BoxCoxTransformer(BaseEstimator, TransformerMixin):
     """Transforms data using a BoxCox transformation"""
 
-    def __init__(self, test=None):
-        pass
-
     def fit(self, X, y=None):
         X = check_array(X)
         min_ = np.nanmin(X)
