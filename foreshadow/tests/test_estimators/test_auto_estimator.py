@@ -10,24 +10,20 @@ def test_auto_estimator_config_get_tpot_config():
     setup2 = get_tpot_config("regression", include_preprocessors=True)
     setup3 = get_tpot_config("classification")
     setup4 = get_tpot_config("regression")
-    check_setup_keys = lambda x: not any(
-        k in x.keys() for k in ["estimators", "preprocessors"]
-    )
 
-    assert (
-        check_setup_keys(setup1)
-        and check_setup_keys(setup2)
-        and (
-            check_setup_keys(setup3)
-            and all(k in setup1.keys() for k in setup3)
-            and setup1 != setup3
-        )
-        and (
-            check_setup_keys(setup4)
-            and all(k in setup2.keys() for k in setup4)
-            and setup2 != setup4
-        )
-    )
+    assert set(setup3.keys()).issubset(set(setup1.keys()))
+    assert setup1 != setup3
+    assert set(setup4.keys()).issubset(set(setup2.keys()))
+    assert setup2 != setup4
+
+
+def test_auto_estimator_config_invalid_input():
+    from ...estimators.config import get_tpot_config
+
+    with pytest.raises(ValueError) as e:
+        s = get_tpot_config("test")
+
+    assert str(e.value) == "type_ must be either classification or regression"
 
 
 def test_invalid_problem_type():
@@ -83,6 +79,17 @@ def test_invalid_kwarg_dict(problem_type, auto_estimator):
     assert "The following invalid kwargs were passed in:" in str(e.value)
 
 
+def test_temp():
+    from ...estimators.auto_estimator import AutoEstimator
+    import pandas as pd
+    import numpy as np
+
+    y = pd.DataFrame(np.array([0] * 50 + [1] * 50))
+    ae1 = AutoEstimator()
+    est = ae1._setup_estimator(y)
+    ae2 = AutoEstimator()
+
+
 def test_default_estimator_setup_classification():
     import numpy as np
     import pandas as pd
@@ -109,7 +116,9 @@ def test_default_estimator_setup_regression():
     assert isinstance(est, TPOTRegressor)
 
 
-@pytest.mark.skip(reason="Waiting on issue response @github:automl/autosklearn")
+@pytest.mark.skip(
+    reason="Waiting on issue " "https://github.com/automl/auto-sklearn/issues/514"
+)
 @pytest.mark.slowest
 def test_auto_estimator_default_to_autosklearn():
     import random
@@ -180,7 +189,12 @@ def test_auto_estimator_default_to_tpot():
     ae = AutoEstimator(
         problem_type="regression",
         auto_estimator="tpot",
-        estimator_kwargs={"generations": 1, "population_size": 5, "random_state": seed},
+        estimator_kwargs={
+            "generations": 1,
+            "population_size": 5,
+            "random_state": seed,
+            "max_time_mins": None,
+        },
     )
     ae.fit(X, y)
     ae_predict = ae.predict(X_test)

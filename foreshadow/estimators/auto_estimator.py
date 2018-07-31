@@ -41,7 +41,7 @@ class AutoEstimator(BaseEstimator):
         problem_type=None,
         auto_estimator=None,
         include_preprocessors=False,
-        estimator_kwargs={},
+        estimator_kwargs=None,
     ):
         self.problem_type = problem_type
         self.auto_estimator = auto_estimator
@@ -72,7 +72,7 @@ class AutoEstimator(BaseEstimator):
 
     @estimator_kwargs.setter
     def estimator_kwargs(self, ek):
-        if ek != {}:
+        if ek is not None:
             if self.problem_type is None or self.auto_estimator is None:
                 raise ValueError(
                     "estimator_kwargs can only be set when estimator and problem are "
@@ -87,9 +87,9 @@ class AutoEstimator(BaseEstimator):
                 self.problem_type
             ]
             self._validate_estimator_kwargs(ek)  # estimator class is required for this
-            self._estimator_kwargs = self._pre_configure_auto_params(ek)
-        else:
             self._estimator_kwargs = ek
+        else:
+            self._estimator_kwargs = {}
 
     def _determine_problem_type(self, y):
         """Simple heuristic to determine problem type"""
@@ -97,9 +97,9 @@ class AutoEstimator(BaseEstimator):
             "classification" if np.unique(y.values.ravel()).size == 2 else "regression"
         )
 
-    def _pick_estimator(self, problem_type):
+    def _pick_estimator(self):
         """Pick auto estimator based on benchmarked results"""
-        return "tpot" if problem_type == "regression" else "autosklearn"
+        return "tpot" if self.problem_type == "regression" else "autosklearn"
 
     def _validate_estimator_kwargs(self, auto_params):
         """Confirm that passed in dictionary arguments belong to the selected auto
@@ -113,25 +113,26 @@ class AutoEstimator(BaseEstimator):
                 "The following invalid kwargs were passed in: {}".format(invalid_kwargs)
             )
 
-    def _pre_configure_auto_params(self, auto_params):
+    def _pre_configure_estimator_kwargs(self):
         """Configure auto estimators to perform similarly (time scale) and remove 
         preprocessors if necessary
         """
-        if self.estimator_class == "tpot" and "config_dict" not in auto_params:
-            auto_params["config_dict"] = get_tpot_config(
+        if self.auto_estimator == "tpot" and "config_dict" not in self.estimator_kwargs:
+            self.estimator_kwargs["config_dict"] = get_tpot_config(
                 self.problem_type, self.include_preprocessors
             )
-            auto_params["max_time_mins"] = 60
+            if "max_time_mins" not in self.estimator_kwargs:
+                self.estimator_kwargs["max_time_mins"] = 60
         elif (
-            self.estimator_class == "autosklearn"
+            self.auto_estimator == "autosklearn"
             and not any(
-                k in auto_params
+                k in self.estimator_kwargs
                 for k in ["include_preprocessors", "exclude_preprocessors"]
             )
-            and self.skip_feature_engineering
+            and not self.include_preprocessors
         ):
-            auto_params["include_preprocessors"] = "no_preprocessing"
-        return auto_params
+            self.estimator_kwargs["include_preprocessors"] = "no_preprocessing"
+        return self.estimator_kwargs
 
     def _setup_estimator(self, y):
         """Construct and return the auto estimator instance"""
@@ -141,13 +142,14 @@ class AutoEstimator(BaseEstimator):
             else self.problem_type
         )
         self.auto_estimator = (
-            self._pick_estimator(self.problem_type)
+            self._pick_estimator()
             if self.auto_estimator is None
             else self.auto_estimator
         )
         self.estimator_class = self.estimator_choices[self.auto_estimator][
             self.problem_type
         ]  # update estimator class in case of autodetect
+        self._pre_configure_estimator_kwargs()  # validate estimator kwargs
         return self.estimator_class(**self.estimator_kwargs)
 
     def fit(self, X, y):
