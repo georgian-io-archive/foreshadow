@@ -1,7 +1,7 @@
 import pytest
 
-from ..intents.intents_base import BaseIntent
-from ..intents.intents_registry import get_registry, registry_eval, unregister_intent
+from ...intents.intents_base import BaseIntent
+from ...intents.intents_registry import get_registry, registry_eval, unregister_intent
 
 
 def test_unregister():
