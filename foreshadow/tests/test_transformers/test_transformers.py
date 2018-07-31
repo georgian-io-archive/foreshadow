@@ -17,11 +17,7 @@ def test_transformer_wrapper_no_init():
     from foreshadow.transformers.transformers import wrap_transformer
 
     class NewTransformer(BaseEstimator, TransformerMixin):
-        def fit(self, X, y=None):
-            pass
-
-        def transform(self, X):
-            pass
+        pass
 
     trans = wrap_transformer(NewTransformer)
     instance = trans()
