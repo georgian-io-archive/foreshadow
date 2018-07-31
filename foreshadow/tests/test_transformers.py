@@ -11,6 +11,24 @@ def test_transformer_wrapper_init():
     assert scaler.keep_columns == True
 
 
+def test_transformer_wrapper_no_init():
+
+    from sklearn.base import BaseEstimator, TransformerMixin
+    from foreshadow.transformers.transformers import wrap_transformer
+
+    class NewTransformer(BaseEstimator, TransformerMixin):
+        def fit(self, X, y=None):
+            pass
+
+        def transform(self, X):
+            pass
+
+    trans = wrap_transformer(NewTransformer)
+    instance = trans()
+
+    assert hasattr(trans.__init__, "__defaults__")
+
+
 def test_transformer_wrapper_function():
 
     import numpy as np
@@ -326,3 +344,33 @@ def test_smarttransformer_function_override():
     std_data = std.transform(df[["crim"]])
 
     assert smart_data.equals(std_data)
+
+
+def test_smarttransformer_set_params():
+
+    from ..transformers import SmartTransformer
+    from ..transformers import StandardScaler
+
+    class TestSmartTransformer(SmartTransformer):
+        pass
+
+    smart = TestSmartTransformer(override="Imputer")
+    smart.set_params(**{"override": "StandardScaler"})
+
+    assert isinstance(smart.transformer, StandardScaler)
+
+
+def test_smarttransformer_get_params():
+
+    from ..transformers import SmartTransformer
+
+    class TestSmartTransformer(SmartTransformer):
+        pass
+
+    smart = TestSmartTransformer(
+        override="Imputer", missing_values="NaN", strategy="mean"
+    )
+
+    params = smart.get_params()
+
+    assert params == {"override": "Imputer", "name": None, "keep_columns": False}

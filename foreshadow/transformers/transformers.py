@@ -76,13 +76,15 @@ def wrap_transformer(transformer):
         # Wrap public function calls
         setattr(transformer, w.__name__, partialmethod(pandas_wrapper, w))
 
-    inspect.getfullargspec(transformer.__init__)
     # Wrap constructor
-    setattr(
-        transformer,
-        "__init__",
-        Sigcopy(transformer.__init__)(init_partial(transformer.__init__)),
-    )
+    if "__defaults__" in dir(transformer.__init__):
+        setattr(
+            transformer,
+            "__init__",
+            Sigcopy(transformer.__init__)(init_partial(transformer.__init__)),
+        )
+    else:
+        setattr(transformer, "__init__", init_replace)
 
     return transformer
 
@@ -106,11 +108,16 @@ class Sigcopy(object):
 
         name = tgt_func.__name__
         argspec = self.argspec
-        argspec = (
-            argspec[0:3]
-            + (tuple([s if type(s).__name__ != "type" else None for s in argspec[3]]),)
-            + argspec[4:]
-        )
+        if argspec[3] is not None:
+            argspec = (
+                argspec[0:3]
+                + (
+                    tuple(
+                        [s if type(s).__name__ != "type" else None for s in argspec[3]]
+                    ),
+                )
+                + argspec[4:]
+            )
 
         newargspec = (
             (argspec[0] + tgt_argspec[0][1:],)
@@ -141,13 +148,18 @@ class Sigcopy(object):
 
 
 def init_partial(func):
-    def transform_constructor(self, *args, keep_columns=False, name=None):
+    def transform_constructor(self, *args, keep_columns=False, name=None, **kwargs):
 
         self.name = args[-1]
         self.keep_columns = args[-2]
-        func(self, *args[:-2])
+        func(self, *args[:-2], **kwargs)
 
     return transform_constructor
+
+
+def init_replace(self, keep_columns=False, name=None):
+    self.keep_columns = keep_columns
+    self.name = name
 
 
 def pandas_wrapper(self, func, df, *args, **kwargs):
@@ -180,7 +192,9 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
     except:
         pass
 
-    init_cols = [col for col in df]
+    df = check_df(df)
+
+    init_cols = [str(col) for col in df]
     out = func(self, df, *args, **kwargs)
 
     # If output is numpy array (transform has occurred)
@@ -427,7 +441,30 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         self.keep_columns = keep_columns
         self.override = override
         self.transformer = None
-        super(SmartTransformer, self).__init__()
+
+    def get_params(self, deep=True):
+        return {
+            "override": self.override,
+            "name": self.name,
+            "keep_columns": self.keep_columns,
+            **(
+                self.transformer.get_params(deep=True)
+                if self.transformer is not None
+                else {}
+            ),
+        }
+
+    def set_params(self, **params):
+        self.name = params.pop("name", self.name)
+        self.keep_columns = params.pop("keep_columns", self.keep_columns)
+
+        self.override = params.pop("override", self.override)
+        if self.override:
+            ovr = globals()[self.override]
+            self.transformer = ovr(**self.kwargs)
+
+        if self.transformer is not None:
+            self.transformer.set_params(**params)
 
     def _get_transformer(self, X, y=None, **fit_params):
         raise NotImplementedError(
@@ -459,6 +496,8 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
 
         pipe = hasattr(self.transformer, "steps")
         parallel = hasattr(self.transformer, "transformer_list")
+
+        print(tf, fittf, fit, nm, keep, pipe, parallel)
 
         if not (
             callable(tf)
