@@ -5,3 +5,4 @@ sklearn==0.0
 auto_sklearn==0.4.0
 TPOT==0.9.3
 fancyimpute==0.3.2
+category-encoders==1.2.8
