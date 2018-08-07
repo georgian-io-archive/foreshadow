@@ -8,6 +8,8 @@ import numpy as np
 from .intents_base import BaseIntent
 from ..transformers import Imputer, PCA
 
+from ..transformers import SimpleImputer, MultiImputer, SmartScaler, SmartCoder
+
 
 class GenericIntent(BaseIntent):
     """See base class.
@@ -20,8 +22,8 @@ class GenericIntent(BaseIntent):
     dtype = "str"
     children = ["NumericIntent", "CategoricalIntent"]
 
-    multi_pipeline = [("pca", PCA(n_components=2))]
     single_pipeline = []
+    multi_pipeline = [] # ("multi_impute", MultiImputer())
 
     @classmethod
     def is_intent(cls, df):
@@ -39,15 +41,15 @@ class NumericIntent(GenericIntent):
     dtype = "float"
     children = []
 
-    single_pipeline = [("impute", Imputer(strategy="mean"))]
+    single_pipeline = [("simple_imputer", SimpleImputer()),
+                       ("scaler", SmartScaler())]
     multi_pipeline = []
 
     @classmethod
     def is_intent(cls, df):
         """Returns true if data is numeric according to pandas."""
-        return True
         numeric_data = pd.to_numeric(df.ix[:, 0], errors="coerce")
-        return (s.isnull().sum() / len(numeric_data)) > 0.5
+        return (numeric_data.isnull().sum() / len(numeric_data)) > 0.5
 
 
 class CategoricalIntent(GenericIntent):
@@ -60,17 +62,14 @@ class CategoricalIntent(GenericIntent):
     dtype = "int"
     children = []
 
+    single_pipeline = [("impute_encode", SmartCoder())]
+    multi_pipeline = []
+
     @classmethod
     def is_intent(cls, df):
-        """Returns true if the majority of data consists of the top 10 values."""
-        return False
+        """Returns true if the majority of data is categorical"""
         data = df.ix[:, 0]
         if data.dtype != np.number:
             return True
         else:
-            if cls.has_outliers(data):
-                # check if the top 10 values account for a large percentage of feature
-                return 1. * data.value_counts(normalize=True).head(10) > 0.8
-            else:
-                # check if the ratio of unique to total count is less than 5 percent
-                return 1. * data.nunique() / data.count() < 0.05
+            return (1. * data.nunique() / data.count()) < 0.2

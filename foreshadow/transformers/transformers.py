@@ -469,9 +469,12 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
             "WrappedTransformer _get_transformer was not implimented."
         )
 
-    def _verify_transformer(self, X, y=None, **fit_params):
+    def _verify_transformer(self, X, y=None, refit=False, **fit_params):
 
-        if self.transformer:
+        if refit:
+            self.transformer = None
+
+        if self.transformer is not None:
             return
 
         if self.override is not None:
@@ -512,12 +515,6 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         self.transformer.name = self.name
         self.transformer.keep_columns = self.keep_columns
 
-    def fit_transform(self, X, y=None, **fit_params):
-        """See base class."""
-        X = check_df(X)
-        self._verify_transformer(X, y, **fit_params)
-        return self.transformer.fit_transform(X, y, **fit_params)
-
     def transform(self, X, **kwargs):
         """See base class."""
         X = check_df(X)
@@ -527,7 +524,8 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None, **kwargs):
         """See base class."""
         X = check_df(X)
-        self._verify_transformer(X, y)
+        y = check_df(y)
+        self._verify_transformer(X, y, refit=True)
         return self.transformer.fit(X, y, **kwargs)
 
 
