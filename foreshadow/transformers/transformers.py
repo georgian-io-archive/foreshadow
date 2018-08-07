@@ -524,7 +524,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None, **kwargs):
         """See base class."""
         X = check_df(X)
-        y = check_df(y)
+        y = check_df(y) if y is not None else y
         self._verify_transformer(X, y, refit=True)
         return self.transformer.fit(X, y, **kwargs)
 

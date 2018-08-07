@@ -11,11 +11,10 @@ class SimpleImputer(SmartTransformer):
         super().__init__(**kwargs)
 
     def _get_transformer(self, X, y=None, **fit_params):
-
         s = X.ix[:, 0]
         ratio = s.isnull().sum() / s.count()
 
-        if ratio <= self.threshold:
+        if 0 < ratio <= self.threshold:
             return _choose_simple(s.values)
         else:
             return Pipeline([("null", None)])
@@ -23,11 +22,13 @@ class SimpleImputer(SmartTransformer):
 
 class MultiImputer(SmartTransformer):
     def _get_transformer(self, X, y=None, **fit_params):
-        return _choose_multi(X)
+        if X.isnull().values.any():
+            return _choose_multi(X)
+        else:
+            return Pipeline([("null", None)])
 
 
 def _choose_simple(X):
-
     X = X[~np.isnan(X)]
 
     # Uses modified z score method http://colingorrie.github.io/outlier-detection.html
@@ -51,7 +52,6 @@ def _choose_simple(X):
 
 
 def _choose_multi(X):
-
     # For now simply default to KNN multiple imputation (generic case)
     # The rest of them seem to have constraints and no published directly comparable
     # performance
