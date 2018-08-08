@@ -8,7 +8,12 @@ import numpy as np
 from .intents_base import BaseIntent
 from ..transformers import Imputer, PCA
 
-from ..transformers import SimpleImputer, MultiImputer, SmartScaler, SmartCoder
+from ..transformers import (
+    SmartSimpleImputer,
+    SmartMultiImputer,
+    SmartScaler,
+    SmartCoder,
+)
 
 DROP_THRESHOLD = 0.2
 
@@ -25,7 +30,7 @@ class GenericIntent(BaseIntent):
     children = ["NumericIntent", "CategoricalIntent"]
 
     single_pipeline = []
-    multi_pipeline = []  # ("multi_impute", MultiImputer())
+    multi_pipeline = []  # ("multi_impute", SmartMultiImputer())
 
     @classmethod
     def is_intent(cls, df):
@@ -43,13 +48,21 @@ class NumericIntent(GenericIntent):
     dtype = "float"
     children = []
 
-    single_pipeline = [("simple_imputer", SimpleImputer()), ("scaler", SmartScaler())]
+    single_pipeline = [
+        ("simple_imputer", SmartSimpleImputer()),
+        ("scaler", SmartScaler()),
+    ]
     multi_pipeline = []
 
     @classmethod
     def is_intent(cls, df):
         """Returns true if data is numeric according to pandas."""
-        return not pd.to_numeric(df.ix[:, 0], errors="coerce").isnull().values.ravel().all()
+        return (
+            not pd.to_numeric(df.ix[:, 0], errors="coerce")
+            .isnull()
+            .values.ravel()
+            .all()
+        )
 
 
 class CategoricalIntent(GenericIntent):

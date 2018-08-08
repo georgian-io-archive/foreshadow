@@ -1,2 +1,2 @@
 from .transformers import *
-from .smart import *
+from .smart_transformers import *

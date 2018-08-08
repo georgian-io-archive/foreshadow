@@ -15,10 +15,11 @@ def test_numeric_intent_is_intent():
     from foreshadow.intents import NumericIntent
 
     X = pd.DataFrame([1, 2, 3])
-    X1 = pd.DataFrame([1, 2, 'Test'])
+    X1 = pd.DataFrame([1, 2, "Test"])
 
     assert NumericIntent.is_intent(X)
     assert NumericIntent.is_intent(X1)
+
 
 def test_categorical_intent_is_intent():
     import pandas as pd

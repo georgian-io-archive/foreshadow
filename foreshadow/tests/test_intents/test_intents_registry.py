@@ -1,6 +1,10 @@
 import pytest
 
-from foreshadow.intents.intents_registry import get_registry, registry_eval, _unregister_intent
+from foreshadow.intents.intents_registry import (
+    get_registry,
+    registry_eval,
+    _unregister_intent,
+)
 
 
 def test_unregister():
