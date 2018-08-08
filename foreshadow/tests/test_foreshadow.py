@@ -4,9 +4,9 @@ import pytest
 
 
 def test_foreshadow_defaults():
-    from ..foreshadow import Foreshadow
-    from ..preprocessor import Preprocessor
-    from ..estimators.auto_estimator import AutoEstimator
+    from foreshadow import Foreshadow
+    from foreshadow import Preprocessor
+    from foreshadow.estimators import AutoEstimator
 
     foreshadow = Foreshadow()
     # defaults
@@ -22,15 +22,15 @@ def test_foreshadow_defaults():
 
 
 def test_foreshadow_X_preprocessor_false():
-    from ..foreshadow import Foreshadow
+    from foreshadow import Foreshadow
 
     foreshadow = Foreshadow(X_preprocessor=False)
     assert foreshadow.X_preprocessor is None
 
 
 def test_foreshadow_X_preprocessor_custom():
-    from ..foreshadow import Foreshadow
-    from ..preprocessor import Preprocessor
+    from foreshadow import Foreshadow
+    from foreshadow import Preprocessor
 
     preprocessor = Preprocessor()
     foreshadow = Foreshadow(X_preprocessor=preprocessor)
@@ -38,7 +38,7 @@ def test_foreshadow_X_preprocessor_custom():
 
 
 def test_foreshadow_X_preprocessor_error():
-    from ..foreshadow import Foreshadow
+    from foreshadow import Foreshadow
 
     preprocessor = "Invalid"
     with pytest.raises(ValueError) as e:
@@ -48,15 +48,15 @@ def test_foreshadow_X_preprocessor_error():
 
 
 def test_foreshadow_y_preprocessor_false():
-    from ..foreshadow import Foreshadow
+    from foreshadow import Foreshadow
 
     foreshadow = Foreshadow(y_preprocessor=False)
     assert foreshadow.y_preprocessor is None
 
 
 def test_foreshadow_y_preprocessor_custom():
-    from ..foreshadow import Foreshadow
-    from ..preprocessor import Preprocessor
+    from foreshadow import Foreshadow
+    from foreshadow import Preprocessor
 
     preprocessor = Preprocessor()
     foreshadow = Foreshadow(y_preprocessor=preprocessor)
@@ -64,7 +64,7 @@ def test_foreshadow_y_preprocessor_custom():
 
 
 def test_foreshadow_y_preprocessor_error():
-    from ..foreshadow import Foreshadow
+    from foreshadow import Foreshadow
 
     preprocessor = "Invalid"
     with pytest.raises(ValueError) as e:
@@ -74,7 +74,7 @@ def test_foreshadow_y_preprocessor_error():
 
 
 def test_foreshadow_estimator_custom():
-    from ..foreshadow import Foreshadow
+    from foreshadow import Foreshadow
     from sklearn.base import BaseEstimator
 
     estimator = BaseEstimator()
@@ -83,7 +83,7 @@ def test_foreshadow_estimator_custom():
 
 
 def test_foreshadow_estimator_error():
-    from ..foreshadow import Foreshadow
+    from foreshadow import Foreshadow
 
     estimator = "Invalid"
     with pytest.raises(ValueError) as e:
@@ -93,7 +93,7 @@ def test_foreshadow_estimator_error():
 
 
 def test_foreshadow_optimizer_custom():
-    from ..foreshadow import Foreshadow
+    from foreshadow import Foreshadow
     from sklearn.model_selection._search import BaseSearchCV
     from sklearn.base import BaseEstimator
 
@@ -109,7 +109,7 @@ def test_foreshadow_optimizer_custom():
 
 
 def test_foreshadow_optimizer_error():
-    from ..foreshadow import Foreshadow
+    from foreshadow import Foreshadow
 
     optimizer = "Invalid"
     with pytest.raises(ValueError) as e:
@@ -119,7 +119,7 @@ def test_foreshadow_optimizer_error():
 
 
 def test_foreshadow_warns_on_set_estimator_optimizer():
-    from ..foreshadow import Foreshadow
+    from foreshadow import Foreshadow
     from sklearn.model_selection._search import BaseSearchCV
 
     class DummySearch(BaseSearchCV):
@@ -148,7 +148,7 @@ def test_foreshadow_custom_fit_estimate(X_preprocessor):
     from sklearn.linear_model import LogisticRegression
     from sklearn.preprocessing import OneHotEncoder
     from sklearn.model_selection import train_test_split
-    from ..foreshadow import Foreshadow
+    from foreshadow import Foreshadow
 
     np.random.seed(0)
 
@@ -200,7 +200,7 @@ def test_foreshadow_y_preprocessor(y_preprocessor):
     from sklearn.linear_model import LinearRegression
     from sklearn.preprocessing import StandardScaler
     from sklearn.model_selection import train_test_split
-    from ..foreshadow import Foreshadow
+    from foreshadow import Foreshadow
 
     np.random.seed(0)
 
@@ -242,7 +242,7 @@ def test_foreshadow_without_x_processor():
     import numpy as np
     from sklearn.linear_model import LinearRegression
     from sklearn.model_selection import train_test_split
-    from ..foreshadow import Foreshadow
+    from foreshadow import Foreshadow
 
     np.random.seed(0)
     estimator = LinearRegression()
@@ -287,7 +287,7 @@ def test_foreshadow_predict_before_fit():
     import numpy as np
     from sklearn.linear_model import LinearRegression
     from sklearn.model_selection import train_test_split
-    from ..foreshadow import Foreshadow
+    from foreshadow import Foreshadow
 
     np.random.seed(0)
     estimator = LinearRegression()
@@ -309,7 +309,7 @@ def test_foreshadow_predict_diff_cols():
     import numpy as np
     from sklearn.linear_model import LinearRegression
     from sklearn.model_selection import train_test_split
-    from ..foreshadow import Foreshadow
+    from foreshadow import Foreshadow
 
     np.random.seed(0)
     estimator = LinearRegression()

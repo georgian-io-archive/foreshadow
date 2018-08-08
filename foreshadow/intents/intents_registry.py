@@ -48,7 +48,7 @@ def registry_eval(cls_target):
     return _registry[cls_target]
 
 
-class IntentRegistry(type):
+class _IntentRegistry(type):
     """Metaclass for intents that registers defined intent classes"""
 
     def __new__(meta, name, bases, class_dict):

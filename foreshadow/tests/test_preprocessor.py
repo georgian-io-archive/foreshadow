@@ -401,7 +401,6 @@ def test_preprocessor_fit_create_single_pipeline_override_intent():
 
 
 def test_preprocessor_make_empty_pipeline():
-
     import json
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
@@ -495,7 +494,6 @@ def test_preprocessor_make_pipeline():
 
 
 def test_preprocessor_fit_transform():
-
     import json
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
@@ -520,7 +518,6 @@ def test_preprocessor_fit_transform():
 
 @pytest.mark.skip(reason="FIX ME, rebuild pkl file")
 def test_preprocessor_get_params():
-
     import json
     import pickle
     import pandas as pd
@@ -540,7 +537,6 @@ def test_preprocessor_get_params():
 
 @pytest.mark.skip(reason="FIX ME, rebuild pkl file")
 def test_preprocessor_set_params():
-
     import json
     import pickle
     import pandas as pd
@@ -561,7 +557,6 @@ def test_preprocessor_set_params():
 
 
 def test_preprocessor_malformed_json_transformer():
-
     import json
     from foreshadow.preprocessor import Preprocessor
 
@@ -576,7 +571,6 @@ def test_preprocessor_malformed_json_transformer():
 
 
 def test_preprocessor_invalid_json_transformer_class():
-
     import json
     from foreshadow.preprocessor import Preprocessor
 
@@ -594,7 +588,6 @@ def test_preprocessor_invalid_json_transformer_class():
 
 
 def test_preprocessor_invalid_json_transformer_params():
-
     import json
     from foreshadow.preprocessor import Preprocessor
 
@@ -613,7 +606,6 @@ def test_preprocessor_invalid_json_transformer_params():
 
 
 def test_preprocessor_get_param_no_pipeline():
-
     from foreshadow.preprocessor import Preprocessor
 
     proc = Preprocessor()
@@ -624,7 +616,6 @@ def test_preprocessor_get_param_no_pipeline():
 
 
 def test_preprocessor_set_param_no_pipeline():
-
     from foreshadow.preprocessor import Preprocessor
 
     proc = Preprocessor()
@@ -635,7 +626,6 @@ def test_preprocessor_set_param_no_pipeline():
 
 
 def test_preprocessor_transform_no_pipeline():
-
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
@@ -648,7 +638,6 @@ def test_preprocessor_transform_no_pipeline():
 
 
 def test_preprocessor_serialize():
-
     import json
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor

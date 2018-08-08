@@ -2,10 +2,10 @@
 Intent base and registry defentions
 """
 
-from .intents_registry import IntentRegistry, registry_eval
+from .intents_registry import _IntentRegistry, registry_eval
 
 
-class BaseIntent(metaclass=IntentRegistry):
+class BaseIntent(metaclass=_IntentRegistry):
     """Base Class for defining the concept of an "Intent" within Foreshadow.
 
     Provides the base infrastructure for the fundamental functionality of an intent.

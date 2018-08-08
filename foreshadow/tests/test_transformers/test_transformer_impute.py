@@ -2,7 +2,6 @@ import pytest
 
 
 def test_transformer_impute_simple_none():
-
     import pandas as pd
     from foreshadow.transformers import SimpleImputer
 
@@ -18,7 +17,6 @@ def test_transformer_impute_simple_none():
 
 
 def test_transformer_impute_simple_mean():
-
     import pandas as pd
     from foreshadow.transformers import SimpleImputer
 
@@ -35,7 +33,6 @@ def test_transformer_impute_simple_mean():
 
 
 def test_transformer_impute_simple_median():
-
     import pandas as pd
     import numpy as np
     from foreshadow.transformers import SimpleImputer
@@ -56,7 +53,6 @@ def test_transformer_impute_simple_median():
 
 
 def test_transformer_impute_multiple():
-
     import numpy as np
     import pandas as pd
     from foreshadow.transformers import MultiImputer
@@ -74,7 +70,6 @@ def test_transformer_impute_multiple():
 
 
 def test_transformer_fancy_impute_set_params():
-
     import pandas as pd
     from foreshadow.transformers import FancyImputer
 
@@ -93,7 +88,6 @@ def test_transformer_fancy_impute_set_params():
 
 
 def test_transformer_fancy_impute_get_params():
-
     from foreshadow.transformers import FancyImputer
 
     impute = FancyImputer(method="SimpleFill", fill_method="median")
@@ -102,7 +96,6 @@ def test_transformer_fancy_impute_get_params():
 
 
 def test_transformer_fancy_impute_invalid_init():
-
     from foreshadow.transformers import FancyImputer
 
     with pytest.raises(ValueError) as e:
@@ -115,7 +108,6 @@ def test_transformer_fancy_impute_invalid_init():
 
 
 def test_transformer_fancy_impute_invalid_params():
-
     from foreshadow.transformers import FancyImputer
 
     with pytest.raises(ValueError) as e:

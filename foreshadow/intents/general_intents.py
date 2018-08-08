@@ -10,6 +10,8 @@ from ..transformers import Imputer, PCA
 
 from ..transformers import SimpleImputer, MultiImputer, SmartScaler, SmartCoder
 
+DROP_THRESHOLD = 0.2
+
 
 class GenericIntent(BaseIntent):
     """See base class.
@@ -47,9 +49,7 @@ class NumericIntent(GenericIntent):
     @classmethod
     def is_intent(cls, df):
         """Returns true if data is numeric according to pandas."""
-        numeric_data = pd.to_numeric(df.ix[:, 0], errors="coerce")
-
-        return (numeric_data.isnull().sum() / len(numeric_data)) < 0.8
+        return not pd.to_numeric(df.ix[:, 0], errors="coerce").isnull().values.ravel().all()
 
 
 class CategoricalIntent(GenericIntent):

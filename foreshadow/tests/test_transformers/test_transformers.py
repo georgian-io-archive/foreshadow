@@ -2,7 +2,6 @@ import pytest
 
 
 def test_transformer_wrapper_init():
-
     from foreshadow.transformers import StandardScaler
 
     scaler = StandardScaler(name="test-scaler", keep_columns=True)
@@ -12,7 +11,6 @@ def test_transformer_wrapper_init():
 
 
 def test_transformer_wrapper_no_init():
-
     from sklearn.base import BaseEstimator, TransformerMixin
     from foreshadow.transformers.transformers import wrap_transformer
 
@@ -26,7 +24,6 @@ def test_transformer_wrapper_no_init():
 
 
 def test_transformer_wrapper_function():
-
     import numpy as np
     import pandas as pd
     from sklearn.preprocessing import StandardScaler as StandardScaler
@@ -52,7 +49,6 @@ def test_transformer_wrapper_function():
 
 
 def test_transformer_naming_override():
-
     from foreshadow.transformers import StandardScaler
     import pandas as pd
 
@@ -65,7 +61,6 @@ def test_transformer_naming_override():
 
 
 def test_transformer_naming_default():
-
     from foreshadow.transformers import StandardScaler
     import pandas as pd
 
@@ -78,7 +73,6 @@ def test_transformer_naming_default():
 
 
 def test_transformer_arallel_invalid():
-
     import pandas as pd
     from foreshadow.transformers import ParallelProcessor
 
@@ -98,7 +92,6 @@ def test_transformer_arallel_invalid():
 
 
 def test_transformer_parallel_empty():
-
     import pandas as pd
     from foreshadow.transformers import ParallelProcessor
 
@@ -125,7 +118,6 @@ def test_transformer_parallel_empty():
 
 
 def test_transformer_parallel():
-
     import pandas as pd
 
     from foreshadow.transformers import ParallelProcessor
@@ -160,7 +152,6 @@ def test_transformer_parallel():
 
 
 def test_transformer_pipeline():
-
     import pandas as pd
     import numpy as np
 
@@ -213,7 +204,6 @@ def test_transformer_pipeline():
 
 
 def test_smarttransformer_notimplemented():
-
     import pandas as pd
 
     from foreshadow.transformers import SmartTransformer
@@ -232,7 +222,6 @@ def test_smarttransformer_notimplemented():
 
 
 def test_smarttransformer_attributeerror():
-
     import pandas as pd
 
     from foreshadow.transformers import SmartTransformer
@@ -255,7 +244,6 @@ def test_smarttransformer_attributeerror():
 
 
 def test_smarttransformer_invalidtransformer():
-
     import pandas as pd
 
     from foreshadow.transformers import SmartTransformer
@@ -281,7 +269,6 @@ def test_smarttransformer_invalidtransformer():
 
 
 def test_smarttransformer_function():
-
     import pandas as pd
 
     from foreshadow.transformers import SmartTransformer
@@ -311,7 +298,6 @@ def test_smarttransformer_function():
 
 
 def test_smarttransformer_function_override():
-
     import pandas as pd
 
     from foreshadow.transformers import SmartTransformer
@@ -342,7 +328,6 @@ def test_smarttransformer_function_override():
 
 
 def test_smarttransformer_set_params():
-
     from foreshadow.transformers import SmartTransformer
     from foreshadow.transformers import StandardScaler
 
@@ -356,7 +341,6 @@ def test_smarttransformer_set_params():
 
 
 def test_smarttransformer_get_params():
-
     from foreshadow.transformers import SmartTransformer
 
     class TestSmartTransformer(SmartTransformer):
