@@ -38,7 +38,7 @@ def test_mock_subclass_missing_children():
 
 
 def test_valid_mock_subclass():
-    from ...intents.intents_registry import unregister_intent
+    from ...intents.intents_registry import _unregister_intent
     from ...intents.intents_base import BaseIntent
 
     class TestIntent(BaseIntent):
@@ -49,11 +49,11 @@ def test_valid_mock_subclass():
             pass
 
     t = TestIntent()
-    unregister_intent(TestIntent.__name__)
+    _unregister_intent(TestIntent.__name__)
 
 
 def test_to_string():
-    from ...intents.intents_registry import unregister_intent
+    from ...intents.intents_registry import _unregister_intent
     from ...intents.intents_base import BaseIntent
 
     class TestIntent(BaseIntent):
@@ -83,15 +83,15 @@ def test_to_string():
         "TestIntent11",
         "TestIntent12",
     ]
-    assert str(TestIntent) == (
+    assert TestIntent.to_string() == (
         "TestIntent\n\tTestIntent1\n\t\tTestIntent11\n\t\tTestIntent12\n\t"
         "TestIntent2\n"
     )
-    unregister_intent(class_list)
+    _unregister_intent(class_list)
 
 
 def test_priority_traverse():
-    from ...intents.intents_registry import unregister_intent
+    from ...intents.intents_registry import _unregister_intent
     from ...intents.intents_base import BaseIntent
 
     class TestIntent(BaseIntent):
@@ -116,13 +116,13 @@ def test_priority_traverse():
 
     class_list = [TestIntent, TestIntent2, TestIntent1, TestIntent12, TestIntent11]
     assert class_list == list(TestIntent.priority_traverse())
-    unregister_intent(list(map(lambda x: x.__name__, class_list)))
+    _unregister_intent(list(map(lambda x: x.__name__, class_list)))
 
 
 def test_is_intent_implementation():
     import pandas as pd
 
-    from ...intents.intents_registry import unregister_intent
+    from ...intents.intents_registry import _unregister_intent
     from ...intents.intents_base import BaseIntent
 
     X_df = pd.DataFrame([[1]], columns=["A"])
@@ -135,4 +135,4 @@ def test_is_intent_implementation():
         TestIntent.is_intent(X_df)
 
     assert str(e.value) == "is_fit is not immplemented"
-    unregister_intent(TestIntent.__name__)
+    _unregister_intent(TestIntent.__name__)

@@ -4,7 +4,7 @@
   "postprocess":[],
 
   "intents":{
-    "NumericIntent":{
+    "TestNumericIntent":{
       "single":[
         ["Imputer", "impute", {"strategy":"mean"}]
       ]

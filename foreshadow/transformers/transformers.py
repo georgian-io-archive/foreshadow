@@ -498,7 +498,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         pipe = hasattr(self.transformer, "steps")
         parallel = hasattr(self.transformer, "transformer_list")
 
-        print(tf, fittf, fit, nm, keep, pipe, parallel)
+        # print(tf, fittf, fit, nm, keep, pipe, parallel)
 
         if not (
             callable(tf)

@@ -1,6 +1,6 @@
 {
   "columns":{
-    "crim":["GenericIntent",
+    "crim":["TestGenericIntent",
             [
               ["StandardScaler", "Scaler", {"with_mean":false}]
             ]]
@@ -9,7 +9,7 @@
   "postprocess":[],
 
   "intents":{
-    "NumericIntent":{
+    "TestNumericIntent":{
       "single":[
         ["Imputer", "impute", {"strategy":"mean"}]
       ],

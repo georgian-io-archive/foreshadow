@@ -11,7 +11,7 @@
   ],
 
   "intents":{
-    "NumericIntent":{
+    "TestNumericIntent":{
       "single":[
         ["Imputer", "Imputer", {"strategy":"mean"}]
       ],

@@ -23,7 +23,7 @@ class GenericIntent(BaseIntent):
     children = ["NumericIntent", "CategoricalIntent"]
 
     single_pipeline = []
-    multi_pipeline = [] # ("multi_impute", MultiImputer())
+    multi_pipeline = []  # ("multi_impute", MultiImputer())
 
     @classmethod
     def is_intent(cls, df):
@@ -41,15 +41,15 @@ class NumericIntent(GenericIntent):
     dtype = "float"
     children = []
 
-    single_pipeline = [("simple_imputer", SimpleImputer()),
-                       ("scaler", SmartScaler())]
+    single_pipeline = [("simple_imputer", SimpleImputer()), ("scaler", SmartScaler())]
     multi_pipeline = []
 
     @classmethod
     def is_intent(cls, df):
         """Returns true if data is numeric according to pandas."""
         numeric_data = pd.to_numeric(df.ix[:, 0], errors="coerce")
-        return (numeric_data.isnull().sum() / len(numeric_data)) > 0.5
+
+        return (numeric_data.isnull().sum() / len(numeric_data)) < 0.8
 
 
 class CategoricalIntent(GenericIntent):
