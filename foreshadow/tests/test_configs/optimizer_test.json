@@ -1,0 +1,21 @@
+{
+  "columns":{
+    "crim":["GenericIntent",
+            [
+              ["StandardScaler", "Scaler", {"with_mean":false}]
+            ]],
+    "indus":["GenericIntent"]
+  },
+
+  "postprocess":[],
+
+  "intents":{},
+
+  "combinations": [
+    {
+      "columns.crim.1.0.2.with_mean": "[True, False]",
+      "columns.crim.1.0.1": "['Scaler', 'SuperScaler']"
+    }
+  ]
+
+}

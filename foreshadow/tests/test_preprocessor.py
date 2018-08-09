@@ -338,9 +338,8 @@ def test_preprocessor_fit_create_single_pipeline_default():
 
     numeric = registry_eval("TestNumericIntent")
 
-    assert (
-        str(list(zip(*proc_default.pipeline_map["crim"].steps))[1])
-        == str(list(zip(*numeric.single_pipeline))[1])
+    assert str(list(zip(*proc_default.pipeline_map["crim"].steps))[1]) == str(
+        list(zip(*numeric.single_pipeline))[1]
     )
 
 
@@ -484,10 +483,9 @@ def test_preprocessor_make_pipeline():
     )
 
     assert proc.pipeline.steps[1][1].steps[1][0] == "TestGenericIntent"
-    assert (
-        str(proc.pipeline.steps[1][1].steps[1][1].transformer_list[0][2].steps)
-        == str(registry_eval("TestGenericIntent").multi_pipeline)
-    )
+    assert str(
+        proc.pipeline.steps[1][1].steps[1][1].transformer_list[0][2].steps
+    ) == str(registry_eval("TestGenericIntent").multi_pipeline)
 
     assert proc.pipeline.steps[1][1].steps[2][0] == "pca"
 
@@ -515,6 +513,70 @@ def test_preprocessor_fit_transform():
     assert set([c for l in list(out) for c in l.split("_")]) == set(
         [c for l in list(truth) for c in l.split("_")]
     )
+
+
+def test_preprocessor_inverse_transform():
+
+    import numpy as np
+    import pandas as pd
+    from foreshadow.preprocessor import Preprocessor
+
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    js = {
+        "columns": {
+            "medv": [
+                "TestGenericIntent",
+                [["StandardScaler", "Scaler", {"with_mean": True}]],
+            ]
+        }
+    }
+    proc = Preprocessor(from_json=js)
+    col = df[["medv"]]
+    proc.fit(col)
+
+    assert proc.is_linear
+    assert np.allclose(proc.inverse_transform(proc.transform(col)).values, col.values)
+
+
+def test_preprocessor_inverse_transform_unfit():
+
+    import numpy as np
+    import pandas as pd
+    from foreshadow.preprocessor import Preprocessor
+
+    proc = Preprocessor()
+
+    with pytest.raises(ValueError) as e:
+        proc.inverse_transform(pd.DataFrame([1, 2, 3, 4]))
+
+    assert str(e.value) == "Pipeline not fit, cannot transform."
+
+
+def test_preprocessor_inverse_transform_multicol():
+
+    import pandas as pd
+    from foreshadow.preprocessor import Preprocessor
+
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    js = {
+        "columns": {
+            "medv": [
+                "TestGenericIntent",
+                [["StandardScaler", "Scaler", {"with_mean": True}]],
+            ]
+        }
+    }
+    proc = Preprocessor(from_json=js)
+    col = df[["medv", "crim"]]
+    proc.fit(col)
+    out = proc.transform(col)
+
+    assert not proc.is_linear
+
+    with pytest.raises(ValueError) as e:
+        proc.inverse_transform(out)
+
+    assert str(e.value) == "Pipeline does not support inverse transform!"
 
 
 def test_preprocessor_get_params():
@@ -609,7 +671,7 @@ def test_preprocessor_get_param_no_pipeline():
     proc = Preprocessor()
     param = proc.get_params()
 
-    assert param == {'from_json': None}
+    assert param == {"from_json": None}
 
 
 def test_preprocessor_set_param_no_pipeline():

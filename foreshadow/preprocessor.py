@@ -60,6 +60,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         self.fit_params = fit_params
         self.is_fit = False
         self.from_json = from_json
+        self.is_linear = False
         self._init_json()
 
     def _get_columns(self, intent):
@@ -115,9 +116,12 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             },
             **{
                 k: self.intent_pipelines[v.__name__].get(
-                    "single", Pipeline(deepcopy(v.single_pipeline) if len(
-                        v.single_pipeline) >
-                                                            0 else [("null", None)])
+                    "single",
+                    Pipeline(
+                        deepcopy(v.single_pipeline)
+                        if len(v.single_pipeline) > 0
+                        else [("null", None)]
+                    ),
                 )
                 for k, v in self.intent_map.items()
                 if v.__name__ in self.intent_pipelines.keys()
@@ -130,8 +134,9 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         self.intent_pipelines = {
             v.__name__: {
                 "multi": Pipeline(
-                    deepcopy(v.multi_pipeline) if len(v.multi_pipeline) > 0 else [(
-                        "null", None)]
+                    deepcopy(v.multi_pipeline)
+                    if len(v.multi_pipeline) > 0
+                    else [("null", None)]
                 ),
                 **{k: v for k, v in self.intent_pipelines.get(v.__name__, {}).items()},
             }
@@ -179,25 +184,38 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
         return Pipeline(processors + multi_processors)
 
+    def _construct_linear_pipeline(self, X):
+
+        return self.pipeline_map.get(X.columns[0], Pipeline([("null", None)]))
+
     def _generate_pipeline(self, X):
         self._init_json()
         self._map_intents(X)
         self._map_pipelines()
 
-        parallel = self._construct_parallel_pipeline()
-        multi = self._construct_multi_pipeline()
+        if len(X.columns) == 1:
+            self.pipeline = self._construct_linear_pipeline(X)
+            self.is_linear = True
 
-        pipe = []
-        if parallel:
-            pipe.append(("single", parallel))
-        if multi:
-            pipe.append(("multi", multi))
+        else:
 
-        pipe.append(
-            ("collapse", ParallelProcessor([("null", [], None)], collapse_index=True))
-        )
+            parallel = self._construct_parallel_pipeline()
+            multi = self._construct_multi_pipeline()
 
-        self.pipeline = Pipeline(pipe)
+            pipe = []
+            if parallel:
+                pipe.append(("single", parallel))
+            if multi:
+                pipe.append(("multi", multi))
+
+            pipe.append(
+                (
+                    "collapse",
+                    ParallelProcessor([("null", [], None)], collapse_index=True),
+                )
+            )
+
+            self.pipeline = Pipeline(pipe)
 
     def _init_json(self):
 
@@ -236,12 +254,12 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
     def get_params(self, deep=True):
         if self.pipeline is None:
-            return {'from_json': self.from_json}
-        return {'from_json': self.from_json,  **self.pipeline.get_params(deep=deep)}
+            return {"from_json": self.from_json}
+        return {"from_json": self.from_json, **self.pipeline.get_params(deep=deep)}
 
     def set_params(self, **params):
 
-        self.from_json = params.pop('from_json', self.from_json)
+        self.from_json = params.pop("from_json", self.from_json)
         self._init_json()
 
         if self.pipeline is None:
@@ -296,7 +314,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         """See base class."""
         X = check_df(X)
         y = check_df(y, ignore_none=True)
-        self.from_json = fit_params.pop('from_json', self.from_json)
+        self.from_json = fit_params.pop("from_json", self.from_json)
         self._generate_pipeline(X)
         # import pdb
         # pdb.set_trace()
@@ -314,6 +332,8 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         X = check_df(X)
         if not self.pipeline or not self.is_fit:
             raise ValueError("Pipeline not fit, cannot transform.")
+        if not self.is_linear:
+            raise ValueError("Pipeline does not support inverse transform!")
         return self.pipeline.inverse_transform(X)
 
 

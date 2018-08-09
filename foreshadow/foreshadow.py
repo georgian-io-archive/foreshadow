@@ -32,8 +32,7 @@ class Foreshadow(BaseEstimator):
     """
 
     def __init__(
-        self, X_preprocessor=None, y_preprocessor=None, estimator=None,
-            optimizer=None
+        self, X_preprocessor=None, y_preprocessor=None, estimator=None, optimizer=None
     ):
         self.X_preprocessor = X_preprocessor
         self.y_preprocessor = y_preprocessor
@@ -123,8 +122,9 @@ class Foreshadow(BaseEstimator):
             self.estimator = MetaEstimator(self.estimator, self.y_preprocessor)
 
         if self.X_preprocessor is not None:
-            self.pipeline = Pipeline([("preprocessor", self.X_preprocessor),
-                                     ("estimator", self.estimator)])
+            self.pipeline = Pipeline(
+                [("preprocessor", self.X_preprocessor), ("estimator", self.estimator)]
+            )
         else:
             self.pipeline = Pipeline([("estimator", self.estimator)])
 
