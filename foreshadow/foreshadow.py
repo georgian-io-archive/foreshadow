@@ -5,6 +5,7 @@ Main foreshadow object
 import operator
 import warnings
 
+from copy import deepcopy
 from sklearn.base import BaseEstimator
 from sklearn.model_selection._search import BaseSearchCV
 from sklearn.pipeline import Pipeline
@@ -30,16 +31,17 @@ class Foreshadow(BaseEstimator):
     """
 
     def __init__(
-        self, X_preprocessor=None, y_preprocessor=None, estimator=None, optimizer=None
+        self, X_preprocessor=None, y_preprocessor=None, estimator=None,
+            optimizer=None
     ):
         self.X_preprocessor = X_preprocessor
         self.y_preprocessor = y_preprocessor
         self.estimator = estimator  # check status of X_preprocessor
         self.optimizer = optimizer
-        self.target = None
         self.pipeline = None
         self.data_columns = None
 
+        # TODO: Remove this
         if isinstance(self.estimator, AutoEstimator) and not optimizer is None:
             warnings.warn(
                 "An automatic estimator cannot be used with an optimizer."
@@ -59,7 +61,7 @@ class Foreshadow(BaseEstimator):
             else:
                 raise ValueError("Invalid value passed as X_preprocessor")
         else:
-            self._X_preprocessor = Preprocessor()
+            self._X_preprocessor = None
 
     y_preprocessor = property(operator.attrgetter("_y_preprocessor"))
 
@@ -73,7 +75,7 @@ class Foreshadow(BaseEstimator):
             else:
                 raise ValueError("Invalid value passed as y_preprocessor")
         else:
-            self._y_preprocessor = Preprocessor()
+            self._y_preprocessor = None
 
     estimator = property(operator.attrgetter("_estimator"))
 
@@ -94,7 +96,7 @@ class Foreshadow(BaseEstimator):
     @optimizer.setter
     def optimizer(self, o):
         if o is not None:
-            if isinstance(o, BaseSearchCV):
+            if issubclass(o, BaseSearchCV):
                 self._optimizer = o
             else:
                 raise ValueError("Invalid value passed as optimizer")
@@ -117,14 +119,17 @@ class Foreshadow(BaseEstimator):
             self.estimator = MetaEstimator(self.estimator, self.y_preprocessor)
 
         if self.X_preprocessor is not None:
-            self.pipeline = self.X_preprocessor.pipeline
-            self.pipeline.steps.append(["estimator", self.estimator])
+            self.pipeline = Pipeline([("preprocessor", self.X_preprocessor),
+                                     ("estimator", self.estimator)])
         else:
             self.pipeline = Pipeline([("estimator", self.estimator)])
 
         if self.optimizer is not None:
-            param_ranges = param_mapping(self.pipeline.get_params())
-            self.optimizer(self.pipeline, param_ranges)
+            param_ranges = param_mapping(deepcopy(self.pipeline), X_df, y_df)
+
+            opt_instance = self.optimizer(self.pipeline, param_ranges)
+            opt_instance.fit(X_df, y_df)
+            self.pipeline = opt_instance.best_estimator_
         else:
             self.pipeline.fit(X_df, y_df)
 

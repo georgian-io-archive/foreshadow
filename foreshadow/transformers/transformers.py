@@ -210,8 +210,12 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
 
         # Append new columns to data frame
         for i, col in enumerate(out.transpose().tolist()):
-            kw = {"{}_{}_{}".format("_".join(init_cols), prefix, i): pd.Series(col)}
+            kw = {"{}_{}_{}".format("_".join(init_cols),
+                                    prefix, i): pd.Series(col, index=df.index)}
             df = df.assign(**kw)
+
+
+
 
         return df
 
@@ -497,8 +501,6 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
 
         pipe = hasattr(self.transformer, "steps")
         parallel = hasattr(self.transformer, "transformer_list")
-
-        print(tf, fittf, fit, nm, keep, pipe, parallel)
 
         if not (
             callable(tf)

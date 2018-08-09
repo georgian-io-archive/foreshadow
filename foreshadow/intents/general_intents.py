@@ -23,7 +23,7 @@ class GenericIntent(BaseIntent):
     children = ["NumericIntent", "CategoricalIntent"]
 
     single_pipeline = []
-    multi_pipeline = [] # ("multi_impute", MultiImputer())
+    multi_pipeline = [("multi_impute", MultiImputer())]
 
     @classmethod
     def is_intent(cls, df):

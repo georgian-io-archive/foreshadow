@@ -15,6 +15,9 @@ class SimpleImputer(SmartTransformer):
         ratio = s.isnull().sum() / s.count()
 
         if 0 < ratio <= self.threshold:
+            print("SIMPLE IMPUTE!!!!!")
+            import pdb
+            pdb.set_trace()
             return _choose_simple(s.values)
         else:
             return Pipeline([("null", None)])

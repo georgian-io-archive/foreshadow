@@ -42,6 +42,6 @@ class SmartCoder(SmartTransformer):
         col_name = X.columns[0]
         unique_count = len(data.value_counts())
         if unique_count <= unique_num_cutoff:
-            return OneHotEncoder(cols=[col_name])
+            return OneHotEncoder(cols=[col_name], return_df=False)
         else:
-            return HashingEncoder(n_components=30, cols=[col_name])
+            return HashingEncoder(n_components=30, cols=[col_name], return_df=False)
