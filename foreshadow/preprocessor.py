@@ -241,10 +241,8 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
     def set_params(self, **params):
 
-        from_json = params.pop('from_json', None)
-        if from_json is not None:
-            self.from_json = from_json
-            self._init_json()
+        self.from_json = params.pop('from_json', self.from_json)
+        self._init_json()
 
         if self.pipeline is None:
             return

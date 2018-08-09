@@ -15,7 +15,6 @@ def test_foreshadow_defaults():
         and isinstance(foreshadow.y_preprocessor, Preprocessor)
         and isinstance(foreshadow.estimator, AutoEstimator)
         and foreshadow.optimizer is None
-        and foreshadow.target is None
         and foreshadow.pipeline is None
         and foreshadow.data_columns is None
     )
@@ -103,9 +102,8 @@ def test_foreshadow_optimizer_custom():
 
     # Need custom estimator to avoid warning
     estimator = BaseEstimator()
-    optimizer = DummySearch()
-    foreshadow = Foreshadow(estimator=estimator, optimizer=optimizer)
-    assert isinstance(foreshadow.optimizer, BaseSearchCV)
+    foreshadow = Foreshadow(estimator=estimator, optimizer=DummySearch)
+    assert issubclass(foreshadow.optimizer, BaseSearchCV)
 
 
 def test_foreshadow_optimizer_error():
@@ -126,9 +124,8 @@ def test_foreshadow_warns_on_set_estimator_optimizer():
         def __init__(self):
             pass
 
-    optimizer = DummySearch()
     with pytest.warns(Warning) as w:
-        foreshadow = Foreshadow(optimizer=optimizer)
+        foreshadow = Foreshadow(optimizer=DummySearch)
 
     assert str(w[0].message) == (
         "An automatic estimator cannot be used with an"

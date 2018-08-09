@@ -2,6 +2,7 @@
 Main foreshadow object
 """
 
+import inspect
 import operator
 import warnings
 
@@ -61,7 +62,7 @@ class Foreshadow(BaseEstimator):
             else:
                 raise ValueError("Invalid value passed as X_preprocessor")
         else:
-            self._X_preprocessor = None
+            self._X_preprocessor = Preprocessor()
 
     y_preprocessor = property(operator.attrgetter("_y_preprocessor"))
 
@@ -75,7 +76,7 @@ class Foreshadow(BaseEstimator):
             else:
                 raise ValueError("Invalid value passed as y_preprocessor")
         else:
-            self._y_preprocessor = None
+            self._y_preprocessor = Preprocessor()
 
     estimator = property(operator.attrgetter("_estimator"))
 
@@ -96,8 +97,11 @@ class Foreshadow(BaseEstimator):
     @optimizer.setter
     def optimizer(self, o):
         if o is not None:
-            if issubclass(o, BaseSearchCV):
-                self._optimizer = o
+            if inspect.isclass(o):
+                if issubclass(o, BaseSearchCV):
+                    self._optimizer = o
+                else:
+                    raise ValueError("Invalid value passed as optimizer")
             else:
                 raise ValueError("Invalid value passed as optimizer")
         else:

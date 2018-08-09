@@ -16,7 +16,7 @@ def patch_intents(mocker):
         children = ["TestNumericIntent", "TestIntentOne"]
 
         single_pipeline = []
-        multi_pipeline = [("pca", PCA(n_components=2))]
+        multi_pipeline = [("pca", PCA(n_components=2, name="pca"))]
 
         @classmethod
         def is_intent(cls, df):
@@ -26,7 +26,7 @@ def patch_intents(mocker):
         dtype = "float"
         children = []
 
-        single_pipeline = [("impute", Imputer(strategy="mean"))]
+        single_pipeline = [("impute", Imputer(strategy="mean", name="impute"))]
         multi_pipeline = []
 
         @classmethod
@@ -277,7 +277,6 @@ def test_preprocessor_init_json_intent_override_single():
     assert transformer.strategy == "mean"
 
 
-@pytest.mark.xfail
 def test_preprocessor_fit_map_intents_default():
     """Loads config from JSON and fits preprocessor and ensures config
     intent maps override auto-detect"""
@@ -319,7 +318,6 @@ def test_preprocessor_fit_map_intents_override():
     assert proc_override.intent_map["crim"].__name__ == "TestGenericIntent"
 
 
-@pytest.mark.xfail
 def test_preprocessor_fit_create_single_pipeline_default():
     """Loads config from JSON and fits preprocessor
     and ensures pipeline maps are overridden"""
@@ -339,13 +337,13 @@ def test_preprocessor_fit_create_single_pipeline_default():
         assert type(proc_default.pipeline_map[c]).__name__ == "Pipeline"
 
     numeric = registry_eval("TestNumericIntent")
+
     assert (
-        list(zip(*proc_default.pipeline_map["crim"].steps))[1]
-        == list(zip(*numeric.single_pipeline))[1]
+        str(list(zip(*proc_default.pipeline_map["crim"].steps))[1])
+        == str(list(zip(*numeric.single_pipeline))[1])
     )
 
 
-@pytest.mark.xfail
 def test_preprocessor_fit_create_single_pipeline_override_column():
     """Loads config from JSON and fits preprocessor
     and ensures pipeline maps are overridden"""
@@ -374,7 +372,6 @@ def test_preprocessor_fit_create_single_pipeline_override_column():
     assert proc_column.pipeline_map["crim"].steps[0][0] == "Scaler"
 
 
-@pytest.mark.xfail
 def test_preprocessor_fit_create_single_pipeline_override_intent():
     """Loads config from JSON and fits preprocessor
     and ensures pipeline maps are overridden"""
@@ -404,7 +401,6 @@ def test_preprocessor_fit_create_single_pipeline_override_intent():
     assert proc_intent.pipeline_map["crim"].steps[0][0] == "impute"
 
 
-@pytest.mark.xfail
 def test_preprocessor_make_empty_pipeline():
     import json
     import pandas as pd
@@ -427,7 +423,6 @@ def test_preprocessor_make_empty_pipeline():
     assert out.equals(orig)
 
 
-@pytest.mark.xfail
 def test_preprocessor_make_pipeline():
     """Loads config from JSON that utilizes all
     functionality of system and verifies successful pipeline completion"""
@@ -490,8 +485,8 @@ def test_preprocessor_make_pipeline():
 
     assert proc.pipeline.steps[1][1].steps[1][0] == "TestGenericIntent"
     assert (
-        proc.pipeline.steps[1][1].steps[1][1].transformer_list[0][2].steps
-        == registry_eval("TestGenericIntent").multi_pipeline
+        str(proc.pipeline.steps[1][1].steps[1][1].transformer_list[0][2].steps)
+        == str(registry_eval("TestGenericIntent").multi_pipeline)
     )
 
     assert proc.pipeline.steps[1][1].steps[2][0] == "pca"
@@ -499,7 +494,6 @@ def test_preprocessor_make_pipeline():
     assert proc.pipeline.steps[2][1].transformer_list[0][0] == "null"
 
 
-@pytest.mark.xfail
 def test_preprocessor_fit_transform():
     import json
     import pandas as pd
@@ -523,7 +517,6 @@ def test_preprocessor_fit_transform():
     )
 
 
-@pytest.mark.xfail
 def test_preprocessor_get_params():
     import json
     import pickle
@@ -542,7 +535,6 @@ def test_preprocessor_get_params():
     assert proc.get_params().keys() == truth.keys()
 
 
-@pytest.mark.xfail
 def test_preprocessor_set_params():
     import json
     import pickle
@@ -557,10 +549,9 @@ def test_preprocessor_set_params():
         )
     )
     proc.fit(df)
+    proc.set_params(**params)
 
-    out = proc.set_params(**params)
-
-    assert out == proc.pipeline
+    assert proc.get_params().keys() == params.keys()
 
 
 def test_preprocessor_malformed_json_transformer():
@@ -616,20 +607,20 @@ def test_preprocessor_get_param_no_pipeline():
     from foreshadow.preprocessor import Preprocessor
 
     proc = Preprocessor()
-    with pytest.raises(ValueError) as e:
-        proc.get_params()
+    param = proc.get_params()
 
-    assert str(e.value) == "Pipeline not fit!"
+    assert param == {'from_json': None}
 
 
 def test_preprocessor_set_param_no_pipeline():
     from foreshadow.preprocessor import Preprocessor
 
     proc = Preprocessor()
-    with pytest.raises(ValueError) as e:
-        proc.set_params(**{})
+    params = proc.get_params()
+    proc.set_params(**{})
+    nparam = proc.get_params()
 
-    assert str(e.value) == "Pipeline not fit!"
+    assert params == nparam
 
 
 def test_preprocessor_transform_no_pipeline():
@@ -644,7 +635,6 @@ def test_preprocessor_transform_no_pipeline():
     assert str(e.value) == "Pipeline not fit!"
 
 
-@pytest.mark.xfail
 def test_preprocessor_serialize():
     import json
     import pandas as pd
