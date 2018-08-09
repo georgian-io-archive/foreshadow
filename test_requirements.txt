@@ -7,3 +7,5 @@ pytest-cov==2.5.1
 pytest-mock==1.10.0
 tox==3.0.0
 tox-travis==0.10
+Sphinx==1.7.6
+sphinx_rtd_theme==0.4.1

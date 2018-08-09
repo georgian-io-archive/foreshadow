@@ -103,7 +103,7 @@ class Sigcopy(object):
     """
     copy_argspec is a signature modifying decorator.  Specifically, it copies
     the signature from `source_func` to the wrapper, and the wrapper will call
-    the original function (which should be using *args, **kwds).  The argspec,
+    the original function ``(which should be using *args, **kwds)``.  The argspec,
     docstring, and default values are copied from src_func, and __module__ and
     __dict__ from tgt_func.
     """
@@ -178,7 +178,7 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
     Selects columns from df and executes inner function only on columns.
 
     This expects that public functions within the sklearn transformer follow the sklearn
-    standard. This includes the format func(X, y=None, *args, **kwargs) and either a
+    standard. This includes the format ``func(X, y=None, *args, **kwargs)`` and either a
     return self or return X
 
     Adds ability of transformer to handle DataFrame input and output with persistent

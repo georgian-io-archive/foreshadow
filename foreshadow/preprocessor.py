@@ -301,7 +301,7 @@ def serialize_pipeline(pipeline):
     """Serializes sklearn Pipeline object into JSON object for reconstruction.
 
     Returns:
-        List of form [cls, name, {**params}]
+        List of form ``[cls, name, {**params}]``
     """
     return [
         (type(step[1]).__name__, step[0], step[1].get_params())
@@ -314,10 +314,10 @@ def resolve_pipeline(pipeline_json):
     """Deserializes pipeline from JSON into sklearn Pipeline object.
 
     Args:
-        pipeline_json: List of form [cls, name, {**params}]
+        pipeline_json: List of form ``[cls, name, {**params}]``
 
     Returns:
-        Sklearn Pipeline object of form Pipeline([(name, cls(**params)), ...])
+        Sklearn Pipeline object of form ``Pipeline([(name, cls(**params)), ...])``
 
     """
     pipe = []
