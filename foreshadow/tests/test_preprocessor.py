@@ -1,6 +1,82 @@
 import pytest
 
 
+@pytest.fixture(autouse=True)
+def patch_intents(mocker):
+    from copy import deepcopy
+    from ..intents.intents_base import BaseIntent
+    from ..intents.intents_registry import _set_registry, get_registry
+    from ..transformers import Imputer, PCA
+
+    _saved_registry = deepcopy(get_registry())
+    _set_registry({})  # clear registry
+
+    class TestGenericIntent(BaseIntent):
+        dtype = "str"
+        children = ["TestNumericIntent", "TestIntentOne"]
+
+        single_pipeline = []
+        multi_pipeline = [("pca", PCA(n_components=2))]
+
+        @classmethod
+        def is_intent(cls, df):
+            return True
+
+    class TestNumericIntent(TestGenericIntent):
+        dtype = "float"
+        children = []
+
+        single_pipeline = [("impute", Imputer(strategy="mean"))]
+        multi_pipeline = []
+
+        @classmethod
+        def is_intent(cls, df):
+            return True
+
+    class TestIntentOne(TestGenericIntent):
+        dtype = "str"
+        children = ["TestIntentTwo", "TestIntentThree"]
+
+        single_pipeline = []
+        multi_pipeline = []
+
+        @classmethod
+        def is_intent(cls, df):
+            return False
+
+    class TestIntentTwo(TestIntentOne):
+        dtype = "str"
+        children = []
+
+        single_pipeline = []
+        multi_pipeline = []
+
+        @classmethod
+        def is_intent(cls, df):
+            return False
+
+    class TestIntentThree(TestIntentOne):
+        dtype = "str"
+        children = []
+
+        single_pipeline = []
+        multi_pipeline = []
+
+        @classmethod
+        def is_intent(cls, df):
+            return False
+
+    mocker.patch(
+        "foreshadow.preprocessor.GenericIntent.priority_traverse",
+        side_effect=TestGenericIntent.priority_traverse,
+    )
+
+    # test runs here
+    yield
+    # reset registry state
+    _set_registry(_saved_registry)
+
+
 def test_preprocessor_init_empty():
     """Verifies that preprocessor object initializes correctly with empty values."""
 
@@ -31,48 +107,37 @@ def test_preprocessor_init_json_intent_map():
     )
 
     assert "crim" in proc.intent_map.keys()
-    assert proc.intent_map["crim"].__name__ == "GenericIntent"
+    print(proc.intent_map)
+    print(type(proc.intent_map["crim"]))
+    assert proc.intent_map["crim"].__name__ == "TestGenericIntent"
 
 
 def test_preprocessor_intent_dependency_order():
-
     from foreshadow.preprocessor import Preprocessor
-    from foreshadow.intents import GenericIntent
-
-    class MockIntentOne(GenericIntent):
-        dtype = "str"
-        children = ["MockIntentTwo", "MockIntentThree"]
-
-    class MockIntentTwo(MockIntentOne):
-        dtype = "str"
-        children = []
-
-    class MockIntentThree(MockIntentOne):
-        dtype = "str"
-        children = []
+    from foreshadow.intents.intents_registry import registry_eval
 
     proc = Preprocessor()
     proc.intent_map = {
-        "1": MockIntentOne,
-        "2": MockIntentTwo,
-        "3": MockIntentThree,
-        "4": GenericIntent,
+        "1": registry_eval("TestIntentOne"),
+        "2": registry_eval("TestIntentTwo"),
+        "3": registry_eval("TestIntentThree"),
+        "4": registry_eval("TestGenericIntent"),
     }
 
     proc._build_dependency_order()
 
-    print(proc.intent_trace)
+    print("Intent_trace: ", proc.intent_trace)
 
     assert [c.__name__ for c in proc.intent_trace] == [
-        "GenericIntent",
-        "MockIntentOne",
-        "MockIntentTwo",
-        "MockIntentThree",
+        "TestGenericIntent",
+        "TestIntentOne",
+        "TestIntentTwo",
+        "TestIntentThree",
     ] or [c.__name__ for c in proc.intent_trace] == [
-        "GenericIntent",
-        "MockIntentOne",
-        "MockIntentThree",
-        "MockIntentTwo",
+        "TestGenericIntent",
+        "TestIntentOne",
+        "TestIntentThree",
+        "TestIntentTwo",
     ]
 
 
@@ -152,9 +217,9 @@ def test_preprocessor_init_json_intent_override_multi():
         )
     )
 
-    assert "NumericIntent" in proc.intent_pipelines.keys()
+    assert "TestNumericIntent" in proc.intent_pipelines.keys()
 
-    pipes = proc.intent_pipelines["NumericIntent"]
+    pipes = proc.intent_pipelines["TestNumericIntent"]
 
     assert "multi" in pipes.keys()
 
@@ -190,9 +255,9 @@ def test_preprocessor_init_json_intent_override_single():
         )
     )
 
-    assert "NumericIntent" in proc.intent_pipelines.keys()
+    assert "TestNumericIntent" in proc.intent_pipelines.keys()
 
-    pipes = proc.intent_pipelines["NumericIntent"]
+    pipes = proc.intent_pipelines["TestNumericIntent"]
 
     assert "single" in pipes.keys()
 
@@ -226,7 +291,7 @@ def test_preprocessor_fit_map_intents_default():
     proc_default.fit(df.copy(deep=True))
 
     assert "crim" in proc_default.intent_map
-    assert proc_default.intent_map["crim"].__name__ == "NumericIntent"
+    assert proc_default.intent_map["crim"].__name__ == "TestNumericIntent"
 
 
 def test_preprocessor_fit_map_intents_override():
@@ -251,7 +316,7 @@ def test_preprocessor_fit_map_intents_override():
     proc_override.fit(df.copy(deep=True))
 
     assert "crim" in proc_override.intent_map
-    assert proc_override.intent_map["crim"].__name__ == "GenericIntent"
+    assert proc_override.intent_map["crim"].__name__ == "TestGenericIntent"
 
 
 @pytest.mark.xfail
@@ -273,7 +338,7 @@ def test_preprocessor_fit_create_single_pipeline_default():
         assert c in proc_default.pipeline_map
         assert type(proc_default.pipeline_map[c]).__name__ == "Pipeline"
 
-    numeric = registry_eval("NumericIntent")
+    numeric = registry_eval("TestNumericIntent")
     assert (
         list(zip(*proc_default.pipeline_map["crim"].steps))[1]
         == list(zip(*numeric.single_pipeline))[1]
@@ -341,7 +406,6 @@ def test_preprocessor_fit_create_single_pipeline_override_intent():
 
 @pytest.mark.xfail
 def test_preprocessor_make_empty_pipeline():
-
     import json
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
@@ -381,9 +445,6 @@ def test_preprocessor_make_pipeline():
         )
     )
 
-    print(proc.pipeline_map)
-    print(proc.intent_map)
-
     proc.fit(df)
 
     assert len(proc.pipeline.steps) == 3
@@ -421,16 +482,16 @@ def test_preprocessor_make_pipeline():
 
     assert len(proc.pipeline.steps[1][1].steps) == 3
 
-    assert proc.pipeline.steps[1][1].steps[0][0] == "NumericIntent"
+    assert proc.pipeline.steps[1][1].steps[0][0] == "TestNumericIntent"
     assert (
         proc.pipeline.steps[1][1].steps[0][1].transformer_list[0][2].steps[0][0]
         == "pca"
     )
 
-    assert proc.pipeline.steps[1][1].steps[1][0] == "GenericIntent"
+    assert proc.pipeline.steps[1][1].steps[1][0] == "TestGenericIntent"
     assert (
         proc.pipeline.steps[1][1].steps[1][1].transformer_list[0][2].steps
-        == registry_eval("GenericIntent").multi_pipeline
+        == registry_eval("TestGenericIntent").multi_pipeline
     )
 
     assert proc.pipeline.steps[1][1].steps[2][0] == "pca"
@@ -440,7 +501,6 @@ def test_preprocessor_make_pipeline():
 
 @pytest.mark.xfail
 def test_preprocessor_fit_transform():
-
     import json
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
@@ -465,7 +525,6 @@ def test_preprocessor_fit_transform():
 
 @pytest.mark.xfail
 def test_preprocessor_get_params():
-
     import json
     import pickle
     import pandas as pd
@@ -485,7 +544,6 @@ def test_preprocessor_get_params():
 
 @pytest.mark.xfail
 def test_preprocessor_set_params():
-
     import json
     import pickle
     import pandas as pd
@@ -506,7 +564,6 @@ def test_preprocessor_set_params():
 
 
 def test_preprocessor_malformed_json_transformer():
-
     import json
     from foreshadow.preprocessor import Preprocessor
 
@@ -521,7 +578,6 @@ def test_preprocessor_malformed_json_transformer():
 
 
 def test_preprocessor_invalid_json_transformer_class():
-
     import json
     from foreshadow.preprocessor import Preprocessor
 
@@ -539,7 +595,6 @@ def test_preprocessor_invalid_json_transformer_class():
 
 
 def test_preprocessor_invalid_json_transformer_params():
-
     import json
     from foreshadow.preprocessor import Preprocessor
 
@@ -558,7 +613,6 @@ def test_preprocessor_invalid_json_transformer_params():
 
 
 def test_preprocessor_get_param_no_pipeline():
-
     from foreshadow.preprocessor import Preprocessor
 
     proc = Preprocessor()
@@ -569,7 +623,6 @@ def test_preprocessor_get_param_no_pipeline():
 
 
 def test_preprocessor_set_param_no_pipeline():
-
     from foreshadow.preprocessor import Preprocessor
 
     proc = Preprocessor()
@@ -580,7 +633,6 @@ def test_preprocessor_set_param_no_pipeline():
 
 
 def test_preprocessor_transform_no_pipeline():
-
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
@@ -594,7 +646,6 @@ def test_preprocessor_transform_no_pipeline():
 
 @pytest.mark.xfail
 def test_preprocessor_serialize():
-
     import json
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor

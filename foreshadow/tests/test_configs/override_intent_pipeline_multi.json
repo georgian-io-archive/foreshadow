@@ -4,7 +4,7 @@
   "postprocess":[],
 
   "intents":{
-    "NumericIntent":{
+    "TestNumericIntent":{
       "multi":[
         ["PCA", "pca", {"n_components":3}]
       ]

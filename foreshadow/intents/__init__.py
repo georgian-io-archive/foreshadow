@@ -1,3 +1,3 @@
-from .general_intents import GenericIntent
-from .intents_registry import get_registry
-from .intents_registry import registry_eval
+from .general_intents import *
+from .intents_registry import *
+from .intents_base import *

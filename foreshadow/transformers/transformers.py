@@ -1,4 +1,6 @@
+import glob
 import inspect
+import os
 
 import numpy as np
 import pandas as pd
@@ -18,8 +20,18 @@ from ..utils import check_df
 def _get_classes():
     """Returns list of classes found in transforms directory."""
 
-    module = __import__("externals", globals(), locals(), ["object"], 1)
-    classes = [c[1] for c in inspect.getmembers(module) if inspect.isclass(c[1])]
+    fldr = "internal_transformers"
+    files = glob.glob(os.path.dirname(__file__) + "/" + fldr + "/*.py")
+    imports = [
+        fldr + "." + os.path.basename(f)[:-3]
+        for f in files
+        if os.path.isfile(f) and not f.endswith("__init__.py")
+    ]
+    imports.append("externals")
+    modules = [__import__(i, globals(), locals(), ["object"], 1) for i in imports]
+    classes = [
+        c[1] for m in modules for c in inspect.getmembers(m) if inspect.isclass(c[1])
+    ]
 
     return classes
 

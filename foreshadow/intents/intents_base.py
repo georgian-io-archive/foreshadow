@@ -2,10 +2,10 @@
 Intent base and registry defentions
 """
 
-from .intents_registry import IntentRegistry, registry_eval
+from .intents_registry import _IntentRegistry, registry_eval
 
 
-class BaseIntent(object, metaclass=IntentRegistry):
+class BaseIntent(metaclass=_IntentRegistry):
     """Base Class for defining the concept of an "Intent" within Foreshadow.
 
     Provides the base infrastructure for the fundamental functionality of an intent.
@@ -47,12 +47,12 @@ class BaseIntent(object, metaclass=IntentRegistry):
         return object.__new__(cls, *args, **kwargs)
 
     @classmethod
-    def tostring(cls, level=0):
+    def to_string(cls, level=0):
         """String representation of intent. Intended to assist in visualizing tree."""
         ret = "\t" * level + str(cls.__name__) + "\n"
         for c in cls.children:
             klass = registry_eval(c)
-            temp = klass.tostring(level + 1)
+            temp = klass.to_string(level + 1)
             ret += temp
         return ret
 
@@ -63,10 +63,9 @@ class BaseIntent(object, metaclass=IntentRegistry):
         while len(lqueue) > 0:
             yield lqueue[0]
             node = lqueue.pop(0)
-            node_children = filter(
-                lambda x: not x is None, map(registry_eval, reversed(node.children))
-            )
-            lqueue.extend(node_children)
+            if len(node.children) > 0:
+                node_children = map(registry_eval, node.children[::-1])
+                lqueue.extend(node_children)
 
     @classmethod
     def is_intent(cls, df):

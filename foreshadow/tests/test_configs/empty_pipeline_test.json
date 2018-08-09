@@ -4,11 +4,11 @@
   "postprocess":[],
 
   "intents":{
-    "NumericIntent":{
+    "TestNumericIntent":{
       "single":[],
       "multi":[]
     },
-    "GenericIntent":{
+    "TestGenericIntent":{
       "single":[],
       "multi":[]
     }

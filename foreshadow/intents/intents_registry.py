@@ -3,7 +3,6 @@ Intent Registry
 """
 
 _registry = {}
-_intent_tree = None
 
 
 def _register_intent(cls_target):
@@ -15,13 +14,13 @@ def _register_intent(cls_target):
     Returns:
         pandas.DataFrame: The response variable output (transformed if necessary)
     """
-    global _registry, _intent_tree
+    global _registry
     if cls_target.__name__ in _registry:
         raise TypeError("Intent already exists in registry, use a different name")
     _registry[cls_target.__name__] = cls_target
 
 
-def unregister_intent(cls_target):
+def _unregister_intent(cls_target):
     global _registry
     if not isinstance(cls_target, str) and all(isinstance(s, str) for s in cls_target):
         for c in cls_target:
@@ -30,6 +29,11 @@ def unregister_intent(cls_target):
     elif isinstance(cls_target, str):
         if cls_target in _registry:
             del _registry[cls_target]
+
+
+def _set_registry(val):
+    global _registry
+    _registry = val
 
 
 def get_registry():
@@ -41,10 +45,10 @@ def get_registry():
 def registry_eval(cls_target):
     """Retrieve intent class from registry dictionary"""
     global _registry
-    return _registry.get(cls_target, None)
+    return _registry[cls_target]
 
 
-class IntentRegistry(type):
+class _IntentRegistry(type):
     """Metaclass for intents that registers defined intent classes"""
 
     def __new__(meta, name, bases, class_dict):
@@ -53,6 +57,3 @@ class IntentRegistry(type):
             klass._check_required_class_attributes()
             _register_intent(klass)
         return klass
-
-    def __str__(self, level=0):
-        return self.tostring()
