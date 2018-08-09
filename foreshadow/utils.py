@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 
-def check_df(input_data):
+def check_df(input_data, ignore_none=False):
     """Convert non dataframe inputs into dataframes.
     
     Args:
@@ -17,6 +17,10 @@ def check_df(input_data):
     Returns:
         (pandas.Dataframe): Convereted and validated input dataframes
     """
+
+    if input_data is None and ignore_none:
+        return None
+
     if isinstance(input_data, pd.DataFrame):
         if len(input_data.columns) > len(set(input_data.columns)):
             warnings.warn("Columns are not all uniquely named, automatically resolving")

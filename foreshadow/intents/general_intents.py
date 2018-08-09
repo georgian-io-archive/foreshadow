@@ -30,7 +30,7 @@ class GenericIntent(BaseIntent):
     children = ["NumericIntent", "CategoricalIntent"]
 
     single_pipeline = []
-    multi_pipeline = []  # ("multi_impute", SmartMultiImputer())
+    multi_pipeline = [("multi_impute", SmartMultiImputer())]
 
     @classmethod
     def is_intent(cls, df):
@@ -82,7 +82,7 @@ class CategoricalIntent(GenericIntent):
     def is_intent(cls, df):
         """Returns true if the majority of data is categorical"""
         data = df.ix[:, 0]
-        if data.dtype != np.number:
+        if np.issubdtype(data.dtype, np.number):
             return True
         else:
             return (1. * data.nunique() / data.count()) < 0.2

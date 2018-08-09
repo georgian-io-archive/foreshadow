@@ -129,3 +129,20 @@ def test_smart_impute_multiple():
     truth = pd.read_csv("./foreshadow/tests/data/heart-h_impute_multi.csv", index_col=0)
 
     assert np.allclose(truth.values, out.values)
+
+
+def test_smart_impute_multiple_none():
+    import pandas as pd
+    from sklearn.pipeline import Pipeline
+    from foreshadow.transformers import SmartMultiImputer
+
+    impute = SmartMultiImputer()
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+
+    data = df[["crim", "nox", "indus"]]
+
+    impute.fit(data)
+    out = impute.transform(data)
+
+    assert isinstance(impute.transformer, Pipeline)
+    assert impute.transformer.steps[0][0] == "null"

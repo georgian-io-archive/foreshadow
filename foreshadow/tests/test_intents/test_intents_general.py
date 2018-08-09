@@ -21,10 +21,19 @@ def test_numeric_intent_is_intent():
     assert NumericIntent.is_intent(X1)
 
 
-def test_categorical_intent_is_intent():
+def test_categorical_intent_is_intent_numeric():
     import pandas as pd
     from foreshadow.intents import CategoricalIntent
 
     X = pd.DataFrame([1, 2, 1, 1, 2, 1, 2])
+
+    assert CategoricalIntent.is_intent(X)
+
+
+def test_categorical_intent_is_intent_string():
+    import pandas as pd
+    from foreshadow.intents import CategoricalIntent
+
+    X = pd.DataFrame(["test"] * 10 + ["hi"] * 10)
 
     assert CategoricalIntent.is_intent(X)

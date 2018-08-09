@@ -15,7 +15,6 @@ def test_foreshadow_defaults():
         and isinstance(foreshadow.y_preprocessor, Preprocessor)
         and isinstance(foreshadow.estimator, AutoEstimator)
         and foreshadow.optimizer is None
-        and foreshadow.target is None
         and foreshadow.pipeline is None
         and foreshadow.data_columns is None
     )
@@ -98,20 +97,28 @@ def test_foreshadow_optimizer_custom():
     from sklearn.base import BaseEstimator
 
     class DummySearch(BaseSearchCV):
-        def __init__(self):
-            pass
+        pass
 
     # Need custom estimator to avoid warning
     estimator = BaseEstimator()
-    optimizer = DummySearch()
-    foreshadow = Foreshadow(estimator=estimator, optimizer=optimizer)
-    assert isinstance(foreshadow.optimizer, BaseSearchCV)
+    foreshadow = Foreshadow(estimator=estimator, optimizer=DummySearch)
+    assert issubclass(foreshadow.optimizer, BaseSearchCV)
 
 
-def test_foreshadow_optimizer_error():
+def test_foreshadow_optimizer_error_invalid():
     from foreshadow import Foreshadow
 
     optimizer = "Invalid"
+    with pytest.raises(ValueError) as e:
+        foreshadow = Foreshadow(optimizer=optimizer)
+
+    assert str(e.value) == "Invalid value passed as optimizer"
+
+
+def test_foreshadow_optimizer_error_wrongclass():
+    from foreshadow import Foreshadow
+
+    optimizer = Foreshadow
     with pytest.raises(ValueError) as e:
         foreshadow = Foreshadow(optimizer=optimizer)
 
@@ -123,12 +130,10 @@ def test_foreshadow_warns_on_set_estimator_optimizer():
     from sklearn.model_selection._search import BaseSearchCV
 
     class DummySearch(BaseSearchCV):
-        def __init__(self):
-            pass
+        pass
 
-    optimizer = DummySearch()
     with pytest.warns(Warning) as w:
-        foreshadow = Foreshadow(optimizer=optimizer)
+        foreshadow = Foreshadow(optimizer=DummySearch)
 
     assert str(w[0].message) == (
         "An automatic estimator cannot be used with an"
@@ -326,3 +331,167 @@ def test_foreshadow_predict_diff_cols():
         foreshadow_predict = foreshadow.predict(X_test[:, :-1])
 
     assert str(e.value) == "Predict must have the same columns as train columns"
+
+
+def test_foreshadow_param_optimize_fit():
+    import pandas as pd
+    from sklearn.base import BaseEstimator
+    from sklearn.model_selection._search import BaseSearchCV
+    from foreshadow import Foreshadow
+    from foreshadow.preprocessor import Preprocessor
+
+    data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+
+    class DummyRegressor(BaseEstimator):
+        def fit(self, X, y):
+            pass
+
+    class DummySearch(BaseSearchCV):
+        def __init__(self, estimator, params):
+            self.best_estimator_ = estimator
+
+        def fit(self, X, y=None, **fit_params):
+            pass
+
+    fs = Foreshadow(Preprocessor(), False, DummyRegressor(), DummySearch)
+
+    x = data.drop(["medv"], axis=1, inplace=False)
+    y = data[["medv"]]
+
+    fs.fit(x, y)
+    assert isinstance(fs.pipeline.steps[1][1], DummyRegressor)
+
+
+def test_foreshadow_param_optimize():
+    import pickle
+    import json
+    import pandas as pd
+    from sklearn.linear_model import LinearRegression
+    from sklearn.model_selection import train_test_split
+    from foreshadow import Foreshadow
+    from foreshadow.preprocessor import Preprocessor
+    from sklearn.model_selection import GridSearchCV
+    from foreshadow.optimizers.param_mapping import param_mapping
+    from sklearn.pipeline import Pipeline
+
+    data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    js = json.load(open("./foreshadow/tests/test_configs/optimizer_test.json", "r"))
+
+    fs = Foreshadow(Preprocessor(from_json=js), False, LinearRegression(), GridSearchCV)
+
+    fs.pipeline = Pipeline(
+        [("preprocessor", fs.X_preprocessor), ("estimator", fs.estimator)]
+    )
+
+    x = data.drop(["medv"], axis=1, inplace=False)
+    y = data[["medv"]]
+
+    x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
+
+    results = param_mapping(fs.pipeline, x_train, y_train)
+    truth = pickle.load(
+        open("./foreshadow/tests/test_configs/search_space_optimize.pkl", "rb")
+    )
+
+    assert results[0].keys() == truth[0].keys()
+
+
+def test_foreshadow_param_optimize_no_config():
+
+    import pickle
+    import pandas as pd
+    from sklearn.linear_model import LinearRegression
+    from sklearn.model_selection import train_test_split
+    from foreshadow import Foreshadow
+    from foreshadow.preprocessor import Preprocessor
+    from sklearn.model_selection import GridSearchCV
+    from foreshadow.optimizers.param_mapping import param_mapping
+    from sklearn.pipeline import Pipeline
+
+    data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+
+    fs = Foreshadow(Preprocessor(), False, LinearRegression(), GridSearchCV)
+
+    fs.pipeline = Pipeline(
+        [("preprocessor", fs.X_preprocessor), ("estimator", fs.estimator)]
+    )
+
+    x = data.drop(["medv"], axis=1, inplace=False)
+    y = data[["medv"]]
+
+    x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
+
+    results = param_mapping(fs.pipeline, x_train, y_train)
+    truth = pickle.load(
+        open("./foreshadow/tests/test_configs/search_space_no_cfg.pkl", "rb")
+    )
+
+    assert results[0].keys() == truth[0].keys()
+
+
+def test_foreshadow_param_optimize_no_combinations():
+
+    import pickle
+    import pandas as pd
+    from sklearn.linear_model import LinearRegression
+    from sklearn.model_selection import train_test_split
+    from foreshadow import Foreshadow
+    from foreshadow.preprocessor import Preprocessor
+    from sklearn.model_selection import GridSearchCV
+    from foreshadow.optimizers.param_mapping import param_mapping
+    from sklearn.pipeline import Pipeline
+
+    data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+
+    fs = Foreshadow(Preprocessor(from_json={}), False, LinearRegression(), GridSearchCV)
+
+    fs.pipeline = Pipeline(
+        [("preprocessor", fs.X_preprocessor), ("estimator", fs.estimator)]
+    )
+
+    x = data.drop(["medv"], axis=1, inplace=False)
+    y = data[["medv"]]
+
+    x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
+
+    results = param_mapping(fs.pipeline, x_train, y_train)
+    truth = pickle.load(
+        open("./foreshadow/tests/test_configs/search_space_no_combo.pkl", "rb")
+    )
+
+    assert results[0].keys() == truth[0].keys()
+
+
+def test_foreshadow_param_optimize_invalid_dict_key():
+
+    import pandas as pd
+    from sklearn.linear_model import LinearRegression
+    from sklearn.model_selection import train_test_split
+    from foreshadow import Foreshadow
+    from foreshadow.preprocessor import Preprocessor
+    from sklearn.model_selection import GridSearchCV
+    from foreshadow.optimizers.param_mapping import param_mapping
+    from sklearn.pipeline import Pipeline
+
+    data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+
+    fs = Foreshadow(
+        Preprocessor(from_json={"combinations": [{"fake.fake": "[1,2]"}]}),
+        False,
+        LinearRegression(),
+        GridSearchCV,
+    )
+
+    fs.pipeline = Pipeline(
+        [("preprocessor", fs.X_preprocessor), ("estimator", fs.estimator)]
+    )
+
+    x = data.drop(["medv"], axis=1, inplace=False)
+    y = data[["medv"]]
+
+    x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
+
+    with pytest.raises(ValueError) as e:
+        param_mapping(fs.pipeline, x_train, y_train)
+
+    assert str(e.value) == "Invalid JSON Key"

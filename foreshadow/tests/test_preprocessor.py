@@ -16,7 +16,7 @@ def patch_intents(mocker):
         children = ["TestNumericIntent", "TestIntentOne"]
 
         single_pipeline = []
-        multi_pipeline = [("pca", PCA(n_components=2))]
+        multi_pipeline = [("pca", PCA(n_components=2, name="pca"))]
 
         @classmethod
         def is_intent(cls, df):
@@ -26,7 +26,7 @@ def patch_intents(mocker):
         dtype = "float"
         children = []
 
-        single_pipeline = [("impute", Imputer(strategy="mean"))]
+        single_pipeline = [("impute", Imputer(strategy="mean", name="impute"))]
         multi_pipeline = []
 
         @classmethod
@@ -337,9 +337,9 @@ def test_preprocessor_fit_create_single_pipeline_default():
         assert type(proc_default.pipeline_map[c]).__name__ == "Pipeline"
 
     numeric = registry_eval("TestNumericIntent")
-    assert (
-        list(zip(*proc_default.pipeline_map["crim"].steps))[1]
-        == list(zip(*numeric.single_pipeline))[1]
+
+    assert str(list(zip(*proc_default.pipeline_map["crim"].steps))[1]) == str(
+        list(zip(*numeric.single_pipeline))[1]
     )
 
 
@@ -483,10 +483,9 @@ def test_preprocessor_make_pipeline():
     )
 
     assert proc.pipeline.steps[1][1].steps[1][0] == "TestGenericIntent"
-    assert (
+    assert str(
         proc.pipeline.steps[1][1].steps[1][1].transformer_list[0][2].steps
-        == registry_eval("TestGenericIntent").multi_pipeline
-    )
+    ) == str(registry_eval("TestGenericIntent").multi_pipeline)
 
     assert proc.pipeline.steps[1][1].steps[2][0] == "pca"
 
@@ -516,7 +515,70 @@ def test_preprocessor_fit_transform():
     )
 
 
-@pytest.mark.skip(reason="FIX ME, rebuild pkl file")
+def test_preprocessor_inverse_transform():
+
+    import numpy as np
+    import pandas as pd
+    from foreshadow.preprocessor import Preprocessor
+
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    js = {
+        "columns": {
+            "medv": [
+                "TestGenericIntent",
+                [["StandardScaler", "Scaler", {"with_mean": True}]],
+            ]
+        }
+    }
+    proc = Preprocessor(from_json=js)
+    col = df[["medv"]]
+    proc.fit(col)
+
+    assert proc.is_linear
+    assert np.allclose(proc.inverse_transform(proc.transform(col)).values, col.values)
+
+
+def test_preprocessor_inverse_transform_unfit():
+
+    import numpy as np
+    import pandas as pd
+    from foreshadow.preprocessor import Preprocessor
+
+    proc = Preprocessor()
+
+    with pytest.raises(ValueError) as e:
+        proc.inverse_transform(pd.DataFrame([1, 2, 3, 4]))
+
+    assert str(e.value) == "Pipeline not fit, cannot transform."
+
+
+def test_preprocessor_inverse_transform_multicol():
+
+    import pandas as pd
+    from foreshadow.preprocessor import Preprocessor
+
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    js = {
+        "columns": {
+            "medv": [
+                "TestGenericIntent",
+                [["StandardScaler", "Scaler", {"with_mean": True}]],
+            ]
+        }
+    }
+    proc = Preprocessor(from_json=js)
+    col = df[["medv", "crim"]]
+    proc.fit(col)
+    out = proc.transform(col)
+
+    assert not proc.is_linear
+
+    with pytest.raises(ValueError) as e:
+        proc.inverse_transform(out)
+
+    assert str(e.value) == "Pipeline does not support inverse transform!"
+
+
 def test_preprocessor_get_params():
     import json
     import pickle
@@ -535,7 +597,6 @@ def test_preprocessor_get_params():
     assert proc.get_params().keys() == truth.keys()
 
 
-@pytest.mark.skip(reason="FIX ME, rebuild pkl file")
 def test_preprocessor_set_params():
     import json
     import pickle
@@ -550,10 +611,9 @@ def test_preprocessor_set_params():
         )
     )
     proc.fit(df)
+    proc.set_params(**params)
 
-    out = proc.set_params(**params)
-
-    assert out == proc.pipeline
+    assert proc.get_params().keys() == params.keys()
 
 
 def test_preprocessor_malformed_json_transformer():
@@ -609,20 +669,20 @@ def test_preprocessor_get_param_no_pipeline():
     from foreshadow.preprocessor import Preprocessor
 
     proc = Preprocessor()
-    with pytest.raises(ValueError) as e:
-        proc.get_params()
+    param = proc.get_params()
 
-    assert str(e.value) == "Pipeline not fit!"
+    assert param == {"from_json": None}
 
 
 def test_preprocessor_set_param_no_pipeline():
     from foreshadow.preprocessor import Preprocessor
 
     proc = Preprocessor()
-    with pytest.raises(ValueError) as e:
-        proc.set_params(**{})
+    params = proc.get_params()
+    proc.set_params(**{})
+    nparam = proc.get_params()
 
-    assert str(e.value) == "Pipeline not fit!"
+    assert params == nparam
 
 
 def test_preprocessor_transform_no_pipeline():
