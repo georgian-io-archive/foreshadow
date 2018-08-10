@@ -22,13 +22,19 @@ def _register_intent(cls_target):
 
 def _unregister_intent(cls_target):
     global _registry
-    if not isinstance(cls_target, str) and all(isinstance(s, str) for s in cls_target):
+    def validate_input(clsname):
+        if clsname not in _registry:
+            raise ValueError("{} was not found in registry".format(clsname))
+
+    if isinstance(cls_target, list) and all(isinstance(s, str) for s in cls_target):
+        [validate_input(c) for c in cls_target]
         for c in cls_target:
-            if c in _registry:
-                del _registry[c]
+            del _registry[c]
     elif isinstance(cls_target, str):
-        if cls_target in _registry:
-            del _registry[cls_target]
+        validate_input(cls_target)
+        del _registry[cls_target]
+    else:
+        raise ValueError("Input must be either a string or a list of strings")
 
 
 def _set_registry(val):
