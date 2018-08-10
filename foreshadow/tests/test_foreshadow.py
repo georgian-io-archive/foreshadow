@@ -375,7 +375,7 @@ def test_foreshadow_param_optimize():
 
     from foreshadow import Foreshadow
     from foreshadow.preprocessor import Preprocessor
-    from foreshadow.optimizers.param_mapping import param_mapping
+    from foreshadow.optimizers.param_mapping import _param_mapping
 
     data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
     js = json.load(open("./foreshadow/tests/test_configs/optimizer_test.json", "r"))
@@ -391,7 +391,7 @@ def test_foreshadow_param_optimize():
 
     x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
 
-    results = param_mapping(fs.pipeline, x_train, y_train)
+    results = _param_mapping(fs.pipeline, x_train, y_train)
     truth = pickle.load(
         open("./foreshadow/tests/test_configs/search_space_optimize.pkl", "rb")
     )
@@ -410,7 +410,7 @@ def test_foreshadow_param_optimize_no_config():
 
     from foreshadow import Foreshadow
     from foreshadow.preprocessor import Preprocessor
-    from foreshadow.optimizers.param_mapping import param_mapping
+    from foreshadow.optimizers.param_mapping import _param_mapping
 
     data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
@@ -425,7 +425,7 @@ def test_foreshadow_param_optimize_no_config():
 
     x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
 
-    results = param_mapping(fs.pipeline, x_train, y_train)
+    results = _param_mapping(fs.pipeline, x_train, y_train)
 
     truth = pickle.load(
         open("./foreshadow/tests/test_configs/search_space_no_cfg.pkl", "rb")
@@ -445,7 +445,7 @@ def test_foreshadow_param_optimize_no_combinations():
 
     from foreshadow import Foreshadow
     from foreshadow.preprocessor import Preprocessor
-    from foreshadow.optimizers.param_mapping import param_mapping
+    from foreshadow.optimizers.param_mapping import _param_mapping
 
     data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
@@ -460,7 +460,7 @@ def test_foreshadow_param_optimize_no_combinations():
 
     x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
 
-    results = param_mapping(fs.pipeline, x_train, y_train)
+    results = _param_mapping(fs.pipeline, x_train, y_train)
     truth = pickle.load(
         open("./foreshadow/tests/test_configs/search_space_no_combo.pkl", "rb")
     )
@@ -477,7 +477,7 @@ def test_foreshadow_param_optimize_invalid_dict_key():
 
     from foreshadow import Foreshadow
     from foreshadow.preprocessor import Preprocessor
-    from foreshadow.optimizers.param_mapping import param_mapping
+    from foreshadow.optimizers.param_mapping import _param_mapping
 
     data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
@@ -498,6 +498,6 @@ def test_foreshadow_param_optimize_invalid_dict_key():
     x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
 
     with pytest.raises(ValueError) as e:
-        param_mapping(fs.pipeline, x_train, y_train)
+        _param_mapping(fs.pipeline, x_train, y_train)
 
     assert str(e.value) == "Invalid JSON Key"

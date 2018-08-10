@@ -14,12 +14,12 @@
 #
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__name__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__name__), '../../foreshadow'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = u'foreshadow'
+project = u'Foreshadow'
 copyright = u'2018, Georgian Partners'
 author = u'Adithya Balaji, Alexander Allen'
 
@@ -48,9 +48,8 @@ extensions = [
     'sphinx.ext.napoleon',
 ]
 
-napoleon_google_docstring = True
-# napoleon_use_param = False
-# napoleon_use_ivar = True
+# Autodoc Settings
+autodoc_default_flags = ['members', 'undoc-members']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -139,7 +138,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'foreshadow.tex', u'foreshadow Documentation',
+    (master_doc, 'Foreshadow.tex', u'Foreshadow Documentation',
      u'Adithya Balaji, Alexander Allen', 'manual'),
 ]
 
@@ -149,7 +148,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'foreshadow', u'foreshadow Documentation',
+    (master_doc, 'Foreshadow', u'Foreshadow Documentation',
      [author], 1)
 ]
 
@@ -160,8 +159,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'foreshadow', u'foreshadow Documentation',
-     author, 'foreshadow', 'One line description of project.',
+    (master_doc, 'Foreshadow', u'Foreshadow Documentation',
+     author, 'Foreshadow', 'One line description of project.',
      'Miscellaneous'),
 ]
 
@@ -177,3 +176,6 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+
+# Additional Modifications
+add_module_names = False

@@ -31,7 +31,7 @@ def _get_modules(classes, globals_, mname):
         copied_t.__module__ = mname
         globals_[copied_t.__name__] = wrap_transformer(copied_t)
 
-    return len(transformers)
+    return [t.__name__ for t in transformers]
 
 
 def wrap_transformer(transformer):

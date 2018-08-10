@@ -21,6 +21,6 @@ def _get_classes():
 
     return classes
 
-
-n = _get_modules(_get_classes(), globals(), __name__)
-print("Loaded {} internals transformer plugins".format(n))
+classes = _get_modules(_get_classes(), globals(), __name__)
+__all__ = classes
+print("Loaded {} internals transformer plugins".format(len(classes)))

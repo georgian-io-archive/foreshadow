@@ -15,7 +15,7 @@ from .preprocessor import Preprocessor
 from .estimators.auto import AutoEstimator
 from .estimators.meta import MetaEstimator
 from .utils import check_df
-from .optimizers.param_mapping import param_mapping
+from .optimizers.param_mapping import _param_mapping
 
 
 class Foreshadow(BaseEstimator):
@@ -129,7 +129,7 @@ class Foreshadow(BaseEstimator):
             self.pipeline = Pipeline([("estimator", self.estimator)])
 
         if self.optimizer is not None:
-            param_ranges = param_mapping(deepcopy(self.pipeline), X_df, y_df)
+            param_ranges = _param_mapping(deepcopy(self.pipeline), X_df, y_df)
 
             opt_instance = self.optimizer(self.pipeline, param_ranges)
             opt_instance.fit(X_df, y_df)

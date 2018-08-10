@@ -13,7 +13,7 @@ from ..preprocessor import Preprocessor
 config_dict = {"StandardScaler.with_std": [True, False]}
 
 
-def param_mapping(pipeline, X_df, y_df):
+def _param_mapping(pipeline, X_df, y_df):
 
     preprocessors = [
         k for k, v in pipeline.get_params().items() if isinstance(v, Preprocessor)
