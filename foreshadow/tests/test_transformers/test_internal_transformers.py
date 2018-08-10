@@ -6,11 +6,11 @@ def test_box_cox():
     import pandas as pd
     import scipy.stats as ss
 
-    from foreshadow.transformers import BoxCoxTransformer
+    from foreshadow.transformers.internals import BoxCox
 
     np.random.seed(0)
     data = pd.DataFrame(ss.lognorm.rvs(size=100, s=0.954))
-    bc = BoxCoxTransformer()
+    bc = BoxCox()
     bc_data = bc.fit_transform(data)
     assert ss.shapiro(bc_data)[1] > 0.05
     assert np.allclose(
@@ -20,7 +20,7 @@ def test_box_cox():
 
 def test_transformer_fancy_impute_set_params():
     import pandas as pd
-    from foreshadow.transformers import FancyImputer
+    from foreshadow.transformers.internals import FancyImputer
 
     impute = FancyImputer(method="SimpleFill", fill_method="median")
     impute.set_params(**{"fill_method": "mean"})
@@ -37,7 +37,7 @@ def test_transformer_fancy_impute_set_params():
 
 
 def test_transformer_fancy_impute_get_params():
-    from foreshadow.transformers import FancyImputer
+    from foreshadow.transformers.internals import FancyImputer
 
     impute = FancyImputer(method="SimpleFill", fill_method="median")
 
@@ -45,7 +45,7 @@ def test_transformer_fancy_impute_get_params():
 
 
 def test_transformer_fancy_impute_invalid_init():
-    from foreshadow.transformers import FancyImputer
+    from foreshadow.transformers.internals import FancyImputer
 
     with pytest.raises(ValueError) as e:
         impute = FancyImputer(method="INVALID")
@@ -57,7 +57,7 @@ def test_transformer_fancy_impute_invalid_init():
 
 
 def test_transformer_fancy_impute_invalid_params():
-    from foreshadow.transformers import FancyImputer
+    from foreshadow.transformers.internals import FancyImputer
 
     with pytest.raises(ValueError) as e:
         impute = FancyImputer(method="SimpleFill", fill_method="mean")

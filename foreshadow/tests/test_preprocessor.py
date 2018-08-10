@@ -4,9 +4,9 @@ import pytest
 @pytest.fixture(autouse=True)
 def patch_intents(mocker):
     from copy import deepcopy
-    from ..intents.intents_base import BaseIntent
-    from ..intents.intents_registry import _set_registry, get_registry
-    from ..transformers import Imputer, PCA
+    from ..intents.base import BaseIntent
+    from ..intents.registry import _set_registry, get_registry
+    from ..transformers.externals import Imputer, PCA
 
     _saved_registry = deepcopy(get_registry())
     _set_registry({})  # clear registry
@@ -114,7 +114,7 @@ def test_preprocessor_init_json_intent_map():
 
 def test_preprocessor_intent_dependency_order():
     from foreshadow.preprocessor import Preprocessor
-    from foreshadow.intents.intents_registry import registry_eval
+    from foreshadow.intents.registry import registry_eval
 
     proc = Preprocessor()
     proc.intent_map = {
@@ -324,7 +324,7 @@ def test_preprocessor_fit_create_single_pipeline_default():
 
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
-    from foreshadow.intents.intents_registry import registry_eval
+    from foreshadow.intents.registry import registry_eval
 
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
     cols = list(df)
@@ -430,7 +430,7 @@ def test_preprocessor_make_pipeline():
     import pandas as pd
     from collections import Counter
     from foreshadow.preprocessor import Preprocessor
-    from foreshadow.intents.intents_registry import registry_eval
+    from foreshadow.intents.registry import registry_eval
 
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
     proc = Preprocessor(

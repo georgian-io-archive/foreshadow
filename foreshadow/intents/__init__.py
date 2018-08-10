@@ -1,3 +1,3 @@
-from .general_intents import *
-from .intents_registry import *
-from .intents_base import *
+from .general import *
+from .registry import *
+from .base import *

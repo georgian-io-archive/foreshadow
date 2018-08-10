@@ -2,7 +2,7 @@
 Intent base and registry defentions
 """
 
-from .intents_registry import _IntentRegistry, registry_eval
+from .registry import _IntentRegistry, registry_eval
 
 
 class BaseIntent(metaclass=_IntentRegistry):

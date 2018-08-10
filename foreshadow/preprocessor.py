@@ -4,8 +4,8 @@ from copy import deepcopy
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 
-from .transformers import ParallelProcessor
-from .intents.intents_registry import registry_eval
+from .transformers.base import ParallelProcessor
+from .intents.registry import registry_eval
 from .intents import GenericIntent
 from .utils import check_df
 
@@ -20,7 +20,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
     contains pipelines neccesary to preprocess the information in the feature. Then
     constructs an sklearn pipeline to execute those pipelines across the dataframe.
 
-    Optionally takes in JSON configuration file to override internal decision making.
+    Optionally takes in JSON configuration file to override internals decision making.
 
     Attributes:
         intent_map: Dictionary mapping str column name keys to an Intent class
@@ -35,7 +35,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             dependency tree
         pipeline: Internal representation of sklearn pipeline. Can be exported and
             act independently of Preprocessor object.
-        is_fit: Boolean representing the fit state of the internal pipeline.
+        is_fit: Boolean representing the fit state of the internals pipeline.
 
     """
 
@@ -268,7 +268,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         self.pipeline.set_params(**params)
 
     def serialize(self):
-        """Serialized internal arguments and logic.
+        """Serialized internals arguments and logic.
 
         Creates a python dictionary that represents the processes used to transform
         the dataframe. This can be exported to a JSON file and modified in order to
@@ -374,8 +374,18 @@ def resolve_pipeline(pipeline_json):
         params = trans[2]
 
         try:
-            module = __import__("transformers", globals(), locals(), [clsname], 1)
-            cls = getattr(module, clsname)
+            module_internals = __import__(
+                "transformers.internals", globals(), locals(), ["object"], 1
+            )
+            module_externals = __import__(
+                "transformers.externals", globals(), locals(), ["object"], 1
+            )
+            cls = getattr(
+                module_internals
+                if hasattr(module_internals, clsname)
+                else module_externals,
+                clsname,
+            )
         except Exception as e:
             raise ValueError("Could not import defined transformer {}".format(clsname))
 

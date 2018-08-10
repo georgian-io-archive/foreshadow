@@ -5,6 +5,19 @@ module foreshadow.transformers
 
 """
 
+import inspect
+
 from sklearn.preprocessing import StandardScaler, RobustScaler, MinMaxScaler, Imputer
 from sklearn.decomposition import PCA
 from category_encoders import OneHotEncoder, HashingEncoder
+
+from .transformers import _get_modules
+
+
+def _get_classes():
+    """Returns list of classes found in transforms directory."""
+    return [c for c in globals().values() if inspect.isclass(c)]
+
+
+n = _get_modules(_get_classes(), globals(), __name__)
+print("Loaded {} external transformer plugins".format(n))

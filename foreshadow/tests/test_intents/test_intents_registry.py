@@ -1,15 +1,11 @@
 import pytest
 
-from foreshadow.intents.intents_registry import (
-    get_registry,
-    registry_eval,
-    _unregister_intent,
-)
+from foreshadow.intents.registry import get_registry, registry_eval, _unregister_intent
 
 
 def test_unregister():
-    from foreshadow.intents.intents_base import BaseIntent
-    from foreshadow.intents.intents_registry import _unregister_intent
+    from foreshadow.intents.base import BaseIntent
+    from foreshadow.intents.registry import _unregister_intent
 
     class TestIntent(BaseIntent):
         dtype = "TEST"
@@ -28,8 +24,8 @@ def test_unregister():
 
 
 def test_get_registry():
-    from foreshadow.intents.intents_base import BaseIntent
-    from foreshadow.intents.intents_registry import _unregister_intent, get_registry
+    from foreshadow.intents.base import BaseIntent
+    from foreshadow.intents.registry import _unregister_intent, get_registry
 
     class TestIntent(BaseIntent):
         dtype = "TEST"
@@ -41,8 +37,8 @@ def test_get_registry():
 
 
 def test_registry_eval():
-    from foreshadow.intents.intents_base import BaseIntent
-    from foreshadow.intents.intents_registry import _unregister_intent, registry_eval
+    from foreshadow.intents.base import BaseIntent
+    from foreshadow.intents.registry import _unregister_intent, registry_eval
 
     class TestIntent(BaseIntent):
         dtype = "TEST"
@@ -53,8 +49,8 @@ def test_registry_eval():
 
 
 def test_samename_subclass():
-    from foreshadow.intents.intents_base import BaseIntent
-    from foreshadow.intents.intents_registry import _unregister_intent
+    from foreshadow.intents.base import BaseIntent
+    from foreshadow.intents.registry import _unregister_intent
 
     class TestIntent(BaseIntent):
         dtype = "TEST"

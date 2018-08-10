@@ -12,8 +12,8 @@ from sklearn.model_selection._search import BaseSearchCV
 from sklearn.pipeline import Pipeline
 
 from .preprocessor import Preprocessor
-from .estimators.auto_estimator import AutoEstimator
-from .estimators.meta_estimator import MetaEstimator
+from .estimators.auto import AutoEstimator
+from .estimators.meta import MetaEstimator
 from .utils import check_df
 from .optimizers.param_mapping import param_mapping
 

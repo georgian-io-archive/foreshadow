@@ -10,19 +10,18 @@ import numpy as np
 import scipy.stats as ss
 from sklearn.pipeline import Pipeline
 
-from ..transformers import SmartTransformer
-from ..transformers import (
+from ..transformers.base import SmartTransformer
+from ..transformers.internals import BoxCox, FancyImputer
+from ..transformers.externals import (
     MinMaxScaler,
     StandardScaler,
     RobustScaler,
-    BoxCoxTransformer,
     OneHotEncoder,
     HashingEncoder,
-    FancyImputer,
 )
 
 
-class SmartScaler(SmartTransformer):
+class Scaler(SmartTransformer):
     def _get_transformer(self, X, y=None, p_val_cutoff=0.05, **fit_params):
         data = X.iloc[:, 0]
         # statistically invalid but good enough measure of relative closeness
@@ -35,14 +34,12 @@ class SmartScaler(SmartTransformer):
         best_dist = max(p_vals, key=p_vals.get)
         best_dist = best_dist if p_vals[best_dist] >= p_val_cutoff else None
         if best_dist is None:
-            return Pipeline(
-                [("box_cox", BoxCoxTransformer()), ("robust_scaler", RobustScaler())]
-            )
+            return Pipeline([("box_cox", BoxCox()), ("robust_scaler", RobustScaler())])
         else:
             return distributions[best_dist]
 
 
-class SmartCoder(SmartTransformer):
+class Encoder(SmartTransformer):
     def _get_transformer(self, X, y=None, unique_num_cutoff=30, **fit_params):
         data = X.iloc[:, 0]
         col_name = X.columns[0]
@@ -53,7 +50,7 @@ class SmartCoder(SmartTransformer):
             return HashingEncoder(n_components=30, cols=[col_name])
 
 
-class SmartSimpleImputer(SmartTransformer):
+class SimpleImputer(SmartTransformer):
     def __init__(self, threshold=0.1, **kwargs):
         self.threshold = threshold
         super().__init__(**kwargs)
@@ -86,7 +83,7 @@ class SmartSimpleImputer(SmartTransformer):
             return Pipeline([("null", None)])
 
 
-class SmartMultiImputer(SmartTransformer):
+class MultiImputer(SmartTransformer):
     def _choose_multi(self, X):
         # For now simply default to KNN multiple imputation (generic case)
         # The rest of them seem to have constraints and no published directly comparable

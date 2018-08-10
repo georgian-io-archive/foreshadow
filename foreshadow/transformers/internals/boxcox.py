@@ -6,7 +6,7 @@ from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
 
-class BoxCoxTransformer(BaseEstimator, TransformerMixin):
+class BoxCox(BaseEstimator, TransformerMixin):
     """Transforms data using a BoxCox transformation"""
 
     def fit(self, X, y=None):

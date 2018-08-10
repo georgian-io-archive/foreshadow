@@ -1,3 +1,8 @@
+[run]
+branch = True
+source = foreshadow
+omit = foreshadow/tests/*
+
 [report]
 exclude_lines =
     pragma: no cover

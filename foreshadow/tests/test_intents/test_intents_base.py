@@ -2,7 +2,7 @@ import pytest
 
 
 def test_instantiate_base():
-    from foreshadow.intents.intents_base import BaseIntent
+    from foreshadow.intents.base import BaseIntent
 
     with pytest.raises(TypeError) as e:
         b = BaseIntent()
@@ -10,7 +10,7 @@ def test_instantiate_base():
 
 
 def test_mock_subclass_missing_dtype():
-    from foreshadow.intents.intents_base import BaseIntent
+    from foreshadow.intents.base import BaseIntent
 
     with pytest.raises(NotImplementedError) as e:
 
@@ -24,7 +24,7 @@ def test_mock_subclass_missing_dtype():
 
 
 def test_mock_subclass_missing_children():
-    from foreshadow.intents.intents_base import BaseIntent
+    from foreshadow.intents.base import BaseIntent
 
     with pytest.raises(NotImplementedError) as e:
 
@@ -38,8 +38,8 @@ def test_mock_subclass_missing_children():
 
 
 def test_valid_mock_subclass():
-    from foreshadow.intents.intents_registry import _unregister_intent
-    from foreshadow.intents.intents_base import BaseIntent
+    from foreshadow.intents.registry import _unregister_intent
+    from foreshadow.intents.base import BaseIntent
 
     class TestIntent(BaseIntent):
         dtype = "TEST"
@@ -53,8 +53,8 @@ def test_valid_mock_subclass():
 
 
 def test_to_string():
-    from foreshadow.intents.intents_registry import _unregister_intent
-    from foreshadow.intents.intents_base import BaseIntent
+    from foreshadow.intents.registry import _unregister_intent
+    from foreshadow.intents.base import BaseIntent
 
     class TestIntent(BaseIntent):
         dtype = "TEST"
@@ -91,8 +91,8 @@ def test_to_string():
 
 
 def test_priority_traverse():
-    from foreshadow.intents.intents_registry import _unregister_intent
-    from foreshadow.intents.intents_base import BaseIntent
+    from foreshadow.intents.registry import _unregister_intent
+    from foreshadow.intents.base import BaseIntent
 
     class TestIntent(BaseIntent):
         dtype = "TEST"
@@ -122,8 +122,8 @@ def test_priority_traverse():
 def test_is_intent_implementation():
     import pandas as pd
 
-    from foreshadow.intents.intents_registry import _unregister_intent
-    from foreshadow.intents.intents_base import BaseIntent
+    from foreshadow.intents.registry import _unregister_intent
+    from foreshadow.intents.base import BaseIntent
 
     X_df = pd.DataFrame([[1]], columns=["A"])
 

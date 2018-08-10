@@ -5,17 +5,9 @@ General intents defenitions
 import pandas as pd
 import numpy as np
 
-from .intents_base import BaseIntent
-from ..transformers import Imputer, PCA
+from .base import BaseIntent
 
-from ..transformers import (
-    SmartSimpleImputer,
-    SmartMultiImputer,
-    SmartScaler,
-    SmartCoder,
-)
-
-DROP_THRESHOLD = 0.2
+from ..transformers.smart import SimpleImputer, MultiImputer, Scaler, Encoder
 
 
 class GenericIntent(BaseIntent):
@@ -30,7 +22,7 @@ class GenericIntent(BaseIntent):
     children = ["NumericIntent", "CategoricalIntent"]
 
     single_pipeline = []
-    multi_pipeline = [("multi_impute", SmartMultiImputer())]
+    multi_pipeline = [("multi_impute", MultiImputer())]
 
     @classmethod
     def is_intent(cls, df):
@@ -48,10 +40,7 @@ class NumericIntent(GenericIntent):
     dtype = "float"
     children = []
 
-    single_pipeline = [
-        ("simple_imputer", SmartSimpleImputer()),
-        ("scaler", SmartScaler()),
-    ]
+    single_pipeline = [("simple_imputer", SimpleImputer()), ("scaler", Scaler())]
     multi_pipeline = []
 
     @classmethod
@@ -75,7 +64,7 @@ class CategoricalIntent(GenericIntent):
     dtype = "int"
     children = []
 
-    single_pipeline = [("impute_encode", SmartCoder())]
+    single_pipeline = [("impute_encode", Encoder())]
     multi_pipeline = []
 
     @classmethod

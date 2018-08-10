@@ -22,10 +22,10 @@ class AutoEstimator(BaseEstimator):
     
     Args:
         problem_type (str): The problem type, 'regression' or 'classification'
-        auto_estimator (str): The automatic estimator, 'tpot' or 'autosklearn'
+        auto (str): The automatic estimator, 'tpot' or 'autosklearn'
         include_preprocessors (bool): Whether include preprocessors in automl pipelines
         estimator_kwargs (dict): A dictionary of args to pass to the specified 
-            auto estimator (both problem_type and auto_estimator must be specified)
+            auto estimator (both problem_type and auto must be specified)
     """
 
     estimator_choices = {
@@ -39,12 +39,12 @@ class AutoEstimator(BaseEstimator):
     def __init__(
         self,
         problem_type=None,
-        auto_estimator=None,
+        auto=None,
         include_preprocessors=False,
         estimator_kwargs=None,
     ):
         self.problem_type = problem_type
-        self.auto_estimator = auto_estimator
+        self.auto = auto
         self.include_preprocessors = include_preprocessors
         self.estimator_kwargs = estimator_kwargs  # this needs to be checked last
         self.estimator_class = None
@@ -59,21 +59,21 @@ class AutoEstimator(BaseEstimator):
             raise ValueError("problem type must be in {}".format(pt_options))
         self._problem_type = pt
 
-    auto_estimator = property(operator.attrgetter("_auto_estimator"))
+    auto = property(operator.attrgetter("_auto"))
 
-    @auto_estimator.setter
-    def auto_estimator(self, ae):
+    @auto.setter
+    def auto(self, ae):
         ae_options = ["tpot", "autosklearn"]
         if ae is not None and ae not in ae_options:
-            raise ValueError("auto_estimator must be in {}".format(ae_options))
-        self._auto_estimator = ae
+            raise ValueError("auto must be in {}".format(ae_options))
+        self._auto = ae
 
     estimator_kwargs = property(operator.attrgetter("_estimator_kwargs"))
 
     @estimator_kwargs.setter
     def estimator_kwargs(self, ek):
         if ek is not None:
-            if self.problem_type is None or self.auto_estimator is None:
+            if self.problem_type is None or self.auto is None:
                 raise ValueError(
                     "estimator_kwargs can only be set when estimator and problem are "
                     "specified"
@@ -83,9 +83,7 @@ class AutoEstimator(BaseEstimator):
             ):
                 raise ValueError("estimator_kwargs must be a valid kwarg dictionary")
 
-            self.estimator_class = self.estimator_choices[self.auto_estimator][
-                self.problem_type
-            ]
+            self.estimator_class = self.estimator_choices[self.auto][self.problem_type]
             self._validate_estimator_kwargs(ek)  # estimator class is required for this
             self._estimator_kwargs = ek
         else:
@@ -117,14 +115,14 @@ class AutoEstimator(BaseEstimator):
         """Configure auto estimators to perform similarly (time scale) and remove 
         preprocessors if necessary
         """
-        if self.auto_estimator == "tpot" and "config_dict" not in self.estimator_kwargs:
+        if self.auto == "tpot" and "config_dict" not in self.estimator_kwargs:
             self.estimator_kwargs["config_dict"] = get_tpot_config(
                 self.problem_type, self.include_preprocessors
             )
             if "max_time_mins" not in self.estimator_kwargs:
                 self.estimator_kwargs["max_time_mins"] = 60
         elif (
-            self.auto_estimator == "autosklearn"
+            self.auto == "autosklearn"
             and not any(
                 k in self.estimator_kwargs
                 for k in ["include_preprocessors", "exclude_preprocessors"]
@@ -141,12 +139,8 @@ class AutoEstimator(BaseEstimator):
             if self.problem_type is None
             else self.problem_type
         )
-        self.auto_estimator = (
-            self._pick_estimator()
-            if self.auto_estimator is None
-            else self.auto_estimator
-        )
-        self.estimator_class = self.estimator_choices[self.auto_estimator][
+        self.auto = self._pick_estimator() if self.auto is None else self.auto
+        self.estimator_class = self.estimator_choices[self.auto][
             self.problem_type
         ]  # update estimator class in case of autodetect
         self._pre_configure_estimator_kwargs()  # validate estimator kwargs

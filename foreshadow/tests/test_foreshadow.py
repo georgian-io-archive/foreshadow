@@ -337,6 +337,7 @@ def test_foreshadow_param_optimize_fit():
     import pandas as pd
     from sklearn.base import BaseEstimator
     from sklearn.model_selection._search import BaseSearchCV
+
     from foreshadow import Foreshadow
     from foreshadow.preprocessor import Preprocessor
 
@@ -365,14 +366,16 @@ def test_foreshadow_param_optimize_fit():
 def test_foreshadow_param_optimize():
     import pickle
     import json
+
     import pandas as pd
     from sklearn.linear_model import LinearRegression
     from sklearn.model_selection import train_test_split
+    from sklearn.pipeline import Pipeline
+    from sklearn.model_selection import GridSearchCV
+
     from foreshadow import Foreshadow
     from foreshadow.preprocessor import Preprocessor
-    from sklearn.model_selection import GridSearchCV
     from foreshadow.optimizers.param_mapping import param_mapping
-    from sklearn.pipeline import Pipeline
 
     data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
     js = json.load(open("./foreshadow/tests/test_configs/optimizer_test.json", "r"))
@@ -397,16 +400,17 @@ def test_foreshadow_param_optimize():
 
 
 def test_foreshadow_param_optimize_no_config():
-
     import pickle
+
     import pandas as pd
     from sklearn.linear_model import LinearRegression
     from sklearn.model_selection import train_test_split
+    from sklearn.model_selection import GridSearchCV
+    from sklearn.pipeline import Pipeline
+
     from foreshadow import Foreshadow
     from foreshadow.preprocessor import Preprocessor
-    from sklearn.model_selection import GridSearchCV
     from foreshadow.optimizers.param_mapping import param_mapping
-    from sklearn.pipeline import Pipeline
 
     data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
@@ -422,6 +426,7 @@ def test_foreshadow_param_optimize_no_config():
     x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
 
     results = param_mapping(fs.pipeline, x_train, y_train)
+
     truth = pickle.load(
         open("./foreshadow/tests/test_configs/search_space_no_cfg.pkl", "rb")
     )
@@ -430,16 +435,17 @@ def test_foreshadow_param_optimize_no_config():
 
 
 def test_foreshadow_param_optimize_no_combinations():
-
     import pickle
+
     import pandas as pd
     from sklearn.linear_model import LinearRegression
     from sklearn.model_selection import train_test_split
+    from sklearn.model_selection import GridSearchCV
+    from sklearn.pipeline import Pipeline
+
     from foreshadow import Foreshadow
     from foreshadow.preprocessor import Preprocessor
-    from sklearn.model_selection import GridSearchCV
     from foreshadow.optimizers.param_mapping import param_mapping
-    from sklearn.pipeline import Pipeline
 
     data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
@@ -463,15 +469,15 @@ def test_foreshadow_param_optimize_no_combinations():
 
 
 def test_foreshadow_param_optimize_invalid_dict_key():
-
     import pandas as pd
     from sklearn.linear_model import LinearRegression
     from sklearn.model_selection import train_test_split
+    from sklearn.model_selection import GridSearchCV
+    from sklearn.pipeline import Pipeline
+
     from foreshadow import Foreshadow
     from foreshadow.preprocessor import Preprocessor
-    from sklearn.model_selection import GridSearchCV
     from foreshadow.optimizers.param_mapping import param_mapping
-    from sklearn.pipeline import Pipeline
 
     data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
