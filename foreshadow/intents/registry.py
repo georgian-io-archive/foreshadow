@@ -22,6 +22,7 @@ def _register_intent(cls_target):
 
 def _unregister_intent(cls_target):
     global _registry
+
     def validate_input(clsname):
         if clsname not in _registry:
             raise ValueError("{} was not found in registry".format(clsname))

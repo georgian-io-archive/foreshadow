@@ -130,6 +130,7 @@ class AutoEstimator(BaseEstimator):
             and not self.include_preprocessors
         ):
             self.estimator_kwargs["include_preprocessors"] = "no_preprocessing"
+
         return self.estimator_kwargs
 
     def _setup_estimator(self, y):
@@ -171,7 +172,7 @@ class AutoEstimator(BaseEstimator):
         X = check_df(X)
         return self.estimator.predict(X)
 
-    def predict_proba(self, X):
+    def predict_proba(self, X):  # pragma: no cover
         """Uses the trained estimator to predict the probabilities of responses
         for an input dataset
 

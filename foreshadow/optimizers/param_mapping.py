@@ -86,12 +86,12 @@ def _set_path(key, value, original):
         for p in path[:-1]:
             if isinstance(temp, list):
                 temp = temp[int(p)]
-            elif isinstance(temp, dict):
+            else:  # Dictionary
                 temp = temp[p]
 
         if isinstance(temp, list):
             temp[int(path[-1])] = value
-        elif isinstance(temp, dict):
+        else:  # Dictionary
             temp[path[-1]] = value
 
     except KeyError as e:

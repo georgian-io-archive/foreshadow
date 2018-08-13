@@ -90,16 +90,18 @@ class Sigcopy(object):
 
         name = tgt_func.__name__
         argspec = self.argspec
-        if argspec[3] is not None:
-            argspec = (
-                argspec[0:3]
-                + (
-                    tuple(
-                        [s if type(s).__name__ != "type" else None for s in argspec[3]]
-                    ),
-                )
-                + argspec[4:]
+        argspec = (
+            argspec[0:3]
+            + (
+                tuple(
+                    [
+                        s if type(s).__name__ != "type" else None
+                        for s in (argspec[3] if argspec[3] is not None else [])
+                    ]
+                ),
             )
+            + argspec[4:]
+        )
 
         newargspec = (
             (argspec[0] + tgt_argspec[0][1:],)

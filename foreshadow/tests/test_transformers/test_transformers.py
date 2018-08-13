@@ -48,6 +48,18 @@ def test_transformer_wrapper_function():
     assert np.array_equal(custom_tf.values, sklearn_tf)
 
 
+def test_transformer_keep_cols():
+    import pandas as pd
+    from foreshadow.transformers.externals import StandardScaler as CustomScaler
+
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+
+    custom = CustomScaler(keep_columns=True)
+    custom_tf = custom.fit_transform(df[["crim"]])
+
+    assert len(list(custom_tf)) == 2
+
+
 def test_transformer_naming_override():
     from foreshadow.transformers.externals import StandardScaler
     import pandas as pd
@@ -327,7 +339,21 @@ def test_smarttransformer_function_override():
     assert smart_data.equals(std_data)
 
 
-def test_smarttransformer_set_params():
+def test_smarttransformer_function_override_invalid():
+    from foreshadow.transformers.base import SmartTransformer
+
+    class TestSmartTransformer(SmartTransformer):
+        pass
+
+    smart = TestSmartTransformer(override="BAD")
+
+    with pytest.raises(ValueError) as e:
+        smart.fit([1, 2, 3])
+
+    assert str(e.value) == "Could not import defined transformer BAD"
+
+
+def test_smarttransformer_set_params_override():
     from foreshadow.transformers.base import SmartTransformer
     from foreshadow.transformers.externals import StandardScaler
 
@@ -338,6 +364,35 @@ def test_smarttransformer_set_params():
     smart.set_params(**{"override": "StandardScaler"})
 
     assert isinstance(smart.transformer, StandardScaler)
+
+
+def test_smarttransformer_set_params_empty():
+
+    from foreshadow.transformers.base import SmartTransformer
+
+    class TestSmartTransformer(SmartTransformer):
+        pass
+
+    smart = TestSmartTransformer()
+    smart.set_params()
+
+    assert smart.transformer is None
+
+
+def test_smarttransformer_set_params_default():
+    from foreshadow.transformers.base import SmartTransformer
+    from foreshadow.transformers.externals import StandardScaler
+
+    class TestSmartTransformer(SmartTransformer):
+        def _get_transformer(self, X, y=None, **fit_params):
+            return StandardScaler()
+
+    smart = TestSmartTransformer()
+    smart.fit([1, 2, 3])
+
+    smart.set_params(**{"with_mean": False})
+
+    assert not smart.transformer.with_mean
 
 
 def test_smarttransformer_get_params():

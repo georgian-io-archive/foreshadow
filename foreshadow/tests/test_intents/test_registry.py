@@ -22,6 +22,7 @@ def test_unregister():
     _unregister_intent(TestIntent2.__name__)
     _unregister_intent([TestIntent1.__name__, TestIntent.__name__])
 
+
 def test_unregister_invalid_input():
     from foreshadow.intents.registry import _unregister_intent
 
@@ -29,6 +30,7 @@ def test_unregister_invalid_input():
         _unregister_intent(123)
 
     assert str(e.value) == "Input must be either a string or a list of strings"
+
 
 def test_unregister_intent_does_not_exist():
     from foreshadow.intents.registry import _unregister_intent
@@ -40,7 +42,7 @@ def test_unregister_intent_does_not_exist():
         _unregister_intent(["IntentDoesNotExist"])
 
     err_str = "was not found in registry"
-    
+
     assert err_str in str(e1.value)
     assert err_str in str(e1.value)
 

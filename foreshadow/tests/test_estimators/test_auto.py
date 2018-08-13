@@ -77,6 +77,20 @@ def test_invalid_kwarg_dict(problem_type, auto):
     assert "The following invalid kwargs were passed in:" in str(e.value)
 
 
+def test_override_kwarg_dict():
+    from foreshadow.estimators.auto import AutoEstimator
+
+    ae = AutoEstimator(
+        problem_type="regression",
+        auto="autosklearn",
+        estimator_kwargs={"include_preprocessors": ["kitchen_sinks"]},
+    )
+
+    est = ae._setup_estimator([1, 2, 3])
+
+    assert est.include_preprocessors == ["kitchen_sinks"]
+
+
 def test_temp():
     import pandas as pd
     import numpy as np

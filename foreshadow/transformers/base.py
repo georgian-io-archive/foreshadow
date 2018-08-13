@@ -269,7 +269,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         self.keep_columns = params.pop("keep_columns", self.keep_columns)
 
         self.override = params.pop("override", self.override)
-        if self.override:
+        if self.override is not None:
             self.transformer = self._resolve(self.override)(**self.kwargs)
 
         if self.transformer is not None:
