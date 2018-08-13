@@ -68,7 +68,7 @@ def test_smart_impute_simple_none():
     from foreshadow.transformers.smart import SimpleImputer
 
     impute = SimpleImputer(threshold=0.05)
-    df = pd.read_csv("./foreshadow/tests/data/heart-h.csv")
+    df = pd.read_csv("./foreshadow/tests/test_data/heart-h.csv")
 
     data = df[["chol"]]
 
@@ -83,13 +83,14 @@ def test_smart_impute_simple_mean():
     from foreshadow.transformers.smart import SimpleImputer
 
     impute = SimpleImputer()
-    df = pd.read_csv("./foreshadow/tests/data/heart-h.csv")
+    df = pd.read_csv("./foreshadow/tests/test_data/heart-h.csv")
 
     data = df[["chol"]]
 
     impute.fit(data)
     out = impute.transform(data)
-    truth = pd.read_csv("./foreshadow/tests/data/heart-h_impute_mean.csv", index_col=0)
+    truth = pd.read_csv("./foreshadow/tests/test_data/heart-h_impute_mean.csv",
+                        index_col=0)
 
     assert out.equals(truth)
 
@@ -100,7 +101,7 @@ def test_smart_impute_simple_median():
     from foreshadow.transformers.smart import SimpleImputer
 
     impute = SimpleImputer()
-    df = pd.read_csv("./foreshadow/tests/data/heart-h.csv")
+    df = pd.read_csv("./foreshadow/tests/test_data/heart-h.csv")
 
     data = df["chol"].values
     data = np.append(data, [2 ** 10] * 100)
@@ -108,7 +109,7 @@ def test_smart_impute_simple_median():
     impute.fit(data)
     out = impute.transform(data)
     truth = pd.read_csv(
-        "./foreshadow/tests/data/heart-h_impute_median.csv", index_col=0
+        "./foreshadow/tests/test_data/heart-h_impute_median.csv", index_col=0
     )
 
     assert out.equals(truth)
@@ -120,13 +121,14 @@ def test_smart_impute_multiple():
     from foreshadow.transformers.smart import MultiImputer
 
     impute = MultiImputer()
-    df = pd.read_csv("./foreshadow/tests/data/heart-h.csv")
+    df = pd.read_csv("./foreshadow/tests/test_data/heart-h.csv")
 
     data = df[["thalach", "chol", "trestbps", "age"]]
 
     impute.fit(data)
     out = impute.transform(data)
-    truth = pd.read_csv("./foreshadow/tests/data/heart-h_impute_multi.csv", index_col=0)
+    truth = pd.read_csv("./foreshadow/tests/test_data/heart-h_impute_multi.csv",
+                        index_col=0)
 
     assert np.allclose(truth.values, out.values)
 
@@ -142,7 +144,7 @@ def test_smart_impute_multiple_none():
     data = df[["crim", "nox", "indus"]]
 
     impute.fit(data)
-    out = impute.transform(data)
+    impute.transform(data)
 
     assert isinstance(impute.transformer, Pipeline)
     assert impute.transformer.steps[0][0] == "null"

@@ -25,13 +25,14 @@ def test_transformer_fancy_impute_set_params():
     impute = FancyImputer(method="SimpleFill", fill_method="median")
     impute.set_params(**{"fill_method": "mean"})
 
-    df = pd.read_csv("./foreshadow/tests/data/heart-h.csv")
+    df = pd.read_csv("./foreshadow/tests/test_data/heart-h.csv")
 
     data = df[["chol"]]
 
     impute.fit(data)
     out = impute.transform(data)
-    truth = pd.read_csv("./foreshadow/tests/data/heart-h_impute_mean.csv", index_col=0)
+    truth = pd.read_csv("./foreshadow/tests/test_data/heart-h_impute_mean.csv",
+                        index_col=0)
 
     assert out.equals(truth)
 
