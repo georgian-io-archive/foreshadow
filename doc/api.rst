@@ -1,5 +1,6 @@
 .. _api:
 
+
 Foreshadow
 ----------
 .. automodule:: foreshadow.foreshadow
@@ -23,35 +24,20 @@ Transformers
 ------------
 Internal Transformers
 ~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: foreshadow.transformers.BoxCoxTransformer
-   :members:
-   :undoc-members:
 
-.. autoclass:: foreshadow.transformers.FancyImputer
+.. automodule:: foreshadow.transformers.internals
    :members:
    :undoc-members:
 
 Smart Transformers
 ~~~~~~~~~~~~~~~~~~
-.. autoclass:: foreshadow.transformers.SmartScaler
-   :members:
-   :undoc-members:
-
-.. autoclass:: foreshadow.transformers.SmartCoder
-   :members:
-   :undoc-members:
-
-.. autoclass:: foreshadow.transformers.SmartSimpleImputer
-   :members:
-   :undoc-members:
-
-.. autoclass:: foreshadow.transformers.SmartMultiImputer
+.. automodule:: foreshadow.transformers.smart
    :members:
    :undoc-members:
 
 Transformer Bases
 ~~~~~~~~~~~~~~~~~
-.. autoclass:: foreshadow.transformers.SmartTransformer
+.. autoclass:: foreshadow.transformers.base.SmartTransformer
    :members:
    :undoc-members:
 
