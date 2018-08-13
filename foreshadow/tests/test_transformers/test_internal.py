@@ -31,8 +31,9 @@ def test_transformer_fancy_impute_set_params():
 
     impute.fit(data)
     out = impute.transform(data)
-    truth = pd.read_csv("./foreshadow/tests/test_data/heart-h_impute_mean.csv",
-                        index_col=0)
+    truth = pd.read_csv(
+        "./foreshadow/tests/test_data/heart-h_impute_mean.csv", index_col=0
+    )
 
     assert out.equals(truth)
 

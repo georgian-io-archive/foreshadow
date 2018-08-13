@@ -89,8 +89,9 @@ def test_smart_impute_simple_mean():
 
     impute.fit(data)
     out = impute.transform(data)
-    truth = pd.read_csv("./foreshadow/tests/test_data/heart-h_impute_mean.csv",
-                        index_col=0)
+    truth = pd.read_csv(
+        "./foreshadow/tests/test_data/heart-h_impute_mean.csv", index_col=0
+    )
 
     assert out.equals(truth)
 
@@ -127,8 +128,9 @@ def test_smart_impute_multiple():
 
     impute.fit(data)
     out = impute.transform(data)
-    truth = pd.read_csv("./foreshadow/tests/test_data/heart-h_impute_multi.csv",
-                        index_col=0)
+    truth = pd.read_csv(
+        "./foreshadow/tests/test_data/heart-h_impute_multi.csv", index_col=0
+    )
 
     assert np.allclose(truth.values, out.values)
 
