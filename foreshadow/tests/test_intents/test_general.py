@@ -25,7 +25,7 @@ def test_categorical_intent_is_intent_numeric():
     import pandas as pd
     from foreshadow.intents import CategoricalIntent
 
-    X = pd.DataFrame([1, 2, 1, 1, 2, 1, 2])
+    X = pd.DataFrame([1] * 10 + [2] * 20)
 
     assert CategoricalIntent.is_intent(X)
 
