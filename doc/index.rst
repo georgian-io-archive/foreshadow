@@ -32,16 +32,40 @@ Foreshadow: Simple Machine Learning Scaffolding
    model.fit(X_train, y_train)
    model.score(X_test, y_test)
 
+
+About
+-----
+Foreshadow is an automatic pipeline generation tool that makes creating, iterating,
+and evaluating machine learning pipelines a fast and intuitive experience allowing
+data scientists to spend more time on data science and less time on code.
+
+
 Key Features
 ------------
-- TODO
+- Automatic Feature Engineering
+- Automatic Model Selection
+- Rapid Pipeline Development / Iteration
+- Automatic Parameter Optimization
+- Ease of Extensibility
+- Scikit-Learn Compatible
 
 Foreshadow supports python 3.5+
 
 
 The User Guide
 --------------
-- TODO
+.. toctree::
+   :maxdepth: 3
+
+   users
+
+
+The Developer Guide
+-------------------
+.. toctree::
+   :maxdepth: 3
+
+   developers
 
 API
 ---
