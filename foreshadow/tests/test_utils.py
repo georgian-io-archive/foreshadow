@@ -28,6 +28,15 @@ def test_check_df_convert_to_df():
     assert isinstance(input_df, pd.DataFrame)
 
 
+def test_check_df_convert_series_to_df():
+    import pandas as pd
+    from foreshadow.utils import check_df
+
+    input_ser = pd.Series([1, 2, 3, 4])
+    input_df = check_df(input_ser)
+    assert isinstance(input_df, pd.DataFrame)
+
+
 def test_check_df_raises_on_invalid():
     from foreshadow.utils import check_df
 
@@ -35,5 +44,5 @@ def test_check_df_raises_on_invalid():
     with pytest.raises(ValueError) as e:
         input_df = check_df(input_df)
     assert str(e.value) == (
-        "Invalid input type, neither pd.DataFrame, np.ndarray, nor" " list"
+        "Invalid input type, neither pd.DataFrame, pd.Series, np.ndarray, nor" " list"
     )

@@ -28,9 +28,11 @@ def check_df(input_data, ignore_none=False):
                 {"names": input_data.columns}
             )._maybe_dedup_names(input_data.columns)
         return input_data
+    elif isinstance(input_data, pd.Series):
+        return input_data.to_frame()
     elif isinstance(input_data, np.ndarray) or isinstance(input_data, list):
         return pd.DataFrame(input_data)
     else:
         raise ValueError(
-            "Invalid input type, neither pd.DataFrame, np.ndarray, nor list"
+            "Invalid input type, neither pd.DataFrame, pd.Series, np.ndarray, nor list"
         )
