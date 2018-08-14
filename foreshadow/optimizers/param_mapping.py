@@ -107,7 +107,7 @@ def _extract_config_params(param):
         names = []
         for i, t in enumerate(trace[0:-1]):
             key = "__".join(trace[0 : i + 1])
-            name = type(param[key]).__name__
+            name = type(param.get(key, None)).__name__
             if name not in [
                 "ParallelProcessor",
                 "Pipeline",

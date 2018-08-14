@@ -135,13 +135,15 @@ class ParallelProcessor(FeatureUnion):
 
         return list(full - partial)
 
-    def fit(self, X, y=None):
+    def fit(self, X, y=None, **fit_params):
         """See base class."""
         self.transformer_list = list(self.transformer_list)
         self._validate_transformers()
 
         transformers = Parallel(n_jobs=self.n_jobs)(
-            delayed(_fit_one_transformer)(trans, _slice_cols(X, cols), y)
+            delayed(_fit_one_transformer)(
+                trans, _slice_cols(X, cols), y, **{**fit_params, **_inject_df(trans, X)}
+            )
             for name, cols, trans, weight in self._iter()
         )
 
@@ -179,7 +181,12 @@ class ParallelProcessor(FeatureUnion):
 
         result = Parallel(n_jobs=self.n_jobs)(
             delayed(_pandas_fit_transform_one)(
-                trans, weight, _slice_cols(X, cols), y, cols, **fit_params
+                trans,
+                weight,
+                _slice_cols(X, cols),
+                y,
+                cols,
+                **{**fit_params, **_inject_df(trans, X)}
             )
             for name, cols, trans, weight in self._iter()
         )
@@ -239,7 +246,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
             "name": self.name,
             "keep_columns": self.keep_columns,
             **(
-                self.transformer.get_params(deep=True)
+                {k: v for k, v in self.transformer.get_params(deep=True).items()}
                 if self.transformer is not None
                 else {}
             ),
@@ -273,7 +280,12 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
             self.transformer = self._resolve(self.override)(**self.kwargs)
 
         if self.transformer is not None:
-            self.transformer.set_params(**params)
+            valid_params = {
+                k.partition("__")[2]: v
+                for k, v in params.items()
+                if k.split("__")[0] == "transformer"
+            }
+            self.transformer.set_params(**valid_params)
 
     def _get_transformer(self, X, y=None, **fit_params):
         raise NotImplementedError(
@@ -323,18 +335,19 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         self.transformer.name = self.name
         self.transformer.keep_columns = self.keep_columns
 
-    def transform(self, X, **kwargs):
+    def transform(self, X):
         """See base class."""
         X = check_df(X)
-        self._verify_transformer(X, **kwargs)
-        return self.transformer.transform(X, **kwargs)
+        self._verify_transformer(X)
+        return self.transformer.transform(X)
 
     def fit(self, X, y=None, **kwargs):
         """See base class."""
         X = check_df(X)
         y = check_df(y, ignore_none=True)
         self._verify_transformer(X, y, refit=True)
-        return self.transformer.fit(X, y, **kwargs)
+        inject = _inject_df(self.transformer, kwargs.pop("full_df", None))
+        return self.transformer.fit(X, y, **{**kwargs, **inject})
 
 
 def _slice_cols(X, cols, drop_level=True):
@@ -365,6 +378,14 @@ def _slice_cols(X, cols, drop_level=True):
     )
 
     return df
+
+
+def _inject_df(trans, df):
+    return {
+        "{}__full_df".format(k): df
+        for k, v in trans.get_params().items()
+        if isinstance(v, BaseEstimator)
+    }
 
 
 def _pandas_transform_one(transformer, weight, X, cols):

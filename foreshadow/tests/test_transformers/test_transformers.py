@@ -390,7 +390,7 @@ def test_smarttransformer_set_params_default():
     smart = TestSmartTransformer()
     smart.fit([1, 2, 3])
 
-    smart.set_params(**{"with_mean": False})
+    smart.set_params(**{"transformer__with_mean": False})
 
     assert not smart.transformer.with_mean
 
@@ -404,7 +404,17 @@ def test_smarttransformer_get_params():
     smart = TestSmartTransformer(
         override="Imputer", missing_values="NaN", strategy="mean"
     )
+    smart.fit([1, 2, 3])
 
     params = smart.get_params()
 
-    assert params == {"override": "Imputer", "name": None, "keep_columns": False}
+    assert params == {
+        "override": "Imputer",
+        "name": None,
+        "keep_columns": False,
+        "axis": 0,
+        "copy": True,
+        "missing_values": "NaN",
+        "strategy": "mean",
+        "verbose": 0,
+    }

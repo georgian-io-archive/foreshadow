@@ -179,7 +179,10 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
     df = check_df(df)
 
     init_cols = [str(col) for col in df]
-    out = func(self, df, *args, **kwargs)
+    try:
+        out = func(self, df, *args, **kwargs)
+    except Exception as e:
+        out = func(self, df, *args)
 
     # If output is numpy array (transform has occurred)
     if isinstance(out, np.ndarray):
