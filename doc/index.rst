@@ -55,7 +55,7 @@ Foreshadow supports python 3.5+
 The User Guide
 --------------
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    users
 
@@ -63,7 +63,7 @@ The User Guide
 The Developer Guide
 -------------------
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    developers
 
@@ -79,6 +79,19 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   faq
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   contrib
 
 
 .. |License| image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg

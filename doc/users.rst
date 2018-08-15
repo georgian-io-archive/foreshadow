@@ -19,7 +19,6 @@ Also import sklearn, pandas, and numpy for the demo
 .. code-block:: python
 
     import pandas as pd
-    import numpy as np
 
     from sklearn.datasets import boston_housing
     from sklearn.model_selection import train_test_split
@@ -42,8 +41,8 @@ object
 
     X_train, X_test, y_train, y_test = train_test_split(bostonX_df,
        bostony_df, test_size=0.2)
-    fs = fs.Foreshadow()
-    fs.fit(X_train, y_train)
+    shadow = fs.Foreshadow()
+    shadow.fit(X_train, y_train)
 
 Now `fs` is a fit Foreshadow object for which all feature engineering has been
 performed and the estimator has been trained and optimized. It is now possible to
@@ -51,10 +50,157 @@ utilize this exactly as a fit sklearn estimator to make predictions.
 
 .. code-block:: python
 
-    model.score(X_test, y_test)
+    shadow.score(X_test, y_test)
 
 Great, you now have a working Foreshaow installation! Keep reading to learn how to
 export, modify and construct pipelines of your own.
+
+
+Recommended Workflow
+~~~~~~~~~~~~~~~~~~~~
+
+There are many ways to use Foreshadow, but we reccomend using this workflow initially as it is the quickest and easiest way to
+generate a high-performing model with minimum effort.
+
+First, prep your data into X_train, X_test, y_train and y_test pandas dataframes. For example:
+
+.. code-block:: python
+
+    boston = load_boston()
+    bostonX_df = pd.DataFrame(boston.data, columns=boston.feature_names)
+    bostony_df = pd.DataFrame(boston.target, columns=['target'])
+
+    X_train, X_test, y_train, y_test = train_test_split(bostonX_df,
+       bostony_df, test_size=0.2)
+
+
+Then initialize a default Foreshadow object with a sklearn estimator such as XGBoost. We want this
+process to be fast so we can iterate, so for the time being we will override the default TPOT model selection,
+ensembling and hyperparameter optimization for regression problems with a simple default XGBoost regressor.
+
+.. code-block:: python
+
+    shadow = fs.Foreshadow(estimator=XGBRegressor())
+
+Then fit the train data on that object
+
+.. code-block:: python
+
+    shadow.fit(X_train, Y_train)
+
+You now have an initial pipeline. Lets see how it did and serialize it to a JSON file so we can look at it.
+
+.. code-block:: python
+
+    # Score the pipeline
+    shadow.score(X_test, y_test)
+
+    # Serialize the pipeline
+    x_proc = shadow.X_preprocessor.serialize()
+    y_proc = shadow.y_preprocessor.serialize()
+
+    # Write the serialized pipelines to file
+    json.dump(x_proc, open("x_proc.json", "w"))
+    json.dump(y_proc, open("y_proc.json", "w"))
+
+Now we have two pipeline configurations, one for our X data and one for our Y data. We also have an initial idea
+of how well the initial pipeline performed.
+
+Open the configuration JSON and make a change. (Any change will do, see the `Configuration`_ section for more info on this)
+
+Now lets re-create the Foreshadow object with your changes.
+
+.. code-block:: python
+
+    # Load in the configs from file
+    x_proc = json.load(open("x_proc.json", "r"))
+    y_proc = json.load(open("y_proc.json", "r"))
+
+    # Create the preprocessors
+    x_processor = Preprocessor(from_json=x_proc)
+    y_processor = Preprocessor(from_json=y_proc)
+
+    # Create the foreshadow object
+    shadow = fs.Foreshadow(X_preprocessor=x_processor, y_preprocessor=y_processor, estimator=XGBRegressor())
+
+    # Fit the foreshadow object
+    shadow.fit(X_train, y_train)
+
+    # Score the foreshadow object
+    shadow.score(X_test, y_test)
+
+Now we can see the performance difference as a result of the changes. This process is slow and tedious though. Lets add a combinations section to the configuration
+file and let an optimizer do the heavy lifting of evaluating the framework.
+
+First, read the `Hyperparameter Tuning`_ section about how hyperparameter optimization works in Foreshadow. Then add a combinations sections to the exported JSON
+file(s) you have from the preprocessor. Remember that the more parameters you add, the longer it will take. We recommend focusing on a set of related parameters one by one
+and optimizing them individually. e.g. Optimize thresholds for Scaling, then thresholds for Encoding, then feature reduction (PCA / LDA) etc.
+
+Once you add a combinations section to figure out the best parameters, create the Foreshadow object again, except this time with an optimizer such as GridSearchCV or RandomSearchCV from sklearn.
+
+.. code-block:: python
+
+    # Load in the configs from file
+    x_proc_combo = json.load(open("x_proc_combo.json", "r"))
+    y_proc_combo = json.load(open("y_proc_combo.json", "r"))
+
+    # Create the preprocessors
+    x_processor = Preprocessor(from_json=x_proc_combo)
+    y_processor = Preprocessor(from_json=y_proc_combo)
+
+    # Create the foreshadow object
+    shadow = fs.Foreshadow(X_preprocessor=x_processor, y_preprocessor=y_processor, estimator=XGBRegressor(), optimizer=GridSearchCV)
+
+    # Fit the foreshadow object
+    shadow.fit(X_train, y_train)
+
+    # Score the foreshadow object
+    shadow.score(X_test, y_test)
+
+    # Export the best pipelines
+
+    # Serialize the pipeline
+    x_proc_best = shadow.X_preprocessor.serialize()
+    y_proc_best = shadow.y_preprocessor.serialize()
+
+    # Write the serialized pipelines to file
+    json.dump(x_proc_best, open("x_proc_best.json", "w"))
+    json.dump(y_proc_best, open("y_proc_best.json", "w"))
+
+
+Once you have a preprocessor pipeline that you are happy with, you should attempt to optimize the model. The AutoEstimator will be good for this
+as it will automatically do model selection and hyperparameter optimization. To do this, construct the Foreshadow object in the same way as above, using
+the optimized JSON configuration, but instead of passing in an sklearn estimator and optimizer, leave those fields as default. This will force Foreshadow to use the defaults
+which automatically chooses either TPOT (regression) or AutoSklearn (classification) to fit the preprocessed data without any of their in-built feature engineering.
+
+*This will take a long time to execute... get yourself a cup of coffee or tea, sit back, and relax*
+
+.. code-block:: python
+
+    # Load in the configs from file
+    x_proc_best = json.load(open("x_proc_best.json", "r"))
+    y_proc_best = json.load(open("y_proc_best.json", "r"))
+
+    # Create the preprocessors
+    x_processor = Preprocessor(from_json=x_proc_best)
+    y_processor = Preprocessor(from_json=y_proc_best)
+
+    # Create the foreshadow object
+    shadow = fs.Foreshadow(X_preprocessor=x_processor, y_preprocessor=y_processor)
+
+    # Fit the foreshadow object
+    shadow.fit(X_train, y_train)
+
+    # Score the foreshadow object
+    shadow.score(X_test, y_test)
+
+    # Extract the optimized pipeline
+    pipeline = shadow.pipeline
+
+    # Save it to file
+    pickle.dump(pipeline, open("final_pipeline.pkl", "wb"))
+
+Great! Now you have an optimized sklearn pipeline that you can share, load, manipulate, and inspect!
 
 
 Foreshadow
@@ -84,6 +230,13 @@ Here is an example of a fully defined :py:obj:`Foreshadow <foreshadow.foreshadow
 
 This code is equivalent to the :code:`fs.Foreshadow()` definition but explicitly defines each component. In order to disable one or more
 of these components simply pass :code:`False` to the named parameter.
+
+:py:obj:`AutoEstimator <foreshadow.estimators.AutoEstimator>` is automatically defined as the estimator for Foreshadow. This estimator detects the problem type (classification or regression)
+and then either uses TPOT or Auto-Sklearn to serve as the estimator. The preprocessing methods are stripped from TPOT and Auto-Sklearn when they are used in this manner as we favor our own
+Preprocessor over their methods. As such these two frameworks will only perform model selection and estimator hyperparameter optimization by default.
+
+**NOTE:** Future work includes implementing TPOT and AutoSkleans optimizers into this platform such that they can be used for both model selection and optimizing hyperparameters for the feature
+engineering aspects. Until then, however, they will only optimize the model as they are blind to the earlier parts of the pipeline.
 
 Foreshadow, acting as an estimator is also capable of being used in a :py:obj:`sklearn.pipeline.Pipeline` object. For example:
 
@@ -220,13 +373,13 @@ Column Override
 
 .. code-block:: json
 
-      "columns":{
+      {"columns":{
         "crim":["TestGenericIntent",
                 [
                   ["StandardScaler", "Scaler", {"with_mean":false}]
                 ]],
         "indus":["TestGenericIntent"]
-      }
+      }}
 
 This section is a dictionary containing two keys, each of which are columns in the Boston Housing set. First we will look at the value
 of the :code:`"crim"` key which is a list.
@@ -259,14 +412,14 @@ Intent Override
 
 .. code-block:: json
 
-    "intents":{
+    {"intents":{
         "TestNumericIntent":{
           "single":[
             ["Imputer", "impute", {"strategy":"mean"}]
           ],
           "multi":[]
         }
-    }
+    }}
 
 Next, we will examine the :code:`intents` section. This section is used to override intents globally, unlike the columns section which overrode intents on a per-column
 basis. Any changes to intents defined in this section will apply across the entire Preprocessor pipeline.
@@ -286,22 +439,100 @@ Postprocessor Override
 
 .. code-block:: json
 
-    "postprocess":[
+    {"postprocess":[
         ["pca",["age"],[
             ["PCA", "PCA", {"n_components":2}]
         ]]
-    ]
+    ]}
 
 Finally, in the :code:`postprocess` section of the configuration, you can manually define pipelines to execute on columns of your choosing. The
 content of this section is a list of lists of the form :code:`[[name, [cols, ...], pipeline], ...]`. Each list defines a pipeline that will
 execute on certain columns. These processes execute after the intent pipelines!
 
-**IMPORTANT** There are two ways of selecting columns through the cols list. By default, specifying a column, or a list of columns
+**IMPORTANT** There are two ways of selecting columns through the cols list. By default, specifying a column, or a list of columns, will automatically select
+the columns in the data frame that are computed columns deriving from that column. For example, in the list above, all columns derived from the :code:`age` column
+will be passed into the PCA transformer and reduced to 2 components. To override this behavior and select columns by their name at the current stage in the process,
+prepend a dollar sign to the column name. For example :code:`["$age_scale_0", "$indus_encode_0", "$indus_encode_1"]`
+
+
+Through overriding these various components, any combination of feature engineering can be achieved. To generate this configuration dictionary after fitting a Preprocessor or a
+Foreshadow object, run the :code:`serialize()` method on the Preprocessor object or on :code:`Foreshadow.X_preprocessor` or :code:`y_preprocessor`. That dictionary can be programmatically modified in python
+or can be serialized to JSON where it can be modified by hand. By default the output of :code:`serialize()` will fix all
+feature engineering to be constant. To only enforce sections of the configuration output from :code:`serialize()` simply copy and paste the relevant sections into a new JSON file.
 
 
 
 Hyperparameter Tuning
 ---------------------
 
-Test
+Foreshadow also supports hyperparameter tuning through two mechanisms. By default, Foreshadow will use :py:obj:`AutoEstimator <foreshadow.estimators.AutoEstimator>` as an estimator
+in the pipeline. This estimator will automatically choose either TPOT, for regression problems or AutoSklearn for classification problems. It also strips all feature engineering and preprocessing
+from these two frameworks. This, in effect, uses TPOT and AutoSklearn only for model selection and model hyperparameter optimization. These estimators are not passed hyperparameters from the Preprocessor
+and thus will not optimize them.
+
+The second method of hyperparameter tuning is to use a vanilla sklearn estimator when declaring foreshadow (such as XGBoost or LogisticRegression) and also pass in a :py:obj:`BaseSearchCV <sklearn.grid_search.BaseSearchCV>`
+class into the :code:`optimizer` parameter. This will use the provided optimizer to perform a parameter search on both the preprocessing and the model at the same time. The parameter search space for this configuration is defined
+in two locations.
+
+Default Dictionary
+~~~~~~~~~~~~~~~~~~
+
+The first is in :code:`foreshadow/optimizers/param_mapping.py` which contains a dictionary like:
+
+.. code-block:: python
+
+    config_dict = {
+        "StandardScaler.with_std": [True, False]
+        "StandardScaler.with_mean": [True, False]
+        }
+
+This dictionary contains keys and values of the form :code:`ClassName.attribute: iterator(test_values)` If any items in the pipeline match the classname.attribute selector then that attribute will be added as a
+hyperparameter with the values of the iterator (list, generator, etc.) as the search space.
+
+**NOTE:** In the future, this dictionary will be able to be passed in to Foreshadow, for now it must be modified manually if changes wish to be made.
+
+JSON Combinations Config
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you wish to manually define spaces to search for the Preprocessor those can be defined in the configuration dictionary of the preprocessor in the :code:`combinations` section.
+This is what a combinations section looks like.
+
+.. code-block:: json
+
+    {
+      "columns":{
+        "crim":["GenericIntent",
+                [
+                  ["StandardScaler", "Scaler", {"with_mean":false}]
+                ]],
+        "indus":["GenericIntent"]
+      },
+
+      "postprocess":[],
+
+      "intents":{},
+
+      "combinations": [
+        {
+          "columns.crim.1.0.2.with_mean": "[True, False]",
+          "columns.crim.1.0.1": "['Scaler', 'SuperScaler']"
+        }
+      ]
+
+    }
+
+
+This section of the configuration file is a list of dictionaries. Each dictionary represents a single parameter space definition that should be searched. Within these dictionaries
+each key is an identifier for a value in another part of the configuration file. For example :code:`columns.crim.1.0.2.with_mean` will identify the *columns* key and then the *crim* key, then
+the 1th index of that list, the 0th index of the next list, the 2nd index of the next list, and finally the *with_mean* key of that dictionary. Each value is a string of **python code** that
+will be evaluated to create an **iterator** object that will be used to generate the parameter space.
+
+In this example 4 combinations will be searched:
+
+* :code:`StandardScaler(with_mean=False, name="Scaler")`
+* :code:`StandardScaler(with_mean=True, name="Scaler")`
+* :code:`StandardScaler(with_mean=False, name="SuperScaler")`
+* :code:`StandardScaler(with_mean=True, name="SuperScaler")`
+
+*In addition to any search parameters defined in the default search space dictionary above*
 
