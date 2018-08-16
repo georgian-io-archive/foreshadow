@@ -46,3 +46,15 @@ def test_check_df_raises_on_invalid():
     assert str(e.value) == (
         "Invalid input type, neither pd.DataFrame, pd.Series, np.ndarray, nor" " list"
     )
+
+
+def test_module_not_installed():
+    from foreshadow.utils import check_module_installed
+
+    assert check_module_installed("not_installed") == False
+
+
+def test_module_installed():
+    from foreshadow.utils import check_module_installed
+
+    assert check_module_installed("sys") == True

@@ -27,7 +27,7 @@ def test_auto_config_invalid_input():
 
 
 def test_invalid_problem_type():
-    from foreshadow.estimators.auto import AutoEstimator
+    from foreshadow.estimators import AutoEstimator
 
     with pytest.raises(ValueError) as e:
         ae = AutoEstimator(problem_type="test")
@@ -35,26 +35,15 @@ def test_invalid_problem_type():
 
 
 def test_invalid_auto():
-    from foreshadow.estimators.auto import AutoEstimator
+    from foreshadow.estimators import AutoEstimator
 
     with pytest.raises(ValueError) as e:
         ae = AutoEstimator(auto="test")
     assert "auto must be in " in str(e.value)
 
 
-def test_invalid_kwargs_vague_estimator():
-    from foreshadow.estimators.auto import AutoEstimator
-
-    with pytest.raises(ValueError) as e:
-        ae = AutoEstimator(estimator_kwargs="test")
-    assert (
-        str(e.value)
-        == "estimator_kwargs can only be set when estimator and problem are specified"
-    )
-
-
 def test_invalid_kwargs_not_dict():
-    from foreshadow.estimators.auto import AutoEstimator
+    from foreshadow.estimators import AutoEstimator
 
     with pytest.raises(ValueError) as e:
         ae = AutoEstimator(
@@ -63,22 +52,8 @@ def test_invalid_kwargs_not_dict():
     assert str(e.value) == "estimator_kwargs must be a valid kwarg dictionary"
 
 
-@pytest.mark.parametrize(
-    "problem_type,auto",
-    list(itertools.product(["regression", "classification"], ["tpot", "autosklearn"])),
-)
-def test_invalid_kwarg_dict(problem_type, auto):
-    from foreshadow.estimators.auto import AutoEstimator
-
-    with pytest.raises(ValueError) as e:
-        ae = AutoEstimator(
-            problem_type=problem_type, auto=auto, estimator_kwargs={"test": "test"}
-        )
-    assert "The following invalid kwargs were passed in:" in str(e.value)
-
-
 def test_override_kwarg_dict():
-    from foreshadow.estimators.auto import AutoEstimator
+    from foreshadow.estimators import AutoEstimator
 
     ae = AutoEstimator(
         problem_type="regression",
@@ -95,7 +70,7 @@ def test_temp():
     import pandas as pd
     import numpy as np
 
-    from foreshadow.estimators.auto import AutoEstimator
+    from foreshadow.estimators import AutoEstimator
 
     y = pd.DataFrame(np.array([0] * 50 + [1] * 50))
     ae1 = AutoEstimator()
@@ -108,7 +83,7 @@ def test_default_estimator_setup_classification():
     import pandas as pd
     from autosklearn.classification import AutoSklearnClassifier
 
-    from foreshadow.estimators.auto import AutoEstimator
+    from foreshadow.estimators import AutoEstimator
 
     y = pd.DataFrame(np.array([0] * 50 + [1] * 50))
     ae = AutoEstimator()
@@ -116,12 +91,30 @@ def test_default_estimator_setup_classification():
     assert isinstance(est, AutoSklearnClassifier)
 
 
+def test_default_estimator_setup_classification_autosklearn_not_installed(mocker):
+    import numpy as np
+    import pandas as pd
+    from tpot import TPOTClassifier
+
+    from foreshadow.estimators import AutoEstimator
+
+    mocker.patch.dict("sys.modules", {"autosklearn": None})
+
+    y = pd.DataFrame(np.array([0] * 50 + [1] * 50))
+    ae = AutoEstimator()
+    with pytest.warns(Warning) as w:
+        est = ae._setup_estimator(y)
+
+    assert isinstance(est, TPOTClassifier)
+    assert "is not available, defaulting to" in str(w[0].message)
+
+
 def test_default_estimator_setup_regression():
     import numpy as np
     import pandas as pd
     from tpot import TPOTRegressor
 
-    from foreshadow.estimators.auto import AutoEstimator
+    from foreshadow.estimators import AutoEstimator
 
     y = pd.DataFrame(np.random.normal(0, 1, 200))
     ae = AutoEstimator()
@@ -130,7 +123,7 @@ def test_default_estimator_setup_regression():
 
 
 @pytest.mark.skip(
-    reason="Waiting on issue " "https://github.com/automl/auto-sklearn/issues/514"
+    reason="Waiting on issue https://github.com/automl/auto-sklearn/issues/514"
 )
 @pytest.mark.slowest
 def test_auto_default_to_autosklearn():
@@ -139,7 +132,7 @@ def test_auto_default_to_autosklearn():
     import pandas as pd
     from sklearn.model_selection import train_test_split
 
-    from foreshadow.estimators.auto import AutoEstimator
+    from foreshadow.estimators import AutoEstimator
 
     seed = 0
     np.random.seed(seed)
@@ -191,7 +184,7 @@ def test_auto_default_to_tpot():
     import pandas as pd
     from sklearn.model_selection import train_test_split
 
-    from foreshadow.estimators.auto import AutoEstimator
+    from foreshadow.estimators import AutoEstimator
 
     seed = 0
     np.random.seed(seed)

@@ -36,3 +36,12 @@ def check_df(input_data, ignore_none=False):
         raise ValueError(
             "Invalid input type, neither pd.DataFrame, pd.Series, np.ndarray, nor list"
         )
+
+
+def check_module_installed(name):
+    try:
+        __import__(name)
+    except ImportError:
+        return False
+    else:
+        return True
