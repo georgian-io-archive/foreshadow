@@ -9,7 +9,7 @@ from ..utils import check_df
 
 class MetaEstimator(BaseEstimator):
     """A wrapper for estimators that allows data preprocessing on the response 
-    variable(s)
+    variable(s) using Preprocessor
     
     Args:
         estimator: An instance of a subclass of sklearn.BaseEstimator
@@ -70,7 +70,7 @@ class MetaEstimator(BaseEstimator):
                 each sample
         
         Returns:
-            (float): A computed prediction fitness score
+            float: A computed prediction fitness score
         """
         X = check_df(X)
         y = check_df(y)

@@ -142,7 +142,10 @@ class AutoEstimator(BaseEstimator):
         ):
             self.estimator_kwargs["include_preprocessors"] = "no_preprocessing"
 
-        if (self.auto == "autosklearn" and "time_left_for_this_task" not in self.estimator_kwargs):
+        if (
+            self.auto == "autosklearn"
+            and "time_left_for_this_task" not in self.estimator_kwargs
+        ):
             self.estimator_kwargs["time_left_for_this_task"] = 60
 
         return self.estimator_kwargs
@@ -215,7 +218,7 @@ class AutoEstimator(BaseEstimator):
             y (pandas.DataFrame or numpy.ndarray or list): The response feature(s)
         
         Returns:
-            (float): A computed prediction fitness score
+            float: A computed prediction fitness score
         """
         X = check_df(X)
         y = check_df(y)

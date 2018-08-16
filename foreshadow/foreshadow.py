@@ -186,7 +186,7 @@ class Foreshadow(BaseEstimator):
                 each sample
 
         Returns:
-            (float): A computed prediction fitness score
+            float: A computed prediction fitness score
         """
         data_df = check_df(data_df)
         y_df = check_df(y_df)
