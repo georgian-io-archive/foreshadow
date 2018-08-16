@@ -23,8 +23,10 @@ class Foreshadow(BaseEstimator):
     a machine learning model
     
     Args:
-        X_preprocessor (optional): An instance of foreshadow.Preprocessor
-        y_preprocessor (optional): An instance of foreshadow.Preprocessor
+        X_preprocessor (optional): An instance of foreshadow.Preprocessor (set to False to force no 
+                                   preprocessor initialization)
+        y_preprocessor (optional): An instance of foreshadow.Preprocessor (set to False to force no 
+                                   preprocessor initialization)
         estimator (optional): An instance of an estimator that extends 
                               sklearn.BaseEstimator
         optimizer (optional): An instance of an optimizer that extends 
