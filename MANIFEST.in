@@ -2,5 +2,8 @@ include tox.ini
 include setup.py
 include pre_requirements.txt
 include requirements.txt
+include README.md
+include LICENSE
+include MANIFEST.in
 
 global-exclude __pycache__
