@@ -56,7 +56,10 @@ def wrap_transformer(transformer):
     for w in wrap_candidates:
 
         # Wrap public function calls
-        setattr(transformer, w.__name__, partialmethod(pandas_wrapper, w))
+        # method = partialmethod(pandas_wrapper, w)
+        method = pandas_partial(pandas_partial(w))
+        method.__doc__ = w.__doc__
+        setattr(transformer, w.__name__, method)
 
     # Wrap constructor
     if "__defaults__" in dir(transformer.__init__):
@@ -141,6 +144,13 @@ def init_partial(func):
     return transform_constructor
 
 
+def pandas_partial(func):
+    def wrapper(self, *args, **kwargs):
+        return pandas_wrapper(self, func, *args, **kwargs)
+
+    return wrapper
+
+
 def init_replace(self, keep_columns=False, name=None):
     self.keep_columns = keep_columns
     self.name = name
@@ -171,7 +181,11 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
     caller = None
     try:
         caller = stack[1][0].f_locals["self"].__class__
-        if caller.__name__ == type(self).__name__:
+        current = inspect.currentframe()
+        calframe = inspect.getouterframes(current, 3)
+        # import pdb
+        # pdb.set_trace()
+        if calframe[2][3] != "pandas_wrapper":
             return func(self, df, *args, **kwargs)
     except:
         pass

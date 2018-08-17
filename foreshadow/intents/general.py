@@ -19,14 +19,20 @@ class GenericIntent(BaseIntent):
     """
 
     dtype = "str"
+    """Matches to string dtypes (not implemented)"""
+
     children = ["NumericIntent", "CategoricalIntent"]
+    """Matches to CategoricalIntent over NumericIntent"""
 
     single_pipeline = []
+    """No transformers"""
+
     multi_pipeline = [("multi_impute", MultiImputer())]
+    """Performs multi imputation over the entire DataFrame"""
 
     @classmethod
     def is_intent(cls, df):
-        """Returns true by default"""
+        """Returns true by default such that a column must match this"""
         return True
 
 
@@ -38,10 +44,16 @@ class NumericIntent(GenericIntent):
     """
 
     dtype = "float"
+    """Matches to float dtypes (not implemented)"""
+
     children = []
+    """No children"""
 
     single_pipeline = [("simple_imputer", SimpleImputer()), ("scaler", Scaler())]
+    """Performs imputation and scaling using Smart Transformers"""
+
     multi_pipeline = []
+    """No multi pipeline"""
 
     @classmethod
     def is_intent(cls, df):
@@ -62,14 +74,20 @@ class CategoricalIntent(GenericIntent):
     """
 
     dtype = "int"
+    """Matches to integer dtypes (not implemented)"""
+
     children = []
+    """No children"""
 
     single_pipeline = [("impute_encode", Encoder())]
+    """Encodes the column automatically"""
+
     multi_pipeline = []
+    """No multi pipeline"""
 
     @classmethod
     def is_intent(cls, df):
-        """Returns true if the majority of data is categorical"""
+        """Returns true if the majority of data is categorical by uniqueness"""
         data = df.ix[:, 0]
         if not np.issubdtype(data.dtype, np.number):
             return True

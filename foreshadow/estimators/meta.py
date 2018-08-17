@@ -12,8 +12,8 @@ class MetaEstimator(BaseEstimator):
     variable(s) using Preprocessor
     
     Args:
-        estimator: An instance of a subclass of sklearn.BaseEstimator
-        preprocessor: An instance of foreshadow.Preprocessor
+        estimator: An instance of a subclass of :obj:`sklearn.base.BaseEstimator`
+        preprocessor: An instance of :obj:`foreshadow.preprocessor.Preprocessor`
     """
 
     def __init__(self, estimator, preprocessor):
@@ -25,8 +25,10 @@ class MetaEstimator(BaseEstimator):
         estimator
 
         Args:
-            X (pandas.DataFrame or numpy.ndarray or list): The input feature(s)
-            y (pandas.DataFrame or numpy.ndarray or list): The response feature(s)
+            X (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray` or list):
+                The input feature(s)
+            y (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray` or list):
+                The response feature(s)
         """
         X = check_df(X)
         y = check_df(y)
@@ -38,10 +40,10 @@ class MetaEstimator(BaseEstimator):
         """Uses the trained estimator to predict the response for an input dataset
 
         Args:
-            X (pandas.DataFrame or numpy.ndarray or list): The input feature(s)
+            X (pandas.DataFrame or :obj:`numpy.ndarray` or list): The input feature(s)
 
         Returns:
-            pandas.DataFrame: The response feature(s) (transformed)
+            :obj:`pandas.DataFrame`: The response feature(s) (transformed)
         """
         X = check_df(X)
         return self.preprocessor.inverse_transform(self.estimator.predict(X))
@@ -51,10 +53,11 @@ class MetaEstimator(BaseEstimator):
         for an input dataset
 
         Args:
-            X (pandas.DataFrame or numpy.ndarray or list): The input feature(s)
+            X (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray` or list):
+                The input feature(s)
 
         Returns:
-            pandas.DataFrame: The probability associated with each response feature
+            :obj:`pandas.DataFrame`: The probability associated with each feature
         """
         X = check_df(X)
         return self.estimator.predict_proba(X)
@@ -64,10 +67,12 @@ class MetaEstimator(BaseEstimator):
         by the estimator
 
         Args:
-            X (pandas.DataFrame or numpy.ndarray or list): The input feature(s)
-            y (pandas.DataFrame or numpy.ndarray or list): The response feature(s)
-            sample_weight (numpy.ndarray, optional): The weights to be used when scoring
-                each sample
+            X (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray` or list):
+                The input feature(s)
+            y (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray` or list):
+                The response feature(s)
+            sample_weight (:obj:`numpy.ndarray`, optional):
+                The weights to be used when scoring each sample
         
         Returns:
             float: A computed prediction fitness score

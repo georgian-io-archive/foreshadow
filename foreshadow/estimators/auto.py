@@ -43,7 +43,10 @@ class AutoEstimator(BaseEstimator):
         self.estimator_class = None
         self.estimator = None
 
-    problem_type = property(operator.attrgetter("_problem_type"))
+    @property
+    def problem_type(self):
+        """Type of machine learning problem. Either 'regression' or 'classification'"""
+        return self._problem_type
 
     @problem_type.setter
     def problem_type(self, pt):
@@ -52,7 +55,10 @@ class AutoEstimator(BaseEstimator):
             raise ValueError("problem type must be in {}".format(pt_options))
         self._problem_type = pt
 
-    auto = property(operator.attrgetter("_auto"))
+    @property
+    def auto(self):
+        """Type of automl package. Either 'tpot' or 'autosklearn'"""
+        return self._auto
 
     @auto.setter
     def auto(self, ae):
@@ -61,7 +67,10 @@ class AutoEstimator(BaseEstimator):
             raise ValueError("auto must be in {}".format(ae_options))
         self._auto = ae
 
-    estimator_kwargs = property(operator.attrgetter("_estimator_kwargs"))
+    @property
+    def estimator_kwargs(self):
+        """Dictionary of kwargs to pass to automl package"""
+        return self._estimator_kwargs
 
     @estimator_kwargs.setter
     def estimator_kwargs(self, ek):
