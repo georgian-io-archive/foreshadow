@@ -4,21 +4,22 @@ AutoEstimator and its selection
 
 import inspect
 import operator
+import warnings
 
 import numpy as np
 from sklearn.base import BaseEstimator
-from autosklearn.classification import AutoSklearnClassifier
-from autosklearn.regression import AutoSklearnRegressor
-from tpot import TPOTClassifier
-from tpot import TPOTRegressor
 
-from ..utils import check_df
+from ..utils import check_df, check_module_installed
 from .config import get_tpot_config
 
 
 class AutoEstimator(BaseEstimator):
     """An automatic machine learning solution wrapper selects the appropriate solution
     for a given problem.
+
+    By default each automatic machine learning solution runs for 1 minute but that can be changed 
+    through passed kwargs. Autosklearn is not required for this to work but if installed it can
+    be used alongside TPOT.
     
     Args:
         problem_type (str): The problem type, 'regression' or 'classification'
@@ -27,14 +28,6 @@ class AutoEstimator(BaseEstimator):
         estimator_kwargs (dict): A dictionary of args to pass to the specified 
             auto estimator (both problem_type and auto must be specified)
     """
-
-    estimator_choices = {
-        "autosklearn": {
-            "classification": AutoSklearnClassifier,
-            "regression": AutoSklearnRegressor,
-        },
-        "tpot": {"classification": TPOTClassifier, "regression": TPOTRegressor},
-    }
 
     def __init__(
         self,
@@ -46,7 +39,7 @@ class AutoEstimator(BaseEstimator):
         self.problem_type = problem_type
         self.auto = auto
         self.include_preprocessors = include_preprocessors
-        self.estimator_kwargs = estimator_kwargs  # this needs to be checked last
+        self.estimator_kwargs = estimator_kwargs
         self.estimator_class = None
         self.estimator = None
 
@@ -72,22 +65,52 @@ class AutoEstimator(BaseEstimator):
 
     @estimator_kwargs.setter
     def estimator_kwargs(self, ek):
-        if ek is not None:
-            if self.problem_type is None or self.auto is None:
-                raise ValueError(
-                    "estimator_kwargs can only be set when estimator and problem are "
-                    "specified"
-                )
-            elif not isinstance(ek, dict) or not all(
+        if ek is not None and ek is not {}:
+            if not isinstance(ek, dict) or not all(
                 isinstance(k, str) for k in ek.keys()
             ):
                 raise ValueError("estimator_kwargs must be a valid kwarg dictionary")
 
-            self.estimator_class = self.estimator_choices[self.auto][self.problem_type]
-            self._validate_estimator_kwargs(ek)  # estimator class is required for this
             self._estimator_kwargs = ek
         else:
             self._estimator_kwargs = {}
+
+    def _get_optimal_estimator_class(self):
+        """Picks the optimal estimator class and defaults to a working estimator if autosklearn
+        is not installed
+        """
+        auto_ = self._pick_estimator() if self.auto is None else self.auto
+
+        estimator_choices = {
+            "autosklearn": {
+                "classification": "AutoSklearnClassifier",
+                "regression": "AutoSklearnRegressor",
+            },
+            "tpot": {"classification": "TPOTClassifier", "regression": "TPOTRegressor"},
+        }
+
+        if not check_module_installed(auto_):
+            selected_auto = "tpot"
+            warnings.warn(
+                "{} is not available, defaulting to {}".format(auto_, selected_auto)
+            )
+            self.auto = selected_auto
+        else:
+            self.auto = auto_
+
+        if self.auto == "autosklearn":
+            import autosklearn.classification
+            import autosklearn.regression
+
+            class_ = estimator_choices[self.auto][self.problem_type]
+            if class_ == "AutoSklearnClassifier":
+                return getattr(autosklearn.classification, class_)
+            else:
+                return getattr(autosklearn.regression, class_)
+        else:
+            import tpot
+
+            return getattr(tpot, estimator_choices[self.auto][self.problem_type])
 
     def _determine_problem_type(self, y):
         """Simple heuristic to determine problem type"""
@@ -99,18 +122,6 @@ class AutoEstimator(BaseEstimator):
         """Pick auto estimator based on benchmarked results"""
         return "tpot" if self.problem_type == "regression" else "autosklearn"
 
-    def _validate_estimator_kwargs(self, auto_params):
-        """Confirm that parameters passed in dictionary arguments belong to the
-        selected auto estimator class
-        """
-        keys = auto_params.keys()
-        argspec = inspect.getargspec(self.estimator_class)
-        invalid_kwargs = [k for k in keys if k not in argspec.args]
-        if len(invalid_kwargs) != 0:
-            raise ValueError(
-                "The following invalid kwargs were passed in: {}".format(invalid_kwargs)
-            )
-
     def _pre_configure_estimator_kwargs(self):
         """Configure auto estimators to perform similarly (time scale) and remove 
         preprocessors if necessary
@@ -120,7 +131,7 @@ class AutoEstimator(BaseEstimator):
                 self.problem_type, self.include_preprocessors
             )
             if "max_time_mins" not in self.estimator_kwargs:
-                self.estimator_kwargs["max_time_mins"] = 60
+                self.estimator_kwargs["max_time_mins"] = 1
         elif (
             self.auto == "autosklearn"
             and not any(
@@ -131,6 +142,12 @@ class AutoEstimator(BaseEstimator):
         ):
             self.estimator_kwargs["include_preprocessors"] = "no_preprocessing"
 
+        if (
+            self.auto == "autosklearn"
+            and "time_left_for_this_task" not in self.estimator_kwargs
+        ):
+            self.estimator_kwargs["time_left_for_this_task"] = 60
+
         return self.estimator_kwargs
 
     def _setup_estimator(self, y):
@@ -140,10 +157,9 @@ class AutoEstimator(BaseEstimator):
             if self.problem_type is None
             else self.problem_type
         )
-        self.auto = self._pick_estimator() if self.auto is None else self.auto
-        self.estimator_class = self.estimator_choices[self.auto][
-            self.problem_type
-        ]  # update estimator class in case of autodetect
+        self.estimator_class = (
+            self._get_optimal_estimator_class()
+        )  # update estimator class in case of autodetect
         self._pre_configure_estimator_kwargs()  # validate estimator kwargs
         return self.estimator_class(**self.estimator_kwargs)
 
@@ -154,11 +170,16 @@ class AutoEstimator(BaseEstimator):
         Args:
             data_df (pandas.DataFrame or numpy.ndarray or list): The input feature(s)
             y_df (pandas.DataFrame or numpy.ndarray or list): The response feature(s)
+
+        Returns:
+            The selected estimator
         """
         X = check_df(X)
         y = check_df(y)
         self.estimator = self._setup_estimator(y)
         self.estimator.fit(X, y)
+
+        return self.estimator
 
     def predict(self, X):
         """Uses the trained estimator to predict the response for an input dataset
@@ -197,7 +218,7 @@ class AutoEstimator(BaseEstimator):
             y (pandas.DataFrame or numpy.ndarray or list): The response feature(s)
         
         Returns:
-            (float): A computed prediction fitness score
+            float: A computed prediction fitness score
         """
         X = check_df(X)
         y = check_df(y)
