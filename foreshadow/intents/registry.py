@@ -21,6 +21,7 @@ def _register_intent(cls_target):
 
 
 def _unregister_intent(cls_target):
+    """Removes intent from registry"""
     global _registry
 
     def validate_input(clsname):
@@ -44,13 +45,26 @@ def _set_registry(val):
 
 
 def get_registry():
-    """Global registry of defined intents"""
+    """Global registry of defined intents
+
+    Returns:
+        dict: Dictionary of intents known to Foreshadow
+
+    """
     global _registry
     return _registry
 
 
 def registry_eval(cls_target):
-    """Retrieve intent class from registry dictionary"""
+    """Retrieve intent class from registry dictionary
+
+    Args:
+        cls_target(str): String name of Intent
+
+    Return:
+        :class:`BaseIntent <foreshadow.intents.base.BaseIntent>`: Intent class object
+
+    """
     global _registry
     return _registry[cls_target]
 

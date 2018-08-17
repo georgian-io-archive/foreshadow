@@ -38,7 +38,7 @@ Smart Transformers
 
 Transformer Bases
 ~~~~~~~~~~~~~~~~~
-.. autoclass:: foreshadow.transformers.base.SmartTransformer
+.. automodule:: foreshadow.transformers.base
    :members:
    :undoc-members:
 

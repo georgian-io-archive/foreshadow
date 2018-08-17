@@ -56,7 +56,10 @@ def wrap_transformer(transformer):
     for w in wrap_candidates:
 
         # Wrap public function calls
-        setattr(transformer, w.__name__, partialmethod(pandas_wrapper, w))
+        # method = partialmethod(pandas_wrapper, w)
+        method = pandas_partial(pandas_partial(w))
+        method.__doc__ = w.__doc__
+        setattr(transformer, w.__name__, method)
 
     # Wrap constructor
     if "__defaults__" in dir(transformer.__init__):
@@ -139,6 +142,11 @@ def init_partial(func):
         func(self, *args[:-2], **kwargs)
 
     return transform_constructor
+
+def pandas_partial(func):
+    def wrapper(self, *args, **kwargs):
+        func(self, *args, **kwargs)
+    return wrapper
 
 
 def init_replace(self, keep_columns=False, name=None):

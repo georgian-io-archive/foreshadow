@@ -28,9 +28,6 @@ class BaseIntent(metaclass=_IntentRegistry):
     returns true is the intent that is assigned to that feature.
 
     Attributes:
-        dtype: Data type of column required for this intent to match
-        children: More-specific intents that require this intent to match to be
-            considered.
         single_pipeline: Pipeline that is executed on a single column. Can create
             multiple columns.
         multi_pipeline: Pipeline that is executed across all columns of the given
@@ -39,7 +36,11 @@ class BaseIntent(metaclass=_IntentRegistry):
     """
 
     dtype = None
+    """Data type of column required for this intent to match (not implemented)"""
+
     children = None
+    """More-specific intents that require this intent to match to be
+            considered."""
 
     def __new__(cls, *args, **kwargs):
         if cls is BaseIntent:
@@ -48,8 +49,19 @@ class BaseIntent(metaclass=_IntentRegistry):
 
     @classmethod
     def to_string(cls, level=0):
-        """String representation of intent. Intended to assist in visualizing tree."""
+        """String representation of intent. Intended to assist in visualizing tree.
+
+        Args:
+            cls(:class:`BaseIntent  <foreshadow.intents.base.BaseIntent>`):  Root node
+                of intent tree to visualize
+
+        Returns:
+            str: ASCII Intent Tree visualization
+
+        """
         ret = "\t" * level + str(cls.__name__) + "\n"
+
+        # Recursive evaluation of class children to create tree
         for c in cls.children:
             klass = registry_eval(c)
             temp = klass.to_string(level + 1)
@@ -58,8 +70,16 @@ class BaseIntent(metaclass=_IntentRegistry):
 
     @classmethod
     def priority_traverse(cls):
-        """Traverses intent tree downward from Intent."""
+        """Traverses intent tree downward from Intent.
+
+        Args:
+            cls(:class:`BaseIntent  <foreshadow.intents.base.BaseIntent>`): Class of
+                intent to start traversal from
+
+        """
         lqueue = [cls]
+        # Returns intent and evaluates children. Adds children to list to be evaluated
+        # Results in top-down search of tree
         while len(lqueue) > 0:
             yield lqueue[0]
             node = lqueue.pop(0)

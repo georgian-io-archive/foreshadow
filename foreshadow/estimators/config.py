@@ -9,6 +9,7 @@ from tpot.config.regressor import regressor_config_dict as tpot_regressor_config
 
 
 def get_tpot_config(type_, include_preprocessors=False):
+    """Gets default config from TPOT and drops all feature engineering tools."""
     configs = {
         "classification": tpot_classifier_config,
         "regression": tpot_regressor_config,

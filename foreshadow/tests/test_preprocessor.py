@@ -84,11 +84,11 @@ def test_preprocessor_init_empty():
 
     proc = Preprocessor()
 
-    assert proc.intent_map == {}
-    assert proc.intent_pipelines == {}
-    assert proc.intent_trace == []
-    assert proc.multi_column_map == []
-    assert proc.choice_map == {}
+    assert proc._intent_map == {}
+    assert proc._intent_pipelines == {}
+    assert proc._intent_trace == []
+    assert proc._multi_column_map == []
+    assert proc._choice_map == {}
 
 
 def test_preprocessor_init_json_intent_map():
@@ -106,10 +106,10 @@ def test_preprocessor_init_json_intent_map():
         )
     )
 
-    assert "crim" in proc.intent_map.keys()
-    print(proc.intent_map)
-    print(type(proc.intent_map["crim"]))
-    assert proc.intent_map["crim"].__name__ == "TestGenericIntent"
+    assert "crim" in proc._intent_map.keys()
+    print(proc._intent_map)
+    print(type(proc._intent_map["crim"]))
+    assert proc._intent_map["crim"].__name__ == "TestGenericIntent"
 
 
 def test_preprocessor_intent_dependency_order():
@@ -117,7 +117,7 @@ def test_preprocessor_intent_dependency_order():
     from foreshadow.intents.registry import registry_eval
 
     proc = Preprocessor()
-    proc.intent_map = {
+    proc._intent_map = {
         "1": registry_eval("TestIntentOne"),
         "2": registry_eval("TestIntentTwo"),
         "3": registry_eval("TestIntentThree"),
@@ -126,14 +126,14 @@ def test_preprocessor_intent_dependency_order():
 
     proc._build_dependency_order()
 
-    print("Intent_trace: ", proc.intent_trace)
+    print("Intent_trace: ", proc._intent_trace)
 
-    assert [c.__name__ for c in proc.intent_trace] == [
+    assert [c.__name__ for c in proc._intent_trace] == [
         "TestGenericIntent",
         "TestIntentOne",
         "TestIntentTwo",
         "TestIntentThree",
-    ] or [c.__name__ for c in proc.intent_trace] == [
+    ] or [c.__name__ for c in proc._intent_trace] == [
         "TestGenericIntent",
         "TestIntentOne",
         "TestIntentThree",
@@ -156,12 +156,12 @@ def test_preprocessor_init_json_pipeline_map():
         )
     )
 
-    assert "crim" in proc.pipeline_map.keys()
-    assert type(proc.pipeline_map["crim"]).__name__ == "Pipeline"
-    assert len(proc.pipeline_map["crim"].steps) == 1
-    assert proc.pipeline_map["crim"].steps[0][0] == "Scaler"
+    assert "crim" in proc._pipeline_map.keys()
+    assert type(proc._pipeline_map["crim"]).__name__ == "Pipeline"
+    assert len(proc._pipeline_map["crim"].steps) == 1
+    assert proc._pipeline_map["crim"].steps[0][0] == "Scaler"
 
-    transformer = proc.pipeline_map["crim"].steps[0][1]
+    transformer = proc._pipeline_map["crim"].steps[0][1]
 
     assert type(transformer).__name__ == "StandardScaler"
     assert hasattr(transformer, "name")
@@ -169,7 +169,7 @@ def test_preprocessor_init_json_pipeline_map():
 
 
 def test_preprocessor_init_json_multi_pipeline():
-    """Loads config from JSON and checks to ensure multi_column_map was populated"""
+    """Loads config from JSON and checks to ensure _multi_column_map was populated"""
 
     import json
     from foreshadow.preprocessor import Preprocessor
@@ -180,9 +180,9 @@ def test_preprocessor_init_json_multi_pipeline():
         )
     )
 
-    assert len(proc.multi_column_map) == 1
+    assert len(proc._multi_column_map) == 1
 
-    pipe = proc.multi_column_map[0]
+    pipe = proc._multi_column_map[0]
 
     assert len(pipe) == 3
     assert pipe[0] == "pca"
@@ -217,9 +217,9 @@ def test_preprocessor_init_json_intent_override_multi():
         )
     )
 
-    assert "TestNumericIntent" in proc.intent_pipelines.keys()
+    assert "TestNumericIntent" in proc._intent_pipelines.keys()
 
-    pipes = proc.intent_pipelines["TestNumericIntent"]
+    pipes = proc._intent_pipelines["TestNumericIntent"]
 
     assert "multi" in pipes.keys()
 
@@ -255,9 +255,9 @@ def test_preprocessor_init_json_intent_override_single():
         )
     )
 
-    assert "TestNumericIntent" in proc.intent_pipelines.keys()
+    assert "TestNumericIntent" in proc._intent_pipelines.keys()
 
-    pipes = proc.intent_pipelines["TestNumericIntent"]
+    pipes = proc._intent_pipelines["TestNumericIntent"]
 
     assert "single" in pipes.keys()
 
@@ -289,8 +289,8 @@ def test_preprocessor_fit_map_intents_default():
 
     proc_default.fit(df.copy(deep=True))
 
-    assert "crim" in proc_default.intent_map
-    assert proc_default.intent_map["crim"].__name__ == "TestNumericIntent"
+    assert "crim" in proc_default._intent_map
+    assert proc_default._intent_map["crim"].__name__ == "TestNumericIntent"
 
 
 def test_preprocessor_fit_map_intents_override():
@@ -314,8 +314,8 @@ def test_preprocessor_fit_map_intents_override():
 
     proc_override.fit(df.copy(deep=True))
 
-    assert "crim" in proc_override.intent_map
-    assert proc_override.intent_map["crim"].__name__ == "TestGenericIntent"
+    assert "crim" in proc_override._intent_map
+    assert proc_override._intent_map["crim"].__name__ == "TestGenericIntent"
 
 
 def test_preprocessor_fit_create_single_pipeline_default():
@@ -333,12 +333,12 @@ def test_preprocessor_fit_create_single_pipeline_default():
     proc_default.fit(df.copy(deep=True))
 
     for c in cols:
-        assert c in proc_default.pipeline_map
-        assert type(proc_default.pipeline_map[c]).__name__ == "Pipeline"
+        assert c in proc_default._pipeline_map
+        assert type(proc_default._pipeline_map[c]).__name__ == "Pipeline"
 
     numeric = registry_eval("TestNumericIntent")
 
-    assert str(list(zip(*proc_default.pipeline_map["crim"].steps))[1]) == str(
+    assert str(list(zip(*proc_default._pipeline_map["crim"].steps))[1]) == str(
         list(zip(*numeric.single_pipeline))[1]
     )
 
@@ -365,10 +365,10 @@ def test_preprocessor_fit_create_single_pipeline_override_column():
     proc_column.fit(df.copy(deep=True))
 
     for c in cols:
-        assert c in proc_column.pipeline_map
-        assert type(proc_column.pipeline_map[c]).__name__ == "Pipeline"
+        assert c in proc_column._pipeline_map
+        assert type(proc_column._pipeline_map[c]).__name__ == "Pipeline"
 
-    assert proc_column.pipeline_map["crim"].steps[0][0] == "Scaler"
+    assert proc_column._pipeline_map["crim"].steps[0][0] == "Scaler"
 
 
 def test_preprocessor_fit_create_single_pipeline_override_intent():
@@ -394,10 +394,10 @@ def test_preprocessor_fit_create_single_pipeline_override_intent():
     proc_intent.fit(df.copy(deep=True))
 
     for c in cols:
-        assert c in proc_intent.pipeline_map
-        assert type(proc_intent.pipeline_map[c]).__name__ == "Pipeline"
+        assert c in proc_intent._pipeline_map
+        assert type(proc_intent._pipeline_map[c]).__name__ == "Pipeline"
 
-    assert proc_intent.pipeline_map["crim"].steps[0][0] == "impute"
+    assert proc_intent._pipeline_map["crim"].steps[0][0] == "impute"
 
 
 def test_preprocessor_make_empty_pipeline():

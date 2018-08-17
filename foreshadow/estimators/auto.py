@@ -100,8 +100,8 @@ class AutoEstimator(BaseEstimator):
         return "tpot" if self.problem_type == "regression" else "autosklearn"
 
     def _validate_estimator_kwargs(self, auto_params):
-        """Confirm that passed in dictionary arguments belong to the selected auto
-        estimator class
+        """Confirm that parameters passed in dictionary arguments belong to the
+        selected auto estimator class
         """
         keys = auto_params.keys()
         argspec = inspect.getargspec(self.estimator_class)

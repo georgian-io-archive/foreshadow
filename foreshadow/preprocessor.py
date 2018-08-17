@@ -22,17 +22,10 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
     Optionally takes in JSON configuration file to override internals decision making.
 
+    Parameters:
+        from_json: Dictionary representing JSON config file (See docs for more)
+
     Attributes:
-        intent_map: Dictionary mapping str column name keys to an Intent class
-        pipeline_map: Dictionary mapping str column name keys to a Pipeline object
-        multi_column_map: Dictionary mapping str transformer name keys to Pipelines
-            that act on multiple columns in the data frame.
-        intent_pipelines: Dictionary mapping intent class name keys to a dictionary
-            containing a 'multi' Pipeline object for collectively processing multiple
-            columns of that intent type and a 'single' Pipeline object for independently
-            processing individual columns of that intent type.
-        intent_trace: List of intents in order of processing depending on Intent
-            dependency tree
         pipeline: Internal representation of sklearn pipeline. Can be exported and
             act independently of Preprocessor object.
         is_fit: Boolean representing the fit state of the internals pipeline.
@@ -40,22 +33,12 @@ class Preprocessor(BaseEstimator, TransformerMixin):
     """
 
     def __init__(self, from_json=None, **fit_params):
-        """Initializes Preprocessor class.
-
-        If from_json is provided then overrides are extracted from the config file
-        and used during fitting.
-
-        Args:
-            from_json: Dictionary representing JSON config file (See docs for more)
-
-        """
-
-        self.intent_map = {}
-        self.pipeline_map = {}
-        self.choice_map = {}
-        self.multi_column_map = []
-        self.intent_pipelines = {}
-        self.intent_trace = []
+        self._intent_map = {}
+        self._pipeline_map = {}
+        self._choice_map = {}
+        self._multi_column_map = []
+        self._intent_pipelines = {}
+        self._intent_trace = []
         self.pipeline = None
         self.fit_params = fit_params
         self.is_fit = False
@@ -64,58 +47,97 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         self._init_json()
 
     def _get_columns(self, intent):
+        """
+        Iterates columns in intent_map. If intent or intent in its
+        hierarchy matches `intent` then it is appended to a list which is returned.
+
+        Effectively returns all columns related to an intent.
+
+        """
         return [
             "{}".format(k)
-            for k, v in self.intent_map.items()
+            for k, v in self._intent_map.items()
             if intent in inspect.getmro(v)
         ]
 
     def _map_intents(self, X_df):
+        """
+        Iterates coluns in dataframe. For each column, the intent tree is traversed
+        and the best-match is returned. This key value pair is added to a dictionary.
+        Any current values in the intent map are allowed to override any new values,
+        this allows the JSON configuration to override the automatic system.
+        """
         temp_map = {}
         columns = X_df.columns
+        # Iterate columns
         for c in columns:
             col_data = X_df.loc[:, [c]]
+            # Traverse intent tree
             valid_cols = [
                 (i, k)
                 for i, k in enumerate(GenericIntent.priority_traverse())
                 if k.is_intent(col_data)
             ]
-            self.choice_map[c] = valid_cols
+            self._choice_map[c] = valid_cols
             temp_map[c] = valid_cols[-1][1]
-        self.intent_map = {**temp_map, **self.intent_map}
+        # Set intent map with override
+        self._intent_map = {**temp_map, **self._intent_map}
 
     def _build_dependency_order(self):
+        """
+        Creates the order in which multi_pipelines need to be executed. They
+        are executed using a "bottom up" technique.
+        """
+        # Dict of intent orders (distance from root node)
         intent_order = {}
-        for intent in set(self.intent_map.values()):
+        # Iterates intents in use
+        for intent in set(self._intent_map.values()):
 
+            # Skip if already in order dict
             if intent.__name__ in intent_order.keys():
                 continue
 
             # Use slice to remove own class and object and BaseIntent superclass
             parents = inspect.getmro(intent)[1:-2]
+            # Determine order using class hierarchy
             order = len(parents)
 
+            # Add to order dict
             intent_order[intent.__name__] = order
+
+            # Iterate parents
             for p in parents:
+                # Skip if parent is already in dict
                 if p.__name__ in intent_order.keys():
                     break
+                # Decrement order (went up a level)
                 order -= 1
+                # Add to order dict
                 intent_order[p.__name__] = order
 
+        # User order dict to sort all active intents
         intent_list = [(n, i) for i, n in intent_order.items()]
         intent_list.sort(key=lambda x: x[0])
-        self.intent_trace = [registry_eval(i) for n, i in intent_list]
+        # Evaluate intents into class objects (stored in dict as strings)
+        self._intent_trace = [registry_eval(i) for n, i in intent_list]
 
     def _map_pipelines(self):
-        self.pipeline_map = {
+        """
+        Creates single and multi-column pipelines
+        """
+
+        # Create single pipeline map
+        self._pipeline_map = {
+            # Creates pipeline object from intent single_pipeline attribute
             **{
                 k: Pipeline(deepcopy(v.single_pipeline))
-                for k, v in self.intent_map.items()
-                if v.__name__ not in self.intent_pipelines.keys()
+                for k, v in self._intent_map.items()
+                if v.__name__ not in self._intent_pipelines.keys()
                 and len(v.single_pipeline) > 0
             },
+            # Extracts already resolved single pipelines from JSON intent overrides
             **{
-                k: self.intent_pipelines[v.__name__].get(
+                k: self._intent_pipelines[v.__name__].get(
                     "single",
                     Pipeline(
                         deepcopy(v.single_pipeline)
@@ -123,31 +145,37 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                         else [("null", None)]
                     ),
                 )
-                for k, v in self.intent_map.items()
-                if v.__name__ in self.intent_pipelines.keys()
+                for k, v in self._intent_map.items()
+                if v.__name__ in self._intent_pipelines.keys()
             },
-            **self.pipeline_map,
+            # Column-level pipeline overrides (highest priority)
+            **self._pipeline_map,
         }
 
+        # Determine order of multi pipeline execution
         self._build_dependency_order()
 
-        self.intent_pipelines = {
+        # Build multi pipelines
+        self._intent_pipelines = {
+            # Iterate intents to execute
             v.__name__: {
+                # Fetch multi pipeline from Intent class
                 "multi": Pipeline(
                     deepcopy(v.multi_pipeline)
                     if len(v.multi_pipeline) > 0
                     else [("null", None)]
                 ),
-                **{k: v for k, v in self.intent_pipelines.get(v.__name__, {}).items()},
+                # Extract multi pipeline from JSON config (highest priority)
+                **{k: v for k, v in self._intent_pipelines.get(v.__name__, {}).items()},
             }
-            for v in self.intent_trace
+            for v in self._intent_trace
         }
 
     def _construct_parallel_pipeline(self):
-        # Repack pl_map into Parallel Processor
+        """Convert column:pipeline into Parallel Processor"""
         processors = [
             (col, [col], pipe)
-            for col, pipe in self.pipeline_map.items()
+            for col, pipe in self._pipeline_map.items()
             if pipe.steps[0][0] != "null"
         ]
         if len(processors) == 0:
@@ -155,13 +183,16 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         return ParallelProcessor(processors)
 
     def _construct_multi_pipeline(self):
-        # Repack intent_pipeline dict into list of tuples into Pipeline
+        """Repack intent_pipeline dict into list of tuples into Pipeline"""
+
+        # Extract pipelines from postprocess section of JSON config
         multi_processors = [
             (val[0], ParallelProcessor([(val[0], val[1], val[2])]))
-            for val in self.multi_column_map
+            for val in self._multi_column_map
             if val[2].steps[0][0] != "null"
         ]
 
+        # Construct multi pipeline from intent trace and intent pipeline dictionary
         processors = [
             (
                 intent.__name__,
@@ -170,44 +201,59 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                         (
                             intent.__name__,
                             self._get_columns(intent),
-                            self.intent_pipelines[intent.__name__]["multi"],
+                            self._intent_pipelines[intent.__name__]["multi"],
                         )
                     ]
                 ),
             )
-            for intent in reversed(self.intent_trace)
-            if self.intent_pipelines[intent.__name__]["multi"].steps[0][0] != "null"
+            for intent in reversed(self._intent_trace)
+            if self._intent_pipelines[intent.__name__]["multi"].steps[0][0] != "null"
         ]
 
         if len(multi_processors + processors) == 0:
             return None
 
+        # Return pipeline with multi_pipeline transformers and postprocess transformers
         return Pipeline(processors + multi_processors)
 
     def _construct_linear_pipeline(self, X):
-
-        return self.pipeline_map.get(X.columns[0], Pipeline([("null", None)]))
+        """Get single pipeline from pipeline map"""
+        return self._pipeline_map.get(X.columns[0], Pipeline([("null", None)]))
 
     def _generate_pipeline(self, X):
+        """Constructs the final internal pipeline to be used"""
+
+        # Parse JSON config and populate intent_map and pipeline_map
         self._init_json()
+
+        # Map intents to columns
         self._map_intents(X)
+
+        # Map pipelines to columns
         self._map_pipelines()
 
+        # If a single column construct a simple linear pipeline
         if len(X.columns) == 1:
             self.pipeline = self._construct_linear_pipeline(X)
             self.is_linear = True
 
+        # Else construct a full pipeline
         else:
 
+            # Per-column single pipelines
             parallel = self._construct_parallel_pipeline()
+
+            # Multi pipelines
             multi = self._construct_multi_pipeline()
 
+            # Verify null pipeline isn't added
             pipe = []
             if parallel:
                 pipe.append(("single", parallel))
             if multi:
                 pipe.append(("multi", multi))
 
+            # Ensure output of pipeline has a single index
             pipe.append(
                 (
                     "collapse",
@@ -218,31 +264,35 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             self.pipeline = Pipeline(pipe)
 
     def _init_json(self):
+        """Load and parse JSON config"""
 
         config = self.from_json
         if config is None:
             return
 
         try:
-
+            # Parse columns section
             if "columns" in config.keys():
+                # Iterate columns
                 for k, v in config["columns"].items():
                     # Assign custom intent map
-                    self.intent_map[k] = registry_eval(v[0])
+                    self._intent_map[k] = registry_eval(v[0])
 
                     # Assign custom pipeline map
                     if len(v) > 1:
-                        self.pipeline_map[k] = resolve_pipeline(v[1])
+                        self._pipeline_map[k] = resolve_pipeline(v[1])
 
+            # Resolve postprocess section into a list of pipelines
             if "postprocess" in config.keys():
-                self.multi_column_map = [
+                self._multi_column_map = [
                     [v[0], v[1], resolve_pipeline(v[2])]
                     for v in config["postprocess"]
                     if len(v) >= 3
                 ]
 
+            # Resolve intents section into a dictionary of intents and pipelines
             if "intents" in config.keys():
-                self.intent_pipelines = {
+                self._intent_pipelines = {
                     k: {l: resolve_pipeline(j) for l, j in v.items()}
                     for k, v in config["intents"].items()
                 }
@@ -280,18 +330,18 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         """
         json_cols = {
             k: (
-                self.intent_map[k].__name__,
+                self._intent_map[k].__name__,
                 serialize_pipeline(
-                    self.pipeline_map.get(k, Pipeline([("null", None)]))
+                    self._pipeline_map.get(k, Pipeline([("null", None)]))
                 ),
-                [c[1].__name__ for c in self.choice_map[k]],
+                [c[1].__name__ for c in self._choice_map[k]],
             )
-            for k in self.intent_map.keys()
+            for k in self._intent_map.keys()
         }
 
         # Serialize multi-column processors
         json_multi = [
-            [v[0], v[1], serialize_pipeline(v[2])] for v in self.multi_column_map
+            [v[0], v[1], serialize_pipeline(v[2])] for v in self._multi_column_map
         ]
 
         # Serialize intent multi processors
@@ -301,7 +351,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                 for l, j in v.items()
                 if j.steps[0][0] != "null"
             }
-            for k, v in self.intent_pipelines.items()
+            for k, v in self._intent_pipelines.items()
         }
 
         return {
@@ -311,7 +361,19 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         }
 
     def fit(self, X, y=None, **fit_params):
-        """See base class."""
+        """Fits internal pipeline to X data
+
+        Args:
+            X (:obj:`DataFrame <pd.DataFrame>`, :obj:`numpy.ndarray`, list):
+                Input data to be transformed
+
+            y (:obj:`DataFrame <pd.DataFrame>`, :obj:`numpy.ndarray`, list):
+                Input data to be transformed
+
+        Returns:
+            :obj:`Pipeline <sklearn.pipeline.Pipeline>`: Fitted internal pipeline
+
+        """
         X = check_df(X)
         y = check_df(y, ignore_none=True)
         self.from_json = fit_params.pop("from_json", self.from_json)
@@ -322,13 +384,32 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         return self.pipeline.fit(X, y, **fit_params)
 
     def transform(self, X):
-        """See base class."""
+        """Transforms X using internal pipeline
+
+        Args:
+            X (:obj:`DataFrame <pd.DataFrame>`, :obj:`numpy.ndarray`, list):
+                Input data to be transformed
+
+        Returns:
+            :obj:`pandas.DataFrame`: DataFrame of transformed data
+
+        """
         X = check_df(X)
         if not self.pipeline:
             raise ValueError("Pipeline not fit!")
         return self.pipeline.transform(X)
 
     def inverse_transform(self, X):
+        """Reverses previous transform on X using internal pipeline
+
+        Args:
+            X (:obj:`DataFrame <pd.DataFrame>`, :obj:`numpy.ndarray`, list):
+                Input data to be transformed
+
+        Returns:
+            :obj:`pandas.DataFrame`: DataFrame of inverse transformed data
+
+        """
         X = check_df(X)
         if not self.pipeline or not self.is_fit:
             raise ValueError("Pipeline not fit, cannot transform.")
@@ -340,8 +421,11 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 def serialize_pipeline(pipeline):
     """Serializes sklearn Pipeline object into JSON object for reconstruction.
 
+    Args:
+        pipeline (:obj:`sklearn.pipeline.Pipeline`): Pipeline object to serialize
+
     Returns:
-        List of form ``[cls, name, {**params}]``
+        list: JSON serializable object of form ``[cls, name, {**params}]``
     """
     return [
         (type(step[1]).__name__, step[0], step[1].get_params())
@@ -354,10 +438,10 @@ def resolve_pipeline(pipeline_json):
     """Deserializes pipeline from JSON into sklearn Pipeline object.
 
     Args:
-        pipeline_json: List of form ``[cls, name, {**params}]``
+        pipeline_json: list of form ``[cls, name, {**params}]``
 
     Returns:
-        Sklearn Pipeline object of form ``Pipeline([(name, cls(**params)), ...])``
+        :obj:`sklearn.pipeline.Pipeline`: Pipeline based on JSON
 
     """
     pipe = []

@@ -12,10 +12,11 @@ def check_df(input_data, ignore_none=False):
     """Convert non dataframe inputs into dataframes.
     
     Args:
-        input_data (list or pandas.DataFrame or numpy.ndarray): input to convert
+        input_data (:obj:`pandas.DataFrame`, :obj:`numpy.ndarray`, list):
+            input to convert
 
     Returns:
-        (pandas.Dataframe): Convereted and validated input dataframes
+        :obj:`pandas.DataFrame`: Converted and validated input dataframes
     """
 
     if input_data is None and ignore_none:

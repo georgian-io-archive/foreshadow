@@ -22,6 +22,13 @@ from ..transformers.externals import (
 
 
 class Scaler(SmartTransformer):
+    """Automatically Scales Numerical Features
+
+    Analyzes the distrobution of the data. If the data is normally distributed,
+    StandardScaler is used, if it is uniform, MinMaxScaler is used, and if neither
+    distribution fits then a BoxCox transformation is applied and a RobustScaler
+    is used.
+    """
     def _get_transformer(self, X, y=None, p_val_cutoff=0.05, **fit_params):
         data = X.iloc[:, 0]
         # statistically invalid but good enough measure of relative closeness
@@ -40,6 +47,12 @@ class Scaler(SmartTransformer):
 
 
 class Encoder(SmartTransformer):
+    """Automatically Encodes Categorical Features
+
+    If there are less than 30 categories, then OneHotEncoder is used, if there are more
+    then HashingEncoder is used.
+
+    """
     def _get_transformer(self, X, y=None, unique_num_cutoff=30, **fit_params):
         data = X.iloc[:, 0]
         col_name = X.columns[0]
@@ -51,6 +64,13 @@ class Encoder(SmartTransformer):
 
 
 class SimpleImputer(SmartTransformer):
+    """Automatically Imputes Single Columns
+
+    Performs z-score test to determine whether to use mean or median imputation. If
+    too many data points are missing then imputation is not attempted in favor of
+    multiple imputation later in the pipeline.
+
+    """
     def __init__(self, threshold=0.1, **kwargs):
         self.threshold = threshold
         super().__init__(**kwargs)
@@ -84,6 +104,12 @@ class SimpleImputer(SmartTransformer):
 
 
 class MultiImputer(SmartTransformer):
+    """Automatically chooses a method of Multiple Imputation if neccesary
+
+    By default, currently uses KNN multiple imputation as it is the fastest, and most
+    flexible.
+
+    """
     def _choose_multi(self, X):
         # For now simply default to KNN multiple imputation (generic case)
         # The rest of them seem to have constraints and no published directly comparable
