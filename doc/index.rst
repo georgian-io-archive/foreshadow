@@ -10,6 +10,15 @@ Foreshadow: Simple Machine Learning Scaffolding
 
 **Foreshadow** is a one of a kind solution to the mess that is machine learning pipelines.
 
+.. |License| image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg
+   :target: https://github.com/georgianpartners/foreshadow/blob/master/LICENSE
+.. |BuildStatus| image:: https://travis-ci.org/georgianpartners/foreshadow.svg?branch=master
+   :target: https://travis-ci.org/georgianpartners/foreshadow
+.. |Coverage| image:: https://coveralls.io/repos/github/georgianpartners/foreshadow/badge.svg?branch=development
+   :target: https://coveralls.io/github/georgianpartners/foreshadow
+.. |Code style: black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/ambv/black
+
 ------------------------
 
 **Grab a cup of coffee, relax, and let foreshadow build pipelines for you**
@@ -75,6 +84,13 @@ API
 
    api
 
+Changelog
+---------
+.. toctree::
+   :maxdepth: 2
+
+   changelog
+
 Indices and tables
 ------------------
 * :ref:`genindex`
@@ -93,13 +109,3 @@ Indices and tables
    :hidden:
 
    contrib
-
-
-.. |License| image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg
-   :target: https://github.com/georgianpartners/foreshadow/blob/master/LICENSE
-.. |BuildStatus| image:: https://travis-ci.org/georgianpartners/foreshadow.svg?branch=master
-   :target: https://travis-ci.org/georgianpartners/foreshadow
-.. |Coverage| image:: https://coveralls.io/repos/github/georgianpartners/foreshadow/badge.svg?branch=development
-   :target: https://coveralls.io/github/georgianpartners/foreshadow
-.. |Code style: black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
-   :target: https://github.com/ambv/black
