@@ -40,6 +40,7 @@ def check_df(input_data, ignore_none=False):
 
 
 def check_module_installed(name):
+    """Checks whether a module is available for import"""
     try:
         __import__(name)
     except ImportError:

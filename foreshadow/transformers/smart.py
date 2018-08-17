@@ -29,6 +29,7 @@ class Scaler(SmartTransformer):
     distribution fits then a BoxCox transformation is applied and a RobustScaler
     is used.
     """
+
     def _get_transformer(self, X, y=None, p_val_cutoff=0.05, **fit_params):
         data = X.iloc[:, 0]
         # statistically invalid but good enough measure of relative closeness
@@ -53,6 +54,7 @@ class Encoder(SmartTransformer):
     then HashingEncoder is used.
 
     """
+
     def _get_transformer(self, X, y=None, unique_num_cutoff=30, **fit_params):
         data = X.iloc[:, 0]
         col_name = X.columns[0]
@@ -71,6 +73,7 @@ class SimpleImputer(SmartTransformer):
     multiple imputation later in the pipeline.
 
     """
+
     def __init__(self, threshold=0.1, **kwargs):
         self.threshold = threshold
         super().__init__(**kwargs)
@@ -110,6 +113,7 @@ class MultiImputer(SmartTransformer):
     flexible.
 
     """
+
     def _choose_multi(self, X):
         # For now simply default to KNN multiple imputation (generic case)
         # The rest of them seem to have constraints and no published directly comparable

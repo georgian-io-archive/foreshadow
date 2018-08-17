@@ -10,7 +10,6 @@ class FancyImputer(BaseEstimator, TransformerMixin):
 
     """
 
-
     def __init__(self, method="SimpleFill", **kwargs):
         self.kwargs = kwargs
         self.method = method

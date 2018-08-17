@@ -143,9 +143,11 @@ def init_partial(func):
 
     return transform_constructor
 
+
 def pandas_partial(func):
     def wrapper(self, *args, **kwargs):
-        func(self, *args, **kwargs)
+        return pandas_wrapper(self, func, *args, **kwargs)
+
     return wrapper
 
 
@@ -179,7 +181,11 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
     caller = None
     try:
         caller = stack[1][0].f_locals["self"].__class__
-        if caller.__name__ == type(self).__name__:
+        current = inspect.currentframe()
+        calframe = inspect.getouterframes(current, 3)
+        # import pdb
+        # pdb.set_trace()
+        if calframe[2][3] != "pandas_wrapper":
             return func(self, df, *args, **kwargs)
     except:
         pass

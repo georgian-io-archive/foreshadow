@@ -116,7 +116,6 @@ class Foreshadow(BaseEstimator):
         """
         return self._estimator
 
-
     @estimator.setter
     def estimator(self, e):
         if e is not None:
