@@ -4,9 +4,8 @@ import re
 
 from setuptools import setup, find_packages
 
-long_description = """
-TODO
-"""
+with open('README.rst') as f:
+    long_description = f.read()
 
 here = os.path.abspath(os.path.dirname(__file__))
 
