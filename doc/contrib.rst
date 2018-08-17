@@ -5,7 +5,7 @@ Contributing
 
 Project Setup
 -------------
-Foreshadow has two main branches. Development and master. Each pypi version and their associated commit will be tagged in GitHub. Before each release master will be merged into development and development will be merged back into master. This project follows the `semantic versioning`_ standard.
+Foreshadow has one main master branch and feature branches if an when collaborative development is required. Each pypi version and their associated commit will be tagged in GitHub. Before each release a new branch will be created freezing that specific version. Pull requests are merged directly into master. This project follows the `semantic versioning`_ standard.
 
 .. _semantic versioning: https://semver.org/
 
