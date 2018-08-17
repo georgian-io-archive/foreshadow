@@ -61,7 +61,7 @@ export, modify and construct pipelines of your own.
 Recommended Workflow
 ~~~~~~~~~~~~~~~~~~~~
 
-There are many ways to use Foreshadow, but we reccomend using this workflow initially as it is the quickest and easiest way to
+There are many ways to use Foreshadow, but we recommend using this workflow initially as it is the quickest and easiest way to
 generate a high-performing model with minimum effort.
 
 First, prep your data into X_train, X_test, y_train and y_test pandas dataframes. For example:
@@ -131,12 +131,9 @@ Now lets re-create the Foreshadow object with your changes.
     # Score the foreshadow object
     shadow.score(X_test, y_test)
 
-Now we can see the performance difference as a result of the changes. This process is slow and tedious though. Lets add a combinations section to the configuration
-file and let an optimizer do the heavy lifting of evaluating the framework.
+Now we can see the performance difference as a result of the changes. This process is slow and tedious though. Let's add a combinations section to the configuration file and let an optimizer do the heavy lifting of evaluating the framework.
 
-First, read the `Hyperparameter Tuning`_ section about how hyperparameter optimization works in Foreshadow. Then add a combinations sections to the exported JSON
-file(s) you have from the preprocessor. Remember that the more parameters you add, the longer it will take. We recommend focusing on a set of related parameters one by one
-and optimizing them individually. e.g. Optimize thresholds for Scaling, then thresholds for Encoding, then feature reduction (PCA / LDA) etc.
+First, read the `Hyperparameter Tuning`_ section about how hyperparameter optimization works in Foreshadow. Then add a combinations section to the exported JSON file(s) you have from the preprocessor. Remember that the more parameters you add, the longer it will take. We recommend focusing on a set of related parameters one by one and optimizing them individually. e.g. Optimize thresholds for Scaling, then thresholds for Encoding, then feature reduction (PCA / LDA) etc.
 
 Once you add a combinations section to figure out the best parameters, create the Foreshadow object again, except this time with an optimizer such as GridSearchCV or RandomSearchCV from sklearn.
 
@@ -170,10 +167,7 @@ Once you add a combinations section to figure out the best parameters, create th
     json.dump(y_proc_best, open("y_proc_best.json", "w"))
 
 
-Once you have a preprocessor pipeline that you are happy with, you should attempt to optimize the model. The AutoEstimator will be good for this
-as it will automatically do model selection and hyperparameter optimization. To do this, construct the Foreshadow object in the same way as above, using
-the optimized JSON configuration, but instead of passing in an sklearn estimator and optimizer, leave those fields as default. This will force Foreshadow to use the defaults
-which automatically chooses either TPOT (regression) or AutoSklearn (classification) to fit the preprocessed data without any of their in-built feature engineering.
+Once you have a preprocessor pipeline that you are happy with, you should attempt to optimize the model. The AutoEstimator will be good for this as it will automatically do model selection and hyperparameter optimization. To do this, construct the Foreshadow object in the same way as above, using the optimized JSON configuration, but instead of passing in an sklearn estimator and optimizer, leave those fields as default. This will force Foreshadow to use the defaults which automatically chooses either TPOT (regression) or AutoSklearn (classification) to fit the preprocessed data without any of their in-built feature engineering.
 
 *This will take a long time to execute... get yourself a cup of coffee or tea, sit back, and relax*
 
@@ -261,7 +255,7 @@ the :py:obj:`Foreshadow <foreshadow.foreshadow.Foreshadow>` object, the :py:obj:
 is capable of being used as a standalone object to perform feature engineering, or it can be
 used in a :py:obj:`Pipeline <sklearn.pipeline.Pipeline>` as a Transformer to perform preprocessing for an estimator.
 
-In its most-basic form, a Preprocessor can be initialized with no parameters as :code:`fs.Preprocessor()` in which all defaults
+In its most basic form, a Preprocessor can be initialized with no parameters as :code:`fs.Preprocessor()` in which all defaults
 will be applied. Ideally, a default preprocessor will be able to produce an acceptable pipeline for feature engineering.
 
 The preprocessor performs the following tasks in order
@@ -306,7 +300,7 @@ Multi Pipeline
 
 Intents also contain a :code:`multi-pipeline` which operates on all columns of data of a given intent simultaneously. For example, in the Boston Housing dataset,
 the :code:`'CRIM'` feature (per capita crime rate), the :code:`'RM'` feature (average rooms per house), and the :code:`'TAX'` feature (property tax rate) could be
-matched to :py:obj:`NumericIntent <foreshadow.intents.NumericIntent>` in which the corresponding multi-pipline would apply transformers across the columns such as
+matched to :py:obj:`NumericIntent <foreshadow.intents.NumericIntent>` in which the corresponding multi-pipeline would apply transformers across the columns such as
 feature reduction methods like PCA or methods of inference such as Multiple Imputation.
 
 Additionally, while single pipelines are applied on an exclusive basis, multiple pipelines are applied on an inclusive basis. All multiple pipelines in the Intent hierarchy
