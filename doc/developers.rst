@@ -12,7 +12,8 @@ General Setup
    
       .. code-block:: console
       
-         $ git clone www.github.com/georgianpartners/foreshadow.git
+         $ git clone https://github.com/georgianpartners/foreshadow.git
+         $ cd foreshadow
          $ git checkout development
    
    2. Install and setup `pyenv`_ and `pyenv-virtualenv`_
