@@ -55,6 +55,8 @@ def test_invalid_kwargs_not_dict():
 def test_override_kwarg_dict():
     from foreshadow.estimators import AutoEstimator
 
+    # if this is erroring make sure that auto_sklearn is installed
+
     ae = AutoEstimator(
         problem_type="regression",
         auto="autosklearn",

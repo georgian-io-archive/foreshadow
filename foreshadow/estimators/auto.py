@@ -2,7 +2,6 @@
 AutoEstimator and its selection
 """
 
-import inspect
 import operator
 import warnings
 
@@ -215,12 +214,11 @@ class AutoEstimator(BaseEstimator):
         X = check_df(X)
         return self.estimator.predict_proba(X)
 
-    def score(self, X, y):
+    def score(self, X, y, sample_weight=None):
         """Uses the trained estimator to compute the evaluation score defined
         by the estimator
 
-        Note: sample weight is not implemented as tpot does not accept it in 
-        its score field
+        Note: sample weights are not supported
 
         Args:
             X (pandas.DataFrame or numpy.ndarray or list): The input feature(s)

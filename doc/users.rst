@@ -22,7 +22,7 @@ Also import sklearn, pandas, and numpy for the demo
 
     import pandas as pd
 
-    from sklearn.datasets import boston_housing
+    from sklearn.datasets import load_boston
     from sklearn.model_selection import train_test_split
 
 Now load in the boston housing dataset from sklearn into pandas dataframes. This

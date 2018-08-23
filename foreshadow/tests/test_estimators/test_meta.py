@@ -8,7 +8,7 @@ def test_metaestimator_predict():
     from sklearn.linear_model import LinearRegression
     from sklearn.model_selection import train_test_split
 
-    from foreshadow.estimators.meta import MetaEstimator
+    from foreshadow.estimators import MetaEstimator
 
     np.random.seed(0)
 
@@ -34,7 +34,7 @@ def test_metaestimator_predict_proba():
     from sklearn.linear_model import LogisticRegression
     from sklearn.model_selection import train_test_split
 
-    from foreshadow.estimators.meta import MetaEstimator
+    from foreshadow.estimators import MetaEstimator
 
     np.random.seed(0)
 
@@ -58,7 +58,7 @@ def test_metaestimator_score():
     from sklearn.linear_model import LogisticRegression
     from sklearn.model_selection import train_test_split
 
-    from foreshadow.estimators.meta import MetaEstimator
+    from foreshadow.estimators import MetaEstimator
 
     np.random.seed(0)
 
@@ -74,11 +74,4 @@ def test_metaestimator_score():
     est = LogisticRegression().fit(X_train, scaler.transform(y_train))
     assert np.allclose(
         me.score(X_test, y_test), est.score(X_test, scaler.transform(y_test))
-    )
-
-    # test score parameter
-    sample_weight = np.random.randint(1, 10, y_test.size)
-    assert np.allclose(
-        me.score(X_test, y_test, sample_weight=sample_weight),
-        est.score(X_test, scaler.transform(y_test), sample_weight=sample_weight),
     )

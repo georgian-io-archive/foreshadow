@@ -2,6 +2,8 @@
 Wrapped Estimator
 """
 
+import inspect
+
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from ..utils import check_df
@@ -62,17 +64,17 @@ class MetaEstimator(BaseEstimator):
         X = check_df(X)
         return self.estimator.predict_proba(X)
 
-    def score(self, X, y, sample_weight=None):
+    def score(self, X, y):
         """Uses the trained estimator to compute the evaluation score defined
         by the estimator
+
+        Note: sample weights are not supported
 
         Args:
             X (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray` or list):
                 The input feature(s)
             y (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray` or list):
                 The response feature(s)
-            sample_weight (:obj:`numpy.ndarray`, optional):
-                The weights to be used when scoring each sample
         
         Returns:
             float: A computed prediction fitness score
@@ -80,4 +82,5 @@ class MetaEstimator(BaseEstimator):
         X = check_df(X)
         y = check_df(y)
         y = self.preprocessor.transform(y)
-        return self.estimator.score(X, y, sample_weight)
+
+        return self.estimator.score(X, y)
