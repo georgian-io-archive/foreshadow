@@ -6,14 +6,7 @@ _registry = {}
 
 
 def _register_intent(cls_target):
-    """Uses the trained estimator to predict the response for an input dataset
-
-    Args:
-        data_df (pandas.DataFrame or numpy.ndarray): The test input data
-
-    Returns:
-        pandas.DataFrame: The response variable output (transformed if necessary)
-    """
+    """Registers an intent with the library"""
     global _registry
     if cls_target.__name__ in _registry:
         raise TypeError("Intent already exists in registry, use a different name")
@@ -51,7 +44,6 @@ def get_registry():
         dict: Dictionary of intents known to Foreshadow
 
     """
-    global _registry
     return _registry
 
 
@@ -65,7 +57,6 @@ def registry_eval(cls_target):
         :class:`BaseIntent <foreshadow.intents.base.BaseIntent>`: Intent class object
 
     """
-    global _registry
     return _registry[cls_target]
 
 

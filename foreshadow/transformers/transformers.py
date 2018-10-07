@@ -16,7 +16,7 @@ def _get_modules(classes, globals_, mname):
     to support pandas dataframes, and exposes them as foreshadow.transformers.[name]
 
     Returns:
-        The number of transformers wrapped.
+        The list of wrapped transformers.
 
     """
 
@@ -76,22 +76,22 @@ def wrap_transformer(transformer):
 
 class Sigcopy(object):
     """
-    copy_argspec is a signature modifying decorator.  Specifically, it copies
-    the signature from `source_func` to the wrapper, and the wrapper will call
-    the original function ``(which should be using *args, **kwds)``.  The argspec,
-    docstring, and default values are copied from src_func, and __module__ and
-    __dict__ from tgt_func.
+    Copies the argspec between two functions. Used to copy the argspec from a partial function.
     """
 
     def __init__(self, src_func):
+        """Saves necessary info to copy over"""
         self.argspec = inspect.getfullargspec(src_func)
         self.src_doc = src_func.__doc__
         self.src_defaults = src_func.__defaults__
 
     def __call__(self, tgt_func):
+        """Runs when Sigcopy object is called. Returns new function"""
         tgt_argspec = inspect.getfullargspec(tgt_func)
 
         name = tgt_func.__name__
+
+        # Filters out defaults that are metaclasses
         argspec = self.argspec
         argspec = (
             argspec[0:3]
@@ -106,12 +106,15 @@ class Sigcopy(object):
             + argspec[4:]
         )
 
+        # Copies keyword arguments and defaults
         newargspec = (
             (argspec[0] + tgt_argspec[0][1:],)
             + argspec[1:4]
             + (tgt_argspec[4], tgt_argspec[5])
             + argspec[6:]
         )
+
+        # Write new function
         sigcall = inspect.formatargspec(formatvalue=lambda val: "", *newargspec)[1:-1]
         signature = inspect.formatargspec(*newargspec)[1:-1]
 
@@ -124,6 +127,7 @@ class Sigcopy(object):
             % {"signature": signature, "tgt_func": "tgt_func", "sigcall": sigcall}
         )
 
+        # Set new metadata
         evaldict = {"tgt_func": tgt_func}
         exec(new_func, evaldict)
         wrapped = evaldict["_wrapper_"]
@@ -179,16 +183,14 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
 
     stack = inspect.stack()
     caller = None
-    try:
-        caller = stack[1][0].f_locals["self"].__class__
-        current = inspect.currentframe()
-        calframe = inspect.getouterframes(current, 3)
-        # import pdb
-        # pdb.set_trace()
-        if calframe[2][3] != "pandas_wrapper":
-            return func(self, df, *args, **kwargs)
-    except:
-        pass
+
+    caller = stack[1][0].f_locals["self"].__class__
+    current = inspect.currentframe()
+    calframe = inspect.getouterframes(current, 3)
+    # import pdb
+    # pdb.set_trace()
+    if calframe[2][3] != "pandas_wrapper":
+        return func(self, df, *args, **kwargs)
 
     df = check_df(df)
 

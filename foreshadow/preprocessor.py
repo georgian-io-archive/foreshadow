@@ -428,7 +428,7 @@ def serialize_pipeline(pipeline):
         list: JSON serializable object of form ``[cls, name, {**params}]``
     """
     return [
-        (type(step[1]).__name__, step[0], step[1].get_params())
+        (type(step[1]).__name__, step[0], step[1].get_params(deep=False))
         for step in pipeline.steps
         if pipeline.steps[0][0] != "null"
     ]
@@ -445,6 +445,14 @@ def resolve_pipeline(pipeline_json):
 
     """
     pipe = []
+
+    module_internals = __import__(
+        "transformers.internals", globals(), locals(), ["object"], 1
+    )
+    module_externals = __import__(
+        "transformers.externals", globals(), locals(), ["object"], 1
+    )
+
     for trans in pipeline_json:
 
         if len(trans) != 3:
@@ -458,12 +466,6 @@ def resolve_pipeline(pipeline_json):
         params = trans[2]
 
         try:
-            module_internals = __import__(
-                "transformers.internals", globals(), locals(), ["object"], 1
-            )
-            module_externals = __import__(
-                "transformers.externals", globals(), locals(), ["object"], 1
-            )
             cls = getattr(
                 module_internals
                 if hasattr(module_internals, clsname)

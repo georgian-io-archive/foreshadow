@@ -15,11 +15,11 @@ class ParallelProcessor(FeatureUnion):
     """Class extending FeatureUnion to support parallel operation on dataframes.
 
     This class functions similarly to a FeatureUnion except it divides a given
-    pandas dataframe according to the transformer definition in the constructure
-    and runs the defined partial dataframes on the given transformer. It then
+    pandas dataframe according to the transformer definition in the constructor
+    and transforms the defined partial dataframes using the given transformers. It then
     concatenates the outputs together.
 
-    Internally the ParallelProcessor uses MultiIndex-ing to indentify the column
+    Internally the ParallelProcessor uses MultiIndex-ing to identify the column
     of origin for transformer operations that result in multiple columns.
 
     The outer index or 'origin' index represents the column used to create a
@@ -47,7 +47,7 @@ class ParallelProcessor(FeatureUnion):
         self.collapse_index = collapse_index
         self.default_transformer_list = None
 
-        for i, item in enumerate(transformer_list):
+        for item in transformer_list:
             self._set_names(item)
 
         super(ParallelProcessor, self).__init__(
@@ -247,7 +247,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
     Once in a pipeline this class can be continuously re-fit in order to adapt to
     different data sets.
 
-    Contains a function _get_tranformer that must be ooverriddenby an implementing
+    Contains a function _get_tranformer that must be overridden by an implementing
     class that returns an sklearn transformer object to be used.
 
     Used and implements itself identically to a transformer.
@@ -271,8 +271,8 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
             "name": self.name,
             "keep_columns": self.keep_columns,
             **(
-                {k: v for k, v in self.transformer.get_params(deep=True).items()}
-                if self.transformer is not None
+                {k: v for k, v in self.transformer.get_params(deep=deep).items()}
+                if self.transformer is not None and deep
                 else {}
             ),
         }

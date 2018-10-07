@@ -44,7 +44,7 @@ def test_unregister_intent_does_not_exist():
     err_str = "was not found in registry"
 
     assert err_str in str(e1.value)
-    assert err_str in str(e1.value)
+    assert err_str in str(e2.value)
 
 
 def test_get_registry():

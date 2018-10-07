@@ -397,11 +397,14 @@ use this hard coded pipeline to process that column.
 The pipeline itself is defined by the following standard :code:`[[class, name, {param_key: param_value, ...}], ...]`
 When preprocessor parses this configuration it will create a Pipeline object with the given transformers of the given class, name, and parameters.
 For example, the preprocessor above will look something like :code:`sklearn.pipeline.Preprocessor([('Scaler', StandardScaler(with_mean=False)))])`
+Any class implementing the sklearn Transformer standard (including SmartTransformer) can be used here.
 
 That pipeline object will be fit on the column crim and will be used to transform it.
 
 Moving on to the :code:`"indus"` column defined by the configuration. We can see that it has an intent override but not a pipeline override. This means
-that the default :code:`single_pipeline` for the given intent will be used to process that column.
+that the default :code:`single_pipeline` for the given intent will be used to process that column. By default the serialized pipeline will have
+a list of partially matching Intents as a third item in the JSON list following the column name. These can likely be substituted into the Intent name with little or no
+compatibility issues.
 
 Intent Override
 ~~~~~~~~~~~~~~~

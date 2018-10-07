@@ -69,7 +69,7 @@ Install Autosklearn
          $ brew install swig # (or apt-get)
    
    2. Install gcc (MacOS only)
-   Use your package manager to install swig (necessary for xgboost)
+   Use your package manager to install gcc (necessary for xgboost)
    
       .. code-block:: console
       

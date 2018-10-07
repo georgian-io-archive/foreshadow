@@ -33,7 +33,7 @@ def test_foreshadow_X_preprocessor_custom():
 
     preprocessor = Preprocessor()
     foreshadow = Foreshadow(X_preprocessor=preprocessor)
-    assert isinstance(foreshadow.X_preprocessor, Preprocessor)
+    assert type(foreshadow.X_preprocessor) == Preprocessor
 
 
 def test_foreshadow_X_preprocessor_error():
@@ -59,7 +59,7 @@ def test_foreshadow_y_preprocessor_custom():
 
     preprocessor = Preprocessor()
     foreshadow = Foreshadow(y_preprocessor=preprocessor)
-    assert isinstance(foreshadow.y_preprocessor, Preprocessor)
+    assert type(foreshadow.y_preprocessor) == Preprocessor
 
 
 def test_foreshadow_y_preprocessor_error():

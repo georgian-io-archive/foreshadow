@@ -38,7 +38,7 @@ def test_transformer_wrapper_function():
     sklearn.fit(df[["crim"]])
 
     custom_tf = custom.transform(df[["crim"]])
-    sklearn_tf = custom.transform(df[["crim"]])
+    sklearn_tf = sklearn.transform(df[["crim"]])
 
     assert np.array_equal(custom_tf.values, sklearn_tf)
 
@@ -84,8 +84,7 @@ def test_transformer_naming_default():
     assert out.iloc[:, 0].name == "crim_StandardScaler_0"
 
 
-def test_transformer_arallel_invalid():
-    import pandas as pd
+def test_transformer_parallel_invalid():
     from foreshadow.transformers.base import ParallelProcessor
 
     class InvalidTransformer:

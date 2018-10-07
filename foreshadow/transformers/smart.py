@@ -1,7 +1,7 @@
 """Smart Transformers
 
 Transformers here will be accessible through the namespace
-foreshadow.transformers.smart OR simple foreshadow.transformers and will not be
+foreshadow.transformers.smart and will not be
 wrapped or transformed. Only classes extending SmartTransformer should exist here.
 
 """
@@ -86,7 +86,7 @@ class SimpleImputer(SmartTransformer):
         threshold = 3.5
 
         med_y = np.median(X)
-        mad_y = np.median([np.abs(y - med_y) for y in X])
+        mad_y = np.median(np.abs(np.subtract(X, med_y)))
         z_scor = [0.6745 * (y - med_y) / mad_y for y in X]
 
         z_bool = np.where(np.abs(z_scor) > threshold)[0].shape[0] / X.shape[0] > 0.05
