@@ -230,6 +230,6 @@ def test_priority_traverse():
         def is_intent(cls, df):
             return True
 
-    class_list = [TestIntent, TestIntent2, TestIntent1, TestIntent12, TestIntent11]
+    class_list = [TestIntent, TestIntent1, TestIntent2, TestIntent11, TestIntent12]
     assert class_list == list(TestIntent.priority_traverse())
     _unregister_intent(list(map(lambda x: x.__name__, class_list)))
