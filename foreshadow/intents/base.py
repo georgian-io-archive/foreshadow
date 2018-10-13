@@ -2,7 +2,20 @@
 Intent base and registry defentions
 """
 
+from abc import abstractmethod
+from functools import wraps
+
 from .registry import _IntentRegistry, registry_eval
+
+
+def check_base(ofunc):
+    """Decorator to wrap classmethods to check if they are being called from BaseIntent"""
+    @wraps(ofunc)
+    def nfunc(*args, **kwargs):
+        if args[0].__name__ == 'BaseIntent':
+            raise TypeError("classmethod {} cannot be called on BaseIntent".format(ofunc.__name__))
+        return ofunc(*args, **kwargs)
+    return nfunc
 
 
 class BaseIntent(metaclass=_IntentRegistry):
@@ -42,12 +55,16 @@ class BaseIntent(metaclass=_IntentRegistry):
     """More-specific intents that require this intent to match to be
             considered."""
 
-    def __new__(cls, *args, **kwargs):
-        if cls is BaseIntent:
-            raise TypeError("BaseIntent may not be instantiated")
-        return object.__new__(cls, *args, **kwargs)
+    single_pipeline = None
+    """Single pipeline of smart transformers that affect a single column in 
+            in an intent"""
+
+    multi_pipeline = None
+    """Multi pipeline of smart transformers that affect multiple columns in
+            an intent"""
 
     @classmethod
+    @check_base
     def to_string(cls, level=0):
         """String representation of intent. Intended to assist in visualizing tree.
 
@@ -69,6 +86,7 @@ class BaseIntent(metaclass=_IntentRegistry):
         return ret
 
     @classmethod
+    @check_base
     def priority_traverse(cls):
         """Traverses intent tree downward from Intent.
 
@@ -88,6 +106,8 @@ class BaseIntent(metaclass=_IntentRegistry):
                 lqueue.extend(node_children)
 
     @classmethod
+    @check_base
+    @abstractmethod
     def is_intent(cls, df):
         """Determines whether intent is the appropriate fit
 
@@ -97,12 +117,13 @@ class BaseIntent(metaclass=_IntentRegistry):
         Returns:
             Boolean determining whether intent is valid for feature in df
         """
-        raise NotImplementedError("is_fit is not immplemented")
+        pass # pragma: no cover
 
     @classmethod
     def _check_required_class_attributes(cls):
         """Validate class variables are setup properly"""
-        not_implemented = lambda x, y: "Subclass must define {} attribute.\n{}".format(
+
+        not_implemented = lambda x, y: "Subclass must define {} class attribute.\n{}".format(
             x, y
         )
         if cls.dtype is None:
@@ -116,5 +137,19 @@ class BaseIntent(metaclass=_IntentRegistry):
                 not_implemented(
                     "cls.children",
                     "This attribute should define the children of the intent.",
+                )
+            )
+        elif cls.single_pipeline is None:
+            raise NotImplementedError(
+                not_implemented(
+                    "cls.single_pipeline",
+                    "This attribute should define the transformers for a single pipeline",
+                )
+            )
+        elif cls.multi_pipeline is None:
+            raise NotImplementedError(
+                not_implemented(
+                    "cls.multi_pipeline",
+                    "This attribute should define the transformers for a multi pipeline",
                 )
             )

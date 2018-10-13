@@ -2,6 +2,8 @@
 Intent Registry
 """
 
+from abc import ABCMeta
+
 _registry = {}
 
 
@@ -60,12 +62,16 @@ def registry_eval(cls_target):
     return _registry[cls_target]
 
 
-class _IntentRegistry(type):
+class _IntentRegistry(ABCMeta):
     """Metaclass for intents that registers defined intent classes"""
 
-    def __new__(meta, name, bases, class_dict):
-        klass = type.__new__(meta, name, bases, class_dict)
-        if not name == "BaseIntent":
-            klass._check_required_class_attributes()
-            _register_intent(klass)
-        return klass
+    def __new__(cls, *args, **kwargs):
+        class_ = super(_IntentRegistry, cls).__new__(cls, *args, **kwargs)
+
+        if class_.__abstractmethods__ and class_.__name__ is not "BaseIntent":
+            raise NotImplementedError("{} has not implemented abstract methods {}".format(
+                class_.__name__, ", ".join(class_.__abstractmethods__)))
+        elif class_.__name__ is not "BaseIntent":
+            class_._check_required_class_attributes()
+            _register_intent(class_)
+        return class_

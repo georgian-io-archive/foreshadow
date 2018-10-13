@@ -1,12 +1,32 @@
 import pytest
 
 
-def test_instantiate_base():
+def test_call_classmethod_from_BaseIntent():
     from foreshadow.intents.base import BaseIntent
 
-    with pytest.raises(TypeError) as e:
-        b = BaseIntent()
-    assert str(e.value) == "BaseIntent may not be instantiated"
+    with pytest.raises(TypeError) as e1:
+        BaseIntent.to_string()
+
+    with pytest.raises(TypeError) as e2:
+        BaseIntent.priority_traverse()
+
+    with pytest.raises(TypeError) as e3:
+        BaseIntent.is_intent()
+
+    assert "cannot be called on BaseIntent" in str(e1.value)
+    assert "cannot be called on BaseIntent" in str(e2.value)
+    assert "cannot be called on BaseIntent" in str(e3.value)
+
+
+def test_mock_subclass_missing_is_intent():
+    from foreshadow.intents.base import BaseIntent
+
+    with pytest.raises(NotImplementedError) as e:
+
+        class TestIntent(BaseIntent):
+            pass
+
+    assert "has not implemented abstract methods is_intent" in str(e.value)
 
 
 def test_mock_subclass_missing_dtype():
@@ -15,12 +35,11 @@ def test_mock_subclass_missing_dtype():
     with pytest.raises(NotImplementedError) as e:
 
         class TestIntent(BaseIntent):
-            pass
+            @classmethod
+            def is_intent(cls, df):
+                return True
 
-    assert str(e.value) == (
-        "Subclass must define cls.dtype attribute.\nThis attribute should define the "
-        "dtype of the intent."
-    )
+    assert "Subclass must define" in str(e.value)
 
 
 def test_mock_subclass_missing_children():
@@ -29,12 +48,46 @@ def test_mock_subclass_missing_children():
     with pytest.raises(NotImplementedError) as e:
 
         class TestIntent(BaseIntent):
+            @classmethod
+            def is_intent(cls, df):
+                return True
+
             dtype = "TEST"
 
-    assert str(e.value) == (
-        "Subclass must define cls.children attribute.\nThis attribute should define the"
-        " children of the intent."
-    )
+    assert "Subclass must define" in str(e.value)
+
+
+def test_mock_subclass_missing_single_pipeline():
+    from foreshadow.intents.base import BaseIntent
+
+    with pytest.raises(NotImplementedError) as e:
+
+        class TestIntent(BaseIntent):
+            @classmethod
+            def is_intent(cls, df):
+                return True
+
+            dtype = "TEST"
+            children = []
+
+    assert "Subclass must define" in str(e.value)
+
+
+def test_mock_subclass_missing_multi_pipeline():
+    from foreshadow.intents.base import BaseIntent
+
+    with pytest.raises(NotImplementedError) as e:
+
+        class TestIntent(BaseIntent):
+            @classmethod
+            def is_intent(cls, df):
+                return True
+
+            dtype = "TEST"
+            children = []
+            single_pipeline = []
+
+    assert "Subclass must define" in str(e.value)
 
 
 def test_valid_mock_subclass():
@@ -42,11 +95,14 @@ def test_valid_mock_subclass():
     from foreshadow.intents.base import BaseIntent
 
     class TestIntent(BaseIntent):
+        @classmethod
+        def is_intent(cls, df):
+            return True
+
         dtype = "TEST"
         children = []
-
-        def __init__(self):
-            pass
+        single_pipeline = []
+        multi_pipeline = []
 
     t = TestIntent()
     _unregister_intent(TestIntent.__name__)
@@ -59,22 +115,52 @@ def test_to_string():
     class TestIntent(BaseIntent):
         dtype = "TEST"
         children = ["TestIntent1", "TestIntent2"]
+        single_pipeline = []
+        multi_pipeline = []
+
+        @classmethod
+        def is_intent(cls, df):
+            return True
 
     class TestIntent1(TestIntent):
         dtype = "TEST"
         children = ["TestIntent11", "TestIntent12"]
+        single_pipeline = []
+        multi_pipeline = []
+
+        @classmethod
+        def is_intent(cls, df):
+            return True
 
     class TestIntent2(TestIntent):
         dtype = "TEST"
         children = []
+        single_pipeline = []
+        multi_pipeline = []
+
+        @classmethod
+        def is_intent(cls, df):
+            return True
 
     class TestIntent11(TestIntent1):
         dtype = "TEST"
         children = []
+        single_pipeline = []
+        multi_pipeline = []
+
+        @classmethod
+        def is_intent(cls, df):
+            return True
 
     class TestIntent12(TestIntent1):
         dtype = "TEST"
         children = []
+        single_pipeline = []
+        multi_pipeline = []
+
+        @classmethod
+        def is_intent(cls, df):
+            return True
 
     class_list = [
         "TestIntent",
@@ -97,42 +183,53 @@ def test_priority_traverse():
     class TestIntent(BaseIntent):
         dtype = "TEST"
         children = ["TestIntent1", "TestIntent2"]
+        single_pipeline = []
+        multi_pipeline = []
+
+        @classmethod
+        def is_intent(cls, df):
+            return True
 
     class TestIntent1(TestIntent):
         dtype = "TEST"
         children = ["TestIntent11", "TestIntent12"]
+        single_pipeline = []
+        multi_pipeline = []
+
+        @classmethod
+        def is_intent(cls, df):
+            return True
 
     class TestIntent2(TestIntent):
         dtype = "TEST"
         children = []
+        single_pipeline = []
+        multi_pipeline = []
+
+        @classmethod
+        def is_intent(cls, df):
+            return True
 
     class TestIntent11(TestIntent1):
         dtype = "TEST"
         children = []
+        single_pipeline = []
+        multi_pipeline = []
+
+        @classmethod
+        def is_intent(cls, df):
+            return True
 
     class TestIntent12(TestIntent1):
         dtype = "TEST"
         children = []
+        single_pipeline = []
+        multi_pipeline = []
+
+        @classmethod
+        def is_intent(cls, df):
+            return True
 
     class_list = [TestIntent, TestIntent2, TestIntent1, TestIntent12, TestIntent11]
     assert class_list == list(TestIntent.priority_traverse())
     _unregister_intent(list(map(lambda x: x.__name__, class_list)))
-
-
-def test_is_intent_implementation():
-    import pandas as pd
-
-    from foreshadow.intents.registry import _unregister_intent
-    from foreshadow.intents.base import BaseIntent
-
-    X_df = pd.DataFrame([[1]], columns=["A"])
-
-    class TestIntent(BaseIntent):
-        dtype = "TEST"
-        children = ["TestIntent1", "TestIntent2"]
-
-    with pytest.raises(NotImplementedError) as e:
-        TestIntent.is_intent(X_df)
-
-    assert str(e.value) == "is_fit is not immplemented"
-    _unregister_intent(TestIntent.__name__)
