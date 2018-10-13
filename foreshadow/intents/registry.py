@@ -34,21 +34,6 @@ def _unregister_intent(cls_target):
         raise ValueError("Input must be either a string or a list of strings")
 
 
-def _set_registry(val):
-    global _registry
-    _registry = val
-
-
-def get_registry():
-    """Global registry of defined intents
-
-    Returns:
-        dict: Dictionary of intents known to Foreshadow
-
-    """
-    return _registry
-
-
 def registry_eval(cls_target):
     """Retrieve intent class from registry dictionary
 

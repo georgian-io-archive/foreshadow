@@ -1,7 +1,5 @@
 import pytest
 
-from foreshadow.intents.registry import get_registry, registry_eval, _unregister_intent
-
 
 def test_unregister():
     from foreshadow.intents.base import BaseIntent
@@ -63,25 +61,6 @@ def test_unregister_intent_does_not_exist():
 
     assert err_str in str(e1.value)
     assert err_str in str(e2.value)
-
-
-def test_get_registry():
-    from foreshadow.intents.base import BaseIntent
-    from foreshadow.intents.registry import _unregister_intent, get_registry
-
-    class TestIntent(BaseIntent):
-        dtype = "TEST"
-        children = []
-        single_pipeline = []
-        multi_pipeline = []
-
-        @classmethod
-        def is_intent(cls, df):
-            return True
-
-    g = get_registry()
-    assert g[TestIntent.__name__] is TestIntent
-    _unregister_intent(TestIntent.__name__)
 
 
 def test_registry_eval():
