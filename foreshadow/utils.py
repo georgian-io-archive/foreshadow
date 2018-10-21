@@ -47,3 +47,21 @@ def check_module_installed(name):
         return False
     else:
         return True
+
+def check_transformer_imports(printout=True):
+    """Determines which transformers were automatically imported"""
+    
+    from .transformers import externals as exter
+    from .transformers import internals as inter
+
+    if printout:
+        print("Loaded {} internals transformer plugins:\n{}".format(
+            len(inter.classes),
+            inter.classes
+        ))
+        print("Loaded {} externals transformer plugins\n{}".format(
+            len(exter.classes),
+            exter.classes
+        ))
+
+    return inter.classes, exter.classes

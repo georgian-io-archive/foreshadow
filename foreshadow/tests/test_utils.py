@@ -58,3 +58,22 @@ def test_module_installed():
     from foreshadow.utils import check_module_installed
 
     assert check_module_installed("sys") == True
+
+def test_check_transformer_imports(capsys):
+    from foreshadow.utils import check_transformer_imports
+
+    inter_trans, exter_trans = check_transformer_imports()
+    out, err = capsys.readouterr()
+
+    
+    assert out.startswith("Loaded")
+    assert len(inter_trans) > 0
+    assert len(exter_trans) > 0
+
+def test_check_transformer_imports_no_output(capsys):
+    from foreshadow.utils import check_transformer_imports
+
+    check_transformer_imports(printout=False)
+    out, err = capsys.readouterr()
+
+    assert len(out) == 0
