@@ -69,3 +69,30 @@ def test_transformer_fancy_impute_invalid_params():
         "Invalid method. Possible values are BiScaler, KNN, "
         "NuclearNormMinimization and SoftImpute"
     )
+
+
+def test_transformer_onehotencoder_fit_transform():
+    import pandas as pd
+    from foreshadow.transformers.internals import OneHotEncoder
+
+    df = pd.DataFrame({"neat": ["apple", "apple", "orange", "apple", "orange"]})
+    ohe = OneHotEncoder()
+    assert ohe.fit(df) == ohe
+    assert list(ohe.transform(df)) == [
+        "neat_OneHotEncoder_apple",
+        "neat_OneHotEncoder_orange",
+    ]
+
+
+def test_transformer_onehotencoder_fit_transform_keep_cols():
+    import pandas as pd
+    from foreshadow.transformers.internals import OneHotEncoder
+
+    df = pd.DataFrame({"neat": ["apple", "apple", "orange", "apple", "orange"]})
+    ohe = OneHotEncoder(keep_columns=True, name="encoder")
+    assert ohe.fit(df) == ohe
+    assert list(ohe.transform(df)) == [
+        "neat_encoder_origin_0",
+        "neat_encoder_apple",
+        "neat_encoder_orange",
+    ]

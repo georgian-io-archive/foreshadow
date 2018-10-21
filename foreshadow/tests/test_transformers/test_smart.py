@@ -42,7 +42,7 @@ def test_smart_encoder_less_than_30_levels():
     import scipy.stats as ss
 
     from foreshadow.transformers.smart import Encoder
-    from foreshadow.transformers.externals import OneHotEncoder
+    from foreshadow.transformers.internals import OneHotEncoder
 
     np.random.seed(0)
     leq_30_random_data = np.random.choice(30, size=500)

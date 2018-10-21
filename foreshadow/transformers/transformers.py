@@ -200,6 +200,29 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
     except Exception as e:
         out = func(self, df, *args)
 
+    # If output is DataFrame (custom transform has occured)
+    if isinstance(out, pd.DataFrame):
+
+        if hasattr(out, "from_transformer"):
+            return out
+
+        if self.name:
+            prefix = self.name
+        else:
+            prefix = type(self).__name__
+
+        out.columns = [
+            "{}_{}_{}".format("_".join(init_cols), prefix, c) for c in out.columns
+        ]
+
+        if self.keep_columns:
+            df.columns = [
+                "{}_{}_origin_{}".format(c, prefix, i) for i, c in enumerate(df.columns)
+            ]
+            return pd.concat([df, out], axis=1)
+
+        return out
+
     # If output is numpy array (transform has occurred)
     if isinstance(out, np.ndarray):
 
@@ -221,6 +244,8 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
                 )
             }
             df = df.assign(**kw)
+
+            df.from_transformer = True
 
         return df
 
