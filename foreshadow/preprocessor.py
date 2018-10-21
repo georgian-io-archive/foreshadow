@@ -5,6 +5,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 
 from .transformers.base import ParallelProcessor
+from .transformers import smart
 from .intents.registry import registry_eval
 from .intents import GenericIntent
 from .utils import check_df
@@ -452,6 +453,9 @@ def resolve_pipeline(pipeline_json):
     module_externals = __import__(
         "transformers.externals", globals(), locals(), ["object"], 1
     )
+    module_smart = __import__(
+        "transformers.smart", globals(), locals(), ["object"], 1
+    )
 
     for trans in pipeline_json:
 
@@ -466,12 +470,20 @@ def resolve_pipeline(pipeline_json):
         params = trans[2]
 
         try:
+            search_module = (module_internals 
+                if hasattr(module_internals, clsname) 
+                else (
+                    module_externals
+                    if hasattr(module_externals, clsname)
+                    else module_smart
+                )
+            )
+                
             cls = getattr(
-                module_internals
-                if hasattr(module_internals, clsname)
-                else module_externals,
+                search_module,
                 clsname,
             )
+
         except Exception as e:
             raise ValueError("Could not import defined transformer {}".format(clsname))
 
