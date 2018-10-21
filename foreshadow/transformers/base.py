@@ -9,6 +9,7 @@ from sklearn.pipeline import (
 from sklearn.externals.joblib import Parallel, delayed
 
 from ..utils import check_df
+from .transformers import _Empty
 
 
 class ParallelProcessor(FeatureUnion):
@@ -264,6 +265,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         self.keep_columns = keep_columns
         self.override = override
         self.transformer = None
+        self._set_to_empty = False
 
     def get_params(self, deep=True):
         return {
@@ -383,14 +385,19 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
     def transform(self, X):
         """See base class."""
         X = check_df(X)
-        self._verify_transformer(X)
+        if not self._set_to_empty:
+            self._verify_transformer(X)
         return self.transformer.transform(X)
 
     def fit(self, X, y=None, **kwargs):
         """See base class."""
         X = check_df(X)
         y = check_df(y, ignore_none=True)
-        self._verify_transformer(X, y, refit=True)
+        if X.empty:
+            self.transformer = _Empty()
+            self._set_to_empty = True
+        else:
+            self._verify_transformer(X, y, refit=True)
         inject = _inject_df(self.transformer, kwargs.pop("full_df", None))
         return self.transformer.fit(X, y, **{**kwargs, **inject})
 

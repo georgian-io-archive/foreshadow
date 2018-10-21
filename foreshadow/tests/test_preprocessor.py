@@ -74,7 +74,7 @@ def patch_intents(mocker):
     # test runs here
     yield
     # reset registry state
-    registry._registry = _saved_registry # _set_registry(_saved_registry)
+    registry._registry = _saved_registry  # _set_registry(_saved_registry)
 
 
 def test_preprocessor_init_empty():

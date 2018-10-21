@@ -48,6 +48,27 @@ def test_transformer_wrapper_function():
     assert np.array_equal(custom_tf.values, sklearn_tf)
 
 
+def test_transformer_wrapper_empty_input():
+    import numpy as np
+    import pandas as pd
+
+    from sklearn.preprocessing import StandardScaler as StandardScaler
+    from foreshadow.transformers.externals import StandardScaler as CustomScaler
+
+    df = pd.DataFrame({"A": np.array([])})
+
+    with pytest.raises(ValueError) as e:
+        StandardScaler().fit(df)
+    cs = CustomScaler().fit(df)
+    out = cs.transform(df)
+
+    assert "Found array with" in str(e)
+    assert out.values.size == 0
+
+    # If for some weird reason transform is called before fit
+    assert CustomScaler().transform(df).values.size == 0
+
+
 def test_transformer_keep_cols():
     import pandas as pd
     from foreshadow.transformers.externals import StandardScaler as CustomScaler

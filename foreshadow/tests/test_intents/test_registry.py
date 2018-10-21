@@ -102,7 +102,7 @@ def test_samename_subclass():
             children = ["TEST"]
             single_pipeline = []
             multi_pipeline = []
-            
+
             @classmethod
             def is_intent(cls, df):
                 return True

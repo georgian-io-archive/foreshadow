@@ -10,11 +10,15 @@ from .registry import _IntentRegistry, registry_eval
 
 def check_base(ofunc):
     """Decorator to wrap classmethods to check if they are being called from BaseIntent"""
+
     @wraps(ofunc)
     def nfunc(*args, **kwargs):
-        if args[0].__name__ == 'BaseIntent':
-            raise TypeError("classmethod {} cannot be called on BaseIntent".format(ofunc.__name__))
+        if args[0].__name__ == "BaseIntent":
+            raise TypeError(
+                "classmethod {} cannot be called on BaseIntent".format(ofunc.__name__)
+            )
         return ofunc(*args, **kwargs)
+
     return nfunc
 
 
@@ -117,7 +121,7 @@ class BaseIntent(metaclass=_IntentRegistry):
         Returns:
             Boolean determining whether intent is valid for feature in df
         """
-        pass # pragma: no cover
+        pass  # pragma: no cover
 
     @classmethod
     def _check_required_class_attributes(cls):

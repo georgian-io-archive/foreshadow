@@ -69,3 +69,26 @@ def test_transformer_fancy_impute_invalid_params():
         "Invalid method. Possible values are BiScaler, KNN, "
         "NuclearNormMinimization and SoftImpute"
     )
+
+
+def test_drop_transformer_above_thresh():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.internals import DropFeature
+
+    x = pd.DataFrame({"A": np.arange(10)})
+
+    assert np.array_equal(
+        x.values.ravel(), DropFeature().fit_transform(x).values.ravel()
+    )
+
+
+def test_drop_transformer_below_thresh():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.internals import DropFeature
+
+    # default thresh is 0.3
+    x = pd.DataFrame({"A": np.array([np.nan] * 8 + [0.1, 0.1])})
+
+    assert DropFeature().fit_transform(x).values.size == 0

@@ -54,8 +54,11 @@ class _IntentRegistry(ABCMeta):
         class_ = super(_IntentRegistry, cls).__new__(cls, *args, **kwargs)
 
         if class_.__abstractmethods__ and class_.__name__ is not "BaseIntent":
-            raise NotImplementedError("{} has not implemented abstract methods {}".format(
-                class_.__name__, ", ".join(class_.__abstractmethods__)))
+            raise NotImplementedError(
+                "{} has not implemented abstract methods {}".format(
+                    class_.__name__, ", ".join(class_.__abstractmethods__)
+                )
+            )
         elif class_.__name__ is not "BaseIntent":
             class_._check_required_class_attributes()
             _register_intent(class_)
