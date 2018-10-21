@@ -1,5 +1,5 @@
 import inspect
-from functools import partialmethod
+from functools import partialmethod, wraps
 
 import numpy as np
 import pandas as pd
@@ -149,6 +149,7 @@ def init_partial(func):
 
 
 def pandas_partial(func):
+    @wraps(func)
     def wrapper(self, *args, **kwargs):
         return pandas_wrapper(self, func, *args, **kwargs)
 
@@ -158,6 +159,36 @@ def pandas_partial(func):
 def init_replace(self, keep_columns=False, name=None):
     self.keep_columns = keep_columns
     self.name = name
+
+
+class _Empty(BaseEstimator, TransformerMixin):
+    """Transformer that performs BoxCox transformation on continuous numeric data."""
+
+    def fit(self, X, y=None):
+        """Empty fit function
+
+        Args:
+            X (:obj:`numpy.ndarray`): Fit data
+
+        Returns:
+            self
+
+        """
+
+        return self
+
+    def transform(self, X, y=None):
+        """Pass through transform 
+
+        Args:
+            X (:obj:`numpy.ndarray`): X data
+
+        Returns:
+            :obj:`numpy.ndarray`: Empty numpy array
+
+        """
+
+        return np.array([])
 
 
 def pandas_wrapper(self, func, df, *args, **kwargs):
@@ -195,10 +226,17 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
     df = check_df(df)
 
     init_cols = [str(col) for col in df]
-    try:
-        out = func(self, df, *args, **kwargs)
-    except Exception as e:
-        out = func(self, df, *args)
+    if not df.empty or isinstance(self, _Empty):
+        try:
+            out = func(self, df, *args, **kwargs)
+        except Exception as e:
+            out = func(self, df, *args)
+    else:
+        fname = func.__name__
+        if "transform" in fname:
+            out = df
+        else:  # fit
+            out = _Empty().fit(df)
 
     # If output is DataFrame (custom transform has occured)
     if isinstance(out, pd.DataFrame):
@@ -250,3 +288,7 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
         return df
 
     return out
+
+
+# Wrap _Empty manually after function definition
+_Empty = wrap_transformer(_Empty)

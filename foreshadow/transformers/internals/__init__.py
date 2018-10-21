@@ -24,4 +24,3 @@ def _get_classes():
 
 classes = _get_modules(_get_classes(), globals(), __name__)
 __all__ = classes
-print("Loaded {} internals transformer plugins".format(len(classes)))

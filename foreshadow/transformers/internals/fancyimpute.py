@@ -29,7 +29,6 @@ class FancyImputer(BaseEstimator, TransformerMixin):
 
     def set_params(self, **params):
         method = params.pop("method", self.method)
-        print(params)
 
         self.kwargs = params
         self.method = method

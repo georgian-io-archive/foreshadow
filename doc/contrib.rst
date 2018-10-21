@@ -37,6 +37,7 @@ Please feel free to submit issues to github with any bugs you encounter, ideas y
       import sklearn; print("Scikit-Learn", sklearn.__version__)
       import pandas; print("Pandas", pandas.__version__)
       import foreshadow; print("Foreshadow", foreshadow.__version__)
+      from foreshadow.utils import check_transformer_imports; check_transformer_imports()
       ```
 
 How to Contribute: Pull Requests

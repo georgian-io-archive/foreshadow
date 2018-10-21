@@ -23,7 +23,7 @@ from ..transformers.externals import (
 class Scaler(SmartTransformer):
     """Automatically Scales Numerical Features
 
-    Analyzes the distrobution of the data. If the data is normally distributed,
+    Analyzes the distribution of the data. If the data is normally distributed,
     StandardScaler is used, if it is uniform, MinMaxScaler is used, and if neither
     distribution fits then a BoxCox transformation is applied and a RobustScaler
     is used.

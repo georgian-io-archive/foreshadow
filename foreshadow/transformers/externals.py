@@ -20,4 +20,3 @@ def _get_classes():
 
 
 classes = _get_modules(_get_classes(), globals(), __name__)
-print("Loaded {} external transformer plugins".format(len(classes)))

@@ -13,7 +13,7 @@ class BoxCox(BaseEstimator, TransformerMixin):
         """Fits translate and lambda attributes to X data
 
         Args:
-            X (:obj:`pandas.DataFrame`): Fit data
+            X (:obj:`numpy.ndarray`): Fit data
 
         Returns:
             self
@@ -29,10 +29,10 @@ class BoxCox(BaseEstimator, TransformerMixin):
         """Performs Box Cox transform on data
 
         Args:
-            X (:obj:`pandas.DataFrame`): X data
+            X (:obj:`numpy.ndarray`): X data
 
         Returns:
-            :obj:`pandas.DataFrame`: Transformed data
+            :obj:`numpy.ndarray`: Transformed data
 
         """
         X = check_array(X, copy=True)
@@ -44,10 +44,10 @@ class BoxCox(BaseEstimator, TransformerMixin):
         """Reverses Box Cox transform
 
         Args:
-            X (:obj:`pandas.DataFrame`): Transformed X data
+            X (:obj:`numpy.ndarray`): Transformed X data
 
         Returns:
-            :obj:`pandas.DataFrame`: Original data
+            :obj:`numpy.ndarray`: Original data
 
         """
         X = check_array(X, copy=True)

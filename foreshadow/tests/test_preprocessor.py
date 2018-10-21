@@ -5,11 +5,11 @@ import pytest
 def patch_intents(mocker):
     from copy import deepcopy
     from ..intents.base import BaseIntent
-    from ..intents.registry import _set_registry, get_registry
+    from ..intents import registry
     from ..transformers.externals import Imputer, PCA
 
-    _saved_registry = deepcopy(get_registry())
-    _set_registry({})  # clear registry
+    _saved_registry = deepcopy(registry._registry)
+    registry._registry = {}
 
     class TestGenericIntent(BaseIntent):
         dtype = "str"
@@ -74,7 +74,7 @@ def patch_intents(mocker):
     # test runs here
     yield
     # reset registry state
-    _set_registry(_saved_registry)
+    registry._registry = _saved_registry  # _set_registry(_saved_registry)
 
 
 def test_preprocessor_init_empty():

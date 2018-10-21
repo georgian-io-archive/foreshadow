@@ -7,6 +7,7 @@ import numpy as np
 
 from .base import BaseIntent
 
+from ..transformers.internals import DropFeature
 from ..transformers.smart import SimpleImputer, MultiImputer, Scaler, Encoder
 
 
@@ -49,7 +50,11 @@ class NumericIntent(GenericIntent):
     children = []
     """No children"""
 
-    single_pipeline = [("simple_imputer", SimpleImputer()), ("scaler", Scaler())]
+    single_pipeline = [
+        ("dropper", DropFeature()),
+        ("simple_imputer", SimpleImputer()),
+        ("scaler", Scaler()),
+    ]
     """Performs imputation and scaling using Smart Transformers"""
 
     multi_pipeline = []
@@ -79,7 +84,7 @@ class CategoricalIntent(GenericIntent):
     children = []
     """No children"""
 
-    single_pipeline = [("impute_encode", Encoder())]
+    single_pipeline = [("dropper", DropFeature()), ("impute_encode", Encoder())]
     """Encodes the column automatically"""
 
     multi_pipeline = []
@@ -92,4 +97,4 @@ class CategoricalIntent(GenericIntent):
         if not np.issubdtype(data.dtype, np.number):
             return True
         else:
-            return (1. * data.nunique() / data.count()) < 0.2
+            return (1.0 * data.nunique() / data.count()) < 0.2

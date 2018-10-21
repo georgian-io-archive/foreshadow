@@ -1,3 +1,15 @@
+def test_smart_emtpy_input():
+    import numpy as np
+
+    from foreshadow.transformers.smart import Scaler
+    from foreshadow.transformers.transformers import _Empty
+
+    normal_data = np.array([])
+    smart_scaler = Scaler()
+    assert isinstance(smart_scaler.fit(normal_data), _Empty)
+    assert smart_scaler.transform(normal_data).values.size == 0
+
+
 def test_smart_scaler_normal():
     import numpy as np
     import scipy.stats as ss
