@@ -1,6 +1,6 @@
 .. _users:
 
-Users Guide
+User Guide
 ===========
 
 Getting Started
@@ -25,8 +25,8 @@ Also import sklearn, pandas, and numpy for the demo
     from sklearn.datasets import load_boston
     from sklearn.model_selection import train_test_split
 
-Now load in the boston housing dataset from sklearn into pandas dataframes. This
-is a common dataset for testing machine learning models and comes built in to
+Now load in the Boston housing dataset from sklearn into pandas dataframes. This
+is a common dataset for testing machine learning models and comes built-in to
 scikit-learn.
 
 .. code-block:: python
@@ -52,10 +52,31 @@ utilize this exactly as a fit sklearn estimator to make predictions.
 
 .. code-block:: python
 
-    shadow.score(X_test, y_test)
+    print(shadow.score(X_test, y_test))
 
 Great, you now have a working Foreshaow installation! Keep reading to learn how to
 export, modify and construct pipelines of your own.
+
+Here it is all together.
+
+.. code-block:: python
+
+    import foreshadow as fs
+    import pandas as pd
+    from sklearn.datasets import load_boston
+    from sklearn.model_selection import train_test_split
+    from xgboost import XGBRegressor
+    
+    boston = load_boston()
+    bostonX_df = pd.DataFrame(boston.data, columns=boston.feature_names)
+    bostony_df = pd.DataFrame(boston.target, columns=['target'])
+    
+    X_train, X_test, y_train, y_test = train_test_split(bostonX_df,
+       bostony_df, test_size=0.2)
+    shadow = fs.Foreshadow()
+    shadow.fit(X_train, y_train)
+    
+    print(shadow.score(X_test, y_test))
 
 
 Recommended Workflow
@@ -108,19 +129,31 @@ You now have an initial pipeline. Lets see how it did and serialize it to a JSON
 Now we have two pipeline configurations, one for our X data and one for our Y data. We also have an initial idea
 of how well the initial pipeline performed.
 
-Open the configuration JSON and make a change. (Any change will do, see the `Configuration`_ section for more info on this)
+Let's suppose that you want to experiment with a different scaler. Open the configuration JSON and make this change. (Look to the `Configuration`_ section for more details on this)
 
-Now lets re-create the Foreshadow object with your changes.
+For example, add the following snippet to the bottom or x_proc.json
 
 .. code-block:: python
+
+    "combinations": [
+        {
+          "columns.CHAS.0": "['NumericIntent', 'CategoricalIntent']"
+        }
+     ]
+
+Now let's re-create the Foreshadow object with your changes.
+
+.. code-block:: python
+
+    import json
 
     # Load in the configs from file
     x_proc = json.load(open("x_proc.json", "r"))
     y_proc = json.load(open("y_proc.json", "r"))
 
     # Create the preprocessors
-    x_processor = Preprocessor(from_json=x_proc)
-    y_processor = Preprocessor(from_json=y_proc)
+    x_processor = fs.Preprocessor(from_json=x_proc)
+    y_processor = fs.Preprocessor(from_json=y_proc)
 
     # Create the foreshadow object
     shadow = fs.Foreshadow(X_preprocessor=x_processor, y_preprocessor=y_processor, estimator=XGBRegressor())
@@ -131,7 +164,7 @@ Now lets re-create the Foreshadow object with your changes.
     # Score the foreshadow object
     shadow.score(X_test, y_test)
 
-Now we can see the performance difference as a result of the changes. This process is slow and tedious though. Let's add a combinations section to the configuration file and let an optimizer do the heavy lifting of evaluating the framework.
+Now we can see the performance difference as a result of the changes. This process of swapping in and out different scalers is slow and tedious though. Let's add a combinations section to the configuration file and let an optimizer do the heavy lifting of evaluating the framework.
 
 First, read the `Hyperparameter Tuning`_ section about how hyperparameter optimization works in Foreshadow. Then add a combinations section to the exported JSON file(s) you have from the preprocessor. Remember that the more parameters you add, the longer it will take. We recommend focusing on a set of related parameters one by one and optimizing them individually. e.g. Optimize thresholds for Scaling, then thresholds for Encoding, then feature reduction (PCA / LDA) etc.
 
@@ -156,6 +189,12 @@ Once you add a combinations section to figure out the best parameters, create th
     # Score the foreshadow object
     shadow.score(X_test, y_test)
 
+    # Extract the optimized pipeline
+    pipeline = shadow.pipeline
+
+    # Save it to file
+    pickle.dump(pipeline, open("final_pipeline.pkl", "wb"))
+
     # Export the best pipelines
 
     # Serialize the pipeline
@@ -167,34 +206,9 @@ Once you add a combinations section to figure out the best parameters, create th
     json.dump(y_proc_best, open("y_proc_best.json", "w"))
 
 
-Once you have a preprocessor pipeline that you are happy with, you should attempt to optimize the model. The AutoEstimator will be good for this as it will automatically do model selection and hyperparameter optimization. To do this, construct the Foreshadow object in the same way as above, using the optimized JSON configuration, but instead of passing in an sklearn estimator and optimizer, leave those fields as default. This will force Foreshadow to use the defaults which automatically chooses either TPOT (regression) or AutoSklearn (classification) to fit the preprocessed data without any of their in-built feature engineering.
+Once you have a preprocessor pipeline that you are happy with, you should attempt to optimize the model. The AutoEstimator will be good for this as it will automatically do model selection and hyperparameter optimization. To do this, construct the Foreshadow object in the same way as above, using the optimized JSON configuration, but instead of passing in an sklearn estimator and optimizer, leave those fields as default. This will force Foreshadow to use the defaults which automatically chooses either TPOT (regression) or AutoSklearn (classification) to fit the preprocessed data without any of their in-built feature engineering. When serializing the pipeline, Foreshadow will automatically choose the pipeline with the highest cross-validation score.
 
 *This will take a long time to execute... get yourself a cup of coffee or tea, sit back, and relax*
-
-.. code-block:: python
-
-    # Load in the configs from file
-    x_proc_best = json.load(open("x_proc_best.json", "r"))
-    y_proc_best = json.load(open("y_proc_best.json", "r"))
-
-    # Create the preprocessors
-    x_processor = Preprocessor(from_json=x_proc_best)
-    y_processor = Preprocessor(from_json=y_proc_best)
-
-    # Create the foreshadow object
-    shadow = fs.Foreshadow(X_preprocessor=x_processor, y_preprocessor=y_processor)
-
-    # Fit the foreshadow object
-    shadow.fit(X_train, y_train)
-
-    # Score the foreshadow object
-    shadow.score(X_test, y_test)
-
-    # Extract the optimized pipeline
-    pipeline = shadow.pipeline
-
-    # Save it to file
-    pickle.dump(pipeline, open("final_pipeline.pkl", "wb"))
 
 Great! Now you have an optimized sklearn pipeline that you can share, load, manipulate, and inspect!
 
@@ -208,10 +222,10 @@ data and the target vector.
 
 It also automatically determines whether the target data
 is categorical or numerical and determines whether to use a Classification estimator
-or a Regressor. By default Foreshadow with either pick `TPOT <https://github.com/EpistasisLab/tpot>`_ for regression or
+or a Regressor. By default Foreshadow will either pick `TPOT <https://github.com/EpistasisLab/tpot>`_ for regression or
 `auto-sklearn <https://github.com/automl/auto-sklearn>`_ for classification.
 
-**This pipeline is then fit and exposed via the** :code:`fs.pipeline` **object attribute.**
+**This pipeline is then fit and exposed via the** :code:`pipeline` **object attribute.**
 
 Foreshadow can optionally take in a :py:obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`
 object for the input data, a :py:obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>` object for the target vector, a
@@ -225,13 +239,13 @@ Here is an example of a fully defined :py:obj:`Foreshadow <foreshadow.foreshadow
     shadow = fs.Foreshadow(X_preprocessor=Preprocessor(), y_preprocessor=Preprocessor(), estimator=AutoEstimator(), optimizer=None)
 
 This code is equivalent to the :code:`fs.Foreshadow()` definition but explicitly defines each component. In order to disable one or more
-of these components simply pass :code:`False` to the named parameter.
+of these components simply pass :code:`False` to the named parameter (Note that the default :code:`None` automatically initializes the above).
 
 :py:obj:`AutoEstimator <foreshadow.estimators.AutoEstimator>` is automatically defined as the estimator for Foreshadow. This estimator detects the problem type (classification or regression)
 and then either uses TPOT or Auto-Sklearn to serve as the estimator. The preprocessing methods are stripped from TPOT and Auto-Sklearn when they are used in this manner as we favor our own
 Preprocessor over their methods. As such these two frameworks will only perform model selection and estimator hyperparameter optimization by default.
 
-**NOTE:** Future work includes implementing TPOT and AutoSkleans optimizers into this platform such that they can be used for both model selection and optimizing hyperparameters for the feature
+**NOTE:** Future work includes implementing TPOT and AutoSklean's optimizers into this platform such that they can be used for both model selection and optimizing hyperparameters for the feature
 engineering aspects. Until then, however, they will only optimize the model as they are blind to the earlier parts of the pipeline.
 
 Foreshadow, acting as an estimator is also capable of being used in a :py:obj:`sklearn.pipeline.Pipeline` object. For example:
@@ -244,7 +258,7 @@ Foreshadow, acting as an estimator is also capable of being used in a :py:obj:`s
 
 By passing an optimizer into Foreshadow, it will attempt to optimize the pipeline it creates by extracting all the hyperparameters from
 the preprocessors and the estimator and passing them into the optimizer object along with the partially fit pipeline. This is a potentially
-long running process and is not reccomended to be used with estimators such as TPOT or AutoSklearn which also do their own optimization.
+long-running process and is not reccomended to be used with estimators such as TPOT or AutoSklearn which also do their own optimization.
 
 
 Preprocessor
@@ -269,14 +283,14 @@ Intents
 ~~~~~~~
 
 Preprocessor works by using :py:obj:`Intents <foreshadow.intents.BaseIntent>`. These classes describe a type of feature that a
-dataset could possibly contain. For example, we have a :py:obj:`NumericalIntent <foreshadow.intents.NumericalIntent>` and a
+dataset could possibly contain. For example, we have a :py:obj:`NumericIntent <foreshadow.intents.NumericIntent>` and a
 :py:obj:`CategoricalIntent <foreshadow.intents.CategoricalIntent>`.
 
 Depending on the characterization of the data performed by the
 :code:`is_intent()` class method, *each Intent individually determines if it applies to a particular feature
 in the dataset.* However, it is possible for multiple intents to match to a feature. In order to resolve this,
 Preprocessor uses a hierarchical structure defined by the superclass (parent) and :code:`children` attributes of
-and intent.
+and intent. There is also a priority order defined in each intent to break ties at the same level.
 
 This tree-like structure which has :py:obj:`GenericIntent <foreshadow.intents.GenericIntent>` as its
 root node is used to prioritize Intents. Intents further down the tree more precisely define a feature, thus the Intent
@@ -289,8 +303,8 @@ Each Intent contains a :code:`multi-pipeline` and a :code:`single-pipeline`. The
 Single Pipeline
 ~~~~~~~~~~~~~~~
 
-A single pipeline operates on a single column of the dataset matched to a specific intent. For example, in the Boston Housing
-dataset, the :code:`'CRIM'` column could match to the :py:obj:`NumericalIntent <foreshadow.intents.NumericalIntent>` in which the single pipeline
+The single pipeline defines operations (transformations of data) on a single column of the dataset matched to a specific intent. For example, in the Boston Housing
+dataset, the :code:`'CRIM'` column could match to the :py:obj:`NumericIntent <foreshadow.intents.NumericIntent>` in which the single pipeline
 within that Intent would be executed on that feature.
 
 This process is highly parallelized interally.
@@ -328,7 +342,7 @@ Configuration
 -------------
 
 The configurability is by far the most powerful aspect of this framework. Through configuration, data scientists can quickly iterate on pipelines generated by Foreshadow and Preprocessor.
-Preprocessors take a python dictionary configuration in the :code:`from_json` named parameter in the constructor. This dictionary can be used to override all decision making processes used by
+Preprocessors take a python dictionary configuration in the :code:`from_json` named parameter in the constructor. This dictionary can be used to override all decision -making processes used by
 Preprocessor.
 
 An example configuration for processing the Boston Housing dataset is below. We will step through this one by one and demonstrate all the capabilities.
@@ -337,11 +351,11 @@ An example configuration for processing the Boston Housing dataset is below. We 
 
     {
       "columns":{
-        "crim":["TestGenericIntent",
+        "crim":["GenericIntent",
                 [
                   ["StandardScaler", "Scaler", {"with_mean":false}]
                 ]],
-        "indus":["TestGenericIntent"]
+        "indus":["GenericIntent"]
       },
 
       "postprocess":[
@@ -351,7 +365,7 @@ An example configuration for processing the Boston Housing dataset is below. We 
       ],
 
       "intents":{
-        "TestNumericIntent":{
+        "NumericIntent":{
           "single":[
             ["Imputer", "impute", {"strategy":"mean"}]
           ],
@@ -370,11 +384,11 @@ Column Override
 .. code-block:: json
 
       {"columns":{
-        "crim":["TestGenericIntent",
+        "crim":["GenericIntent",
                 [
                   ["StandardScaler", "Scaler", {"with_mean":false}]
                 ]],
-        "indus":["TestGenericIntent"]
+        "indus":["GenericIntent"]
       }}
 
 This section is a dictionary containing two keys, each of which are columns in the Boston Housing set. First we will look at the value
@@ -383,16 +397,16 @@ of the :code:`"crim"` key which is a list.
 
 .. code-block:: json
 
-    ["TestGenericIntent",[
+    ["GenericIntent",[
         ["StandardScaler", "Scaler", {"with_mean":false}]
     ]]
 
-The list is of form :code:`[intent_name, pipeline]`. Here we can see that this column has been assigned the intent :code:`"TestGenericIntent`
+The list is of form :code:`[intent_name, pipeline]`. Here we can see that this column has been assigned the intent :code:`"GenericIntent`
 and the pipeline :code:`[["StandardScaler", "Scaler", {"with_mean":false}]]`
 
-This means that regardless of how Preprocessor automatically assigns Intents, the intent TestGenericIntent will always be assigned to the crim column.
+This means that regardless of how Preprocessor automatically assigns Intents, the intent GenericIntent will always be assigned to the crim column.
 It also means that regardless of what intent is assigned to the column (this value is still important for multi-pipelines), the Preprocessor will always
-use this hard coded pipeline to process that column.
+use this hard-coded pipeline to process that column. The column would still be processed by its initially identifited multi-pipeline unless explicitly overridden.
 
 The pipeline itself is defined by the following standard :code:`[[class, name, {param_key: param_value, ...}], ...]`
 When preprocessor parses this configuration it will create a Pipeline object with the given transformers of the given class, name, and parameters.
@@ -412,7 +426,7 @@ Intent Override
 .. code-block:: json
 
     {"intents":{
-        "TestNumericIntent":{
+        "NumericIntent":{
           "single":[
             ["Imputer", "impute", {"strategy":"mean"}]
           ],
@@ -423,15 +437,15 @@ Intent Override
 Next, we will examine the :code:`intents` section. This section is used to override intents globally, unlike the columns section which overrode intents on a per-column
 basis. Any changes to intents defined in this section will apply across the entire Preprocessor pipeline.
 
-The keys in this section each represent the name of an intent. In this example, :code:`TestNumericIntent` is being overridden. The value of the second is a dictionary with the
-keys :code:`"single"` and :code:`"multi"` representing the single and multi pipeline override. The value of these pipelines is parsed through the same mechanism is the pipelines
+The keys in this section each represent the name of an intent. In this example, :code:`NumericIntent` is being overridden. The value is a dictionary with the
+keys :code:`"single"` and :code:`"multi"` respresent the single and multi pipeline overrides. The value of these pipelines is parsed through the same mechanism as the pipelines
 in the columns section.
 
 If a pipeline is empty such as the multi pipeline is above, it will be removed from the final pipeline. However, if the multi key is ommitted from the configuration file, then the default
 multi pipeline for that intent will be used.
 
-In this case, for all TestNumericIntent columns, by default, the pipeline :code:`Pipeline([('impute', Imputer(strategy=mean))])` will be executed on the column. No multi-pipeline will be executed
-on columns of TestNumericIntent.
+In this case, for all NumericIntent columns, by default, the pipeline :code:`Pipeline([('impute', Imputer(strategy=mean))])` will be executed on the column. No multi-pipeline will be executed
+on columns of NumericIntent.
 
 Postprocessor Override
 ~~~~~~~~~~~~~~~~~~~~~~
