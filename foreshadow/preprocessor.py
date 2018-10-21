@@ -7,7 +7,7 @@ from sklearn.pipeline import Pipeline
 from .transformers.base import ParallelProcessor
 from .intents.registry import registry_eval
 from .intents import GenericIntent
-from .utils import check_df
+from .utils import check_df, PipelineStep
 
 
 class Preprocessor(BaseEstimator, TransformerMixin):
@@ -174,7 +174,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
     def _construct_parallel_pipeline(self):
         """Convert column:pipeline into Parallel Processor"""
         processors = [
-            (col, [col], pipe)
+            (col, pipe, [col])
             for col, pipe in self._pipeline_map.items()
             if pipe.steps[0][0] != "null"
         ]
@@ -187,7 +187,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
         # Extract pipelines from postprocess section of JSON config
         multi_processors = [
-            (val[0], ParallelProcessor([(val[0], val[1], val[2])]))
+            (val[0], ParallelProcessor([(val[0], val[2], val[1])]))
             for val in self._multi_column_map
             if val[2].steps[0][0] != "null"
         ]
@@ -200,14 +200,17 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                     [
                         (
                             intent.__name__,
-                            self._get_columns(intent),
                             self._intent_pipelines[intent.__name__]["multi"],
+                            self._get_columns(intent),
                         )
                     ]
                 ),
             )
             for intent in reversed(self._intent_trace)
-            if self._intent_pipelines[intent.__name__]["multi"].steps[0][0] != "null"
+            if self._intent_pipelines[intent.__name__]["multi"].steps[0][
+                PipelineStep["NAME"]
+            ]
+            != "null"
         ]
 
         if len(multi_processors + processors) == 0:
@@ -257,7 +260,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             pipe.append(
                 (
                     "collapse",
-                    ParallelProcessor([("null", [], None)], collapse_index=True),
+                    ParallelProcessor([("null", None, [])], collapse_index=True),
                 )
             )
 
@@ -285,7 +288,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             # Resolve postprocess section into a list of pipelines
             if "postprocess" in config.keys():
                 self._multi_column_map = [
-                    [v[0], v[1], resolve_pipeline(v[2])]
+                    [v[PipelineStep["NAME"]], v[1], resolve_pipeline(v[2])]
                     for v in config["postprocess"]
                     if len(v) >= 3
                 ]
@@ -349,7 +352,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             k: {
                 l: serialize_pipeline(j)
                 for l, j in v.items()
-                if j.steps[0][0] != "null"
+                if j.steps[0][PipelineStep["NAME"]] != "null"
             }
             for k, v in self._intent_pipelines.items()
         }
@@ -428,9 +431,13 @@ def serialize_pipeline(pipeline):
         list: JSON serializable object of form ``[cls, name, {**params}]``
     """
     return [
-        (type(step[1]).__name__, step[0], step[1].get_params(deep=False))
+        (
+            type(step[PipelineStep["CLASS"]]).__name__,
+            step[PipelineStep["NAME"]],
+            step[PipelineStep["CLASS"]].get_params(deep=False),
+        )
         for step in pipeline.steps
-        if pipeline.steps[0][0] != "null"
+        if pipeline.steps[0][PipelineStep["NAME"]] != "null"
     ]
 
 

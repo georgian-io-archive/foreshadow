@@ -93,7 +93,7 @@ def test_transformer_parallel_invalid():
     t = InvalidTransformer()
 
     with pytest.raises(TypeError) as e:
-        ParallelProcessor([("scaled", ["crim", "zn", "indus"], t)])
+        ParallelProcessor([("scaled", t, ["crim", "zn", "indus"])])
 
     assert str(e.value) == (
         "All estimators should implement fit and "
@@ -112,8 +112,8 @@ def test_transformer_parallel_empty():
         [
             (
                 "scaled",
+                ParallelProcessor([("cscale", None, ["crim"])]),
                 ["crim", "zn", "indus"],
-                ParallelProcessor([("cscale", ["crim"], None)]),
             )
         ]
     )
@@ -139,7 +139,7 @@ def test_transformer_parallel():
     ss = StandardScaler(name="scaled")
 
     proc = ParallelProcessor(
-        [("scaled", ["crim", "zn", "indus"], StandardScaler(keep_columns=False))],
+        [("scaled", StandardScaler(keep_columns=False), ["crim", "zn", "indus"])],
         collapse_index=True,
     )
 
@@ -191,8 +191,8 @@ def test_transformer_pipeline():
                     [
                         (
                             "scaled",
-                            ["crim", "zn", "indus"],
                             CustomScaler(keep_columns=False),
+                            ["crim", "zn", "indus"],
                         )
                     ]
                 ),

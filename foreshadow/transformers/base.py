@@ -8,7 +8,7 @@ from sklearn.pipeline import (
 )
 from sklearn.externals.joblib import Parallel, delayed
 
-from ..utils import check_df
+from ..utils import check_df, PipelineStep
 
 
 class ParallelProcessor(FeatureUnion):
@@ -57,41 +57,41 @@ class ParallelProcessor(FeatureUnion):
     def get_params(self, deep=True):
         """Returns parameters of internal transformers. See FeatureUnion"""
 
-        self.default_transformer_list = [(a, c) for a, b, c in self.transformer_list]
+        self.default_transformer_list = [(a, b) for a, b, c in self.transformer_list]
         return self._get_params("default_transformer_list", deep=deep)
 
     def set_params(self, **kwargs):
         """Sets parameters of internal transformers. See FeatureUnion"""
 
-        self.default_transformer_list = [(a, c) for a, b, c in self.transformer_list]
+        self.default_transformer_list = [(a, b) for a, b, c in self.transformer_list]
         return self._set_params("default_transformer_list", **kwargs)
 
     def _set_names(self, item):
         """Sets internal names of transformers
         using names define in transformers list"""
         # Sets name if name attribute exists
-        if hasattr(item[-1], "name"):
-            item[-1].name = item[0]
+        if hasattr(item[1], "name"):
+            item[1].name = item[0]
         # If steps attribute exists set names within all transformers
-        if hasattr(item[-1], "steps"):
-            for step in item[-1].steps:
+        if hasattr(item[1], "steps"):
+            for step in item[1].steps:
                 self._set_names(step)
         # If transformer_list exists set names within transformers_list
-        if hasattr(item[-1], "transformer_list"):
-            for trans in item[-1].transformer_list:
+        if hasattr(item[1], "transformer_list"):
+            for trans in item[1].transformer_list:
                 self._set_names(trans)
 
     def _update_transformer_list(self, transformers):
         """Updates local transformers list"""
         transformers = iter(transformers)
         self.transformer_list[:] = [
-            (name, cols, None if old is None else next(transformers))
-            for name, cols, old in self.transformer_list
+            (name, None if old is None else next(transformers), cols)
+            for name, old, cols in self.transformer_list
         ]
 
     def _validate_transformers(self):
         """Validates fit and transform methods exist and names are unique"""
-        names, cols, transformers = zip(*self.transformer_list)
+        names, transformers, cols = zip(*self.transformer_list)
 
         # validate names
         self._validate_names(names)
@@ -114,8 +114,8 @@ class ParallelProcessor(FeatureUnion):
         get_weight = (self.transformer_weights or {}).get
 
         return (
-            (name, cols, trans, get_weight(name))
-            for name, cols, trans in self.transformer_list
+            (name, trans, cols, get_weight(name))
+            for name, trans, cols in self.transformer_list
             if trans is not None
         )
 
@@ -127,7 +127,7 @@ class ParallelProcessor(FeatureUnion):
             list(
                 _slice_cols(
                     X,
-                    [c for _, cols, _, _ in self._iter() for c in cols],
+                    [c for _, _, cols, _ in self._iter() for c in cols],
                     drop_level=False,
                 )
             )
@@ -154,7 +154,7 @@ class ParallelProcessor(FeatureUnion):
             delayed(_fit_one_transformer)(
                 trans, _slice_cols(X, cols), y, **{**fit_params, **_inject_df(trans, X)}
             )
-            for name, cols, trans, weight in self._iter()
+            for name, trans, cols, weight in self._iter()
         )
 
         self._update_transformer_list(transformers)
@@ -173,7 +173,7 @@ class ParallelProcessor(FeatureUnion):
         """
         Xs = Parallel(n_jobs=self.n_jobs)(
             delayed(_pandas_transform_one)(trans, weight, _slice_cols(X, cols), cols)
-            for name, cols, trans, weight in self._iter()
+            for name, trans, cols, weight in self._iter()
         )
 
         # Iterates columns not specific in transformers
@@ -209,7 +209,7 @@ class ParallelProcessor(FeatureUnion):
                 cols,
                 **{**fit_params, **_inject_df(trans, X)}
             )
-            for name, cols, trans, weight in self._iter()
+            for name, trans, cols, weight in self._iter()
         )
 
         if not result:

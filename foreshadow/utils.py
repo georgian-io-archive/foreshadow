@@ -7,6 +7,10 @@ import warnings
 import numpy as np
 import pandas as pd
 
+from enum import Enum
+
+PipelineStep = {"NAME": 0, "CLASS": 1, "COLS": 2}
+
 
 def check_df(input_data, ignore_none=False):
     """Convert non dataframe inputs into dataframes.

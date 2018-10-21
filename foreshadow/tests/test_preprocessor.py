@@ -146,6 +146,7 @@ def test_preprocessor_init_json_pipeline_map():
 
     import json
     from foreshadow.preprocessor import Preprocessor
+    from foreshadow.utils import PipelineStep
 
     proc = Preprocessor(
         from_json=json.load(
@@ -159,9 +160,9 @@ def test_preprocessor_init_json_pipeline_map():
     assert "crim" in proc._pipeline_map.keys()
     assert type(proc._pipeline_map["crim"]).__name__ == "Pipeline"
     assert len(proc._pipeline_map["crim"].steps) == 1
-    assert proc._pipeline_map["crim"].steps[0][0] == "Scaler"
+    assert proc._pipeline_map["crim"].steps[0][PipelineStep["NAME"]] == "Scaler"
 
-    transformer = proc._pipeline_map["crim"].steps[0][1]
+    transformer = proc._pipeline_map["crim"].steps[0][PipelineStep["CLASS"]]
 
     assert type(transformer).__name__ == "StandardScaler"
     assert hasattr(transformer, "name")
@@ -173,6 +174,7 @@ def test_preprocessor_init_json_multi_pipeline():
 
     import json
     from foreshadow.preprocessor import Preprocessor
+    from foreshadow.utils import PipelineStep
 
     proc = Preprocessor(
         from_json=json.load(
@@ -192,9 +194,9 @@ def test_preprocessor_init_json_multi_pipeline():
 
     assert type(obj).__name__ == "Pipeline"
     assert len(obj.steps) == 1
-    assert obj.steps[0][0] == "PCA"
+    assert obj.steps[0][PipelineStep["NAME"]] == "PCA"
 
-    transformer = obj.steps[0][1]
+    transformer = obj.steps[0][PipelineStep["CLASS"]]
 
     assert type(transformer).__name__ == "PCA"
     assert hasattr(transformer, "name")
@@ -207,6 +209,7 @@ def test_preprocessor_init_json_intent_override_multi():
 
     import json
     from foreshadow.preprocessor import Preprocessor
+    from foreshadow.utils import PipelineStep
 
     proc = Preprocessor(
         from_json=json.load(
@@ -232,7 +235,7 @@ def test_preprocessor_init_json_intent_override_multi():
 
     assert step[0] == "pca"
 
-    transformer = step[1]
+    transformer = step[PipelineStep["CLASS"]]
 
     assert type(transformer).__name__ == "PCA"
     assert hasattr(transformer, "name")
@@ -245,6 +248,7 @@ def test_preprocessor_init_json_intent_override_single():
 
     import json
     from foreshadow.preprocessor import Preprocessor
+    from foreshadow.utils import PipelineStep
 
     proc = Preprocessor(
         from_json=json.load(
@@ -268,7 +272,7 @@ def test_preprocessor_init_json_intent_override_single():
 
     step = single.steps[0]
 
-    assert step[0] == "impute"
+    assert step[PipelineStep["NAME"]] == "impute"
 
     transformer = step[1]
 
@@ -350,6 +354,7 @@ def test_preprocessor_fit_create_single_pipeline_override_column():
     import json
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
+    from foreshadow.utils import PipelineStep
 
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
     cols = list(df)
@@ -368,7 +373,7 @@ def test_preprocessor_fit_create_single_pipeline_override_column():
         assert c in proc_column._pipeline_map
         assert type(proc_column._pipeline_map[c]).__name__ == "Pipeline"
 
-    assert proc_column._pipeline_map["crim"].steps[0][0] == "Scaler"
+    assert proc_column._pipeline_map["crim"].steps[0][PipelineStep["NAME"]] == "Scaler"
 
 
 def test_preprocessor_fit_create_single_pipeline_override_intent():
@@ -378,6 +383,7 @@ def test_preprocessor_fit_create_single_pipeline_override_intent():
     import json
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
+    from foreshadow.utils import PipelineStep
 
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
     cols = list(df)
@@ -397,7 +403,7 @@ def test_preprocessor_fit_create_single_pipeline_override_intent():
         assert c in proc_intent._pipeline_map
         assert type(proc_intent._pipeline_map[c]).__name__ == "Pipeline"
 
-    assert proc_intent._pipeline_map["crim"].steps[0][0] == "impute"
+    assert proc_intent._pipeline_map["crim"].steps[0][PipelineStep["NAME"]] == "impute"
 
 
 def test_preprocessor_make_empty_pipeline():
@@ -431,6 +437,7 @@ def test_preprocessor_make_pipeline():
     from collections import Counter
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.intents.registry import registry_eval
+    from foreshadow.utils import PipelineStep
 
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
     proc = Preprocessor(
@@ -443,18 +450,26 @@ def test_preprocessor_make_pipeline():
 
     assert len(proc.pipeline.steps) == 3
 
-    assert proc.pipeline.steps[0][0] == "single"
-    assert proc.pipeline.steps[1][0] == "multi"
-    assert proc.pipeline.steps[2][0] == "collapse"
+    assert proc.pipeline.steps[0][PipelineStep["NAME"]] == "single"
+    assert proc.pipeline.steps[1][PipelineStep["NAME"]] == "multi"
+    assert proc.pipeline.steps[2][PipelineStep["NAME"]] == "collapse"
 
-    assert type(proc.pipeline.steps[0][1]).__name__ == "ParallelProcessor"
-    assert type(proc.pipeline.steps[1][1]).__name__ == "Pipeline"
-    assert type(proc.pipeline.steps[2][1]).__name__ == "ParallelProcessor"
+    assert (
+        type(proc.pipeline.steps[0][PipelineStep["CLASS"]]).__name__
+        == "ParallelProcessor"
+    )
+    assert type(proc.pipeline.steps[1][PipelineStep["CLASS"]]).__name__ == "Pipeline"
+    assert (
+        type(proc.pipeline.steps[2][PipelineStep["CLASS"]]).__name__
+        == "ParallelProcessor"
+    )
 
     assert Counter(
         [
-            t.steps[0][0]
-            for t in list(zip(*proc.pipeline.steps[0][1].transformer_list))[2]
+            t.steps[0][PipelineStep["NAME"]]
+            for t in list(
+                zip(*proc.pipeline.steps[0][PipelineStep["CLASS"]].transformer_list)
+            )[1]
         ]
     ) == Counter(
         [
@@ -474,22 +489,42 @@ def test_preprocessor_make_pipeline():
         ]
     )
 
-    assert len(proc.pipeline.steps[1][1].steps) == 3
+    assert len(proc.pipeline.steps[1][PipelineStep["CLASS"]].steps) == 3
 
-    assert proc.pipeline.steps[1][1].steps[0][0] == "TestNumericIntent"
     assert (
-        proc.pipeline.steps[1][1].steps[0][1].transformer_list[0][2].steps[0][0]
+        proc.pipeline.steps[1][PipelineStep["CLASS"]].steps[0][PipelineStep["NAME"]]
+        == "TestNumericIntent"
+    )
+    assert (
+        proc.pipeline.steps[1][PipelineStep["CLASS"]]
+        .steps[0][PipelineStep["CLASS"]]
+        .transformer_list[0][PipelineStep["CLASS"]]
+        .steps[0][PipelineStep["NAME"]]
         == "pca"
     )
 
-    assert proc.pipeline.steps[1][1].steps[1][0] == "TestGenericIntent"
+    assert (
+        proc.pipeline.steps[1][PipelineStep["CLASS"]].steps[1][PipelineStep["NAME"]]
+        == "TestGenericIntent"
+    )
     assert str(
-        proc.pipeline.steps[1][1].steps[1][1].transformer_list[0][2].steps
+        proc.pipeline.steps[1][PipelineStep["CLASS"]]
+        .steps[1][PipelineStep["CLASS"]]
+        .transformer_list[0][PipelineStep["CLASS"]]
+        .steps
     ) == str(registry_eval("TestGenericIntent").multi_pipeline)
 
-    assert proc.pipeline.steps[1][1].steps[2][0] == "pca"
+    assert (
+        proc.pipeline.steps[1][PipelineStep["CLASS"]].steps[2][PipelineStep["NAME"]]
+        == "pca"
+    )
 
-    assert proc.pipeline.steps[2][1].transformer_list[0][0] == "null"
+    assert (
+        proc.pipeline.steps[2][PipelineStep["CLASS"]].transformer_list[0][
+            PipelineStep["NAME"]
+        ]
+        == "null"
+    )
 
 
 def test_preprocessor_fit_transform():

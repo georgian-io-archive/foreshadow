@@ -139,6 +139,7 @@ def test_smart_impute_multiple_none():
     import pandas as pd
     from sklearn.pipeline import Pipeline
     from foreshadow.transformers.smart import MultiImputer
+    from foreshadow.utils import PipelineStep
 
     impute = MultiImputer()
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
@@ -149,4 +150,4 @@ def test_smart_impute_multiple_none():
     impute.transform(data)
 
     assert isinstance(impute.transformer, Pipeline)
-    assert impute.transformer.steps[0][0] == "null"
+    assert impute.transformer.steps[0][PipelineStep["NAME"]] == "null"
