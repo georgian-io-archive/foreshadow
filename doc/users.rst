@@ -123,8 +123,8 @@ You now have an initial pipeline. Lets see how it did and serialize it to a JSON
     y_proc = shadow.y_preprocessor.serialize()
 
     # Write the serialized pipelines to file
-    json.dump(x_proc, open("x_proc.json", "w"))
-    json.dump(y_proc, open("y_proc.json", "w"))
+    json.dump(x_proc, open("x_proc.json", "w"), indent=2)
+    json.dump(y_proc, open("y_proc.json", "w"), indent=2)
 
 Now we have two pipeline configurations, one for our X data and one for our Y data. We also have an initial idea
 of how well the initial pipeline performed.
@@ -202,8 +202,8 @@ Once you add a combinations section to figure out the best parameters, create th
     y_proc_best = shadow.y_preprocessor.serialize()
 
     # Write the serialized pipelines to file
-    json.dump(x_proc_best, open("x_proc_best.json", "w"))
-    json.dump(y_proc_best, open("y_proc_best.json", "w"))
+    json.dump(x_proc_best, open("x_proc_best.json", "w"), indent=2)
+    json.dump(y_proc_best, open("y_proc_best.json", "w"), indent=2)
 
 
 Once you have a preprocessor pipeline that you are happy with, you should attempt to optimize the model. The AutoEstimator will be good for this as it will automatically do model selection and hyperparameter optimization. To do this, construct the Foreshadow object in the same way as above, using the optimized JSON configuration, but instead of passing in an sklearn estimator and optimizer, leave those fields as default. This will force Foreshadow to use the defaults which automatically chooses either TPOT (regression) or AutoSklearn (classification) to fit the preprocessed data without any of their in-built feature engineering. When serializing the pipeline, Foreshadow will automatically choose the pipeline with the highest cross-validation score.
