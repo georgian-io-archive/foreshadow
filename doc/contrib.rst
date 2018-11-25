@@ -13,32 +13,8 @@ Issues
 ------
 Please feel free to submit issues to github with any bugs you encounter, ideas you may have, or questions about useage. We only ask that you tag them appropriately as *bug fix*, *feature request*, *usage*. Please also follow the following format
 
-   .. code-block:: md
-
-      #### Description
-      Please add a narrative description of your issue.
-   
-      #### Steps/Code to Reproduce
-      Please add the minimum code required to reproduce the issue if possible. If the code is too long, feel free to put it in a public gist and link it in the issue: https://gist.github.com
-
-      #### Expected Results
-      Please add the results that you would expect here
-   
-      #### Actual Results
-      Please place the full traceback here
-   
-      #### Versions
-      Please run the following snippet in your code and paste the results here.
-   
-      ```python
-      import platform; print(platform.platform())
-      import sys; print("Python", sys.version)
-      import numpy; print("NumPy", numpy.__version__)
-      import sklearn; print("Scikit-Learn", sklearn.__version__)
-      import pandas; print("Pandas", pandas.__version__)
-      import foreshadow; print("Foreshadow", foreshadow.__version__)
-      from foreshadow.utils import check_transformer_imports; check_transformer_imports()
-      ```
+.. literalinclude :: ../.github/issue_template.md
+   :language: md
 
 How to Contribute: Pull Requests
 --------------------------------
@@ -74,16 +50,5 @@ We accept pull requests! Thank you for taking the time to read this. There are o
 
 7. Go to the github fork page and submit your pull request against the **development** branch.  Please use the following template for pull requests
 
-   .. code-block:: md
-  
-      ### Description
-      Please add a narrative description of your the changes made
-   
-      ### Related Issue
-      Please add any issue that this pull request addresses
-   
-      ### Motivation and Context
-      If applicable
-   
-      ### Screenshots (if appropriate)
-      Add them here
+.. literalinclude :: ../.github/pull_request_template.md  
+   :language: md
