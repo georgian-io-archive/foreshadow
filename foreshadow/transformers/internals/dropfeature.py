@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from sklearn.base import TransformerMixin, BaseEstimator
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
@@ -22,8 +23,9 @@ class DropFeature(BaseEstimator, TransformerMixin):
             self
 
         """
-        X = check_array(X, force_all_finite=False).ravel()
-        ratio = np.count_nonzero(np.isfinite(X)) / X.size
+        X = check_array(X, force_all_finite=False, dtype=None).ravel()
+        ratio = np.count_nonzero(~pd.isnull(X)) / X.size
+
         self.drop_ = ratio < self.threshold
         return self
 
@@ -37,6 +39,6 @@ class DropFeature(BaseEstimator, TransformerMixin):
             :obj:`pandas.DataFrame`: Transformed data
 
         """
-        X = check_array(X, force_all_finite=False, copy=True)
+        X = check_array(X, force_all_finite=False, dtype=None, copy=True)
         check_is_fitted(self, "drop_")
         return X if not self.drop_ else np.array([])
