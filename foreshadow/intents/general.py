@@ -19,16 +19,15 @@ class GenericIntent(BaseIntent):
 
     """
 
-    dtype = "str"
-    """Matches to string dtypes (not implemented)"""
-
     children = ["NumericIntent", "CategoricalIntent"]
     """Matches to CategoricalIntent over NumericIntent"""
 
-    single_pipeline = []
+    single_pipeline_template = []
     """No transformers"""
 
-    multi_pipeline = [("multi_impute", MultiImputer())]
+    multi_pipeline_template = [
+        ("multi_impute", MultiImputer, False)
+    ]
     """Performs multi imputation over the entire DataFrame"""
 
     @classmethod
@@ -44,20 +43,17 @@ class NumericIntent(GenericIntent):
 
     """
 
-    dtype = "float"
-    """Matches to float dtypes (not implemented)"""
-
     children = []
     """No children"""
 
-    single_pipeline = [
-        ("dropper", DropFeature()),
-        ("simple_imputer", SimpleImputer()),
-        ("scaler", Scaler()),
+    single_pipeline_template = [
+        ("dropper", DropFeature, False),
+        ("simple_imputer", SimpleImputer, False),
+        ("scaler", Scaler, True),
     ]
     """Performs imputation and scaling using Smart Transformers"""
 
-    multi_pipeline = []
+    multi_pipeline_template = []
     """No multi pipeline"""
 
     @classmethod
@@ -78,16 +74,16 @@ class CategoricalIntent(GenericIntent):
 
     """
 
-    dtype = "int"
-    """Matches to integer dtypes (not implemented)"""
-
     children = []
     """No children"""
 
-    single_pipeline = [("dropper", DropFeature()), ("impute_encode", Encoder())]
+    single_pipeline_template = [
+        ("dropper", DropFeature, False), 
+        ("impute_encode", Encoder, True)
+    ]
     """Encodes the column automatically"""
 
-    multi_pipeline = []
+    multi_pipeline_template = []
     """No multi pipeline"""
 
     @classmethod

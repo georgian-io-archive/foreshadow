@@ -25,6 +25,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
     Parameters:
         from_json: Dictionary representing JSON config file (See docs for more)
+        y_var: Boolean that indicates the processing of a response variable
 
     Attributes:
         pipeline: Internal representation of sklearn pipeline. Can be exported and
@@ -33,7 +34,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
     """
 
-    def __init__(self, from_json=None, **fit_params):
+    def __init__(self, from_json=None, y_var=False, **fit_params):
         self._intent_map = {}
         self._pipeline_map = {}
         self._choice_map = {}
@@ -44,6 +45,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         self.fit_params = fit_params
         self.is_fit = False
         self.from_json = from_json
+        self.y_var = y_var
         self.is_linear = False
         self._init_json()
 
@@ -81,6 +83,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             ]
             self._choice_map[c] = valid_cols
             temp_map[c] = valid_cols[-1][1]
+
         # Set intent map with override
         self._intent_map = {**temp_map, **self._intent_map}
 
@@ -131,18 +134,18 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         self._pipeline_map = {
             # Creates pipeline object from intent single_pipeline attribute
             **{
-                k: Pipeline(deepcopy(v.single_pipeline))
+                k: Pipeline(deepcopy(v.single_pipeline(self.y_var)))
                 for k, v in self._intent_map.items()
                 if v.__name__ not in self._intent_pipelines.keys()
-                and len(v.single_pipeline) > 0
+                and len(v.single_pipeline(self.y_var)) > 0
             },
             # Extracts already resolved single pipelines from JSON intent overrides
             **{
                 k: self._intent_pipelines[v.__name__].get(
                     "single",
                     Pipeline(
-                        deepcopy(v.single_pipeline)
-                        if len(v.single_pipeline) > 0
+                        deepcopy(v.single_pipeline(self.y_var))
+                        if len(v.single_pipeline(self.y_var)) > 0
                         else [("null", None)]
                     ),
                 )
@@ -162,8 +165,8 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             v.__name__: {
                 # Fetch multi pipeline from Intent class
                 "multi": Pipeline(
-                    deepcopy(v.multi_pipeline)
-                    if len(v.multi_pipeline) > 0
+                    deepcopy(v.multi_pipeline(self.y_var))
+                    if len(v.multi_pipeline(self.y_var)) > 0
                     else [("null", None)]
                 ),
                 # Extract multi pipeline from JSON config (highest priority)
@@ -275,6 +278,8 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             return
 
         try:
+            if "y_var" in config.keys():
+                self.y_var = config['y_var']
             # Parse columns section
             if "columns" in config.keys():
                 # Iterate columns
@@ -362,6 +367,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             "columns": json_cols,
             "postprocess": json_multi,
             "intents": json_intents,
+            "y_var": self.y_var,
         }
 
     def fit(self, X, y=None, **fit_params):

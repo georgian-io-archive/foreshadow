@@ -15,8 +15,10 @@ def patch_intents(mocker):
         dtype = "str"
         children = ["TestNumericIntent", "TestIntentOne"]
 
-        single_pipeline = []
-        multi_pipeline = [("pca", PCA(n_components=2, name="pca"))]
+        single_pipeline_template = []
+        multi_pipeline_template = [
+            ("pca", (PCA, {'n_components': 2, 'name': "pca"}), False)
+        ]
 
         @classmethod
         def is_intent(cls, df):
@@ -26,8 +28,10 @@ def patch_intents(mocker):
         dtype = "float"
         children = []
 
-        single_pipeline = [("impute", Imputer(strategy="mean", name="impute"))]
-        multi_pipeline = []
+        single_pipeline_template = [
+            ("impute", (Imputer, {'strategy': "mean", 'name': "impute"}), False)
+        ]
+        multi_pipeline_template = []
 
         @classmethod
         def is_intent(cls, df):
@@ -37,8 +41,8 @@ def patch_intents(mocker):
         dtype = "str"
         children = ["TestIntentTwo", "TestIntentThree"]
 
-        single_pipeline = []
-        multi_pipeline = []
+        single_pipeline_template = []
+        multi_pipeline_template = []
 
         @classmethod
         def is_intent(cls, df):
@@ -48,8 +52,8 @@ def patch_intents(mocker):
         dtype = "str"
         children = []
 
-        single_pipeline = []
-        multi_pipeline = []
+        single_pipeline_template = []
+        multi_pipeline_template = []
 
         @classmethod
         def is_intent(cls, df):
@@ -59,8 +63,8 @@ def patch_intents(mocker):
         dtype = "str"
         children = []
 
-        single_pipeline = []
-        multi_pipeline = []
+        single_pipeline_template = []
+        multi_pipeline_template = []
 
         @classmethod
         def is_intent(cls, df):
@@ -74,7 +78,7 @@ def patch_intents(mocker):
     # test runs here
     yield
     # reset registry state
-    registry._registry = _saved_registry  # _set_registry(_saved_registry)
+    registry._registry = _saved_registry
 
 
 def test_preprocessor_init_empty():
@@ -336,6 +340,7 @@ def test_preprocessor_fit_create_single_pipeline_default():
     proc_default = Preprocessor()
     proc_default.fit(df.copy(deep=True))
 
+    
     for c in cols:
         assert c in proc_default._pipeline_map
         assert type(proc_default._pipeline_map[c]).__name__ == "Pipeline"
@@ -343,7 +348,7 @@ def test_preprocessor_fit_create_single_pipeline_default():
     numeric = registry_eval("TestNumericIntent")
 
     assert str(list(zip(*proc_default._pipeline_map["crim"].steps))[1]) == str(
-        list(zip(*numeric.single_pipeline))[1]
+        list(zip(*numeric.single_pipeline()))[1]
     )
 
 
@@ -512,7 +517,7 @@ def test_preprocessor_make_pipeline():
         .steps[1][PipelineStep["CLASS"]]
         .transformer_list[0][PipelineStep["CLASS"]]
         .steps
-    ) == str(registry_eval("TestGenericIntent").multi_pipeline)
+    ) == str(registry_eval("TestGenericIntent").multi_pipeline())
 
     assert (
         proc.pipeline.steps[1][PipelineStep["CLASS"]].steps[2][PipelineStep["NAME"]]
@@ -752,3 +757,16 @@ def test_preprocessor_serialize():
     print(json.dumps(out))
 
     assert json.loads(json.dumps(truth)) == json.loads(json.dumps(out))
+
+def test_preprocessor_y_var_filtering():
+    import pandas as pd
+    from foreshadow.preprocessor import Preprocessor
+
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    y_df = df[['medv']]
+
+    proc = Preprocessor(y_var=True)
+
+    df_out = proc.fit_transform(y_df)
+
+    assert y_df.equals(df_out)

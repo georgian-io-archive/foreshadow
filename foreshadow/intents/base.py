@@ -52,20 +52,31 @@ class BaseIntent(metaclass=_IntentRegistry):
 
     """
 
-    dtype = None
-    """Data type of column required for this intent to match (not implemented)"""
-
     children = None
     """More-specific intents that require this intent to match to be
             considered."""
 
-    single_pipeline = None
-    """Single pipeline of smart transformers that affect a single column in 
-            in an intent"""
+    single_pipeline_template = None
+    """A template for single pipelines of smart transformers that affect a 
+        single column in an intent
 
-    multi_pipeline = None
-    """Multi pipeline of smart transformers that affect multiple columns in
-            an intent"""
+        The template needs an additional boolean at the end of the tuple that
+        determines whether the transformation can be applied to response 
+        variables.
+    
+        Example: single_pipeline_template = [
+            ('t1', Transformer1, False),
+            ('t2', (Transformer2, {'arg1': True}), True),
+            ('t3', Transformer1, True),
+        ]
+    """
+
+    multi_pipeline_template = None
+    """A template for multi pipelines of smart transformers that affect multiple 
+        columns in an intent
+    
+        See single_pipeline_template for an example defention
+    """
 
     @classmethod
     @check_base
@@ -124,36 +135,23 @@ class BaseIntent(metaclass=_IntentRegistry):
         pass  # pragma: no cover
 
     @classmethod
-    def _check_required_class_attributes(cls):
+    def _check_intent(cls):
         """Validate class variables are setup properly"""
-
-        not_implemented = lambda x, y: "Subclass must define {} class attribute.\n{}".format(
-            x, y
+        not_implemented = lambda v, m: "Subclass must define {} class attribute.\n{}".format(
+            v, m
         )
-        if cls.dtype is None:
-            raise NotImplementedError(
-                not_implemented(
-                    "cls.dtype", "This attribute should define the dtype of the intent."
+        define_attrs = [
+            'children', 
+            'single_pipeline_template',
+            'multi_pipeline_template',
+        ]
+        # Check that intent attrs are defined
+        for a in define_attrs:
+            if getattr(cls, a) is None:
+                raise NotImplementedError(
+                    not_implemented(
+                        a,
+                        "Developers please see the documentation.",
+                    )
                 )
-            )
-        elif cls.children is None:
-            raise NotImplementedError(
-                not_implemented(
-                    "cls.children",
-                    "This attribute should define the children of the intent.",
-                )
-            )
-        elif cls.single_pipeline is None:
-            raise NotImplementedError(
-                not_implemented(
-                    "cls.single_pipeline",
-                    "This attribute should define the transformers for a single pipeline",
-                )
-            )
-        elif cls.multi_pipeline is None:
-            raise NotImplementedError(
-                not_implemented(
-                    "cls.multi_pipeline",
-                    "This attribute should define the transformers for a multi pipeline",
-                )
-            )
+
