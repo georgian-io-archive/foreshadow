@@ -1,3 +1,5 @@
+import inspect
+
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import (
@@ -259,16 +261,20 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
 
     """
 
-    def __init__(self, override=None, name=None, keep_columns=False, **kwargs):
+    def __init__(
+        self, y_var=False, override=None, name=None, keep_columns=False, **kwargs
+    ):
         self.kwargs = kwargs
         self.name = name
         self.keep_columns = keep_columns
         self.override = override
+        self.y_var = y_var
         self.transformer = None
         self._set_to_empty = False
 
     def get_params(self, deep=True):
         return {
+            "y_var": self.y_var,
             "override": self.override,
             "name": self.name,
             "keep_columns": self.keep_columns,
@@ -312,6 +318,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
     def set_params(self, **params):
         self.name = params.pop("name", self.name)
         self.keep_columns = params.pop("keep_columns", self.keep_columns)
+        self.y_var = params.pop("y_var", self.y_var)
 
         self.override = params.pop("override", self.override)
         if self.override is not None:
@@ -399,7 +406,18 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         else:
             self._verify_transformer(X, y, refit=True)
         inject = _inject_df(self.transformer, kwargs.pop("full_df", None))
-        return self.transformer.fit(X, y, **{**kwargs, **inject})
+
+        # Check if using a sklearn transformer with only y vars
+        if "X" not in inspect.getfullargspec(self.transformer.fit).args:
+            return self.transformer.fit(X, **{**kwargs, **inject})
+        else:
+            return self.transformer.fit(X, y, **{**kwargs, **inject})
+
+    def inverse_transform(self, X):
+        X = check_df(X)
+        if not self._set_to_empty:
+            self._verify_transformer(X)
+        return self.transformer.inverse_transform(X)
 
 
 def _slice_cols(X, cols, drop_level=True):

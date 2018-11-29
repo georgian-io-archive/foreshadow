@@ -17,7 +17,7 @@ def patch_intents(mocker):
 
         single_pipeline_template = []
         multi_pipeline_template = [
-            ("pca", (PCA, {'n_components': 2, 'name': "pca"}), False)
+            ("pca", (PCA, {"n_components": 2, "name": "pca"}), False)
         ]
 
         @classmethod
@@ -29,7 +29,7 @@ def patch_intents(mocker):
         children = []
 
         single_pipeline_template = [
-            ("impute", (Imputer, {'strategy': "mean", 'name': "impute"}), False)
+            ("impute", (Imputer, {"strategy": "mean", "name": "impute"}), False)
         ]
         multi_pipeline_template = []
 
@@ -340,7 +340,6 @@ def test_preprocessor_fit_create_single_pipeline_default():
     proc_default = Preprocessor()
     proc_default.fit(df.copy(deep=True))
 
-    
     for c in cols:
         assert c in proc_default._pipeline_map
         assert type(proc_default._pipeline_map[c]).__name__ == "Pipeline"
@@ -758,12 +757,13 @@ def test_preprocessor_serialize():
 
     assert json.loads(json.dumps(truth)) == json.loads(json.dumps(out))
 
+
 def test_preprocessor_y_var_filtering():
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
-    y_df = df[['medv']]
+    y_df = df[["medv"]]
 
     proc = Preprocessor(y_var=True)
 

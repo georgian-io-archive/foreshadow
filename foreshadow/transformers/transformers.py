@@ -50,11 +50,11 @@ def wrap_transformer(transformer):
     wrap_candidates = [
         m
         for m in members
-        if "X" in inspect.getfullargspec(m).args and not m.__name__[0] == "_"
+        if any(arg in inspect.getfullargspec(m).args for arg in ["X", "y"])
+        and not m.__name__[0] == "_"
     ]
 
     for w in wrap_candidates:
-
         # Wrap public function calls
         # method = partialmethod(pandas_wrapper, w)
         method = pandas_partial(pandas_partial(w))
@@ -162,7 +162,7 @@ def init_replace(self, keep_columns=False, name=None):
 
 
 class _Empty(BaseEstimator, TransformerMixin):
-    """Transformer that performs BoxCox transformation on continuous numeric data."""
+    """Transformer that performs _Empty transformation"""
 
     def fit(self, X, y=None):
         """Empty fit function
@@ -178,6 +178,19 @@ class _Empty(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, y=None):
+        """Pass through transform 
+
+        Args:
+            X (:obj:`numpy.ndarray`): X data
+
+        Returns:
+            :obj:`numpy.ndarray`: Empty numpy array
+
+        """
+
+        return np.array([])
+
+    def inverse_transform(self, X):
         """Pass through transform 
 
         Args:
@@ -273,6 +286,9 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
             prefix = self.name
         else:
             prefix = type(self).__name__
+
+        if out.ndim == 1 and out.size != 0:
+            out = out.reshape((-1, 1))
 
         # Append new columns to data frame
         for i, col in enumerate(out.transpose().tolist()):

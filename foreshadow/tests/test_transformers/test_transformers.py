@@ -437,4 +437,19 @@ def test_smarttransformer_get_params():
         "missing_values": "NaN",
         "strategy": "mean",
         "verbose": 0,
+        "y_var": False,
     }
+
+
+def test_smarttransformer_empty_inverse():
+    from foreshadow.transformers.base import SmartTransformer
+    from foreshadow.transformers.internals import DropFeature
+
+    class TestSmartTransformer(SmartTransformer):
+        def _get_transformer(self, X, y=None, **fit_params):
+            return None
+
+    smart = TestSmartTransformer()
+    smart.fit([])
+
+    assert smart.inverse_transform([1, 2, 10]).size == 0

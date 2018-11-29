@@ -279,7 +279,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
         try:
             if "y_var" in config.keys():
-                self.y_var = config['y_var']
+                self.y_var = config["y_var"]
             # Parse columns section
             if "columns" in config.keys():
                 # Iterate columns

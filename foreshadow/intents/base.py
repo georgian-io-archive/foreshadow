@@ -141,17 +141,13 @@ class BaseIntent(metaclass=_IntentRegistry):
             v, m
         )
         define_attrs = [
-            'children', 
-            'single_pipeline_template',
-            'multi_pipeline_template',
+            "children",
+            "single_pipeline_template",
+            "multi_pipeline_template",
         ]
         # Check that intent attrs are defined
         for a in define_attrs:
             if getattr(cls, a) is None:
                 raise NotImplementedError(
-                    not_implemented(
-                        a,
-                        "Developers please see the documentation.",
-                    )
+                    not_implemented(a, "Developers please see the documentation.")
                 )
-

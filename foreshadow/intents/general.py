@@ -25,9 +25,7 @@ class GenericIntent(BaseIntent):
     single_pipeline_template = []
     """No transformers"""
 
-    multi_pipeline_template = [
-        ("multi_impute", MultiImputer, False)
-    ]
+    multi_pipeline_template = [("multi_impute", MultiImputer, False)]
     """Performs multi imputation over the entire DataFrame"""
 
     @classmethod
@@ -78,8 +76,8 @@ class CategoricalIntent(GenericIntent):
     """No children"""
 
     single_pipeline_template = [
-        ("dropper", DropFeature, False), 
-        ("impute_encode", Encoder, True)
+        ("dropper", DropFeature, False),
+        ("impute_encode", Encoder, True),
     ]
     """Encodes the column automatically"""
 

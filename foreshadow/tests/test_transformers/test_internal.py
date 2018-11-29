@@ -119,3 +119,31 @@ def test_drop_transformer_below_thresh():
     x = pd.DataFrame({"A": np.array([np.nan] * 8 + [0.1, 0.1])})
 
     assert DropFeature().fit_transform(x).values.size == 0
+
+
+def test_drop_transformer_disallow_inverse():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.internals import DropFeature
+
+    x = pd.DataFrame({"A": np.array([np.nan] * 8 + [0.1, 0.1])})
+    drop_f = DropFeature(raise_on_inverse=True).fit(x)
+
+    with pytest.raises(ValueError) as e:
+        drop_f.inverse_transform([1, 2, 10])
+
+    assert str(e.value) == (
+        "inverse_transform is not permitted on this DropFeature instance"
+    )
+
+
+def test_drop_transformer_default_inverse():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.internals import DropFeature
+
+    x = pd.DataFrame({"A": np.array([np.nan] * 8 + [0.1, 0.1])})
+    drop_f = DropFeature().fit(x)
+    inv = drop_f.inverse_transform([1, 2, 10])
+
+    assert np.array_equal(inv.values.ravel(), np.array([]))

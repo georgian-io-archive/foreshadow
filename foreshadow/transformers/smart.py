@@ -17,6 +17,7 @@ from ..transformers.externals import (
     StandardScaler,
     RobustScaler,
     HashingEncoder,
+    LabelEncoder,
 )
 
 
@@ -58,6 +59,8 @@ class Encoder(SmartTransformer):
         data = X.iloc[:, 0]
         col_name = X.columns[0]
         unique_count = len(data.value_counts())
+        if self.y_var:
+            return LabelEncoder()
         if unique_count <= unique_num_cutoff:
             return OneHotEncoder()
         else:
