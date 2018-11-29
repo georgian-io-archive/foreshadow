@@ -174,10 +174,9 @@ def test_preprocessor_hashencoder_no_name_collision():
     cat1 = [str(uuid.uuid4()) for _ in range(40)]
     cat2 = [str(uuid.uuid4()) for _ in range(40)]
 
-    input = pd.DataFrame({
-        'col1': np.random.choice(cat1, 1000),
-        'col2': np.random.choice(cat2, 1000)
-    })
+    input = pd.DataFrame(
+        {"col1": np.random.choice(cat1, 1000), "col2": np.random.choice(cat2, 1000)}
+    )
 
     processor = Preprocessor()
     output = processor.fit_transform(input)
