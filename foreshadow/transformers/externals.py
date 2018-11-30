@@ -9,7 +9,7 @@ import inspect
 
 from sklearn.preprocessing import StandardScaler, RobustScaler, MinMaxScaler, Imputer
 from sklearn.decomposition import PCA
-from category_encoders import HashingEncoder
+from category_encoders import HashingEncoder, OneHotEncoder
 
 from .transformers import _get_modules
 
