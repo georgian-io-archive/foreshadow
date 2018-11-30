@@ -158,11 +158,8 @@ def _set_path(key, value, original):
             else:  # Dictionary
                 temp = temp[p]
 
-        # Set value
-        if isinstance(temp, list):
-            temp[int(path[-1])] = value
-        else:  # Dictionary
-            temp[path[-1]] = value
+        # Always Dictionary
+        temp[path[-1]] = value
 
     except KeyError as e:
         raise ValueError("Invalid JSON Key")

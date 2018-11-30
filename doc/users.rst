@@ -351,23 +351,25 @@ An example configuration for processing the Boston Housing dataset is below. We 
 
     {
       "columns":{
-        "crim":["GenericIntent",
-                [
-                  ["StandardScaler", "Scaler", {"with_mean":false}]
-                ]],
-        "indus":["GenericIntent"]
+        "crim":{"intent": "GenericIntent",
+                "pipeline": [
+                  {"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}
+                ]},
+        "indus":{"intent": "GenericIntent"}
       },
 
       "postprocess":[
-        ["pca",["age"],[
-          ["PCA", "PCA", {"n_components":2}]
-        ]]
+        {"name":"pca",
+         "columns": ["age"],
+         "pipeline": [
+          {"transformer": "PCA", "name": "PCA", "parameters": {"n_components":2}}
+        ]}
       ],
 
       "intents":{
         "NumericIntent":{
           "single":[
-            ["Imputer", "impute", {"strategy":"mean"}]
+            {"transformer": "Imputer", "name": "impute", "parameters": {"strategy":"mean"}}
           ],
           "multi":[]
         }
@@ -383,23 +385,24 @@ Column Override
 
 .. code-block:: json
 
-      {"columns":{
-        "crim":["GenericIntent",
-                [
-                  ["StandardScaler", "Scaler", {"with_mean":false}]
-                ]],
-        "indus":["GenericIntent"]
-      }}
+      "columns":{
+        "crim":{"intent": "GenericIntent",
+                "pipeline": [
+                  {"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}
+                ]},
+        "indus":{"intent": "GenericIntent"}
+      }
 
 This section is a dictionary containing two keys, each of which are columns in the Boston Housing set. First we will look at the value
 of the :code:`"crim"` key which is a list.
 
 
 .. code-block:: json
-
-    ["GenericIntent",[
-        ["StandardScaler", "Scaler", {"with_mean":false}]
-    ]]
+        
+        {"intent": "GenericIntent",
+                "pipeline": [
+                  {"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}
+        ]}
 
 The list is of form :code:`[intent_name, pipeline]`. Here we can see that this column has been assigned the intent :code:`"GenericIntent`
 and the pipeline :code:`[["StandardScaler", "Scaler", {"with_mean":false}]]`
@@ -425,14 +428,15 @@ Intent Override
 
 .. code-block:: json
 
-    {"intents":{
+      "intents":{
         "NumericIntent":{
           "single":[
-            ["Imputer", "impute", {"strategy":"mean"}]
+            {"transformer": "Imputer", "name": "impute", "parameters": {"strategy":"mean"}}
           ],
           "multi":[]
         }
-    }}
+      }
+
 
 Next, we will examine the :code:`intents` section. This section is used to override intents globally, unlike the columns section which overrode intents on a per-column
 basis. Any changes to intents defined in this section will apply across the entire Preprocessor pipeline.
@@ -451,6 +455,7 @@ Postprocessor Override
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: json
+
 
     {"postprocess":[
         ["pca",["age"],[
@@ -512,27 +517,29 @@ This is what a combinations section looks like.
 
 .. code-block:: json
 
-    {
-      "columns":{
-        "crim":["GenericIntent",
-                [
-                  ["StandardScaler", "Scaler", {"with_mean":false}]
-                ]],
-        "indus":["GenericIntent"]
-      },
 
-      "postprocess":[],
-
-      "intents":{},
-
-      "combinations": [
         {
-          "columns.crim.1.0.2.with_mean": "[True, False]",
-          "columns.crim.1.0.1": "['Scaler', 'SuperScaler']"
-        }
-      ]
+          "columns":{
+            "crim":{"intent": "GenericIntent",
+                    "pipeline": [
+                            {"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}
+                    ]},
+            "indus":{"intent": "GenericIntent"}
+          },
 
-    }
+          "postprocess":[],
+
+          "intents":{},
+
+          "combinations": [
+            {
+              "columns.crim.pipeline.0.parameters.with_mean": "[True, False]",
+              "columns.crim.pipeline.0.name": "['Scaler', 'SuperScaler']"
+            }
+          ]
+
+        }
+
 
 
 This section of the configuration file is a list of dictionaries. Each dictionary represents a single parameter space definition that should be searched. Within these dictionaries

@@ -1,10 +1,10 @@
 {
   "columns":{
-    "crim":["GenericIntent",
-            [
-              ["StandardScaler", "Scaler", {"with_mean":false}]
-            ]],
-    "indus":["GenericIntent"]
+    "crim":{"intent": "GenericIntent",
+            "pipeline": [
+		    {"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}
+            ]},
+    "indus":{"intent": "GenericIntent"}
   },
 
   "postprocess":[],
@@ -13,8 +13,8 @@
 
   "combinations": [
     {
-      "columns.crim.1.0.2.with_mean": "[True, False]",
-      "columns.crim.1.0.1": "['Scaler', 'SuperScaler']"
+      "columns.crim.pipeline.0.parameters.with_mean": "[True, False]",
+      "columns.crim.pipeline.0.name": "['Scaler', 'SuperScaler']"
     }
   ]
 

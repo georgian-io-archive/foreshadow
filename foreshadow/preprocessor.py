@@ -280,18 +280,18 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                 # Iterate columns
                 for k, v in config["columns"].items():
                     # Assign custom intent map
-                    self._intent_map[k] = registry_eval(v[0])
+                    self._intent_map[k] = registry_eval(v["intent"])
 
                     # Assign custom pipeline map
                     if len(v) > 1:
-                        self._pipeline_map[k] = resolve_pipeline(v[1])
+                        self._pipeline_map[k] = resolve_pipeline(v["pipeline"])
 
             # Resolve postprocess section into a list of pipelines
             if "postprocess" in config.keys():
                 self._multi_column_map = [
-                    [v[PipelineStep["NAME"]], v[1], resolve_pipeline(v[2])]
+                    [v["name"], v["columns"], resolve_pipeline(v["pipeline"])]
                     for v in config["postprocess"]
-                    if len(v) >= 3
+                    if len(v.items()) >= 3
                 ]
 
             # Resolve intents section into a dictionary of intents and pipelines
@@ -301,10 +301,10 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                     for k, v in config["intents"].items()
                 }
 
+        except KeyError as e:
+            raise ValueError("JSON Configuration is malformed: {}".format(str(e)))
         except ValueError as e:
             raise e
-        except Exception as e:
-            raise ValueError("JSON Configuration is malformed: {}".format(str(e)))
 
     def get_params(self, deep=True):
         if self.pipeline is None:
@@ -333,19 +333,20 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
         """
         json_cols = {
-            k: (
-                self._intent_map[k].__name__,
-                serialize_pipeline(
+            k: {
+                "intent": self._intent_map[k].__name__,
+                "pipeline": serialize_pipeline(
                     self._pipeline_map.get(k, Pipeline([("null", None)]))
                 ),
-                [c[1].__name__ for c in self._choice_map[k]],
-            )
+                "all_matched_intents": [c[1].__name__ for c in self._choice_map[k]],
+            }
             for k in self._intent_map.keys()
         }
 
         # Serialize multi-column processors
         json_multi = [
-            [v[0], v[1], serialize_pipeline(v[2])] for v in self._multi_column_map
+            {"name": v[0], "columns": v[1], "pipeline": serialize_pipeline(v[2])}
+            for v in self._multi_column_map
         ]
 
         # Serialize intent multi processors
@@ -432,11 +433,11 @@ def serialize_pipeline(pipeline):
         list: JSON serializable object of form ``[cls, name, {**params}]``
     """
     return [
-        (
-            type(step[PipelineStep["CLASS"]]).__name__,
-            step[PipelineStep["NAME"]],
-            step[PipelineStep["CLASS"]].get_params(deep=False),
-        )
+        {
+            "transformer": type(step[PipelineStep["CLASS"]]).__name__,
+            "name": step[PipelineStep["NAME"]],
+            "pipeline": step[PipelineStep["CLASS"]].get_params(deep=False),
+        }
         for step in pipeline.steps
         if pipeline.steps[0][PipelineStep["NAME"]] != "null"
     ]
@@ -464,15 +465,18 @@ def resolve_pipeline(pipeline_json):
 
     for trans in pipeline_json:
 
-        if len(trans) != 3:
-            raise ValueError(
-                "Malformed transformer {} correct syntax is"
-                "[cls, name, {{**params}}]".format(trans)
-            )
+        try:
+            clsname = trans["transformer"]
+            name = trans["name"]
+            params = trans["parameters"]
 
-        clsname = trans[0]
-        name = trans[1]
-        params = trans[2]
+        except KeyError as e:
+            raise KeyError(
+                "Malformed transformer {} correct syntax is"
+                '["transformer": cls, "name": name, "pipeline": {{**params}}]'.format(
+                    trans
+                )
+            )
 
         try:
             search_module = (
