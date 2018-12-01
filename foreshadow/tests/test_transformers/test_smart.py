@@ -54,7 +54,7 @@ def test_smart_encoder_less_than_30_levels():
     import scipy.stats as ss
 
     from foreshadow.transformers.smart import Encoder
-    from foreshadow.transformers.internals import OneHotEncoder
+    from foreshadow.transformers.externals import OneHotEncoder
 
     np.random.seed(0)
     leq_30_random_data = np.random.choice(30, size=500)
@@ -183,3 +183,14 @@ def test_preprocessor_hashencoder_no_name_collision():
     # since the number of categories for each column are above 30, HashingEncoder will be used with 30 components. The transformed
     # output should have in total 60 unique names.
     assert len(set(output.columns)) == 60
+
+
+def test_smart_encoder_more_than_30_levels_with_overwritten_cutoff():
+    import numpy as np
+    from foreshadow.transformers.smart import Encoder
+    from foreshadow.transformers.externals import OneHotEncoder
+
+    np.random.seed(0)
+    gt_30_random_data = np.random.choice(31, size=500)
+    smart_coder = Encoder(unique_num_cutoff=35)
+    assert isinstance(smart_coder.fit(gt_30_random_data), OneHotEncoder)

@@ -397,7 +397,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
             self.transformer = _Empty()
             self._set_to_empty = True
         else:
-            self._verify_transformer(X, y, refit=True)
+            self._verify_transformer(X, y, refit=True, **self.kwargs)
         inject = _inject_df(self.transformer, kwargs.pop("full_df", None))
         return self.transformer.fit(X, y, **{**kwargs, **inject})
 

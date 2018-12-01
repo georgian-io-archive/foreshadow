@@ -11,12 +11,13 @@ import scipy.stats as ss
 from sklearn.pipeline import Pipeline
 
 from ..transformers.base import SmartTransformer
-from ..transformers.internals import BoxCox, FancyImputer, OneHotEncoder
+from ..transformers.internals import BoxCox, FancyImputer
 from ..transformers.externals import (
     MinMaxScaler,
     StandardScaler,
     RobustScaler,
     HashingEncoder,
+    OneHotEncoder,
 )
 
 
@@ -59,7 +60,12 @@ class Encoder(SmartTransformer):
         col_name = X.columns[0]
         unique_count = len(data.value_counts())
         if unique_count <= unique_num_cutoff:
-            return OneHotEncoder()
+            return OneHotEncoder(
+                cols=[col_name],
+                return_df=True,
+                use_cat_names=True,
+                handle_unknown="ignore",
+            )
         else:
             return HashingEncoder(n_components=30, cols=[col_name])
 
