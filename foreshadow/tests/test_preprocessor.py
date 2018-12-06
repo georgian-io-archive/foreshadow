@@ -6,7 +6,9 @@ def patch_intents(mocker):
     from copy import deepcopy
 
     from foreshadow.intents.base import (
-        BaseIntent, PipelineTemplateEntry, TransformerEntry
+        BaseIntent,
+        PipelineTemplateEntry,
+        TransformerEntry,
     )
     from foreshadow.intents import registry
     from foreshadow.transformers.externals import Imputer, PCA
@@ -21,9 +23,7 @@ def patch_intents(mocker):
         single_pipeline_template = []
         multi_pipeline_template = [
             PipelineTemplateEntry(
-                "pca", 
-                TransformerEntry(PCA, {"n_components": 2, "name": "pca"}), 
-                False
+                "pca", TransformerEntry(PCA, {"n_components": 2, "name": "pca"}), False
             )
         ]
 
@@ -37,9 +37,9 @@ def patch_intents(mocker):
 
         single_pipeline_template = [
             PipelineTemplateEntry(
-                "impute", 
-                TransformerEntry(Imputer, {"strategy": "mean", "name": "impute"}), 
-                False
+                "impute",
+                TransformerEntry(Imputer, {"strategy": "mean", "name": "impute"}),
+                False,
             )
         ]
         multi_pipeline_template = []

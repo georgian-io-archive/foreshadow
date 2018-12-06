@@ -213,7 +213,9 @@ def test_invalid_transfomer_template_defenition_bad_defenition():
 
 def test_valid_intent_registration():
     from foreshadow.intents.base import (
-        BaseIntent, PipelineTemplateEntry, TransformerEntry
+        BaseIntent,
+        PipelineTemplateEntry,
+        TransformerEntry,
     )
     from foreshadow.intents.registry import _unregister_intent
     from foreshadow.transformers.smart import Scaler
@@ -222,14 +224,12 @@ def test_valid_intent_registration():
     class TestIntent(BaseIntent):
         dtype = "TEST"
         children = ["TEST"]
-        single_pipeline_template = [
-            PipelineTemplateEntry("s1", Scaler, True)
-        ]
+        single_pipeline_template = [PipelineTemplateEntry("s1", Scaler, True)]
         multi_pipeline_template = [
             PipelineTemplateEntry(
-                "s2", 
-                TransformerEntry(sklearn.decomposition.PCA, {"n_components": 5}), 
-                True
+                "s2",
+                TransformerEntry(sklearn.decomposition.PCA, {"n_components": 5}),
+                True,
             )
         ]
 

@@ -8,6 +8,7 @@ from sklearn.utils.validation import check_is_fitted
 
 class BoxCox(BaseEstimator, TransformerMixin):
     """Transformer that performs BoxCox transformation on continuous numeric data."""
+
     # TODO: Remove this internal function and use PowerTransform from sklearn when
     #       sklearn version is upgraded to 0.20
 

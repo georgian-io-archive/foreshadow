@@ -11,6 +11,7 @@ from .base import PipelineTemplateEntry, TransformerEntry
 
 _registry = {}
 
+
 def _register_intent(cls_target):
     """Registers an intent with the library"""
     global _registry
@@ -46,16 +47,15 @@ def _process_templates(cls_target):
                 (
                     isinstance(s.transformer_entry, type)
                     and issubclass(
-                        s.transformer_entry, 
-                        (BaseEstimator, TransformerMixin)
+                        s.transformer_entry, (BaseEstimator, TransformerMixin)
                     )
                 )
                 or (
                     isinstance(s.transformer_entry, TransformerEntry)
                     and isinstance(s.transformer_entry.transformer, type)
                     and issubclass(
-                        s.transformer_entry.transformer, 
-                        (BaseEstimator, TransformerMixin)
+                        s.transformer_entry.transformer,
+                        (BaseEstimator, TransformerMixin),
                     )
                     and isinstance(s.transformer_entry.args_dict, dict)
                 )
@@ -66,12 +66,12 @@ def _process_templates(cls_target):
 
         x_pipeline = [
             (
-                s.transformer_name, s.transformer_entry() 
+                s.transformer_name,
+                s.transformer_entry()
                 if callable(s.transformer_entry)
-                else s.transformer_entry.transformer(
-                    **s.transformer_entry.args_dict
-                )
-            ) for s in template
+                else s.transformer_entry.transformer(**s.transformer_entry.args_dict),
+            )
+            for s in template
         ]
         y_pipeline = [
             (
@@ -119,9 +119,7 @@ def _process_templates(cls_target):
     cls_target.single_pipeline = _process_template(
         cls_target, "single_pipeline_template"
     )
-    cls_target.multi_pipeline = _process_template(
-        cls_target, "multi_pipeline_template"
-    )
+    cls_target.multi_pipeline = _process_template(cls_target, "multi_pipeline_template")
 
 
 def registry_eval(cls_target):
