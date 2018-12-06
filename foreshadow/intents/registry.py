@@ -3,11 +3,13 @@ Intent Registry
 """
 
 from abc import ABCMeta
-from foreshadow.transformers.base import SmartTransformer
+
 from sklearn.base import BaseEstimator, TransformerMixin
 
-_registry = {}
+from ..transformers.base import SmartTransformer
+from .base import PipelineTemplateEntry, TransformerEntry
 
+_registry = {}
 
 def _register_intent(cls_target):
     """Registers an intent with the library"""
@@ -38,49 +40,61 @@ def _unregister_intent(cls_target):
 
 def _process_templates(cls_target):
     def _resolve_template(template):
-        if not all(len(s) == 3 for s in template) or not template:
-            raise ValueError("Malformed template")
         if not all(
-            (
-                isinstance(s[1], type)
-                and issubclass(s[1], (BaseEstimator, TransformerMixin))
-            )
-            or (
-                isinstance(s[1], tuple)
-                and len(s[1]) == 2
-                and isinstance(s[1][0], type)
-                and issubclass(s[1][0], (BaseEstimator, TransformerMixin))
-                and isinstance(s[1][1], dict)
+            isinstance(s, PipelineTemplateEntry)
+            and (
+                (
+                    isinstance(s.transformer_entry, type)
+                    and issubclass(
+                        s.transformer_entry, 
+                        (BaseEstimator, TransformerMixin)
+                    )
+                )
+                or (
+                    isinstance(s.transformer_entry, TransformerEntry)
+                    and isinstance(s.transformer_entry.transformer, type)
+                    and issubclass(
+                        s.transformer_entry.transformer, 
+                        (BaseEstimator, TransformerMixin)
+                    )
+                    and isinstance(s.transformer_entry.args_dict, dict)
+                )
             )
             for s in template
         ):
             raise ValueError("Malformed transformer entry in template")
 
         x_pipeline = [
-            (s[0], s[1]() if callable(s[1]) else s[1][0](**s[1][1])) for s in template
+            (
+                s.transformer_name, s.transformer_entry() 
+                if callable(s.transformer_entry)
+                else s.transformer_entry.transformer(
+                    **s.transformer_entry.args_dict
+                )
+            ) for s in template
         ]
         y_pipeline = [
             (
-                s[0],
-                s[1](
+                s.transformer_name,
+                s.transformer_entry(
                     **{
                         "y_var": True
                         for _ in range(1)
-                        if issubclass(s[1], SmartTransformer)
+                        if issubclass(s.transformer_entry, SmartTransformer)
                     }
                 )
-                if callable(s[1])
-                else s[1][0](
-                    **s[1][1],
+                if callable(s.transformer_entry)
+                else s.transformer_entry.transformer(
+                    **s.transformer_entry.args_dict,
                     **{
                         "y_var": True
                         for _ in range(1)
-                        if issubclass(s[1][0], SmartTransformer)
+                        if issubclass(s.transformer_entry.transformer, SmartTransformer)
                     }
                 ),
             )
             for s in template
-            if s[-1]
+            if s.y_var
         ]
 
         return x_pipeline, y_pipeline
@@ -105,7 +119,9 @@ def _process_templates(cls_target):
     cls_target.single_pipeline = _process_template(
         cls_target, "single_pipeline_template"
     )
-    cls_target.multi_pipeline = _process_template(cls_target, "multi_pipeline_template")
+    cls_target.multi_pipeline = _process_template(
+        cls_target, "multi_pipeline_template"
+    )
 
 
 def registry_eval(cls_target):

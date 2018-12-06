@@ -3,7 +3,20 @@ Intent base and registry defentions
 """
 
 from abc import abstractmethod
+from collections import namedtuple
 from functools import wraps
+
+# must be defined above registry import
+PipelineTemplateEntry = namedtuple(
+    'PipelineTemplateEntry',
+    ['transformer_name', 'transformer_entry', 'y_var']
+)
+
+
+TransformerEntry = namedtuple(
+    'TransformerEntry',
+    ['transformer', 'args_dict']
+)
 
 from .registry import _IntentRegistry, registry_eval
 

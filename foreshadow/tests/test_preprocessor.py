@@ -4,9 +4,12 @@ import pytest
 @pytest.fixture(autouse=True)
 def patch_intents(mocker):
     from copy import deepcopy
-    from ..intents.base import BaseIntent
-    from ..intents import registry
-    from ..transformers.externals import Imputer, PCA
+
+    from foreshadow.intents.base import (
+        BaseIntent, PipelineTemplateEntry, TransformerEntry
+    )
+    from foreshadow.intents import registry
+    from foreshadow.transformers.externals import Imputer, PCA
 
     _saved_registry = deepcopy(registry._registry)
     registry._registry = {}
@@ -17,7 +20,11 @@ def patch_intents(mocker):
 
         single_pipeline_template = []
         multi_pipeline_template = [
-            ("pca", (PCA, {"n_components": 2, "name": "pca"}), False)
+            PipelineTemplateEntry(
+                "pca", 
+                TransformerEntry(PCA, {"n_components": 2, "name": "pca"}), 
+                False
+            )
         ]
 
         @classmethod
@@ -29,7 +36,11 @@ def patch_intents(mocker):
         children = []
 
         single_pipeline_template = [
-            ("impute", (Imputer, {"strategy": "mean", "name": "impute"}), False)
+            PipelineTemplateEntry(
+                "impute", 
+                TransformerEntry(Imputer, {"strategy": "mean", "name": "impute"}), 
+                False
+            )
         ]
         multi_pipeline_template = []
 

@@ -141,8 +141,8 @@ def test_invalid_transfomer_template_defenition_length():
             def is_intent(cls, df):
                 return True
 
-    assert str(e.value) == ("Malformed template")
-    assert str(e2.value) == ("Malformed template")
+    assert str(e.value) == ("Malformed transformer entry in template")
+    assert str(e2.value) == ("Malformed transformer entry in template")
 
 
 def test_invalid_transfomer_template_defenition_bad_defenition():
@@ -212,7 +212,9 @@ def test_invalid_transfomer_template_defenition_bad_defenition():
 
 
 def test_valid_intent_registration():
-    from foreshadow.intents.base import BaseIntent
+    from foreshadow.intents.base import (
+        BaseIntent, PipelineTemplateEntry, TransformerEntry
+    )
     from foreshadow.intents.registry import _unregister_intent
     from foreshadow.transformers.smart import Scaler
     import sklearn
@@ -220,9 +222,15 @@ def test_valid_intent_registration():
     class TestIntent(BaseIntent):
         dtype = "TEST"
         children = ["TEST"]
-        single_pipeline_template = [("s1", Scaler, True)]
+        single_pipeline_template = [
+            PipelineTemplateEntry("s1", Scaler, True)
+        ]
         multi_pipeline_template = [
-            ("s2", (sklearn.decomposition.PCA, {"n_components": 5}), True)
+            PipelineTemplateEntry(
+                "s2", 
+                TransformerEntry(sklearn.decomposition.PCA, {"n_components": 5}), 
+                True
+            )
         ]
 
         @classmethod

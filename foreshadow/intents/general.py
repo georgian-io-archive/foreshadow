@@ -5,7 +5,7 @@ General intents defenitions
 import pandas as pd
 import numpy as np
 
-from .base import BaseIntent
+from .base import BaseIntent, PipelineTemplateEntry, TransformerEntry
 
 from ..transformers.internals import DropFeature
 from ..transformers.smart import SimpleImputer, MultiImputer, Scaler, Encoder
@@ -25,7 +25,9 @@ class GenericIntent(BaseIntent):
     single_pipeline_template = []
     """No transformers"""
 
-    multi_pipeline_template = [("multi_impute", MultiImputer, False)]
+    multi_pipeline_template = [
+        PipelineTemplateEntry("multi_impute", MultiImputer, False)
+    ]
     """Performs multi imputation over the entire DataFrame"""
 
     @classmethod
@@ -45,9 +47,9 @@ class NumericIntent(GenericIntent):
     """No children"""
 
     single_pipeline_template = [
-        ("dropper", DropFeature, False),
-        ("simple_imputer", SimpleImputer, False),
-        ("scaler", Scaler, True),
+        PipelineTemplateEntry("dropper", DropFeature, False),
+        PipelineTemplateEntry("simple_imputer", SimpleImputer, False),
+        PipelineTemplateEntry("scaler", Scaler, True),
     ]
     """Performs imputation and scaling using Smart Transformers"""
 
@@ -76,8 +78,8 @@ class CategoricalIntent(GenericIntent):
     """No children"""
 
     single_pipeline_template = [
-        ("dropper", DropFeature, False),
-        ("impute_encode", Encoder, True),
+        PipelineTemplateEntry("dropper", DropFeature, False),
+        PipelineTemplateEntry("impute_encode", Encoder, True),
     ]
     """Encodes the column automatically"""
 
