@@ -169,6 +169,11 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                     if len(v.multi_pipeline(self.y_var)) > 0
                     else [("null", None)]
                 ),
+                "single": Pipeline(
+                    deepcopy(v.single_pipeline(self.y_var))
+                    if len(v.single_pipeline(self.y_var)) > 0
+                    else [("null", None)]
+                ),
                 # Extract multi pipeline from JSON config (highest priority)
                 **{k: v for k, v in self._intent_pipelines.get(v.__name__, {}).items()},
             }
@@ -355,11 +360,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
         # Serialize intent multi processors
         json_intents = {
-            k: {
-                l: serialize_pipeline(j)
-                for l, j in v.items()
-                if j.steps[0][PipelineStep["NAME"]] != "null"
-            }
+            k: {l: serialize_pipeline(j) for l, j in v.items()}
             for k, v in self._intent_pipelines.items()
         }
 

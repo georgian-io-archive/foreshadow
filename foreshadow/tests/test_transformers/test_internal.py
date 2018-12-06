@@ -73,28 +73,34 @@ def test_transformer_fancy_impute_invalid_params():
 
 def test_transformer_onehotencoder_fit_transform():
     import pandas as pd
-    from foreshadow.transformers.internals import OneHotEncoder
+    from foreshadow.transformers.externals import OneHotEncoder
 
     df = pd.DataFrame({"neat": ["apple", "apple", "orange", "apple", "orange"]})
-    ohe = OneHotEncoder()
+    ohe = OneHotEncoder(use_cat_names=True, cols=["neat"], handle_unknown="ignore")
     assert ohe.fit(df) == ohe
     assert list(ohe.transform(df)) == [
-        "neat_OneHotEncoder_apple",
-        "neat_OneHotEncoder_orange",
+        "neat_OneHotEncoder_neat_apple",
+        "neat_OneHotEncoder_neat_orange",
     ]
 
 
 def test_transformer_onehotencoder_fit_transform_keep_cols():
     import pandas as pd
-    from foreshadow.transformers.internals import OneHotEncoder
+    from foreshadow.transformers.externals import OneHotEncoder
 
     df = pd.DataFrame({"neat": ["apple", "apple", "orange", "apple", "orange"]})
-    ohe = OneHotEncoder(keep_columns=True, name="encoder")
+    ohe = OneHotEncoder(
+        keep_columns=True,
+        name="encoder",
+        use_cat_names=True,
+        cols=["neat"],
+        handle_unknown="ignore",
+    )
     assert ohe.fit(df) == ohe
     assert list(ohe.transform(df)) == [
         "neat_encoder_origin_0",
-        "neat_encoder_apple",
-        "neat_encoder_orange",
+        "neat_encoder_neat_apple",
+        "neat_encoder_neat_orange",
     ]
 
 

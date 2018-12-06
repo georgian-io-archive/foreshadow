@@ -11,13 +11,14 @@ import scipy.stats as ss
 from sklearn.pipeline import Pipeline
 
 from ..transformers.base import SmartTransformer
-from ..transformers.internals import BoxCox, FancyImputer, OneHotEncoder
+from ..transformers.internals import BoxCox, FancyImputer
 from ..transformers.externals import (
     MinMaxScaler,
     StandardScaler,
     RobustScaler,
     HashingEncoder,
     LabelEncoder,
+    OneHotEncoder,
 )
 
 
@@ -51,7 +52,7 @@ class Encoder(SmartTransformer):
     """Automatically Encodes Categorical Features
 
     If there are less than 30 categories, then OneHotEncoder is used, if there are more
-    then HashingEncoder is used.
+    then HashingEncoder is used. If used in a y_var context, LabelEncoder is used.
 
     """
 
@@ -62,7 +63,12 @@ class Encoder(SmartTransformer):
         if self.y_var:
             return LabelEncoder()
         if unique_count <= unique_num_cutoff:
-            return OneHotEncoder()
+            return OneHotEncoder(
+                cols=[col_name],
+                return_df=True,
+                use_cat_names=True,
+                handle_unknown="ignore",
+            )
         else:
             return HashingEncoder(n_components=30, cols=[col_name])
 
