@@ -51,7 +51,6 @@ def test_smart_scaler_neither():
 
 def test_smart_encoder_less_than_30_levels():
     import numpy as np
-    import scipy.stats as ss
 
     from foreshadow.transformers.smart import Encoder
     from foreshadow.transformers.externals import OneHotEncoder
@@ -64,7 +63,6 @@ def test_smart_encoder_less_than_30_levels():
 
 def test_smart_encoder_more_than_30_levels():
     import numpy as np
-    import scipy.stats as ss
 
     from foreshadow.transformers.smart import Encoder
     from foreshadow.transformers.externals import HashingEncoder
@@ -73,6 +71,22 @@ def test_smart_encoder_more_than_30_levels():
     gt_30_random_data = np.random.choice(31, size=500)
     smart_coder = Encoder()
     assert isinstance(smart_coder.fit(gt_30_random_data), HashingEncoder)
+
+
+def test_smart_encoder_y_var():
+    import numpy as np
+    import pandas as pd
+
+    from foreshadow.transformers.smart import Encoder
+    from foreshadow.transformers.externals import LabelEncoder
+
+    y_df = pd.DataFrame({"A": np.array([1, 2, 10] * 3)})
+    smart_coder = Encoder(y_var=True)
+
+    assert isinstance(smart_coder.fit(y_df), LabelEncoder)
+    assert np.array_equal(
+        smart_coder.transform(y_df).values.ravel(), np.array([0, 1, 2] * 3)
+    )
 
 
 def test_smart_impute_simple_none():
@@ -188,7 +202,7 @@ def test_preprocessor_hashencoder_no_name_collision():
 def test_smart_encoder_more_than_30_levels_with_overwritten_cutoff():
     import numpy as np
     from foreshadow.transformers.smart import Encoder
-    from foreshadow.transformers.internals import OneHotEncoder
+    from foreshadow.transformers.externals import OneHotEncoder
 
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)

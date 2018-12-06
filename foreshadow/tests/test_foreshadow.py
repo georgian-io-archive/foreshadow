@@ -501,3 +501,49 @@ def test_foreshadow_param_optimize_invalid_dict_key():
         _param_mapping(fs.pipeline, x_train, y_train)
 
     assert str(e.value) == "Invalid JSON Key"
+
+
+def test_core_foreshadow_example_regression():
+    import numpy as np
+    import pandas as pd
+    from sklearn.datasets import load_boston
+    from sklearn.linear_model import LinearRegression
+    from sklearn.metrics import r2_score
+    from sklearn.model_selection import train_test_split
+    import foreshadow as fs
+
+    np.random.seed(0)
+    boston = load_boston()
+    bostonX_df = pd.DataFrame(boston.data, columns=boston.feature_names)
+    bostony_df = pd.DataFrame(boston.target, columns=["target"])
+    X_train, X_test, y_train, y_test = train_test_split(
+        bostonX_df, bostony_df, test_size=0.2
+    )
+
+    model = fs.Foreshadow(estimator=LinearRegression())
+    model.fit(X_train, y_train)
+    score = r2_score(y_test, model.predict(X_test))
+    print("Boston score: %f" % score)
+
+
+def test_core_foreshadow_example_classification():
+    import numpy as np
+    import pandas as pd
+    from sklearn.datasets import load_iris
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import f1_score
+    from sklearn.model_selection import train_test_split
+    import foreshadow as fs
+
+    np.random.seed(0)
+    iris = load_iris()
+    irisX_df = pd.DataFrame(iris.data, columns=iris.feature_names)
+    irisy_df = pd.DataFrame(iris.target, columns=["target"])
+    X_train, X_test, y_train, y_test = train_test_split(
+        irisX_df, irisy_df, test_size=0.2
+    )
+
+    model = fs.Foreshadow(estimator=LogisticRegression())
+    model.fit(X_train, y_train)
+    score = f1_score(y_test, model.predict(X_test), average="weighted")
+    print("Iris score: %f" % score)

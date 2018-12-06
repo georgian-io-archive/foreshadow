@@ -4,6 +4,11 @@ Intent Registry
 
 from abc import ABCMeta
 
+from sklearn.base import BaseEstimator, TransformerMixin
+
+from ..transformers.base import SmartTransformer
+from .base import PipelineTemplateEntry, TransformerEntry
+
 _registry = {}
 
 
@@ -34,6 +39,89 @@ def _unregister_intent(cls_target):
         raise ValueError("Input must be either a string or a list of strings")
 
 
+def _process_templates(cls_target):
+    def _resolve_template(template):
+        if not all(
+            isinstance(s, PipelineTemplateEntry)
+            and (
+                (
+                    isinstance(s.transformer_entry, type)
+                    and issubclass(
+                        s.transformer_entry, (BaseEstimator, TransformerMixin)
+                    )
+                )
+                or (
+                    isinstance(s.transformer_entry, TransformerEntry)
+                    and isinstance(s.transformer_entry.transformer, type)
+                    and issubclass(
+                        s.transformer_entry.transformer,
+                        (BaseEstimator, TransformerMixin),
+                    )
+                    and isinstance(s.transformer_entry.args_dict, dict)
+                )
+            )
+            for s in template
+        ):
+            raise ValueError("Malformed transformer entry in template")
+
+        x_pipeline = [
+            (
+                s.transformer_name,
+                s.transformer_entry()
+                if callable(s.transformer_entry)
+                else s.transformer_entry.transformer(**s.transformer_entry.args_dict),
+            )
+            for s in template
+        ]
+        y_pipeline = [
+            (
+                s.transformer_name,
+                s.transformer_entry(
+                    **{
+                        "y_var": True
+                        for _ in range(1)
+                        if issubclass(s.transformer_entry, SmartTransformer)
+                    }
+                )
+                if callable(s.transformer_entry)
+                else s.transformer_entry.transformer(
+                    **s.transformer_entry.args_dict,
+                    **{
+                        "y_var": True
+                        for _ in range(1)
+                        if issubclass(s.transformer_entry.transformer, SmartTransformer)
+                    }
+                ),
+            )
+            for s in template
+            if s.y_var
+        ]
+
+        return x_pipeline, y_pipeline
+
+    def _process_template(cls_target, template_name):
+        t = getattr(cls_target, template_name)
+        attr_base = template_name.replace("_template", "")
+        if len(t) == 0:
+            setattr(cls_target, attr_base + "_x", t)
+            setattr(cls_target, attr_base + "_y", t)
+        else:
+            x_pipe, y_pipe = _resolve_template(t)
+            setattr(cls_target, attr_base + "_x", x_pipe)
+            setattr(cls_target, attr_base + "_y", y_pipe)
+
+        return lambda y_var=False: (
+            getattr(cls_target, attr_base + "_x")
+            if not y_var
+            else getattr(cls_target, attr_base + "_y")
+        )
+
+    cls_target.single_pipeline = _process_template(
+        cls_target, "single_pipeline_template"
+    )
+    cls_target.multi_pipeline = _process_template(cls_target, "multi_pipeline_template")
+
+
 def registry_eval(cls_target):
     """Retrieve intent class from registry dictionary
 
@@ -60,6 +148,7 @@ class _IntentRegistry(ABCMeta):
                 )
             )
         elif class_.__name__ is not "BaseIntent":
-            class_._check_required_class_attributes()
+            class_._check_intent()
+            _process_templates(class_)
             _register_intent(class_)
         return class_

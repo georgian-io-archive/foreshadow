@@ -7,7 +7,13 @@ module foreshadow.transformers
 
 import inspect
 
-from sklearn.preprocessing import StandardScaler, RobustScaler, MinMaxScaler, Imputer
+from sklearn.preprocessing import (
+    StandardScaler,
+    RobustScaler,
+    MinMaxScaler,
+    Imputer,
+    LabelEncoder,
+)
 from sklearn.decomposition import PCA
 from category_encoders import HashingEncoder, OneHotEncoder
 
