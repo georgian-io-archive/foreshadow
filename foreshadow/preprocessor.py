@@ -288,7 +288,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                     self._intent_map[k] = registry_eval(v["intent"])
 
                     # Assign custom pipeline map
-                    if len(v) > 1:
+                    if "pipeline" in v.keys():
                         self._pipeline_map[k] = resolve_pipeline(v["pipeline"])
 
             # Resolve postprocess section into a list of pipelines
@@ -296,7 +296,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                 self._multi_column_map = [
                     [v["name"], v["columns"], resolve_pipeline(v["pipeline"])]
                     for v in config["postprocess"]
-                    if len(v.items()) >= 3
+                    if validate_pipeline(v)
                 ]
 
             # Resolve intents section into a dictionary of intents and pipelines
@@ -495,9 +495,27 @@ def resolve_pipeline(pipeline_json):
         except Exception as e:
             raise ValueError("Could not import defined transformer {}".format(clsname))
 
-        pipe.append((name, cls(**params)))
+        try:
+            pipe.append((name, cls(**params)))
+        except TypeError as e:
+            raise ValueError(
+                "Params {} invalid for transfomer {}".format(params, cls.__name__)
+            )
 
     if len(pipe) == 0:
         return Pipeline([("null", None)])
 
     return Pipeline(pipe)
+
+
+def validate_pipeline(v):
+    """
+    Validates that a dictionary contains the correct keys for a pipline
+
+    Args:
+      v: (dict) Pipeline dictionary
+
+    Returns: True if dict is valid pipeline
+    """
+
+    return "columns" in v.keys() and "pipeline" in v.keys() and "name" in v.keys()

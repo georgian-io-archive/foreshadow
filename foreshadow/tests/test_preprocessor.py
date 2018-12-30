@@ -710,7 +710,9 @@ def test_preprocessor_invalid_json_transformer_params():
         )
 
     print(str(e.value))
-    assert str(e.value).startswith("JSON Configuration is malformed:")
+    assert str(e.value).startswith(
+        "Params {'BAD': 'INVALID'} invalid for transfomer Imputer"
+    )
 
 
 def test_preprocessor_get_param_no_pipeline():

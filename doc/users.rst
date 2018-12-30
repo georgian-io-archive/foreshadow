@@ -394,7 +394,7 @@ Column Override
       }
 
 This section is a dictionary containing two keys, each of which are columns in the Boston Housing set. First we will look at the value
-of the :code:`"crim"` key which is a list.
+of the :code:`"crim"` key which is a dict.
 
 
 .. code-block:: json
@@ -404,14 +404,14 @@ of the :code:`"crim"` key which is a list.
                   {"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}
         ]}
 
-The list is of form :code:`[intent_name, pipeline]`. Here we can see that this column has been assigned the intent :code:`"GenericIntent`
-and the pipeline :code:`[["StandardScaler", "Scaler", {"with_mean":false}]]`
+Here we can see that this column has been assigned the intent :code:`"GenericIntent`
+and the pipeline :code:`[{"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}]`
 
 This means that regardless of how Preprocessor automatically assigns Intents, the intent GenericIntent will always be assigned to the crim column.
 It also means that regardless of what intent is assigned to the column (this value is still important for multi-pipelines), the Preprocessor will always
 use this hard-coded pipeline to process that column. The column would still be processed by its initially identifited multi-pipeline unless explicitly overridden.
 
-The pipeline itself is defined by the following standard :code:`[[class, name, {param_key: param_value, ...}], ...]`
+The pipeline itself is defined by the following standard :code:`[{"transformer":class, "name":name, "parameters":{param_key: param_value, ...}], ...]`
 When preprocessor parses this configuration it will create a Pipeline object with the given transformers of the given class, name, and parameters.
 For example, the preprocessor above will look something like :code:`sklearn.pipeline.Preprocessor([('Scaler', StandardScaler(with_mean=False)))])`
 Any class implementing the sklearn Transformer standard (including SmartTransformer) can be used here.
@@ -420,7 +420,7 @@ That pipeline object will be fit on the column crim and will be used to transfor
 
 Moving on to the :code:`"indus"` column defined by the configuration. We can see that it has an intent override but not a pipeline override. This means
 that the default :code:`single_pipeline` for the given intent will be used to process that column. By default the serialized pipeline will have
-a list of partially matching Intents as a third item in the JSON list following the column name. These can likely be substituted into the Intent name with little or no
+a list of partially matching intents under the "all_matched_intents" dict key. These can likely be substituted into the Intent name with little or no
 compatibility issues.
 
 Intent Override
@@ -439,7 +439,7 @@ Intent Override
 
 
 Next, we will examine the :code:`intents` section. This section is used to override intents globally, unlike the columns section which overrode intents on a per-column
-basis. Any changes to intents defined in this section will apply across the entire Preprocessor pipeline.
+basis. Any changes to intents defined in this section will apply across the entire Preprocessor pipeline. However, individual pipelines defined in the columns section will override pipelines defined here.
 
 The keys in this section each represent the name of an intent. In this example, :code:`NumericIntent` is being overridden. The value is a dictionary with the
 keys :code:`"single"` and :code:`"multi"` respresent the single and multi pipeline overrides. The value of these pipelines is parsed through the same mechanism as the pipelines
@@ -458,13 +458,13 @@ Postprocessor Override
 
 
     {"postprocess":[
-        ["pca",["age"],[
-            ["PCA", "PCA", {"n_components":2}]
-        ]]
+        {"name":"pca","columns":["age"],"pipeline":[
+            {"class":"PCA", "name":"PCA", "parameters":{"n_components":2}}
+        ]}
     ]}
 
 Finally, in the :code:`postprocess` section of the configuration, you can manually define pipelines to execute on columns of your choosing. The
-content of this section is a list of lists of the form :code:`[[name, [cols, ...], pipeline], ...]`. Each list defines a pipeline that will
+content of this section is a list of dictionaries of the form :code:`[{"name":name, "columns":[cols, ...], "pipeline":pipeline}, ...]`. Each list defines a pipeline that will
 execute on certain columns. These processes execute after the intent pipelines!
 
 **IMPORTANT** There are two ways of selecting columns through the cols list. By default, specifying a column, or a list of columns, will automatically select

@@ -11,7 +11,7 @@
   },
 
   "postprocess":[
-	  {"BAD": "pca",
+	  {"name": "pca",
      "columns": ["age"],
      "pipeline": [
 	     {"transformer": "PCA", "name": "PCA", "parameters": {"n_components":4}}
@@ -21,10 +21,10 @@
   "intents":{
     "TestNumericIntent":{
       "single":[
-	      {"transformer": "Imputer", "name": "impute", "parameters": {"strategy":"INVALID"}}
+	      {"transformer": "Imputer", "name": "impute", "parameters": {"BAD":"INVALID"}}
       ],
       "multi":[
-	      {"transformer": "PCA", "name": "pca", "parameters": {"n_components":"INVALID"}}
+	      {"transformer": "PCA", "name": "pca", "parameters": {"n_components":"5"}}
       ]
     }
   }
