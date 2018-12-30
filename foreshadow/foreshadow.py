@@ -99,7 +99,7 @@ class Foreshadow(BaseEstimator):
             else:
                 raise ValueError("Invalid value passed as y_preprocessor")
         else:
-            self._y_preprocessor = Preprocessor()
+            self._y_preprocessor = Preprocessor(y_var=True)
 
     @property
     def estimator(self):

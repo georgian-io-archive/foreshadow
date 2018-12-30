@@ -9,6 +9,9 @@ from sklearn.utils.validation import check_is_fitted
 class BoxCox(BaseEstimator, TransformerMixin):
     """Transformer that performs BoxCox transformation on continuous numeric data."""
 
+    # TODO: Remove this internal function and use PowerTransform from sklearn when
+    #       sklearn version is upgraded to 0.20
+
     def fit(self, X, y=None):
         """Fits translate and lambda attributes to X data
 
@@ -21,7 +24,7 @@ class BoxCox(BaseEstimator, TransformerMixin):
         """
         X = check_array(X)
         min_ = np.nanmin(X)
-        self.translate_ = -min_ if min_ < 0 else 0
+        self.translate_ = -min_ if min_ <= 0 else 0
         _, self.lambda_ = boxcox(X + 1 + self.translate_)
         return self
 
@@ -52,5 +55,6 @@ class BoxCox(BaseEstimator, TransformerMixin):
         """
         X = check_array(X, copy=True)
         check_is_fitted(self, ["translate_", "lambda_"])
+        X = np.clip(X, a_min=-0.99, a_max=None)
         X = inv_boxcox1p(X, self.lambda_) - self.translate_
         return X

@@ -17,6 +17,7 @@ from ..transformers.externals import (
     StandardScaler,
     RobustScaler,
     HashingEncoder,
+    LabelEncoder,
     OneHotEncoder,
 )
 
@@ -51,7 +52,7 @@ class Encoder(SmartTransformer):
     """Automatically Encodes Categorical Features
 
     If there are less than 30 categories, then OneHotEncoder is used, if there are more
-    then HashingEncoder is used.
+    then HashingEncoder is used. If used in a y_var context, LabelEncoder is used.
 
     """
 
@@ -59,6 +60,8 @@ class Encoder(SmartTransformer):
         data = X.iloc[:, 0]
         col_name = X.columns[0]
         unique_count = len(data.value_counts())
+        if self.y_var:
+            return LabelEncoder()
         if unique_count <= unique_num_cutoff:
             return OneHotEncoder(
                 cols=[col_name],

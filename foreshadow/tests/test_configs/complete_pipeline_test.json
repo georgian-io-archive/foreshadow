@@ -31,5 +31,6 @@
 
   "experiments": {
     "intents.TestNumericIntent.single.impute": "range(1,20)"
-  }
+  },
+  "y_var": false
 }

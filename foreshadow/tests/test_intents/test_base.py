@@ -29,19 +29,6 @@ def test_mock_subclass_missing_is_intent():
     assert "has not implemented abstract methods is_intent" in str(e.value)
 
 
-def test_mock_subclass_missing_dtype():
-    from foreshadow.intents.base import BaseIntent
-
-    with pytest.raises(NotImplementedError) as e:
-
-        class TestIntent(BaseIntent):
-            @classmethod
-            def is_intent(cls, df):
-                return True
-
-    assert "Subclass must define" in str(e.value)
-
-
 def test_mock_subclass_missing_children():
     from foreshadow.intents.base import BaseIntent
 
@@ -57,7 +44,7 @@ def test_mock_subclass_missing_children():
     assert "Subclass must define" in str(e.value)
 
 
-def test_mock_subclass_missing_single_pipeline():
+def test_mock_subclass_missing_single_pipeline_template():
     from foreshadow.intents.base import BaseIntent
 
     with pytest.raises(NotImplementedError) as e:
@@ -73,7 +60,7 @@ def test_mock_subclass_missing_single_pipeline():
     assert "Subclass must define" in str(e.value)
 
 
-def test_mock_subclass_missing_multi_pipeline():
+def test_mock_subclass_missing_multi_pipeline_template():
     from foreshadow.intents.base import BaseIntent
 
     with pytest.raises(NotImplementedError) as e:
@@ -85,7 +72,7 @@ def test_mock_subclass_missing_multi_pipeline():
 
             dtype = "TEST"
             children = []
-            single_pipeline = []
+            single_pipeline_template = []
 
     assert "Subclass must define" in str(e.value)
 
@@ -101,8 +88,8 @@ def test_valid_mock_subclass():
 
         dtype = "TEST"
         children = []
-        single_pipeline = []
-        multi_pipeline = []
+        single_pipeline_template = []
+        multi_pipeline_template = []
 
     t = TestIntent()
     _unregister_intent(TestIntent.__name__)
@@ -115,8 +102,8 @@ def test_to_string():
     class TestIntent(BaseIntent):
         dtype = "TEST"
         children = ["TestIntent1", "TestIntent2"]
-        single_pipeline = []
-        multi_pipeline = []
+        single_pipeline_template = []
+        multi_pipeline_template = []
 
         @classmethod
         def is_intent(cls, df):
@@ -125,8 +112,8 @@ def test_to_string():
     class TestIntent1(TestIntent):
         dtype = "TEST"
         children = ["TestIntent11", "TestIntent12"]
-        single_pipeline = []
-        multi_pipeline = []
+        single_pipeline_template = []
+        multi_pipeline_template = []
 
         @classmethod
         def is_intent(cls, df):
@@ -135,8 +122,8 @@ def test_to_string():
     class TestIntent2(TestIntent):
         dtype = "TEST"
         children = []
-        single_pipeline = []
-        multi_pipeline = []
+        single_pipeline_template = []
+        multi_pipeline_template = []
 
         @classmethod
         def is_intent(cls, df):
@@ -145,8 +132,8 @@ def test_to_string():
     class TestIntent11(TestIntent1):
         dtype = "TEST"
         children = []
-        single_pipeline = []
-        multi_pipeline = []
+        single_pipeline_template = []
+        multi_pipeline_template = []
 
         @classmethod
         def is_intent(cls, df):
@@ -155,8 +142,8 @@ def test_to_string():
     class TestIntent12(TestIntent1):
         dtype = "TEST"
         children = []
-        single_pipeline = []
-        multi_pipeline = []
+        single_pipeline_template = []
+        multi_pipeline_template = []
 
         @classmethod
         def is_intent(cls, df):
@@ -183,8 +170,8 @@ def test_priority_traverse():
     class TestIntent(BaseIntent):
         dtype = "TEST"
         children = ["TestIntent1", "TestIntent2"]
-        single_pipeline = []
-        multi_pipeline = []
+        single_pipeline_template = []
+        multi_pipeline_template = []
 
         @classmethod
         def is_intent(cls, df):
@@ -193,8 +180,8 @@ def test_priority_traverse():
     class TestIntent1(TestIntent):
         dtype = "TEST"
         children = ["TestIntent11", "TestIntent12"]
-        single_pipeline = []
-        multi_pipeline = []
+        single_pipeline_template = []
+        multi_pipeline_template = []
 
         @classmethod
         def is_intent(cls, df):
@@ -203,8 +190,8 @@ def test_priority_traverse():
     class TestIntent2(TestIntent):
         dtype = "TEST"
         children = []
-        single_pipeline = []
-        multi_pipeline = []
+        single_pipeline_template = []
+        multi_pipeline_template = []
 
         @classmethod
         def is_intent(cls, df):
@@ -213,8 +200,8 @@ def test_priority_traverse():
     class TestIntent11(TestIntent1):
         dtype = "TEST"
         children = []
-        single_pipeline = []
-        multi_pipeline = []
+        single_pipeline_template = []
+        multi_pipeline_template = []
 
         @classmethod
         def is_intent(cls, df):
@@ -223,8 +210,8 @@ def test_priority_traverse():
     class TestIntent12(TestIntent1):
         dtype = "TEST"
         children = []
-        single_pipeline = []
-        multi_pipeline = []
+        single_pipeline_template = []
+        multi_pipeline_template = []
 
         @classmethod
         def is_intent(cls, df):
