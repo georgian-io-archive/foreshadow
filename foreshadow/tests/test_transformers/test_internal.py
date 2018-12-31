@@ -165,3 +165,43 @@ def test_drop_transformer_string_input():
     assert np.array_equal(
         x.values.ravel(), DropFeature().fit_transform(x).values.ravel()
     )
+
+
+def test_prepare_financial():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.internals import PrepareFinancial
+
+    x = pd.DataFrame(
+        ["Test", "(123)", "  123", "[123]", "123,", "123.", "-123", "123,123"]
+    )
+    expected = pd.DataFrame(
+        [np.nan, "(123)", "123", "[123]", "123,", "123.", "-123", "123,123"]
+    ).values
+    out = PrepareFinancial().fit_transform(x).values
+
+    assert np.all((out == expected) | (pd.isnull(out) == pd.isnull(expected)))
+
+
+def test_convert_financial_us():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.internals import ConvertFinancial
+
+    x = pd.DataFrame(["0", "000", "0.9", "[0.9]", "-.3", "30.00", "1,000"])
+    expected = pd.DataFrame([0.0, 0.0, 0.9, -0.9, -0.3, 30.0, 1000.0])
+
+    assert np.array_equal(expected.values, ConvertFinancial().fit_transform(x).values)
+
+
+def test_convert_financial_eu():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.internals import ConvertFinancial
+
+    x = pd.DataFrame(["0", "000", "0,9", "[0,9]", "-,3", "30,00", "1.000"])
+    expected = pd.DataFrame([0, 0, 0.9, -0.9, -0.3, 30.0, 1000.0])
+
+    assert np.array_equal(
+        expected.values, ConvertFinancial(is_euro=True).fit_transform(x).values
+    )

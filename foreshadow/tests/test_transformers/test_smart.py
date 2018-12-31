@@ -208,3 +208,35 @@ def test_smart_encoder_more_than_30_levels_with_overwritten_cutoff():
     gt_30_random_data = np.random.choice(31, size=500)
     smart_coder = Encoder(unique_num_cutoff=35)
     assert isinstance(smart_coder.fit(gt_30_random_data), OneHotEncoder)
+
+
+def test_smart_financial_cleaner_us():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.smart import FinancialCleaner
+
+    x = pd.DataFrame(
+        ["Test", "0", "000", "1,000", "0.9", "[0.9]", "-.3", "30.00", "3,000.35"]
+    )
+    expected = pd.DataFrame(
+        [np.nan, 0.0, 0.0, 1000, 0.9, -0.9, -0.3, 30.0, 3000.35]
+    ).values
+    out = FinancialCleaner().fit_transform(x).values
+
+    assert np.all((out == expected) | (pd.isnull(out) == pd.isnull(expected)))
+
+
+def test_smart_financial_cleaner_eu():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.smart import FinancialCleaner
+
+    x = pd.DataFrame(
+        ["Test", "0", "000", "1.000", "0,9", "[0,9]", "-,3", "30,00", "3.000,35"]
+    )
+    expected = pd.DataFrame(
+        [np.nan, 0.0, 0.0, 1000, 0.9, -0.9, -0.3, 30.0, 3000.35]
+    ).values
+    out = FinancialCleaner().fit_transform(x).values
+
+    assert np.all((out == expected) | (pd.isnull(out) == pd.isnull(expected)))

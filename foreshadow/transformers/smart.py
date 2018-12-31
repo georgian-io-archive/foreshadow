@@ -6,6 +6,8 @@ wrapped or transformed. Only classes extending SmartTransformer should exist her
 
 """
 
+from copy import deepcopy
+
 import numpy as np
 import scipy.stats as ss
 from sklearn.pipeline import Pipeline
@@ -135,3 +137,50 @@ class MultiImputer(SmartTransformer):
             return self._choose_multi(X)
         else:
             return Pipeline([("null", None)])
+
+
+class MultiImputer(SmartTransformer):
+    """Automatically chooses a method of Multiple Imputation if neccesary
+
+    By default, currently uses KNN multiple imputation as it is the fastest, and most
+    flexible.
+
+    """
+
+    def _choose_multi(self, X):
+        # For now simply default to KNN multiple imputation (generic case)
+        # The rest of them seem to have constraints and no published directly comparable
+        # performance
+
+        # Impute using KNN
+        return FancyImputer("KNN", k=3)
+
+    def _get_transformer(self, X, y=None, **fit_params):
+        if X.isnull().values.any():
+            return self._choose_multi(X)
+        else:
+            return Pipeline([("null", None)])
+
+
+class FinancialCleaner(SmartTransformer):
+    """Automatically choose apropriate parameters for a financial column"""
+
+    def _get_transformer(self, X, y=None, **fit_params):
+        # number_regex = r'(?<!\S)(\[|\()?(((-(?=[0-9]))|(-\.(?=[0-9])))?[0-9]*((\.(?=[0-9]))|((?<=[0-9]))\.)?[0-9]*)(\)|\])?(?!\S)'
+
+        us_pipeline = Pipeline(
+            [("prepare", PrepareFinancial()), ("convert", ConvertFinancial())]
+        )
+        eu_pipeline = Pipeline(
+            [
+                ("prepare", PrepareFinancial()),
+                ("convert", ConvertFinancial(is_euro=True)),
+            ]
+        )
+        us_data = deepcopy(us_pipeline).fit_transform(X)
+        eu_data = deepcopy(eu_pipeline).fit_transform(X)
+
+        if eu_data.isnull().values.sum() < us_data.isnull().values.sum():
+            return eu_pipeline
+        else:
+            return us_pipeline
