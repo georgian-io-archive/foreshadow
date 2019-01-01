@@ -1,6 +1,28 @@
 import pytest
 
 
+def test_dummy_encoder():
+    import numpy as np
+    import pandas as pd
+
+    from foreshadow.transformers.internals import DummyEncoder
+
+    data = pd.DataFrame({"test": ["a", "a,b,c", "a,b", "a,c"]})
+    de = DummyEncoder()
+    de.fit(data)
+    df = de.transform(data)
+
+    check = pd.DataFrame(
+        {
+            "test_DummyEncoder_a": [1, 1, 1, 1],
+            "test_DummyEncoder_b": [0, 1, 1, 0],
+            "test_DummyEncoder_c": [0, 1, 0, 1],
+        }
+    )
+
+    assert check.equals(df)
+
+
 def test_box_cox():
     import numpy as np
     import pandas as pd

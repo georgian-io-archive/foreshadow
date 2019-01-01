@@ -11,7 +11,7 @@ import scipy.stats as ss
 from sklearn.pipeline import Pipeline
 
 from ..transformers.base import SmartTransformer
-from ..transformers.internals import BoxCox, FancyImputer
+from ..transformers.internals import BoxCox, FancyImputer, DummyEncoder
 from ..transformers.externals import (
     MinMaxScaler,
     StandardScaler,
@@ -52,17 +52,31 @@ class Encoder(SmartTransformer):
     """Automatically Encodes Categorical Features
 
     If there are less than 30 categories, then OneHotEncoder is used, if there are more
-    then HashingEncoder is used. If used in a y_var context, LabelEncoder is used.
+    then HashingEncoder is used. If the columns containing a delimmeter exceed delim_cuttoff then a
+    DummyEncoder is used (set cutoff to -1 to force). If used in a y_var context, LabelEncoder is used.
 
     """
 
-    def _get_transformer(self, X, y=None, unique_num_cutoff=30, **fit_params):
+    def _get_transformer(
+        self, X, y=None, unique_num_cutoff=30, delim_cutoff=0.5, **fit_params
+    ):
         data = X.iloc[:, 0]
         col_name = X.columns[0]
         unique_count = len(data.value_counts())
+
+        delimeters = [",", ";", "\t"]
+        delim_count = [
+            data.astype("str").str.count(d).fillna(0).astype(bool).sum(axis=0)
+            for d in delimeters
+        ]
+        delim_ratio = np.sum(delim_count) / data.count()
+
         if self.y_var:
             return LabelEncoder()
-        if unique_count <= unique_num_cutoff:
+        elif delim_ratio >= delim_cutoff:
+            delim = delimeters[delim_count.index(max(delim_count))]
+            return DummyEncoder(delimeter=delim)
+        elif unique_count <= unique_num_cutoff:
             return OneHotEncoder(
                 cols=[col_name],
                 return_df=True,

@@ -199,6 +199,17 @@ def test_preprocessor_hashencoder_no_name_collision():
     assert len(set(output.columns)) == 60
 
 
+def test_smart_encoder_delimmited():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.smart import Encoder
+    from foreshadow.transformers.internals import DummyEncoder
+
+    data = pd.DataFrame({"test": ["a", "a,b,c", "a,b", "a,c"]})
+    smart_coder = Encoder()
+    assert isinstance(smart_coder.fit(data), DummyEncoder)
+
+
 def test_smart_encoder_more_than_30_levels_with_overwritten_cutoff():
     import numpy as np
     from foreshadow.transformers.smart import Encoder
