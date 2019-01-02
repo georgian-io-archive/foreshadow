@@ -371,6 +371,24 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             "y_var": self.y_var,
         }
 
+    def summarize(self, df):
+        """Uses each column's selected intent to generate statistics
+
+            Args:
+                df (pandas.DataFrame): The DataFrame to analyze
+
+            Returns: A json dictionary of values with each key representing
+                a column and its the value representing the results of that 
+                intent's column_summary() function
+        """
+        return {
+            k: {
+                "intent": self._intent_map[k].__name__,
+                "data": self._intent_map[k].column_summary(df[k]),
+            }
+            for k in self._intent_map.keys()
+        }
+
     def fit(self, X, y=None, **fit_params):
         """Fits internal pipeline to X data
 
