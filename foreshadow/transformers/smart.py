@@ -138,29 +138,7 @@ class MultiImputer(SmartTransformer):
         return FancyImputer("KNN", k=3)
 
     def _get_transformer(self, X, y=None, **fit_params):
-        if X.isnull().values.any():
-            return self._choose_multi(X)
-        else:
-            return Pipeline([("null", None)])
-
-
-class MultiImputer(SmartTransformer):
-    """Automatically chooses a method of Multiple Imputation if neccesary
-
-    By default, currently uses KNN multiple imputation as it is the fastest, and most
-    flexible.
-
-    """
-
-    def _choose_multi(self, X):
-        # For now simply default to KNN multiple imputation (generic case)
-        # The rest of them seem to have constraints and no published directly comparable
-        # performance
-
-        # Impute using KNN
-        return FancyImputer("KNN", k=3)
-
-    def _get_transformer(self, X, y=None, **fit_params):
+        print('entered')
         if X.isnull().values.any():
             return self._choose_multi(X)
         else:
