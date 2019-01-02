@@ -58,7 +58,7 @@ def test_smart_encoder_less_than_30_levels():
     np.random.seed(0)
     leq_30_random_data = np.random.choice(30, size=500)
     smart_coder = Encoder()
-    assert isinstance(smart_coder.fit(leq_30_random_data), OneHotEncoder)
+    assert isinstance(smart_coder.fit(leq_30_random_data).steps[-1][1], OneHotEncoder)
 
 
 def test_smart_encoder_more_than_30_levels():
@@ -207,4 +207,4 @@ def test_smart_encoder_more_than_30_levels_with_overwritten_cutoff():
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
     smart_coder = Encoder(unique_num_cutoff=35)
-    assert isinstance(smart_coder.fit(gt_30_random_data), OneHotEncoder)
+    assert isinstance(smart_coder.fit(gt_30_random_data).steps[-1][1], OneHotEncoder)

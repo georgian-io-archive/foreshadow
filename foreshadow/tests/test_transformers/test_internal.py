@@ -76,7 +76,7 @@ def test_transformer_onehotencoder_fit_transform():
     from foreshadow.transformers.externals import OneHotEncoder
 
     df = pd.DataFrame({"neat": ["apple", "apple", "orange", "apple", "orange"]})
-    ohe = OneHotEncoder(use_cat_names=True, cols=["neat"], handle_unknown="ignore")
+    ohe = OneHotEncoder(use_cat_names=True, handle_unknown="ignore")
     assert ohe.fit(df) == ohe
     assert list(ohe.transform(df)) == [
         "neat_OneHotEncoder_neat_apple",
@@ -90,11 +90,7 @@ def test_transformer_onehotencoder_fit_transform_keep_cols():
 
     df = pd.DataFrame({"neat": ["apple", "apple", "orange", "apple", "orange"]})
     ohe = OneHotEncoder(
-        keep_columns=True,
-        name="encoder",
-        use_cat_names=True,
-        cols=["neat"],
-        handle_unknown="ignore",
+        keep_columns=True, name="encoder", use_cat_names=True, handle_unknown="ignore"
     )
     assert ohe.fit(df) == ohe
     assert list(ohe.transform(df)) == [
@@ -165,3 +161,31 @@ def test_drop_transformer_string_input():
     assert np.array_equal(
         x.values.ravel(), DropFeature().fit_transform(x).values.ravel()
     )
+
+
+def test_uncommon_remover_integers():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.internals import UncommonRemover
+
+    x = pd.DataFrame({"A": np.array([0, 2, 10] + [1] * 400 + [3] * 400)})
+    standard = UncommonRemover().fit_transform(x)
+    set_replacement = UncommonRemover(replacement=1).fit_transform(x)
+
+    assert np.array_equal(np.unique(standard), np.array([1, 3, 4]))
+
+    assert np.array_equal(np.unique(set_replacement), np.array([1, 3]))
+
+
+def test_uncommon_remover_strings():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.internals import UncommonRemover
+
+    x = pd.DataFrame({"A": np.array(["A", "B", "C"] + ["D"] * 400 + ["E"] * 400)})
+    standard = UncommonRemover().fit_transform(x)
+    set_replacement = UncommonRemover(replacement="D").fit_transform(x)
+
+    assert np.array_equal(np.unique(standard), np.array(["ABC", "D", "E"]))
+
+    assert np.array_equal(np.unique(set_replacement), np.array(["D", "E"]))
