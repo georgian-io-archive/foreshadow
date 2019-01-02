@@ -138,7 +138,6 @@ class MultiImputer(SmartTransformer):
         return FancyImputer("KNN", k=3)
 
     def _get_transformer(self, X, y=None, **fit_params):
-        print('entered')
         if X.isnull().values.any():
             return self._choose_multi(X)
         else:
