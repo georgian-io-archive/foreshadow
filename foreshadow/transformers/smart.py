@@ -13,7 +13,12 @@ import scipy.stats as ss
 from sklearn.pipeline import Pipeline
 
 from ..transformers.base import SmartTransformer
-from ..transformers.internals import BoxCox, FancyImputer
+from ..transformers.internals import (
+    BoxCox,
+    FancyImputer,
+    PrepareFinancial,
+    ConvertFinancial,
+)
 from ..transformers.externals import (
     MinMaxScaler,
     StandardScaler,

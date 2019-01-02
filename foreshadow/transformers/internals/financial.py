@@ -76,8 +76,8 @@ class ConvertFinancial(BaseEstimator, TransformerMixin):
 
             # Filter for validity
             X[c] = X[c].apply(
-                lambda x: self.clean_us.match(x).group()
-                if isinstance(x, str) and self.clean_us.match(x)
+                lambda x: re.match(self.clean_us, x).group()
+                if isinstance(x, str) and re.match(self.clean_us, x)
                 else np.nan
             )
 
