@@ -8,8 +8,10 @@ from sklearn.utils.validation import check_is_fitted
 class DummyEncoder(BaseEstimator, TransformerMixin):
     """Dummy encodes delimmited data within column of dataframe"""
 
-    def __init__(self, delimeter=","):
+    def __init__(self, delimeter=",", other_cutoff=0.1, other_name="other"):
         self.delimeter = delimeter
+        self.other_cutoff = other_cutoff
+        self.other_name = other_name
 
     def fit(self, X, y=None):
         """Determines dummy categories
@@ -23,7 +25,12 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         """
         X = X.iloc[:, 0]
         X = X.str.get_dummies(sep=self.delimeter)
-        self.categories = list(X)
+        self.other = (X.fillna(0).sum(axis=0) / X.count()) < self.other_cutoff
+
+        self.categories = [c for c in list(X) if not self.other[c]]
+        self.other = [c for c in list(X) if self.other[c]]
+        if len(self.other) > 0:
+            self.categories += [self.other_name]
 
         return self
 
@@ -41,7 +48,9 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         check_is_fitted(self, ["categories"])
 
         kwargs = {
-            k: X.applymap(separate(k, self.delimeter)).iloc[:, 0].tolist()
+            k: X.applymap(separate(k, self.delimeter, self.other, self.other_name))
+            .iloc[:, 0]
+            .tolist()
             for k in self.categories
         }
         df = pd.DataFrame(kwargs)
@@ -49,8 +58,12 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         return df
 
 
-def separate(cat, delim):
+def separate(cat, delim, other, other_name):
     def sep(X):
+        if cat == other_name:
+            if set(other) & set(X.split(delim)):
+                return 1
+            return 0
         if cat in X.split(delim):
             return 1
         return 0

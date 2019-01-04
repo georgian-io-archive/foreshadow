@@ -8,6 +8,7 @@ wrapped or transformed. Only classes extending SmartTransformer should exist her
 
 import numpy as np
 import scipy.stats as ss
+import pandas as pd
 from sklearn.pipeline import Pipeline
 
 from ..transformers.base import SmartTransformer
@@ -57,24 +58,21 @@ class Encoder(SmartTransformer):
 
     """
 
-    def _get_transformer(
-        self, X, y=None, unique_num_cutoff=30, delim_cutoff=0.5, **fit_params
-    ):
+    def _get_transformer(self, X, y=None, unique_num_cutoff=30, **fit_params):
         data = X.iloc[:, 0]
         col_name = X.columns[0]
         unique_count = len(data.value_counts())
 
         delimeters = [",", ";", "\t"]
         delim_count = [
-            data.astype("str").str.count(d).fillna(0).astype(bool).sum(axis=0)
-            for d in delimeters
+            len(list(data.astype("str").str.get_dummies(sep=d))) for d in delimeters
         ]
-        delim_ratio = np.sum(delim_count) / data.count()
+        delim_diff = min(delim_count) - len(list(pd.get_dummies(data)))
 
         if self.y_var:
             return LabelEncoder()
-        elif delim_ratio >= delim_cutoff:
-            delim = delimeters[delim_count.index(max(delim_count))]
+        elif delim_diff < 0:
+            delim = delimeters[delim_count.index(min(delim_count))]
             return DummyEncoder(delimeter=delim)
         elif unique_count <= unique_num_cutoff:
             return OneHotEncoder(
