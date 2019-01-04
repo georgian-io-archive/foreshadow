@@ -164,10 +164,12 @@ def _set_path(key, value, original):
         temp[path[-1]] = value
 
     except KeyError as e:
-        raise ValueError("Invalid JSON Key {} in {}".format(p, temp))
+        raise ValueError("Invalid JSON Key {} in {}".format(curr_key, temp))
 
     except ValueError as e:
-        raise ValueError("Attempted to index list {} with value {}".format(temp, p))
+        raise ValueError(
+            "Attempted to index list {} with value {}".format(temp, curr_key)
+        )
 
 
 def _extract_config_params(param):
