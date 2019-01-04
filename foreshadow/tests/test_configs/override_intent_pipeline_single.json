@@ -6,7 +6,7 @@
   "intents":{
     "TestNumericIntent":{
       "single":[
-        ["Imputer", "impute", {"strategy":"mean"}]
+	      {"transformer": "Imputer", "name": "impute", "parameters": {"strategy":"mean"}}
       ]
     }
   }
