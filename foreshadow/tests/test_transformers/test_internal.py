@@ -172,9 +172,11 @@ def test_uncommon_remover_integers():
     standard = UncommonRemover().fit_transform(x)
     set_replacement = UncommonRemover(replacement=1).fit_transform(x)
 
-    assert np.array_equal(np.unique(standard), np.array([1, 3, 4]))
-
-    assert np.array_equal(np.unique(set_replacement), np.array([1, 3]))
+    assert np.array_equal(
+        pd.unique(standard.values.ravel()),
+        np.array(["UncommonRemover_Other", 1, 3], dtype="object"),
+    )
+    assert np.array_equal(pd.unique(set_replacement.values.ravel()), np.array([1, 3]))
 
 
 def test_uncommon_remover_strings():
@@ -186,6 +188,10 @@ def test_uncommon_remover_strings():
     standard = UncommonRemover().fit_transform(x)
     set_replacement = UncommonRemover(replacement="D").fit_transform(x)
 
-    assert np.array_equal(np.unique(standard), np.array(["ABC", "D", "E"]))
-
-    assert np.array_equal(np.unique(set_replacement), np.array(["D", "E"]))
+    assert np.array_equal(
+        pd.unique(standard.values.ravel()),
+        np.array(["UncommonRemover_Other", "D", "E"], dtype="object"),
+    )
+    assert np.array_equal(
+        pd.unique(set_replacement.values.ravel()), np.array(["D", "E"])
+    )

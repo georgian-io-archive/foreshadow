@@ -64,31 +64,41 @@ class Encoder(SmartTransformer):
         Args:
             unique_num_cutoff (float): number of allowable unique categories
             merge_thresh (float): threshold passed into UncommonRemover if selected
+            uncommon_reval (bool): add a step to remove uncommon values and
+                re-evaluate the smart encoder
 
     """
 
-    def __init__(self, unique_num_cutoff=30, merge_thresh=0.01, **kwargs):
+    def __init__(
+        self, unique_num_cutoff=30, merge_thresh=0.01, remove_uncommon=True, **kwargs
+    ):
         self.unique_num_cutoff = unique_num_cutoff
         self.merge_thresh = merge_thresh
+        self.remove_uncommon = remove_uncommon
         super().__init__(**kwargs)
 
     def _get_transformer(self, X, y=None, **fit_params):
         data = X.iloc[:, 0]
-        col_name = X.columns[0]
         unique_count = len(data.value_counts())
         if self.y_var:
             return LabelEncoder()
-        if unique_count <= self.unique_num_cutoff:
+        if self.remove_uncommon:
             return Pipeline(
                 [
                     ("ur", UncommonRemover(threshold=self.merge_thresh)),
                     (
-                        "ohe",
-                        OneHotEncoder(
-                            return_df=True, use_cat_names=True, handle_unknown="ignore"
+                        "sme2",
+                        Encoder(
+                            unique_num_cutoff=self.unique_num_cutoff,
+                            merge_thresh=self.merge_thresh,
+                            remove_uncommon=False,
                         ),
-                    ),
+                    ),  # recursive call
                 ]
+            )
+        if unique_count <= self.unique_num_cutoff:
+            return OneHotEncoder(
+                return_df=True, use_cat_names=True, handle_unknown="ignore"
             )
 
         else:
