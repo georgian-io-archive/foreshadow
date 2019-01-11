@@ -42,7 +42,7 @@ class FinancialIntent(NumericIntent):
             r"(?<!\S)(\[|\()?((-(?=[0-9\,]))?([0-9](\.(?=[0-9]{3}))?)*((\,(?=[0-9]))|((?<=[0-9]))\,)?[0-9]*)(\)|\])?%?(?!\S)"
         )
 
-        data = df.ix[:, 0]
+        data = df.iloc[:, 0].dropna()
 
         return ((data.str.match(us_num).sum()) / len(data) > 0.2) or (
             (data.str.match(eu_num).sum()) / len(data) > 0.2

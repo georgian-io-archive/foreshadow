@@ -173,10 +173,20 @@ def test_prepare_financial():
     from foreshadow.transformers.internals import PrepareFinancial
 
     x = pd.DataFrame(
-        ["Test", "(123)", "  123", "[123]", "123,", "123.", "-123", "123,123"]
+        [
+            "Test",
+            "(123)",
+            "  123",
+            "[123]",
+            "123,",
+            "123.",
+            "-123",
+            "123,123",
+            "ab123.3",
+        ]
     )
     expected = pd.DataFrame(
-        [np.nan, "(123)", "123", "[123]", "123,", "123.", "-123", "123,123"]
+        [np.nan, "(123)", "123", "[123]", "123,", "123.", "-123", "123,123", "123.3"]
     ).values
     out = PrepareFinancial().fit_transform(x).values
 
@@ -188,10 +198,14 @@ def test_convert_financial_us():
     import pandas as pd
     from foreshadow.transformers.internals import ConvertFinancial
 
-    x = pd.DataFrame(["0", "000", "0.9", "[0.9]", "-.3", "30.00", "1,000"])
-    expected = pd.DataFrame([0.0, 0.0, 0.9, -0.9, -0.3, 30.0, 1000.0])
-
-    assert np.array_equal(expected.values, ConvertFinancial().fit_transform(x).values)
+    x = pd.DataFrame(
+        ["0", "000", "0.9", "[0.9]", "-.3", "30.00", "1,000", "1.000,000", "1.1.1"]
+    )
+    expected = pd.DataFrame(
+        [0.0, 0.0, 0.9, -0.9, -0.3, 30.0, 1000.0, np.nan, np.nan]
+    ).values
+    out = ConvertFinancial().fit_transform(x).values
+    assert np.all((out == expected) | (pd.isnull(out) == pd.isnull(expected)))
 
 
 def test_convert_financial_eu():
@@ -199,9 +213,11 @@ def test_convert_financial_eu():
     import pandas as pd
     from foreshadow.transformers.internals import ConvertFinancial
 
-    x = pd.DataFrame(["0", "000", "0,9", "[0,9]", "-,3", "30,00", "1.000"])
-    expected = pd.DataFrame([0, 0, 0.9, -0.9, -0.3, 30.0, 1000.0])
-
-    assert np.array_equal(
-        expected.values, ConvertFinancial(is_euro=True).fit_transform(x).values
+    x = pd.DataFrame(
+        ["0", "000", "0,9", "[0,9]", "-,3", "30,00", "1.000", "1,000.000", "1.1.1"]
     )
+    expected = pd.DataFrame(
+        [0, 0, 0.9, -0.9, -0.3, 30.0, 1000.0, np.nan, np.nan]
+    ).values
+    out = ConvertFinancial(is_euro=True).fit_transform(x).values
+    assert np.all((out == expected) | (pd.isnull(out) == pd.isnull(expected)))

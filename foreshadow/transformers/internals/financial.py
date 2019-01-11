@@ -69,17 +69,21 @@ class ConvertFinancial(BaseEstimator, TransformerMixin):
 
         """
 
+        def get_match_results(val):
+            if isinstance(val, str):
+                match = re.compile(self.clean_us).match(val)
+                if match:
+                    return match.group()
+
+            return np.nan
+
         X = X.copy()
         for c in X:
             if self.is_euro:
                 X[c] = X[c].str.translate(str.maketrans(",.", ".,"))
 
             # Filter for validity
-            X[c] = X[c].apply(
-                lambda x: re.match(self.clean_us, x).group()
-                if isinstance(x, str) and re.match(self.clean_us, x)
-                else np.nan
-            )
+            X[c] = X[c].apply(get_match_results)
 
             X[c] = pd.to_numeric(
                 X[c]
