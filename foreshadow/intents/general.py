@@ -13,23 +13,37 @@ from ..transformers.internals import DropFeature
 from ..transformers.smart import SimpleImputer, MultiImputer, Scaler, Encoder
 
 
-def mode_freq(series, count=10):
+def _mode_freq(s, count=10):
     """Computes the mode and the most frequent values
 
         Args:
-            series (pandas.Series): the series to analyze
+            s (pandas.Series): the series to analyze
             count (int): the n number of most frequent values
 
+        Returns:
+            A tuple with the list of modes and (the 10 most common values, their
+            frequency counts, % frequencies)
     """
+    mode = s.mode().values.tolist()
+    vc = s.value_counts().nlargest(count).reset_index()
+    vc["PCT"] = vc.iloc[:, -1] / s.size
+    return (mode, vc.values.tolist())
 
-    vc = series.value_counts()
-    if series[~series.isnull()].nunique() == 1:
-        return None, []
-    else:
-        mode = series.mode().values.tolist()
-        if len(mode) == 1:
-            mode = mode[0]
-        return (mode, vc.nlargest(count).reset_index().values.tolist())
+
+def _outliers(s, count=10):
+    """Computes the mode and the most frequent values
+
+        Args:
+            s (pandas.Series): the series to analyze
+            count (int): the n largest (magnitude) outliers
+
+        Returns a pandas.Series of outliers
+    """
+    out_ser = s[np.abs(s - s.mean()) > (3 * s.std())]
+    out_df = out_ser.to_frame()
+    out_df["selector"] = out_ser.abs()
+
+    return out_df.loc[out_df["selector"].nlargest(count).index].iloc[:, 0]
 
 
 class GenericIntent(BaseIntent):
@@ -112,17 +126,14 @@ class NumericIntent(GenericIntent):
                 10outliers: largest 10 outliers
 
         """
+
         data = df.ix[:, 0]
         nan_num = int(data.isnull().sum())
         invalid_num = int(
             pd.to_numeric(df.ix[:, 0], errors="coerce").isnull().sum() - nan_num
         )
-        outliers = (
-            data[np.abs(data - data.mean()) > (3 * data.std())]
-            .nlargest(10)
-            .values.tolist()
-        )
-        mode, top10 = mode_freq(data)
+        outliers = _outliers(data).values.tolist()
+        mode, top10 = _mode_freq(data)
 
         return OrderedDict(
             [
@@ -182,6 +193,6 @@ class CategoricalIntent(GenericIntent):
         """
         data = df.ix[:, 0]
         nan_num = int(data.isnull().sum())
-        mode, top10 = mode_freq(data)
+        mode, top10 = _mode_freq(data)
 
         return OrderedDict([("nan", nan_num), ("mode", mode), ("top10", top10)])
