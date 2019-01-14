@@ -293,8 +293,7 @@ Preprocessor uses a hierarchical structure defined by the superclass (parent) an
 and intent. There is also a priority order defined in each intent to break ties at the same level.
 
 This tree-like structure which has :py:obj:`GenericIntent <foreshadow.intents.GenericIntent>` as its
-root node is used to prioritize Intents. Intents further down the tree more precisely define a feature, thus the Intent
-farthest from the root node that matches a given feature is assigned to it.
+root node is used to prioritize Intents. Intents further down the tree more precisely define a feature and intents further to the right hold a higher priority than those to the left, thus the Intent represented by the right-most node of the tree that matches will be selected.
 
 Each Intent contains a :code:`multi-pipeline` and a :code:`single-pipeline`. These objects are lists of tuples of the form
 :code:`[('name', TransformerObject()),...]` and are used by Preprocessor to construct sklearn Pipeline objects.

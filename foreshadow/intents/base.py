@@ -127,7 +127,7 @@ class BaseIntent(metaclass=_IntentRegistry):
             node = lqueue.pop(0)
             if len(node.children) > 0:
                 node_children = map(registry_eval, node.children)
-                lqueue.extend(node_children)
+                lqueue[0:0] = node_children  # Append to beginning to do depth first
 
     @classmethod
     @check_base
