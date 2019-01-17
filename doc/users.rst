@@ -293,8 +293,7 @@ Preprocessor uses a hierarchical structure defined by the superclass (parent) an
 and intent. There is also a priority order defined in each intent to break ties at the same level.
 
 This tree-like structure which has :py:obj:`GenericIntent <foreshadow.intents.GenericIntent>` as its
-root node is used to prioritize Intents. Intents further down the tree more precisely define a feature, thus the Intent
-farthest from the root node that matches a given feature is assigned to it.
+root node is used to prioritize Intents. Intents further down the tree more precisely define a feature and intents further to the right hold a higher priority than those to the left, thus the Intent represented by the right-most node of the tree that matches will be selected.
 
 Each Intent contains a :code:`multi-pipeline` and a :code:`single-pipeline`. These objects are lists of tuples of the form
 :code:`[('name', TransformerObject()),...]` and are used by Preprocessor to construct sklearn Pipeline objects.
@@ -351,23 +350,25 @@ An example configuration for processing the Boston Housing dataset is below. We 
 
     {
       "columns":{
-        "crim":["GenericIntent",
-                [
-                  ["StandardScaler", "Scaler", {"with_mean":false}]
-                ]],
-        "indus":["GenericIntent"]
+        "crim":{"intent": "GenericIntent",
+                "pipeline": [
+                  {"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}
+                ]},
+        "indus":{"intent": "GenericIntent"}
       },
 
       "postprocess":[
-        ["pca",["age"],[
-          ["PCA", "PCA", {"n_components":2}]
-        ]]
+        {"name":"pca",
+         "columns": ["age"],
+         "pipeline": [
+          {"transformer": "PCA", "name": "PCA", "parameters": {"n_components":2}}
+        ]}
       ],
 
       "intents":{
         "NumericIntent":{
           "single":[
-            ["Imputer", "impute", {"strategy":"mean"}]
+            {"transformer": "Imputer", "name": "impute", "parameters": {"strategy":"mean"}}
           ],
           "multi":[]
         }
@@ -383,32 +384,33 @@ Column Override
 
 .. code-block:: json
 
-      {"columns":{
-        "crim":["GenericIntent",
-                [
-                  ["StandardScaler", "Scaler", {"with_mean":false}]
-                ]],
-        "indus":["GenericIntent"]
-      }}
+      "columns":{
+        "crim":{"intent": "GenericIntent",
+                "pipeline": [
+                  {"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}
+                ]},
+        "indus":{"intent": "GenericIntent"}
+      }
 
 This section is a dictionary containing two keys, each of which are columns in the Boston Housing set. First we will look at the value
-of the :code:`"crim"` key which is a list.
+of the :code:`"crim"` key which is a dict.
 
 
 .. code-block:: json
+        
+        {"intent": "GenericIntent",
+                "pipeline": [
+                  {"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}
+        ]}
 
-    ["GenericIntent",[
-        ["StandardScaler", "Scaler", {"with_mean":false}]
-    ]]
-
-The list is of form :code:`[intent_name, pipeline]`. Here we can see that this column has been assigned the intent :code:`"GenericIntent`
-and the pipeline :code:`[["StandardScaler", "Scaler", {"with_mean":false}]]`
+Here we can see that this column has been assigned the intent :code:`"GenericIntent`
+and the pipeline :code:`[{"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}]`
 
 This means that regardless of how Preprocessor automatically assigns Intents, the intent GenericIntent will always be assigned to the crim column.
 It also means that regardless of what intent is assigned to the column (this value is still important for multi-pipelines), the Preprocessor will always
 use this hard-coded pipeline to process that column. The column would still be processed by its initially identifited multi-pipeline unless explicitly overridden.
 
-The pipeline itself is defined by the following standard :code:`[[class, name, {param_key: param_value, ...}], ...]`
+The pipeline itself is defined by the following standard :code:`[{"transformer":class, "name":name, "parameters":{param_key: param_value, ...}], ...]`
 When preprocessor parses this configuration it will create a Pipeline object with the given transformers of the given class, name, and parameters.
 For example, the preprocessor above will look something like :code:`sklearn.pipeline.Preprocessor([('Scaler', StandardScaler(with_mean=False)))])`
 Any class implementing the sklearn Transformer standard (including SmartTransformer) can be used here.
@@ -417,7 +419,7 @@ That pipeline object will be fit on the column crim and will be used to transfor
 
 Moving on to the :code:`"indus"` column defined by the configuration. We can see that it has an intent override but not a pipeline override. This means
 that the default :code:`single_pipeline` for the given intent will be used to process that column. By default the serialized pipeline will have
-a list of partially matching Intents as a third item in the JSON list following the column name. These can likely be substituted into the Intent name with little or no
+a list of partially matching intents under the "all_matched_intents" dict key. These can likely be substituted into the Intent name with little or no
 compatibility issues.
 
 Intent Override
@@ -425,17 +427,18 @@ Intent Override
 
 .. code-block:: json
 
-    {"intents":{
+      "intents":{
         "NumericIntent":{
           "single":[
-            ["Imputer", "impute", {"strategy":"mean"}]
+            {"transformer": "Imputer", "name": "impute", "parameters": {"strategy":"mean"}}
           ],
           "multi":[]
         }
-    }}
+      }
+
 
 Next, we will examine the :code:`intents` section. This section is used to override intents globally, unlike the columns section which overrode intents on a per-column
-basis. Any changes to intents defined in this section will apply across the entire Preprocessor pipeline.
+basis. Any changes to intents defined in this section will apply across the entire Preprocessor pipeline. However, individual pipelines defined in the columns section will override pipelines defined here.
 
 The keys in this section each represent the name of an intent. In this example, :code:`NumericIntent` is being overridden. The value is a dictionary with the
 keys :code:`"single"` and :code:`"multi"` respresent the single and multi pipeline overrides. The value of these pipelines is parsed through the same mechanism as the pipelines
@@ -452,14 +455,15 @@ Postprocessor Override
 
 .. code-block:: json
 
+
     {"postprocess":[
-        ["pca",["age"],[
-            ["PCA", "PCA", {"n_components":2}]
-        ]]
+        {"name":"pca","columns":["age"],"pipeline":[
+            {"class":"PCA", "name":"PCA", "parameters":{"n_components":2}}
+        ]}
     ]}
 
 Finally, in the :code:`postprocess` section of the configuration, you can manually define pipelines to execute on columns of your choosing. The
-content of this section is a list of lists of the form :code:`[[name, [cols, ...], pipeline], ...]`. Each list defines a pipeline that will
+content of this section is a list of dictionaries of the form :code:`[{"name":name, "columns":[cols, ...], "pipeline":pipeline}, ...]`. Each list defines a pipeline that will
 execute on certain columns. These processes execute after the intent pipelines!
 
 **IMPORTANT** There are two ways of selecting columns through the cols list. By default, specifying a column, or a list of columns, will automatically select
@@ -512,27 +516,29 @@ This is what a combinations section looks like.
 
 .. code-block:: json
 
-    {
-      "columns":{
-        "crim":["GenericIntent",
-                [
-                  ["StandardScaler", "Scaler", {"with_mean":false}]
-                ]],
-        "indus":["GenericIntent"]
-      },
 
-      "postprocess":[],
-
-      "intents":{},
-
-      "combinations": [
         {
-          "columns.crim.1.0.2.with_mean": "[True, False]",
-          "columns.crim.1.0.1": "['Scaler', 'SuperScaler']"
-        }
-      ]
+          "columns":{
+            "crim":{"intent": "GenericIntent",
+                    "pipeline": [
+                            {"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}
+                    ]},
+            "indus":{"intent": "GenericIntent"}
+          },
 
-    }
+          "postprocess":[],
+
+          "intents":{},
+
+          "combinations": [
+            {
+              "columns.crim.pipeline.0.parameters.with_mean": "[True, False]",
+              "columns.crim.pipeline.0.name": "['Scaler', 'SuperScaler']"
+            }
+          ]
+
+        }
+
 
 
 This section of the configuration file is a list of dictionaries. Each dictionary represents a single parameter space definition that should be searched. Within these dictionaries

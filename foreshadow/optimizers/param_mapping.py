@@ -148,24 +148,28 @@ def _set_path(key, value, original):
     """
     path = key.split(".")
     temp = original
+    curr_key = ""
 
     try:
 
         # Searches in path, indexed by key if dictionary or by index if list
         for p in path[:-1]:
+            curr_key = p
             if isinstance(temp, list):
                 temp = temp[int(p)]
             else:  # Dictionary
                 temp = temp[p]
 
-        # Set value
-        if isinstance(temp, list):
-            temp[int(path[-1])] = value
-        else:  # Dictionary
-            temp[path[-1]] = value
+        # Always Dictionary
+        temp[path[-1]] = value
 
     except KeyError as e:
-        raise ValueError("Invalid JSON Key")
+        raise ValueError("Invalid JSON Key {} in {}".format(curr_key, temp))
+
+    except ValueError as e:
+        raise ValueError(
+            "Attempted to index list {} with value {}".format(temp, curr_key)
+        )
 
 
 def _extract_config_params(param):

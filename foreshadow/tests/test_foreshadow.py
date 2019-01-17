@@ -468,6 +468,43 @@ def test_foreshadow_param_optimize_no_combinations():
     assert results[0].keys() == truth[0].keys()
 
 
+def test_foreshadow_param_optimize_invalid_array_idx():
+    import pandas as pd
+    import json
+
+    from sklearn.linear_model import LinearRegression
+    from sklearn.model_selection import train_test_split
+    from sklearn.model_selection import GridSearchCV
+    from sklearn.pipeline import Pipeline
+
+    from foreshadow import Foreshadow
+    from foreshadow.preprocessor import Preprocessor
+    from foreshadow.optimizers.param_mapping import _param_mapping
+
+    data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    cfg = json.load(
+        open("./foreshadow/tests/test_configs/invalid_optimizer_config.json", "r")
+    )
+
+    fs = Foreshadow(
+        Preprocessor(from_json=cfg), False, LinearRegression(), GridSearchCV
+    )
+
+    fs.pipeline = Pipeline(
+        [("preprocessor", fs.X_preprocessor), ("estimator", fs.estimator)]
+    )
+
+    x = data.drop(["medv"], axis=1, inplace=False)
+    y = data[["medv"]]
+
+    x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
+
+    with pytest.raises(ValueError) as e:
+        _param_mapping(fs.pipeline, x_train, y_train)
+
+    assert str(e.value).startswith("Attempted to index list")
+
+
 def test_foreshadow_param_optimize_invalid_dict_key():
     import pandas as pd
     from sklearn.linear_model import LinearRegression
@@ -500,7 +537,7 @@ def test_foreshadow_param_optimize_invalid_dict_key():
     with pytest.raises(ValueError) as e:
         _param_mapping(fs.pipeline, x_train, y_train)
 
-    assert str(e.value) == "Invalid JSON Key"
+    assert str(e.value) == "Invalid JSON Key fake in {}"
 
 
 def test_core_foreshadow_example_regression():

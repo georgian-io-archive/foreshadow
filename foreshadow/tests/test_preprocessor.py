@@ -594,10 +594,16 @@ def test_preprocessor_inverse_transform():
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
     js = {
         "columns": {
-            "medv": [
-                "TestGenericIntent",
-                [["StandardScaler", "Scaler", {"with_mean": True}]],
-            ]
+            "medv": {
+                "intent": "TestGenericIntent",
+                "pipeline": [
+                    {
+                        "transformer": "StandardScaler",
+                        "name": "Scaler",
+                        "parameters": {"with_mean": True},
+                    }
+                ],
+            }
         }
     }
     proc = Preprocessor(from_json=js)
@@ -630,10 +636,16 @@ def test_preprocessor_inverse_transform_multicol():
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
     js = {
         "columns": {
-            "medv": [
-                "TestGenericIntent",
-                [["StandardScaler", "Scaler", {"with_mean": True}]],
-            ]
+            "medv": {
+                "intent": "TestGenericIntent",
+                "pipeline": [
+                    {
+                        "transformer": "StandardScaler",
+                        "name": "Scaler",
+                        "parameters": {"with_mean": True},
+                    }
+                ],
+            }
         }
     }
     proc = Preprocessor(from_json=js)
@@ -680,6 +692,7 @@ def test_preprocessor_set_params():
             open("./foreshadow/tests/test_configs/complete_pipeline_test.json", "r")
         )
     )
+
     proc.fit(df)
     proc.set_params(**params)
 
@@ -697,7 +710,7 @@ def test_preprocessor_malformed_json_transformer():
             )
         )
 
-    assert str(e.value).startswith("Malformed transformer")
+    assert "Malformed transformer" in str(e.value)
 
 
 def test_preprocessor_invalid_json_transformer_class():
@@ -732,7 +745,9 @@ def test_preprocessor_invalid_json_transformer_params():
         )
 
     print(str(e.value))
-    assert str(e.value).startswith("JSON Configuration is malformed:")
+    assert str(e.value).startswith(
+        "Params {'BAD': 'INVALID'} invalid for transfomer Imputer"
+    )
 
 
 def test_preprocessor_get_param_no_pipeline():
