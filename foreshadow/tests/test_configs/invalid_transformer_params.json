@@ -1,25 +1,30 @@
 {
   "columns":{
-    "crim":["TestGenericIntent",
-            [
-              ["StandardScaler", "Scaler", {"with_mean":false}]
-            ]],
-    "indus":["TestGenericIntent"]
+    "crim":{
+	    "intent": "TestGenericIntent",
+            "pipeline":[
+	    {"transformer": "StandardScaler", 
+	       "name": "Scaler", 
+	       "parameters": {"with_mean":false}
+	    }]},
+    "indus":{"intent": "TestGenericIntent"}
   },
 
   "postprocess":[
-    ["pca",["crim","indus","nox"],[
-      ["PCA", "PCA", {"n_components":4}]
-    ]]
+	  {"name": "pca",
+     "columns": ["age"],
+     "pipeline": [
+	     {"transformer": "PCA", "name": "PCA", "parameters": {"n_components":4}}
+    ]}
   ],
 
   "intents":{
     "TestNumericIntent":{
       "single":[
-        ["Imputer", null, {"strategy":"WRONG"}]
+	      {"transformer": "Imputer", "name": "impute", "parameters": {"BAD":"INVALID"}}
       ],
       "multi":[
-        ["PCA", null, {"n_components":"THISISWRONG"}]
+	      {"transformer": "PCA", "name": "pca", "parameters": {"n_components":"5"}}
       ]
     }
   }

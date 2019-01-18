@@ -1,9 +1,9 @@
 {
   "columns":{
-    "crim":["TestGenericIntent",
-            [
-              ["StandardScaler", "Scaler", {"with_mean":false}]
-            ]]
+    "crim":{"intent": "TestGenericIntent",
+            "pipeline": [
+		    {"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}
+            ]}
   },
 
   "postprocess":[],
@@ -11,10 +11,10 @@
   "intents":{
     "TestNumericIntent":{
       "single":[
-        ["Imputer", "impute", {"strategy":"mean"}]
+	      {"transformer": "Imputer", "name": "impute", "parameters": {"strategy":"mean"}}
       ],
       "multi":[
-        ["PCA", "pca", {"n_components":3}]
+	      {"transformer": "PCA", "name": "pca", "parameters": {"n_components":3}}
       ]
     }
   }
