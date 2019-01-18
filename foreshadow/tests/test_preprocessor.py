@@ -31,6 +31,10 @@ def patch_intents(mocker):
         def is_intent(cls, df):
             return True
 
+        @classmethod
+        def column_summary(cls, df):
+            return {}
+
     class TestNumericIntent(TestGenericIntent):
         dtype = "float"
         children = []
@@ -48,6 +52,10 @@ def patch_intents(mocker):
         def is_intent(cls, df):
             return True
 
+        @classmethod
+        def column_summary(cls, df):
+            return {}
+
     class TestIntentOne(TestGenericIntent):
         dtype = "str"
         children = ["TestIntentTwo", "TestIntentThree"]
@@ -58,6 +66,10 @@ def patch_intents(mocker):
         @classmethod
         def is_intent(cls, df):
             return False
+
+        @classmethod
+        def column_summary(cls, df):
+            return {}
 
     class TestIntentTwo(TestIntentOne):
         dtype = "str"
@@ -70,6 +82,10 @@ def patch_intents(mocker):
         def is_intent(cls, df):
             return False
 
+        @classmethod
+        def column_summary(cls, df):
+            return {}
+
     class TestIntentThree(TestIntentOne):
         dtype = "str"
         children = []
@@ -80,6 +96,10 @@ def patch_intents(mocker):
         @classmethod
         def is_intent(cls, df):
             return False
+
+        @classmethod
+        def column_summary(cls, df):
+            return {}
 
     mocker.patch(
         "foreshadow.preprocessor.GenericIntent.priority_traverse",
@@ -793,3 +813,36 @@ def test_preprocessor_y_var_filtering():
     df_out = proc.fit_transform(y_df)
 
     assert y_df.equals(df_out)
+
+
+def test_preprocessor_summarize():
+    import json
+    import pandas as pd
+    from foreshadow.preprocessor import Preprocessor
+
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    proc = Preprocessor(
+        from_json=json.load(
+            open("./foreshadow/tests/test_configs/complete_pipeline_test.json", "r")
+        )
+    )
+    proc.fit(df)
+
+    expected = {
+        "age": {"data": {}, "intent": "TestNumericIntent"},
+        "b": {"data": {}, "intent": "TestNumericIntent"},
+        "chas": {"data": {}, "intent": "TestNumericIntent"},
+        "crim": {"data": {}, "intent": "TestGenericIntent"},
+        "dis": {"data": {}, "intent": "TestNumericIntent"},
+        "indus": {"data": {}, "intent": "TestGenericIntent"},
+        "lstat": {"data": {}, "intent": "TestNumericIntent"},
+        "medv": {"data": {}, "intent": "TestNumericIntent"},
+        "nox": {"data": {}, "intent": "TestNumericIntent"},
+        "ptratio": {"data": {}, "intent": "TestNumericIntent"},
+        "rad": {"data": {}, "intent": "TestNumericIntent"},
+        "rm": {"data": {}, "intent": "TestNumericIntent"},
+        "tax": {"data": {}, "intent": "TestNumericIntent"},
+        "zn": {"data": {}, "intent": "TestNumericIntent"},
+    }
+
+    assert proc.summarize(df) == expected

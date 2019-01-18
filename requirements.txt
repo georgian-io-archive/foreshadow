@@ -6,4 +6,4 @@ TPOT==0.9.3
 fancyimpute==0.3.2
 category-encoders==1.2.8
 # optional dependency (supported version)
-# auto_sklearn==0.4.0
+# auto_sklearn==0.4.2

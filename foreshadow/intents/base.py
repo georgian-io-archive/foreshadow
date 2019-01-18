@@ -144,6 +144,20 @@ class BaseIntent(metaclass=_IntentRegistry):
         pass  # pragma: no cover
 
     @classmethod
+    @check_base
+    @abstractmethod
+    def column_summary(cls, df):
+        """Computes relavent statistics and returns a JSON dict of those values
+
+        Args:
+            df: pd.DataFrame to summarize
+
+        Returns:
+            A JSON dict of relavent statistics
+        """
+        pass  # pragma: no cover
+
+    @classmethod
     def _check_intent(cls):
         """Validate class variables are setup properly"""
         not_implemented = lambda v, m: "Subclass must define {} class attribute.\n{}".format(
