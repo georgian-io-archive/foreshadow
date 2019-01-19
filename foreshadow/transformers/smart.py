@@ -6,13 +6,22 @@ wrapped or transformed. Only classes extending SmartTransformer should exist her
 
 """
 
+from copy import deepcopy
+
 import numpy as np
 import scipy.stats as ss
 import pandas as pd
 from sklearn.pipeline import Pipeline
 
 from ..transformers.base import SmartTransformer
-from ..transformers.internals import BoxCox, FancyImputer, UncommonRemover, DummyEncoder
+from ..transformers.internals import (
+    BoxCox,
+    FancyImputer,
+    PrepareFinancial,
+    ConvertFinancial,
+    UncommonRemover,
+    DummyEncoder,
+)
 from ..transformers.externals import (
     MinMaxScaler,
     StandardScaler,
@@ -184,3 +193,27 @@ class MultiImputer(SmartTransformer):
             return self._choose_multi(X)
         else:
             return Pipeline([("null", None)])
+
+
+class FinancialCleaner(SmartTransformer):
+    """Automatically choose apropriate parameters for a financial column"""
+
+    def _get_transformer(self, X, y=None, **fit_params):
+        # number_regex = r'(?<!\S)(\[|\()?(((-(?=[0-9]))|(-\.(?=[0-9])))?[0-9]*((\.(?=[0-9]))|((?<=[0-9]))\.)?[0-9]*)(\)|\])?(?!\S)'
+
+        us_pipeline = Pipeline(
+            [("prepare", PrepareFinancial()), ("convert", ConvertFinancial())]
+        )
+        eu_pipeline = Pipeline(
+            [
+                ("prepare", PrepareFinancial()),
+                ("convert", ConvertFinancial(is_euro=True)),
+            ]
+        )
+        us_data = deepcopy(us_pipeline).fit_transform(X)
+        eu_data = deepcopy(eu_pipeline).fit_transform(X)
+
+        if eu_data.isnull().values.sum() < us_data.isnull().values.sum():
+            return eu_pipeline
+        else:
+            return us_pipeline

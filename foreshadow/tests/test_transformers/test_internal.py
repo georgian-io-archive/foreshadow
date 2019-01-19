@@ -210,6 +210,62 @@ def test_drop_transformer_string_input():
     )
 
 
+def test_prepare_financial():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.internals import PrepareFinancial
+
+    x = pd.DataFrame(
+        [
+            "Test",
+            "(123)",
+            "  123",
+            "[123]",
+            "123,",
+            "123.",
+            "-123",
+            "123,123",
+            "ab123.3",
+        ]
+    )
+    expected = pd.DataFrame(
+        [np.nan, "(123)", "123", "[123]", "123,", "123.", "-123", "123,123", "123.3"]
+    ).values
+    out = PrepareFinancial().fit_transform(x).values
+
+    assert np.all((out == expected) | (pd.isnull(out) == pd.isnull(expected)))
+
+
+def test_convert_financial_us():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.internals import ConvertFinancial
+
+    x = pd.DataFrame(
+        ["0", "000", "0.9", "[0.9]", "-.3", "30.00", "1,000", "1.000,000", "1.1.1"]
+    )
+    expected = pd.DataFrame(
+        [0.0, 0.0, 0.9, -0.9, -0.3, 30.0, 1000.0, np.nan, np.nan]
+    ).values
+    out = ConvertFinancial().fit_transform(x).values
+    assert np.all((out == expected) | (pd.isnull(out) == pd.isnull(expected)))
+
+
+def test_convert_financial_eu():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.internals import ConvertFinancial
+
+    x = pd.DataFrame(
+        ["0", "000", "0,9", "[0,9]", "-,3", "30,00", "1.000", "1,000.000", "1.1.1"]
+    )
+    expected = pd.DataFrame(
+        [0, 0, 0.9, -0.9, -0.3, 30.0, 1000.0, np.nan, np.nan]
+    ).values
+    out = ConvertFinancial(is_euro=True).fit_transform(x).values
+    assert np.all((out == expected) | (pd.isnull(out) == pd.isnull(expected)))
+
+
 def test_uncommon_remover_integers():
     import numpy as np
     import pandas as pd
