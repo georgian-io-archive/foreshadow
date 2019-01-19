@@ -226,13 +226,9 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
     """
 
     stack = inspect.stack()
-    caller = None
-
     caller = stack[1][0].f_locals["self"].__class__
     current = inspect.currentframe()
     calframe = inspect.getouterframes(current, 3)
-    # import pdb
-    # pdb.set_trace()
     if calframe[2][3] != "pandas_wrapper":
         return func(self, df, *args, **kwargs)
 
@@ -272,6 +268,8 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
             ]
             return pd.concat([df, out], axis=1)
 
+        out.from_transformer = True
+
         return out
 
     # If output is numpy array (transform has occurred)
@@ -299,7 +297,7 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
             }
             df = df.assign(**kw)
 
-            df.from_transformer = True
+        df.from_transformer = True
 
         return df
 

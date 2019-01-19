@@ -6,7 +6,7 @@
   "intents":{
     "TestNumericIntent":{
       "multi":[
-        ["PCA", "pca", {"n_components":3}]
+	      {"transformer": "PCA", "name": "pca", "parameters": {"n_components":3}}
       ]
     }
   }

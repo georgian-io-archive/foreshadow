@@ -15,6 +15,10 @@ def test_unregister():
         def is_intent(cls, df):
             return True
 
+        @classmethod
+        def column_summary(cls, df):
+            return {}
+
     class TestIntent1(TestIntent):
         dtype = "TEST"
         children = ["TEST"]
@@ -25,6 +29,10 @@ def test_unregister():
         def is_intent(cls, df):
             return True
 
+        @classmethod
+        def column_summary(cls, df):
+            return {}
+
     class TestIntent2(TestIntent):
         dtype = "TEST"
         children = ["TEST"]
@@ -34,6 +42,10 @@ def test_unregister():
         @classmethod
         def is_intent(cls, df):
             return True
+
+        @classmethod
+        def column_summary(cls, df):
+            return {}
 
     _unregister_intent(TestIntent2.__name__)
     _unregister_intent([TestIntent1.__name__, TestIntent.__name__])
@@ -77,6 +89,10 @@ def test_registry_eval():
         def is_intent(cls, df):
             return True
 
+        @classmethod
+        def column_summary(cls, df):
+            return {}
+
     assert registry_eval(TestIntent.__name__) is TestIntent
     _unregister_intent(TestIntent.__name__)
 
@@ -95,6 +111,10 @@ def test_samename_subclass():
         def is_intent(cls, df):
             return True
 
+        @classmethod
+        def column_summary(cls, df):
+            return {}
+
     with pytest.raises(TypeError) as e:
 
         class TestIntent(BaseIntent):
@@ -106,6 +126,10 @@ def test_samename_subclass():
             @classmethod
             def is_intent(cls, df):
                 return True
+
+            @classmethod
+            def column_summary(cls, df):
+                return {}
 
     _unregister_intent(TestIntent.__name__)
     assert str(e.value) == ("Intent already exists in registry, use a different name")
@@ -129,6 +153,10 @@ def test_invalid_transfomer_template_defenition_length():
             def is_intent(cls, df):
                 return True
 
+            @classmethod
+            def column_summary(cls, df):
+                return {}
+
     with pytest.raises(ValueError) as e2:
 
         class TestIntent2(BaseIntent):
@@ -140,6 +168,10 @@ def test_invalid_transfomer_template_defenition_length():
             @classmethod
             def is_intent(cls, df):
                 return True
+
+            @classmethod
+            def column_summary(cls, df):
+                return {}
 
     assert str(e.value) == ("Malformed transformer entry in template")
     assert str(e2.value) == ("Malformed transformer entry in template")
@@ -163,6 +195,10 @@ def test_invalid_transfomer_template_defenition_bad_defenition():
             def is_intent(cls, df):
                 return True
 
+            @classmethod
+            def column_summary(cls, df):
+                return {}
+
     with pytest.raises(ValueError) as e2:
 
         class TestIntent2(BaseIntent):
@@ -174,6 +210,10 @@ def test_invalid_transfomer_template_defenition_bad_defenition():
             @classmethod
             def is_intent(cls, df):
                 return True
+
+            @classmethod
+            def column_summary(cls, df):
+                return {}
 
     assert str(e.value) == ("Malformed transformer entry in template")
     assert str(e2.value) == ("Malformed transformer entry in template")
@@ -195,6 +235,10 @@ def test_invalid_transfomer_template_defenition_bad_defenition():
             def is_intent(cls, df):
                 return True
 
+            @classmethod
+            def column_summary(cls, df):
+                return {}
+
     with pytest.raises(ValueError) as e2:
 
         class TestIntent2(BaseIntent):
@@ -206,6 +250,10 @@ def test_invalid_transfomer_template_defenition_bad_defenition():
             @classmethod
             def is_intent(cls, df):
                 return True
+
+            @classmethod
+            def column_summary(cls, df):
+                return {}
 
     assert str(e.value) == ("Malformed transformer entry in template")
     assert str(e2.value) == ("Malformed transformer entry in template")
@@ -236,5 +284,9 @@ def test_valid_intent_registration():
         @classmethod
         def is_intent(cls, df):
             return True
+
+        @classmethod
+        def column_summary(cls, df):
+            return {}
 
     _unregister_intent(TestIntent.__name__)

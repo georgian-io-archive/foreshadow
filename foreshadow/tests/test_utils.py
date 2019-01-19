@@ -48,6 +48,25 @@ def test_check_df_raises_on_invalid():
     )
 
 
+def test_check_df_passthrough_none():
+    from foreshadow.utils import check_df
+
+    input_df = None
+    assert check_df(input_df, ignore_none=True) is None
+
+
+def test_check_df_single_column():
+    import numpy as np
+    from foreshadow.utils import check_df
+
+    input_arr = np.arange(8).reshape((4, 2))
+
+    with pytest.raises(ValueError) as e:
+        input_df = check_df(input_arr, single_column=True)
+
+    assert str(e.value) == ("Input Dataframe must have only one column")
+
+
 def test_module_not_installed():
     from foreshadow.utils import check_module_installed
 

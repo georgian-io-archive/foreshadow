@@ -11,14 +11,18 @@ def test_call_classmethod_from_BaseIntent():
         BaseIntent.priority_traverse()
 
     with pytest.raises(TypeError) as e3:
-        BaseIntent.is_intent()
+        BaseIntent.is_intent([])
+
+    with pytest.raises(TypeError) as e4:
+        BaseIntent.column_summary([])
 
     assert "cannot be called on BaseIntent" in str(e1.value)
     assert "cannot be called on BaseIntent" in str(e2.value)
     assert "cannot be called on BaseIntent" in str(e3.value)
+    assert "cannot be called on BaseIntent" in str(e4.value)
 
 
-def test_mock_subclass_missing_is_intent():
+def test_mock_subclass_missing_abstract_methods():
     from foreshadow.intents.base import BaseIntent
 
     with pytest.raises(NotImplementedError) as e:
@@ -26,7 +30,7 @@ def test_mock_subclass_missing_is_intent():
         class TestIntent(BaseIntent):
             pass
 
-    assert "has not implemented abstract methods is_intent" in str(e.value)
+    assert "has not implemented abstract methods" in str(e.value)
 
 
 def test_mock_subclass_missing_children():
@@ -38,6 +42,10 @@ def test_mock_subclass_missing_children():
             @classmethod
             def is_intent(cls, df):
                 return True
+
+            @classmethod
+            def column_summary(cls, df):
+                return {}
 
             dtype = "TEST"
 
@@ -53,6 +61,10 @@ def test_mock_subclass_missing_single_pipeline_template():
             @classmethod
             def is_intent(cls, df):
                 return True
+
+            @classmethod
+            def column_summary(cls, df):
+                return {}
 
             dtype = "TEST"
             children = []
@@ -70,6 +82,10 @@ def test_mock_subclass_missing_multi_pipeline_template():
             def is_intent(cls, df):
                 return True
 
+            @classmethod
+            def column_summary(cls, df):
+                return {}
+
             dtype = "TEST"
             children = []
             single_pipeline_template = []
@@ -85,6 +101,10 @@ def test_valid_mock_subclass():
         @classmethod
         def is_intent(cls, df):
             return True
+
+        @classmethod
+        def column_summary(cls, df):
+            return {}
 
         dtype = "TEST"
         children = []
@@ -109,6 +129,10 @@ def test_to_string():
         def is_intent(cls, df):
             return True
 
+        @classmethod
+        def column_summary(cls, df):
+            return {}
+
     class TestIntent1(TestIntent):
         dtype = "TEST"
         children = ["TestIntent11", "TestIntent12"]
@@ -118,6 +142,10 @@ def test_to_string():
         @classmethod
         def is_intent(cls, df):
             return True
+
+        @classmethod
+        def column_summary(cls, df):
+            return {}
 
     class TestIntent2(TestIntent):
         dtype = "TEST"
@@ -129,6 +157,10 @@ def test_to_string():
         def is_intent(cls, df):
             return True
 
+        @classmethod
+        def column_summary(cls, df):
+            return {}
+
     class TestIntent11(TestIntent1):
         dtype = "TEST"
         children = []
@@ -139,6 +171,10 @@ def test_to_string():
         def is_intent(cls, df):
             return True
 
+        @classmethod
+        def column_summary(cls, df):
+            return {}
+
     class TestIntent12(TestIntent1):
         dtype = "TEST"
         children = []
@@ -148,6 +184,10 @@ def test_to_string():
         @classmethod
         def is_intent(cls, df):
             return True
+
+        @classmethod
+        def column_summary(cls, df):
+            return {}
 
     class_list = [
         "TestIntent",
@@ -177,6 +217,10 @@ def test_priority_traverse():
         def is_intent(cls, df):
             return True
 
+        @classmethod
+        def column_summary(cls, df):
+            return {}
+
     class TestIntent1(TestIntent):
         dtype = "TEST"
         children = ["TestIntent11", "TestIntent12"]
@@ -186,6 +230,10 @@ def test_priority_traverse():
         @classmethod
         def is_intent(cls, df):
             return True
+
+        @classmethod
+        def column_summary(cls, df):
+            return {}
 
     class TestIntent2(TestIntent):
         dtype = "TEST"
@@ -197,6 +245,10 @@ def test_priority_traverse():
         def is_intent(cls, df):
             return True
 
+        @classmethod
+        def column_summary(cls, df):
+            return {}
+
     class TestIntent11(TestIntent1):
         dtype = "TEST"
         children = []
@@ -206,6 +258,10 @@ def test_priority_traverse():
         @classmethod
         def is_intent(cls, df):
             return True
+
+        @classmethod
+        def column_summary(cls, df):
+            return {}
 
     class TestIntent12(TestIntent1):
         dtype = "TEST"
@@ -217,6 +273,11 @@ def test_priority_traverse():
         def is_intent(cls, df):
             return True
 
-    class_list = [TestIntent, TestIntent1, TestIntent2, TestIntent11, TestIntent12]
+        @classmethod
+        def column_summary(cls, df):
+            return {}
+
+    class_list = [TestIntent, TestIntent1, TestIntent11, TestIntent12, TestIntent2]
+
     assert class_list == list(TestIntent.priority_traverse())
     _unregister_intent(list(map(lambda x: x.__name__, class_list)))

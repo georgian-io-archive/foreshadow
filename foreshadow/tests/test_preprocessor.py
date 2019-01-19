@@ -31,6 +31,10 @@ def patch_intents(mocker):
         def is_intent(cls, df):
             return True
 
+        @classmethod
+        def column_summary(cls, df):
+            return {}
+
     class TestNumericIntent(TestGenericIntent):
         dtype = "float"
         children = []
@@ -48,6 +52,10 @@ def patch_intents(mocker):
         def is_intent(cls, df):
             return True
 
+        @classmethod
+        def column_summary(cls, df):
+            return {}
+
     class TestIntentOne(TestGenericIntent):
         dtype = "str"
         children = ["TestIntentTwo", "TestIntentThree"]
@@ -58,6 +66,10 @@ def patch_intents(mocker):
         @classmethod
         def is_intent(cls, df):
             return False
+
+        @classmethod
+        def column_summary(cls, df):
+            return {}
 
     class TestIntentTwo(TestIntentOne):
         dtype = "str"
@@ -70,6 +82,10 @@ def patch_intents(mocker):
         def is_intent(cls, df):
             return False
 
+        @classmethod
+        def column_summary(cls, df):
+            return {}
+
     class TestIntentThree(TestIntentOne):
         dtype = "str"
         children = []
@@ -80,6 +96,10 @@ def patch_intents(mocker):
         @classmethod
         def is_intent(cls, df):
             return False
+
+        @classmethod
+        def column_summary(cls, df):
+            return {}
 
     mocker.patch(
         "foreshadow.preprocessor.GenericIntent.priority_traverse",
@@ -574,10 +594,16 @@ def test_preprocessor_inverse_transform():
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
     js = {
         "columns": {
-            "medv": [
-                "TestGenericIntent",
-                [["StandardScaler", "Scaler", {"with_mean": True}]],
-            ]
+            "medv": {
+                "intent": "TestGenericIntent",
+                "pipeline": [
+                    {
+                        "transformer": "StandardScaler",
+                        "name": "Scaler",
+                        "parameters": {"with_mean": True},
+                    }
+                ],
+            }
         }
     }
     proc = Preprocessor(from_json=js)
@@ -610,10 +636,16 @@ def test_preprocessor_inverse_transform_multicol():
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
     js = {
         "columns": {
-            "medv": [
-                "TestGenericIntent",
-                [["StandardScaler", "Scaler", {"with_mean": True}]],
-            ]
+            "medv": {
+                "intent": "TestGenericIntent",
+                "pipeline": [
+                    {
+                        "transformer": "StandardScaler",
+                        "name": "Scaler",
+                        "parameters": {"with_mean": True},
+                    }
+                ],
+            }
         }
     }
     proc = Preprocessor(from_json=js)
@@ -660,6 +692,7 @@ def test_preprocessor_set_params():
             open("./foreshadow/tests/test_configs/complete_pipeline_test.json", "r")
         )
     )
+
     proc.fit(df)
     proc.set_params(**params)
 
@@ -677,7 +710,7 @@ def test_preprocessor_malformed_json_transformer():
             )
         )
 
-    assert str(e.value).startswith("Malformed transformer")
+    assert "Malformed transformer" in str(e.value)
 
 
 def test_preprocessor_invalid_json_transformer_class():
@@ -712,7 +745,9 @@ def test_preprocessor_invalid_json_transformer_params():
         )
 
     print(str(e.value))
-    assert str(e.value).startswith("JSON Configuration is malformed:")
+    assert str(e.value).startswith(
+        "Params {'BAD': 'INVALID'} invalid for transfomer Imputer"
+    )
 
 
 def test_preprocessor_get_param_no_pipeline():
@@ -778,3 +813,36 @@ def test_preprocessor_y_var_filtering():
     df_out = proc.fit_transform(y_df)
 
     assert y_df.equals(df_out)
+
+
+def test_preprocessor_summarize():
+    import json
+    import pandas as pd
+    from foreshadow.preprocessor import Preprocessor
+
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    proc = Preprocessor(
+        from_json=json.load(
+            open("./foreshadow/tests/test_configs/complete_pipeline_test.json", "r")
+        )
+    )
+    proc.fit(df)
+
+    expected = {
+        "age": {"data": {}, "intent": "TestNumericIntent"},
+        "b": {"data": {}, "intent": "TestNumericIntent"},
+        "chas": {"data": {}, "intent": "TestNumericIntent"},
+        "crim": {"data": {}, "intent": "TestGenericIntent"},
+        "dis": {"data": {}, "intent": "TestNumericIntent"},
+        "indus": {"data": {}, "intent": "TestGenericIntent"},
+        "lstat": {"data": {}, "intent": "TestNumericIntent"},
+        "medv": {"data": {}, "intent": "TestNumericIntent"},
+        "nox": {"data": {}, "intent": "TestNumericIntent"},
+        "ptratio": {"data": {}, "intent": "TestNumericIntent"},
+        "rad": {"data": {}, "intent": "TestNumericIntent"},
+        "rm": {"data": {}, "intent": "TestNumericIntent"},
+        "tax": {"data": {}, "intent": "TestNumericIntent"},
+        "zn": {"data": {}, "intent": "TestNumericIntent"},
+    }
+
+    assert proc.summarize(df) == expected

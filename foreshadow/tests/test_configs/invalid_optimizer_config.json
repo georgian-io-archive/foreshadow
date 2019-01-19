@@ -13,7 +13,7 @@
 
   "combinations": [
     {
-      "columns.crim.pipeline.0.parameters.with_mean": "[True, False]",
+      "columns.crim.pipeline.BAD.parameters.with_mean": "[True, False]",
       "columns.crim.pipeline.0.name": "['Scaler', 'SuperScaler']"
     }
   ]

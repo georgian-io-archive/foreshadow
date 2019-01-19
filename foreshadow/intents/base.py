@@ -127,7 +127,7 @@ class BaseIntent(metaclass=_IntentRegistry):
             node = lqueue.pop(0)
             if len(node.children) > 0:
                 node_children = map(registry_eval, node.children)
-                lqueue.extend(node_children)
+                lqueue[0:0] = node_children  # Append to beginning to do depth first
 
     @classmethod
     @check_base
@@ -140,6 +140,20 @@ class BaseIntent(metaclass=_IntentRegistry):
 
         Returns:
             Boolean determining whether intent is valid for feature in df
+        """
+        pass  # pragma: no cover
+
+    @classmethod
+    @check_base
+    @abstractmethod
+    def column_summary(cls, df):
+        """Computes relavent statistics and returns a JSON dict of those values
+
+        Args:
+            df: pd.DataFrame to summarize
+
+        Returns:
+            A JSON dict of relavent statistics
         """
         pass  # pragma: no cover
 
