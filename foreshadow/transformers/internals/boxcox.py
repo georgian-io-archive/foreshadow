@@ -28,7 +28,7 @@ class BoxCox(BaseEstimator, TransformerMixin):
         _, self.lambda_ = boxcox(X + 1 + self.translate_)
         return self
 
-    def transform(self, X, y=None):
+    def transform(self, X):
         """Performs Box Cox transform on data
 
         Args:
