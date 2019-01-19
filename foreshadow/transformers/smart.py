@@ -12,12 +12,7 @@ import pandas as pd
 from sklearn.pipeline import Pipeline
 
 from ..transformers.base import SmartTransformer
-from ..transformers.internals import (
-    BoxCox, 
-    FancyImputer, 
-    UncommonRemover, 
-    DummyEncoder
-)
+from ..transformers.internals import BoxCox, FancyImputer, UncommonRemover, DummyEncoder
 from ..transformers.externals import (
     MinMaxScaler,
     StandardScaler,
@@ -26,6 +21,8 @@ from ..transformers.externals import (
     LabelEncoder,
     OneHotEncoder,
 )
+
+from foreshadow.utils import check_df
 
 
 class Scaler(SmartTransformer):
@@ -72,18 +69,27 @@ class Encoder(SmartTransformer):
         Args:
             unique_num_cutoff (float): number of allowable unique categories
             merge_thresh (float): threshold passed into UncommonRemover if selected
-            uncommon_reval (bool): add a step to remove uncommon values and
-                re-evaluate the smart encoder
 
     """
 
-    def __init__(
-        self, unique_num_cutoff=30, merge_thresh=0.01, remove_uncommon=True, **kwargs
-    ):
+    def __init__(self, unique_num_cutoff=30, merge_thresh=0.01, **kwargs):
         self.unique_num_cutoff = unique_num_cutoff
         self.merge_thresh = merge_thresh
-        self.remove_uncommon = remove_uncommon
         super().__init__(**kwargs)
+
+    def will_transform(self, X, temp_ur):
+        """Checks if the transformer with the current settings will modify the data
+            
+            Returns: (tuple) bool and category counts
+        """
+
+        X = check_df(X, single_column=True).iloc[:, 0].values
+        out = temp_ur.fit_transform(X).values.ravel()
+
+        return (
+            not (np.array_equal(X, out) | (pd.isnull(X) & pd.isnull(out))).all(),
+            pd.unique(out).size,
+        )
 
     def _get_transformer(self, X, y=None, **fit_params):
         data = X.iloc[:, 0]
@@ -94,31 +100,21 @@ class Encoder(SmartTransformer):
             len(list(data.astype("str").str.get_dummies(sep=d))) for d in delimeters
         ]
         delim_diff = min(delim_count) - len(list(pd.get_dummies(data)))
+        temp_ur = UncommonRemover(threshold=self.merge_thresh)
+        will_reduce, reduce_count = self.will_transform(X, temp_ur)
+        ohe = OneHotEncoder(return_df=True, use_cat_names=True, handle_unknown="ignore")
 
         if self.y_var:
             return LabelEncoder()
-        if self.remove_uncommon:
+        elif delim_diff < 0:
+            delim = delimeters[delim_count.index(min(delim_count))]
+            return DummyEncoder(delimeter=delim)
+        elif unique_count <= self.unique_num_cutoff:
+            return ohe
+        elif (reduce_count <= self.unique_num_cutoff) and will_reduce:
             return Pipeline(
-                [
-                    ("ur", UncommonRemover(threshold=self.merge_thresh)),
-                    (
-                        "sme2",
-                        Encoder(
-                            unique_num_cutoff=self.unique_num_cutoff,
-                            merge_thresh=self.merge_thresh,
-                            remove_uncommon=False,
-                        ),
-                    ),  # recursive call
-                ]
+                [("ur", UncommonRemover(threshold=self.merge_thresh)), ("ohe", ohe)]
             )
-        if unique_count <= self.unique_num_cutoff:
-            elif delim_diff < 0:
-                delim = delimeters[delim_count.index(min(delim_count))]
-                return DummyEncoder(delimeter=delim)
-            elif unique_count <= unique_num_cutoff:
-                return OneHotEncoder(
-                    return_df=True, use_cat_names=True, handle_unknown="ignore"
-                )
         else:
             return HashingEncoder(n_components=30)
 

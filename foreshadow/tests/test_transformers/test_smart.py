@@ -58,9 +58,7 @@ def test_smart_encoder_less_than_30_levels():
     np.random.seed(0)
     leq_30_random_data = np.random.choice(30, size=500)
     smart_coder = Encoder()
-    assert isinstance(
-        smart_coder.fit(leq_30_random_data).steps[-1][1].transformer, OneHotEncoder
-    )
+    assert isinstance(smart_coder.fit(leq_30_random_data), OneHotEncoder)
 
 
 def test_smart_encoder_more_than_30_levels():
@@ -72,9 +70,21 @@ def test_smart_encoder_more_than_30_levels():
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
     smart_coder = Encoder()
-    assert isinstance(
-        smart_coder.fit(gt_30_random_data).steps[-1][1].transformer, HashingEncoder
+    assert isinstance(smart_coder.fit(gt_30_random_data), HashingEncoder)
+
+
+def test_smart_encoder_more_than_30_levels_that_reduces():
+    import numpy as np
+
+    from foreshadow.transformers.smart import Encoder
+    from foreshadow.transformers.externals import OneHotEncoder
+
+    np.random.seed(0)
+    gt_30_random_data = np.concatenate(
+        [np.random.choice(29, size=500), np.array([31, 32, 33, 34, 35, 36])]
     )
+    smart_coder = Encoder()
+    assert isinstance(smart_coder.fit(gt_30_random_data).steps[-1][1], OneHotEncoder)
 
 
 def test_smart_encoder_y_var():
@@ -222,6 +232,4 @@ def test_smart_encoder_more_than_30_levels_with_overwritten_cutoff():
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
     smart_coder = Encoder(unique_num_cutoff=35)
-    assert isinstance(
-        smart_coder.fit(gt_30_random_data).steps[-1][1].transformer, OneHotEncoder
-    )
+    assert isinstance(smart_coder.fit(gt_30_random_data), OneHotEncoder)
