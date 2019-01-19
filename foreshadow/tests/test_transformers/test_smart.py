@@ -73,6 +73,20 @@ def test_smart_encoder_more_than_30_levels():
     assert isinstance(smart_coder.fit(gt_30_random_data), HashingEncoder)
 
 
+def test_smart_encoder_more_than_30_levels_that_reduces():
+    import numpy as np
+
+    from foreshadow.transformers.smart import Encoder
+    from foreshadow.transformers.externals import OneHotEncoder
+
+    np.random.seed(0)
+    gt_30_random_data = np.concatenate(
+        [np.random.choice(29, size=500), np.array([31, 32, 33, 34, 35, 36])]
+    )
+    smart_coder = Encoder()
+    assert isinstance(smart_coder.fit(gt_30_random_data).steps[-1][1], OneHotEncoder)
+
+
 def test_smart_encoder_y_var():
     import numpy as np
     import pandas as pd
