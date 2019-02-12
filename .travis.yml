@@ -10,12 +10,11 @@ stages:
   - linting
   - test
 
-addons:
-  apt:
-    packages:
-      - swig
-
 before_install:
+    # linux
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt update; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt install swig3.0; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ln -s /usr/bin/swig3.0 /usr/bin/swig; fi
   - pip install poetry
 install:
   - poetry install -v -E dev
