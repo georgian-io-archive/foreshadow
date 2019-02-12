@@ -1,0 +1,86 @@
+[tool.poetry]
+name = "foreshadow"
+version = "0.1.0"
+description = "Peer into the future of a data science project"
+authors = [
+    "Adithya Balaji <adithyabsk@gmail.com>",
+    "Alexander Allen <>"
+]
+license = "Apache-2.0"
+readme = "README.rst"
+homepage = "https://foreshadow.readthedocs.io"
+repository = "https://github.com/georgianpartners/foreshadow"
+documentation = "https://foreshadow.readthedocs.io"
+keywords = [
+    "data",
+    "machine",
+    "learning",
+    "automl",
+    "foreshadow"
+]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Development Status :: 2 - Pre-Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+include = [
+    "README.rst",
+    "pyproject.toml",
+    "tox.ini",
+    "LICENSE"
+]
+
+[tool.poetry.dependencies]
+python = "^3.5"
+pandas = "^0.23.3"
+scikit-learn = "^0.19.2"
+scipy = "^1.1.0"
+TPOT = "^0.9.3"
+fancyimpute = "^0.3.2"
+category-encoders = "^1.2.8"
+toml = "^0.10.0"
+auto-sklearn = { version = "0.4.0", optional = true }
+
+[tool.poetry.dev-dependencies]
+black = {version = "^18.6b4", python = "^3.6"}
+coverage = "^4.5.1"
+coveralls = "^1.3.0"
+pytest = "^3.6.2"
+pytest-cov = "^2.5.1"
+pytest-mock = "^1.10.0"
+tox = "^3.5.0"
+tox-travis = "^0.10"
+sphinx = "^1.7.6"
+sphinx_rtd_theme = "^0.4.1"
+
+[tool.poetry.extras]
+dev = ["auto-sklearn"]
+
+[build-system]
+requires = ["numpy>=1.16.1", "Cython>=0.29.5", "poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+isolated_build = True
+envlist = py36,py35
+
+[testenv]
+whitelist_externals = poetry
+passenv =
+    TRAVIS
+    TRAVIS_BRANCH
+    TRAVIS_JOB_ID
+commands =
+    poetry install -v -E dev
+    poetry run pytest
+    py36: black --check --diff foreshadow
+"""

@@ -7,5 +7,17 @@ foreshadow - Peer into the future of a data science project
 
 TODO
 """
-__version__ = "0.1"
-__all__ = ["Foreshadow", "Preprocessor"]
+
+
+def get_version():
+    import toml
+
+    with open("./pyproject.toml", "r") as fopen:
+        pyproject = toml.load(fopen)
+
+    return pyproject["tool"]["poetry"]["version"]
+
+
+__version__ = get_version()
+
+__all__ = ["Foreshadow", "Preprocessor", "__version__"]

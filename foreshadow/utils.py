@@ -7,8 +7,6 @@ import warnings
 import numpy as np
 import pandas as pd
 
-from enum import Enum
-
 PipelineStep = {"NAME": 0, "CLASS": 1, "COLS": 2}
 
 
