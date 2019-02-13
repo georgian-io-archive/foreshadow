@@ -67,16 +67,17 @@ class BaseIntent(metaclass=_IntentRegistry):
 
     single_pipeline_template = None
     """A template for single pipelines of smart transformers that affect a 
-        single column in an intent
+        single column in an intent. Uses a list of PipelineTemplateEntry to
+        describe the transformers.
 
-        The template needs an additional boolean at the end of the tuple that
+        The template needs an additional boolean at the end of the constructor that
         determines whether the transformation can be applied to response 
         variables.
     
         Example: single_pipeline_template = [
-            ('t1', Transformer1, False),
-            ('t2', (Transformer2, {'arg1': True}), True),
-            ('t3', Transformer1, True),
+            PipelineTemplateEntry('t1', Transformer1, False),
+            PipelineTemplateEntry('t2', (Transformer2, {'arg1': True}), True),
+            PipelineTemplateEntry('t3', Transformer1, True),
         ]
     """
 

@@ -97,6 +97,8 @@ Making sure everything works
    
    If all the tests pass you're all set up!
 
+.. note:: By default all tests run including our integration tests which test model performance on a number of dummy datasets. These may be long running. To prevent these tests running set the environmental variable `MODE` to `FAST` 
+
 Adding Transformers
 -------------------
 
@@ -150,9 +152,13 @@ Intents are where the magic of Foreshadow all comes together. You need to be tho
 
 You will need to set the :py:attr:`dtype <foreshadow.intents.BaseIntent.dtype>`, :py:attr:`children <foreshadow.intents.BaseIntent.children>`, :py:attr:`single_pipeline <foreshadow.intents.BaseIntent.single_pipeline>`, and :py:attr:`multi_pipeline <foreshadow.intents.BaseIntent.multi_pipeline>` class attributes. You will also need to implement the :py:meth:`is_intent <foreshadow.intents.BaseIntent.is_intent>` classmethod. In most cases when adding an intent you can initialize :py:attr:`children <foreshadow.intents.BaseIntent.children>` to an empty list. Set the :py:attr:`dtype <foreshadow.intents.BaseIntent.dtype>` to the most appropriate initial form of that entering your intent.
 
-Use the :py:attr:`single_pipeline <foreshadow.intents.BaseIntent.single_pipeline>` field to determine the transformers that will be applied to a **single** column that is mapped to your intent. Add a **unique** name describing each step that you choose to include in your pipeline. It is important to note the utility of smart transformers here as you can now include branched logic in your pipelines deciding between different individual transformers based on the input data at runtime. The :py:attr:`multi_pipeline <foreshadow.intents.BaseIntent.multi_pipeline>` pipeline should be used to apply transformations to all columns of a specific  intent after the single pipelines have been evaluated. The same rules for defining the pipelines themselves apply here as well.
+Use the :py:attr:`single_pipeline <foreshadow.intents.BaseIntent.single_pipeline>` field to determine the transformers that will be applied to a **single** column that is mapped to your intent. Add a **unique** name describing each step that you choose to include in your pipeline. This field is represented as a list of PipelineTemplateEntry objects which are constructed using the following format `PipelineTemplateEntry([unique_name], [class], [can_operate_on_y])` The class name is either a singular transformer class, or a tuple of the form `([cls], {**args})` where args will be passed into the constructor of the transformer. The final boolean determines whether that transformer should be applied when operating on y-variables.
+
+It is important to note the utility of smart transformers here as you can now include branched logic in your pipelines deciding between different individual transformers based on the input data at runtime. The :py:attr:`multi_pipeline <foreshadow.intents.BaseIntent.multi_pipeline>` pipeline should be used to apply transformations to all columns of a specific  intent after the single pipelines have been evaluated. The same rules for defining the pipelines themselves apply here as well.
 
 The :py:meth:`is_intent <foreshadow.intents.BaseIntent.is_intent>` classmethod determines whether a specific column maps to an intent. Use this method to apply any heuristics, logic, or methods of determine whether a raw column maps to the intent that you are defining. Below is an example intent definition that you can modify to suit your needs.
+
+The :py:meth:`column_summary <foreshadow.intents.BaseIntent.column_summary>` classmethod is used to generate statistical reports each time an intent operates on a columns allowing a user to examine how effective the intent will be in processing the data. These reports can be accessed by calling the :py:meth:`summarize <foreshadow.preprocessor.summarize>` method after fitting the Foreshadow object. 
 
 Make **sure** to go to the parent intent and add your intent class name to the ordered :py:attr:`children <foreshadow.intents.BaseIntent.children>` field in the order of priority among the previously defined intents. The last intent in this list will be the most preferred intent upon evaluation in the case of multiple intents being able to process a column.
 
@@ -162,4 +168,4 @@ Take a look at the :py:class:`NumericIntent <foreshadow.intents.NumericIntent>` 
 Future Architecture Roadmap
 ---------------------------
 
-Under progress
+In progress
