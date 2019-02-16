@@ -30,7 +30,7 @@ General Setup
       
       Make sure to add the following lines to your :code:`.bash_profile`
       
-      .. code-block:: console
+      .. code-block:: bash
       
          export PYENV_ROOT="$HOME/.pyenv"
          export PATH="$PYENV_ROOT/bin:$PATH"
@@ -49,15 +49,17 @@ General Setup
          $ pyenv virtualenv -p python3.6 3.6.5 venv
          $ pyenv local venv 3.6.5 3.5.5
    
-   3. Install project requiremetns
+   3. Install poetry package manager
+
+      .. _poetry: https://github.com/sdispater/poetry
    
       .. code-block:: console
-      
-         $ pip install -r pre_requirements.txt
-         $ pip install -r requirements.txt
-         $ pip install -r test_requirements.txt
+        
+         (venv) $ pyenv shell system
+         $ curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python 
+         $ pyenv shell --unset
 
-Install Autosklearn
+Prepare for Autosklearn install
    Autosklearn was setup as an optional dependency as it can be sometimes difficult to install because of its requirement of xgboost. In order to have a development environment that passes all tests, autosklearn is required.
 
    1. Install swig
@@ -66,34 +68,40 @@ Install Autosklearn
       
       .. code-block:: console
       
-         $ brew install swig # (or apt-get)
+         (venv) $ brew install swig # (or apt-get)
    
    2. Install gcc (MacOS only)
-   Use your package manager to install gcc (necessary for xgboost)
+      
+      Use your package manager to install gcc (necessary for xgboost)
    
       .. code-block:: console
       
-         $ brew install gcc # (or apt-get)
+         (venv) $ brew install gcc # (or apt-get)
+
+Install all the packages
+   When the project is installed through poetry both project requirements and development requirements are installed.
+
+   .. code-block:: console
    
-   3. Install xgboost and autosklearn
-   
-      .. code-block:: console
-      
-         $ export CC=/path/to/installed/gcc; export CXX=/path/to/installed/g++; pip install xgboost
-         $ pip install autosklearn
+      (venv) $ poetry install -v
 
 Making sure everything works
    1. Run pytest to make sure you're good to go
    
       .. code-block:: console
       
-         $ pytest
+         $ poetry run pytest
    
    2. Run tox to run in supported python versions (optional)
    
       .. code-block:: console
       
-         $ tox # supply the -r flag if you changed the dependencies
+         $ poetry run tox # supply the -r flag if you changed the dependencies
+   3. Run make html in foreshadow/doc to build the documentation (optional)
+   
+      .. code-block:: console
+      
+         $ poetry run make html
    
    If all the tests pass you're all set up!
 

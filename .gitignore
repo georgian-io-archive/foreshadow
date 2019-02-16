@@ -107,5 +107,8 @@ venv.bak/
 # PyCharm
 .idea/
 
+# Poetry build wheels
+pip-wheel-metadata/
+
 # Other
 .DS_Store

@@ -15,20 +15,30 @@
 import os
 import sys
 
+import toml
+
 sys.path.append(os.path.join(os.path.dirname(__name__), ".."))
 sys.path.append(os.path.join(os.path.dirname(__name__), "../.."))
 
 
 # -- Project information -----------------------------------------------------
 
+def get_version():
+    import toml
+
+    with open("../pyproject.toml", "r") as fopen:
+        pyproject = toml.load(fopen)
+
+    return pyproject["tool"]["poetry"]["version"]
+
 project = u"Foreshadow"
 copyright = u"2018, Georgian Partners"
 author = u"Adithya Balaji, Alexander Allen"
 
 # The short X.Y version
-version = u""
+version = get_version()
 # The full version, including alpha/beta/rc tags
-release = u""
+release = version
 
 
 # -- General configuration ---------------------------------------------------

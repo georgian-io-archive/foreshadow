@@ -10,9 +10,13 @@ TODO
 
 
 def get_version():
+    import os
     import toml
 
-    with open("./pyproject.toml", "r") as fopen:
+    init_path = os.path.abspath(os.path.dirname(__file__))
+    pyproject_path = os.path.join(init_path, "../pyproject.toml")
+
+    with open(pyproject_path, "r") as fopen:
         pyproject = toml.load(fopen)
 
     return pyproject["tool"]["poetry"]["version"]
