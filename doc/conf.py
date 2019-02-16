@@ -23,6 +23,7 @@ sys.path.append(os.path.join(os.path.dirname(__name__), "../.."))
 
 # -- Project information -----------------------------------------------------
 
+
 def get_version():
     import toml
 
@@ -30,6 +31,7 @@ def get_version():
         pyproject = toml.load(fopen)
 
     return pyproject["tool"]["poetry"]["version"]
+
 
 project = u"Foreshadow"
 copyright = u"2018, Georgian Partners"

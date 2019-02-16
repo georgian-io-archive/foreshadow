@@ -93,20 +93,56 @@ Making sure everything works
    
       .. code-block:: console
       
-         $ poetry run pytest
+         (venv) $ poetry run pytest
    
    2. Run tox to run in supported python versions (optional)
    
       .. code-block:: console
       
-         $ poetry run tox # supply the -r flag if you changed the dependencies
+         (venv)$ poetry run tox -r # supply the -r flag if you changed the dependencies
+
    3. Run make html in foreshadow/doc to build the documentation (optional)
    
       .. code-block:: console
       
-         $ poetry run make html
+         (venv) $ poetry run make html
    
    If all the tests pass you're all set up!
+
+Suggested development work flow
+   1. Create a branch off of development to contain your change
+   
+      .. code-block:: console
+      
+         (venv) $ git checkout development
+         (venv) $ git checkout -b {your_feature}
+
+   2. Run pytest and pre-commit while developing
+      This will help ensure you haven't horrifically broken something while adding your feature and will help you catch bugs as you develop. Pre-commit will help make sure that your formatting is pristine before create a pull request.
+   
+      .. code-block:: console
+      
+         $ poetry run pytest
+         $ poetry run pre-commit run --all-files
+
+   3. Run tox to test your changes across versions
+      Make sure to add test cases for your change in the appropriate folder in foreshadow/tests and run tox to test your project across python 3.5 and 3.6
+
+      .. code-block:: console
+      
+         $ poetry run tox
+
+   4. Submit a pull request
+      This can be tricky if you have cloned the project instead of forking it but no worries the fix is simple. First go to the project page and **fork it there**. Then do the following.
+
+      .. code-block:: console
+      
+         (venv) $ git remote add upstream https://github.com/georgianpartners/foreshadow.git
+         (venv) $ git remote set-url origin https://github.com/{YOUR_USERNAME}/foreshadow.git
+         (venv) $ git push origin {your_feature}
+   
+      Now you can go to the project on your github page and submit a pull request to the main project. Note, make sure to submit the pull request against the development branch.
+
 
 Adding Transformers
 -------------------
