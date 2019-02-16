@@ -78,12 +78,15 @@ Prepare for Autosklearn install
       
          (venv) $ brew install gcc # (or apt-get)
 
-Install all the packages
-   When the project is installed through poetry both project requirements and development requirements are installed.
+Install all the packages and commit hooks
+   When the project is installed through poetry both project requirements and development requirements are installed. Install commit-hooks using the `pre-commit`_ utility.
+
+   .. _pre-commit: https://pre-commit.com/
 
    .. code-block:: console
    
       (venv) $ poetry install -v
+      (venv) $ poetry run pre-commit install
 
 Making sure everything works
    1. Run pytest to make sure you're good to go
