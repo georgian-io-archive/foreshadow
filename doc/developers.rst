@@ -97,7 +97,7 @@ Making sure everything works
    
    If all the tests pass you're all set up!
 
-.. note:: By default all tests run including our integration tests which test model performance on a number of dummy datasets. These may be long running. To prevent these tests running set the environmental variable `MODE` to `FAST` 
+.. note:: Our platform also includes integration tests that asses the overall performance of our framework using the default settings on a few standard ML datasets. By default these tests are not executed, to run them, set an environmental variable called `FORESHADOW_TESTS` to `ALL` 
 
 Adding Transformers
 -------------------
