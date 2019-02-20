@@ -10,7 +10,7 @@ import pytest
 def check_slow():
     import os
 
-    return os.environ.get("MODE") == "FAST"
+    return os.environ.get("FORESHADOW_TESTS") != "ALL"
 
 
 slow = pytest.mark.skipif(
