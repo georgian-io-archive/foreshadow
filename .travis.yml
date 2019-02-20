@@ -1,16 +1,38 @@
 language: python
-cache: pip
-python:
-  - "3.5"
-  - "3.6"
+
+cache:
+  pip: true
+  directories:
+    - "$HOME/.cache/pypoetry"
+    - "$HOME/.cache/pre-commit"
+
+stages:
+  - linting
+  - test
+
 before_install:
-  # linux
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install swig3.0; fi
+    # linux
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt update; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt install swig3.0; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ln -s /usr/bin/swig3.0 /usr/bin/swig; fi
+  - pip install poetry
 install:
-  - pip install tox tox-travis coveralls
+  - poetry install -v -E dev
+  - poetry run pip install tox tox-travis coveralls
 script:
-  - tox
+  - poetry run tox
 after_success:
-  - coveralls
+  - poetry run coveralls
+
+jobs:
+  include:
+    - python: "3.5"
+    - python: "3.6"
+
+    - stage: linting
+      python: "3.6"
+      install:
+        - pip install pre-commit
+        - pre-commit install-hooks
+      script:
+        - pre-commit run --all-files
