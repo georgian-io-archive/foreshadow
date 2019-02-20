@@ -96,4 +96,4 @@ Documentation
 -------------
 `Read the docs!`_
 
-.. _Read the docs!: https://foreshadow.readthedocs.io/en/development/index.html/
+.. _Read the docs!: https://foreshadow.readthedocs.io/en/development/index.html
