@@ -24,6 +24,9 @@ script:
 after_success:
   - poetry run coveralls
 
+env:
+  - FORESHADOW_TESTS="ALL"
+
 jobs:
   include:
     - python: "3.5"
