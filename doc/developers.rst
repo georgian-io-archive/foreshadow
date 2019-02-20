@@ -118,7 +118,7 @@ Suggested development work flow
          (venv) $ git checkout -b {your_feature}
 
    2. Run pytest and pre-commit while developing
-      This will help ensure you haven't horrifically broken something while adding your feature and will help you catch bugs as you develop. Pre-commit will help make sure that your formatting is pristine before create a pull request.
+      This will help ensure something hasn't broken while adding a feature. Pre-commit will lint the code before each commit.
    
       .. code-block:: console
       
@@ -141,7 +141,9 @@ Suggested development work flow
          (venv) $ git remote set-url origin https://github.com/{YOUR_USERNAME}/foreshadow.git
          (venv) $ git push origin {your_feature}
    
-      Now you can go to the project on your github page and submit a pull request to the main project. Note, make sure to submit the pull request against the development branch.
+      Now you can go to the project on your github page and submit a pull request to the main project.
+
+      .. note::  Make sure to submit the pull request against the development branch.
 
 
 Adding Transformers
