@@ -10,8 +10,8 @@ class DropFeature(BaseEstimator, TransformerMixin):
        threshold
 
         Parameters:
-            threshold (float): if percentage of valid data is less than the threshold
-                then the feature will be dropped
+            threshold (float): if percentage of valid data is less than the threshold 
+                               then the feature will be dropped
             raise_on_inverse (bool): allow or disallow return empty array on inverse
     """
 
