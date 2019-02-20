@@ -336,6 +336,8 @@ other than the :code:`override` parameter itself will be passed to the override 
 To use a smart transformer outside of the Intent / Foreshadow environment simply use it exactly as a sklearn transformer. When you call :code:`fit()` or :code:`fit_transform()` it automatically
 resolves which transformer to use by interally calling the :code:`_get_transformer()` overriden method.
 
+.. note:: Arguments passed into the constructor of a smart transformer will be passed into the fit function of the transformer it resolves to. This is meant to primarily be used alongside the override argument.
+
 
 Configuration
 -------------
