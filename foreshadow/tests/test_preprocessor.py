@@ -801,6 +801,21 @@ def test_preprocessor_serialize():
     assert json.loads(json.dumps(truth)) == json.loads(json.dumps(out))
 
 
+def test_preprocessor_continuity():
+    import json
+    import pandas as pd
+    from foreshadow.preprocessor import Preprocessor
+
+    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+
+    proc = Preprocessor()
+    proc.fit(df)
+    ser = proc.serialize()
+    proc2 = Preprocessor(from_json=ser)
+
+    assert ser == proc.serialize()
+
+
 def test_preprocessor_y_var_filtering():
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor

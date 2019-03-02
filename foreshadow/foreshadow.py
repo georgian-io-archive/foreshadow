@@ -24,10 +24,12 @@ class Foreshadow(BaseEstimator):
     Args:
         X_preprocessor \
             (:obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`, optional):
-            Preprocessor instance that will apply to X data
+            Preprocessor instance that will apply to X data. Passing False prevents
+            the automatic generation of an instance.
         y_preprocessor \
             (:obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`, optional):
-            Preprocessor instance that will apply to y data
+            Preprocessor instance that will apply to y data.  Passing False prevents
+            the automatic generation of an instance.
         estimator (:obj:`sklearn.base.BaseEstimator`, optional): Estimator instance to
             fit on processed data
         optimizer (:class:`sklearn.grid_search.BaseSeachCV`, optional): Optimizer class
@@ -142,16 +144,10 @@ class Foreshadow(BaseEstimator):
 
     @optimizer.setter
     def optimizer(self, o):
-        if o is not None:
-            if inspect.isclass(o):
-                if issubclass(o, BaseSearchCV):
-                    self._optimizer = o
-                else:
-                    raise ValueError("Invalid value passed as optimizer")
-            else:
-                raise ValueError("Invalid value passed as optimizer")
-        else:
+        if o is None or (inspect.isclass(o) and issubclass(o, BaseSearchCV)):
             self._optimizer = o
+        else:
+            raise ValueError("Invalid value passed as optimizer")
 
     def fit(self, data_df, y_df):
         """Fits the Foreshadow instance using the provided input data
@@ -183,9 +179,16 @@ class Foreshadow(BaseEstimator):
             # Calculate parameter search space
             param_ranges = _param_mapping(deepcopy(self.pipeline), X_df, y_df)
 
-            opt_instance = self.optimizer(self.pipeline, param_ranges)
-            opt_instance.fit(X_df, y_df)
-            self.pipeline = opt_instance.best_estimator_
+            self.opt_instance = self.optimizer(self.pipeline, param_ranges)
+            self.opt_instance.fit(X_df, y_df)
+            self.pipeline = self.opt_instance.best_estimator_
+            # extract trained preprocessors
+            if self.X_preprocessor is not None:
+                self.X_preprocessor = self.opt_instance.best_estimator_.steps[0][1]
+            if self.y_preprocessor is not None:
+                self.y_preprocessor = self.opt_instance.best_estimator_.steps[1][
+                    1
+                ].preprocessor
         else:
             self.pipeline.fit(X_df, y_df)
 
