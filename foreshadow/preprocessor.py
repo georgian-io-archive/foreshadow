@@ -461,7 +461,7 @@ def serialize_pipeline(pipeline):
         {
             "transformer": type(step[PipelineStep["CLASS"]]).__name__,
             "name": step[PipelineStep["NAME"]],
-            "pipeline": step[PipelineStep["CLASS"]].get_params(deep=False),
+            "parameters": step[PipelineStep["CLASS"]].get_params(deep=False),
         }
         for step in pipeline.steps
         if pipeline.steps[0][PipelineStep["NAME"]] != "null"
