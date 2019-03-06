@@ -385,7 +385,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         return {
             k: {
                 "intent": self._intent_map[k].__name__,
-                "data": self._intent_map[k].column_summary(df[k]),
+                "data": self._intent_map[k].column_summary(df[[k]]),
             }
             for k in self._intent_map.keys()
         }
