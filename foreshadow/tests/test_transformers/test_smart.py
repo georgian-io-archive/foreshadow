@@ -265,3 +265,19 @@ def test_smart_financial_cleaner_eu():
     out = FinancialCleaner().fit_transform(x).values
 
     assert np.all((out == expected) | (pd.isnull(out) == pd.isnull(expected)))
+
+
+def test_smart_text():
+    import numpy as np
+    import pandas as pd
+    from sklearn.pipeline import Pipeline
+
+    from foreshadow.transformers.smart import SmartText
+    from foreshadow.transformers.externals import TfidfVectorizer
+
+    x = pd.DataFrame(["abc", "def", "1321", "tester"])
+    y = pd.DataFrame(["<p> Hello </p>", "World", "<h1> Tag </h1>"])
+
+    # assert isinstance(SmartText().fit(x), TfidfVectorizer)
+    # assert isinstance(SmartText().fit(y), Pipeline)
+    assert SmartText().fit(x)

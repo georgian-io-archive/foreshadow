@@ -50,7 +50,9 @@ def wrap_transformer(transformer):
     wrap_candidates = [
         m
         for m in members
-        if any(arg in inspect.getfullargspec(m).args for arg in ["X", "y"])
+        if any(
+            arg in inspect.getfullargspec(m).args for arg in ["X", "y", "raw_documents"]
+        )
         and not m.__name__[0] == "_"
     ]
 

@@ -298,3 +298,26 @@ def test_uncommon_remover_strings():
     assert np.array_equal(
         pd.unique(set_replacement.values.ravel()), np.array(["D", "E"])
     )
+
+
+def test_html_remover_basic():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.internals import HTMLRemover
+
+    df = pd.DataFrame(["<h1>Header<h1/>", "Normal Text", "<br/><br/>More text"])
+    df_assert = pd.DataFrame(["Header", "Normal Text", "More text"])
+
+    hr = HTMLRemover()
+
+    assert np.array_equal(hr.fit_transform(df).values.ravel(), df_assert.values.ravel())
+
+
+def test_html_remover_is_html():
+    from foreshadow.transformers.internals import HTMLRemover
+
+    html = "<b>Real Tag</b> Test"
+    not_html = "<not tag>"
+
+    assert HTMLRemover.is_html(html)
+    assert not HTMLRemover.is_html(not_html)

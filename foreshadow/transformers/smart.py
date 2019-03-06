@@ -7,6 +7,7 @@ wrapped or transformed. Only classes extending SmartTransformer should exist her
 """
 
 from copy import deepcopy
+import lxml.html
 
 import numpy as np
 import scipy.stats as ss
@@ -21,6 +22,7 @@ from ..transformers.internals import (
     ConvertFinancial,
     UncommonRemover,
     DummyEncoder,
+    HTMLRemover,
 )
 from ..transformers.externals import (
     MinMaxScaler,
@@ -29,6 +31,7 @@ from ..transformers.externals import (
     HashingEncoder,
     LabelEncoder,
     OneHotEncoder,
+    TfidfVectorizer,
 )
 
 from foreshadow.utils import check_df
@@ -163,7 +166,7 @@ class SimpleImputer(SmartTransformer):
             return FancyImputer("SimpleFill", fill_method="mean")
 
     def _get_transformer(self, X, y=None, **fit_params):
-        s = X.ix[:, 0]
+        s = X.iloc[:, 0]
         ratio = s.isnull().sum() / s.count()
 
         if 0 < ratio <= self.threshold:
@@ -217,3 +220,50 @@ class FinancialCleaner(SmartTransformer):
             return eu_pipeline
         else:
             return us_pipeline
+
+
+class SmartText(SmartTransformer):
+    """Automatically choose appropriate parameters for a text column"""
+
+    def __init__(
+        self, ngram_range=(1, 2), max_df=0.9, min_df=0.05, max_features=None, **kwargs
+    ):
+        self.ngram_range = ngram_range
+        self.max_df = max_df
+        self.min_df = min_df
+        self.max_features = max_features
+
+        super().__init__(**kwargs)
+
+    def _get_transformer(self, X, y=None, **fit_params):
+        # tfidf = TfidfVectorizer(
+        #     decode_error='replace',
+        #     strip_accents='unicode',
+        #     stop_words='english',
+        #     ngram_range=self.ngram_range,
+        #     max_df=self.max_df,
+        #     min_df=self.min_df,
+        #     max_features=self.max_features,
+        #     sublinear_tf=True,
+        # )
+
+        # data = X.iloc[:, 0]
+        #
+        # if data.apply(HTMLRemover.is_html).all():
+        #     return Pipeline([
+        #         ('hr', HTMLRemover()),
+        #         ('tfidf', tfidf)
+        #     ])
+        #
+        # else:
+        #     return TfidfVectorizer(
+        #     decode_error='replace',
+        #     strip_accents='unicode',
+        #     stop_words='english',
+        #     ngram_range=self.ngram_range,
+        #     max_df=self.max_df,
+        #     min_df=self.min_df,
+        #     max_features=self.max_features,
+        #     sublinear_tf=True,
+        # )
+        return TfidfVectorizer()

@@ -14,6 +14,7 @@ from sklearn.preprocessing import (
     Imputer,
     LabelEncoder,
 )
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import PCA
 from category_encoders import HashingEncoder, OneHotEncoder
 
