@@ -1,0 +1,509 @@
+{
+    "columns": {
+        "age": {
+            "intent": "CategoricalIntent",
+            "pipeline": [
+                {
+                    "transformer": "DropFeature",
+                    "name": "dropper",
+                    "parameters": {
+                        "keep_columns": false,
+                        "name": "dropper",
+                        "raise_on_inverse": false,
+                        "threshold": 0.3
+                    }
+                },
+                {
+                    "transformer": "Encoder",
+                    "name": "impute_encode",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": "impute_encode",
+                        "keep_columns": false
+                    }
+                }
+            ],
+            "all_matched_intents": [
+                "GenericIntent",
+                "NumericIntent",
+                "CategoricalIntent"
+            ]
+        },
+        "workclass": {
+            "intent": "CategoricalIntent",
+            "pipeline": [
+                {
+                    "transformer": "DropFeature",
+                    "name": "dropper",
+                    "parameters": {
+                        "keep_columns": false,
+                        "name": "dropper",
+                        "raise_on_inverse": false,
+                        "threshold": 0.3
+                    }
+                },
+                {
+                    "transformer": "Encoder",
+                    "name": "impute_encode",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": "impute_encode",
+                        "keep_columns": false
+                    }
+                }
+            ],
+            "all_matched_intents": [
+                "GenericIntent",
+                "CategoricalIntent"
+            ]
+        },
+        "fnlwgt": {
+            "intent": "NumericIntent",
+            "pipeline": [
+                {
+                    "transformer": "DropFeature",
+                    "name": "dropper",
+                    "parameters": {
+                        "keep_columns": false,
+                        "name": "dropper",
+                        "raise_on_inverse": false,
+                        "threshold": 0.3
+                    }
+                },
+                {
+                    "transformer": "SimpleImputer",
+                    "name": "simple_imputer",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": "simple_imputer",
+                        "keep_columns": false
+                    }
+                },
+                {
+                    "transformer": "Scaler",
+                    "name": "scaler",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": "scaler",
+                        "keep_columns": false
+                    }
+                }
+            ],
+            "all_matched_intents": [
+                "GenericIntent",
+                "NumericIntent"
+            ]
+        },
+        "education": {
+            "intent": "CategoricalIntent",
+            "pipeline": [
+                {
+                    "transformer": "DropFeature",
+                    "name": "dropper",
+                    "parameters": {
+                        "keep_columns": false,
+                        "name": "dropper",
+                        "raise_on_inverse": false,
+                        "threshold": 0.3
+                    }
+                },
+                {
+                    "transformer": "Encoder",
+                    "name": "impute_encode",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": "impute_encode",
+                        "keep_columns": false
+                    }
+                }
+            ],
+            "all_matched_intents": [
+                "GenericIntent",
+                "CategoricalIntent"
+            ]
+        },
+        "education-num": {
+            "intent": "CategoricalIntent",
+            "pipeline": [
+                {
+                    "transformer": "DropFeature",
+                    "name": "dropper",
+                    "parameters": {
+                        "keep_columns": false,
+                        "name": "dropper",
+                        "raise_on_inverse": false,
+                        "threshold": 0.3
+                    }
+                },
+                {
+                    "transformer": "Encoder",
+                    "name": "impute_encode",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": "impute_encode",
+                        "keep_columns": false
+                    }
+                }
+            ],
+            "all_matched_intents": [
+                "GenericIntent",
+                "NumericIntent",
+                "CategoricalIntent"
+            ]
+        },
+        "marital-status": {
+            "intent": "CategoricalIntent",
+            "pipeline": [
+                {
+                    "transformer": "DropFeature",
+                    "name": "dropper",
+                    "parameters": {
+                        "keep_columns": false,
+                        "name": "dropper",
+                        "raise_on_inverse": false,
+                        "threshold": 0.3
+                    }
+                },
+                {
+                    "transformer": "Encoder",
+                    "name": "impute_encode",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": "impute_encode",
+                        "keep_columns": false
+                    }
+                }
+            ],
+            "all_matched_intents": [
+                "GenericIntent",
+                "CategoricalIntent"
+            ]
+        },
+        "occupation": {
+            "intent": "CategoricalIntent",
+            "pipeline": [
+                {
+                    "transformer": "DropFeature",
+                    "name": "dropper",
+                    "parameters": {
+                        "keep_columns": false,
+                        "name": "dropper",
+                        "raise_on_inverse": false,
+                        "threshold": 0.3
+                    }
+                },
+                {
+                    "transformer": "Encoder",
+                    "name": "impute_encode",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": "impute_encode",
+                        "keep_columns": false
+                    }
+                }
+            ],
+            "all_matched_intents": [
+                "GenericIntent",
+                "CategoricalIntent"
+            ]
+        },
+        "relationship": {
+            "intent": "CategoricalIntent",
+            "pipeline": [
+                {
+                    "transformer": "DropFeature",
+                    "name": "dropper",
+                    "parameters": {
+                        "keep_columns": false,
+                        "name": "dropper",
+                        "raise_on_inverse": false,
+                        "threshold": 0.3
+                    }
+                },
+                {
+                    "transformer": "Encoder",
+                    "name": "impute_encode",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": "impute_encode",
+                        "keep_columns": false
+                    }
+                }
+            ],
+            "all_matched_intents": [
+                "GenericIntent",
+                "CategoricalIntent"
+            ]
+        },
+        "race": {
+            "intent": "CategoricalIntent",
+            "pipeline": [
+                {
+                    "transformer": "DropFeature",
+                    "name": "dropper",
+                    "parameters": {
+                        "keep_columns": false,
+                        "name": "dropper",
+                        "raise_on_inverse": false,
+                        "threshold": 0.3
+                    }
+                },
+                {
+                    "transformer": "Encoder",
+                    "name": "impute_encode",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": "impute_encode",
+                        "keep_columns": false
+                    }
+                }
+            ],
+            "all_matched_intents": [
+                "GenericIntent",
+                "CategoricalIntent"
+            ]
+        },
+        "sex": {
+            "intent": "CategoricalIntent",
+            "pipeline": [
+                {
+                    "transformer": "DropFeature",
+                    "name": "dropper",
+                    "parameters": {
+                        "keep_columns": false,
+                        "name": "dropper",
+                        "raise_on_inverse": false,
+                        "threshold": 0.3
+                    }
+                },
+                {
+                    "transformer": "Encoder",
+                    "name": "impute_encode",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": "impute_encode",
+                        "keep_columns": false
+                    }
+                }
+            ],
+            "all_matched_intents": [
+                "GenericIntent",
+                "CategoricalIntent"
+            ]
+        },
+        "capital-gain": {
+            "intent": "CategoricalIntent",
+            "pipeline": [
+                {
+                    "transformer": "DropFeature",
+                    "name": "dropper",
+                    "parameters": {
+                        "keep_columns": false,
+                        "name": "dropper",
+                        "raise_on_inverse": false,
+                        "threshold": 0.3
+                    }
+                },
+                {
+                    "transformer": "Encoder",
+                    "name": "impute_encode",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": "impute_encode",
+                        "keep_columns": false
+                    }
+                }
+            ],
+            "all_matched_intents": [
+                "GenericIntent",
+                "NumericIntent",
+                "CategoricalIntent"
+            ]
+        },
+        "capital-loss": {
+            "intent": "CategoricalIntent",
+            "pipeline": [
+                {
+                    "transformer": "DropFeature",
+                    "name": "dropper",
+                    "parameters": {
+                        "keep_columns": false,
+                        "name": "dropper",
+                        "raise_on_inverse": false,
+                        "threshold": 0.3
+                    }
+                },
+                {
+                    "transformer": "Encoder",
+                    "name": "impute_encode",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": "impute_encode",
+                        "keep_columns": false
+                    }
+                }
+            ],
+            "all_matched_intents": [
+                "GenericIntent",
+                "NumericIntent",
+                "CategoricalIntent"
+            ]
+        },
+        "hours-per-week": {
+            "intent": "CategoricalIntent",
+            "pipeline": [
+                {
+                    "transformer": "DropFeature",
+                    "name": "dropper",
+                    "parameters": {
+                        "keep_columns": false,
+                        "name": "dropper",
+                        "raise_on_inverse": false,
+                        "threshold": 0.3
+                    }
+                },
+                {
+                    "transformer": "Encoder",
+                    "name": "impute_encode",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": "impute_encode",
+                        "keep_columns": false
+                    }
+                }
+            ],
+            "all_matched_intents": [
+                "GenericIntent",
+                "NumericIntent",
+                "CategoricalIntent"
+            ]
+        },
+        "native-country": {
+            "intent": "CategoricalIntent",
+            "pipeline": [
+                {
+                    "transformer": "DropFeature",
+                    "name": "dropper",
+                    "parameters": {
+                        "keep_columns": false,
+                        "name": "dropper",
+                        "raise_on_inverse": false,
+                        "threshold": 0.3
+                    }
+                },
+                {
+                    "transformer": "Encoder",
+                    "name": "impute_encode",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": "impute_encode",
+                        "keep_columns": false
+                    }
+                }
+            ],
+            "all_matched_intents": [
+                "GenericIntent",
+                "CategoricalIntent"
+            ]
+        }
+    },
+    "postprocess": [],
+    "intents": {
+        "GenericIntent": {
+            "multi": [
+                {
+                    "transformer": "MultiImputer",
+                    "name": "multi_impute",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": "multi_impute",
+                        "keep_columns": false
+                    }
+                }
+            ],
+            "single": []
+        },
+        "NumericIntent": {
+            "multi": [],
+            "single": [
+                {
+                    "transformer": "DropFeature",
+                    "name": "dropper",
+                    "parameters": {
+                        "keep_columns": false,
+                        "name": null,
+                        "raise_on_inverse": false,
+                        "threshold": 0.3
+                    }
+                },
+                {
+                    "transformer": "SimpleImputer",
+                    "name": "simple_imputer",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": null,
+                        "keep_columns": false
+                    }
+                },
+                {
+                    "transformer": "Scaler",
+                    "name": "scaler",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": null,
+                        "keep_columns": false
+                    }
+                }
+            ]
+        },
+        "CategoricalIntent": {
+            "multi": [],
+            "single": [
+                {
+                    "transformer": "DropFeature",
+                    "name": "dropper",
+                    "parameters": {
+                        "keep_columns": false,
+                        "name": null,
+                        "raise_on_inverse": false,
+                        "threshold": 0.3
+                    }
+                },
+                {
+                    "transformer": "Encoder",
+                    "name": "impute_encode",
+                    "parameters": {
+                        "y_var": false,
+                        "override": null,
+                        "name": null,
+                        "keep_columns": false
+                    }
+                }
+            ]
+        }
+    },
+    "y_var": false,
+    "combinations": [
+        {
+            "columns.age.intent": "['NumericIntent', 'CategoricalIntent']"
+        }
+    ]
+}

@@ -179,7 +179,7 @@ class Foreshadow(BaseEstimator):
             # Calculate parameter search space
             param_ranges = _param_mapping(deepcopy(self.pipeline), X_df, y_df)
 
-            self.opt_instance = self.optimizer(self.pipeline, param_ranges)
+            self.opt_instance = self.optimizer(self.pipeline, param_ranges, verbose=10)
             self.opt_instance.fit(X_df, y_df)
             self.pipeline = self.opt_instance.best_estimator_
             # extract trained preprocessors
