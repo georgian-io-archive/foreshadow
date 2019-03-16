@@ -8,3 +8,11 @@ repos:
     rev: v1.2.3
     hooks:
     - id: flake8
+-   repo: local
+    hooks:
+    -   id: wily
+        name: wily
+        entry: wily diff
+        verbose: true
+        language: python
+        additional_dependencies: [wily]
