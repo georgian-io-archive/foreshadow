@@ -1,8 +1,5 @@
-import pandas as pd
-import numpy as np
-from sklearn.utils import check_array
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
-from sklearn.base import TransformerMixin, BaseEstimator
 
 from foreshadow.utils import check_df
 
@@ -13,8 +10,8 @@ class UncommonRemover(BaseEstimator, TransformerMixin):
         Note: Unseen values from fitting will alse be merged.
 
         Args:
-            threshold (float): data that is less frequant than this percentage will 
-                be merged into a singular unique value
+            threshold (float): data that is less frequant than this percentage
+                will be merged into a singular unique value
             replacement (Optional): value with which to replace uncommon values
     """
 
@@ -44,7 +41,9 @@ class UncommonRemover(BaseEstimator, TransformerMixin):
     def transform(self, X, y=None):
         X = check_df(X, single_column=True).iloc[:, 0]
         check_is_fitted(self, ["values_", "merge_values_"])
-        X[X.isin(self.merge_values_) | ~X.isin(self.values_)] = self.replacement
+        X[
+            X.isin(self.merge_values_) | ~X.isin(self.values_)
+        ] = self.replacement
         X = X.to_frame()
 
         return X

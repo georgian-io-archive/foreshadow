@@ -2,7 +2,7 @@ import glob
 import inspect
 import os
 
-from ..transformers import _get_modules
+from foreshadow.transformers.transformers import _get_modules
 
 
 def _get_classes():
@@ -14,9 +14,14 @@ def _get_classes():
         for f in files
         if os.path.isfile(f) and not f.endswith("__init__.py")
     ]
-    modules = [__import__(i, globals(), locals(), ["object"], 1) for i in imports]
+    modules = [
+        __import__(i, globals(), locals(), ["object"], 1) for i in imports
+    ]
     classes = [
-        c[1] for m in modules for c in inspect.getmembers(m) if inspect.isclass(c[1])
+        c[1]
+        for m in modules
+        for c in inspect.getmembers(m)
+        if inspect.isclass(c[1])
     ]
 
     return classes

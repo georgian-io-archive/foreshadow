@@ -18,7 +18,6 @@ before_install:
   - pip install poetry
 install:
   - poetry install -v -E dev
-  - poetry run pip install tox tox-travis coveralls
 script:
   - poetry run tox
 after_success:

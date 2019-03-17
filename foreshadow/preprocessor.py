@@ -1,35 +1,37 @@
 import inspect
-
 from copy import deepcopy
+
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 
-from .transformers.base import ParallelProcessor
-from .transformers import smart
-from .intents.registry import registry_eval
-from .intents import GenericIntent
-from .utils import check_df, PipelineStep
+from foreshadow.intents import GenericIntent
+from foreshadow.intents.registry import registry_eval
+from foreshadow.transformers.base import ParallelProcessor
+from foreshadow.utils import PipelineStep, check_df
 
 
 class Preprocessor(BaseEstimator, TransformerMixin):
-    """Serves as a self-contained feature engineering tool. Part of Foreshadow suite.
+    """Serves as a self-contained feature engineering tool. Part of
+       Foreshadow suite.
 
-    Implements the sklearn transformer interface and can be used in Pipelines and in
-    conjunction with the Foreshadow class.
+    Implements the sklearn transformer interface and can be used in Pipelines
+    and in conjunction with the Foreshadow class.
 
-    Fits to a pandas dataframe and matches columns to a corresponding Intent class that
-    contains pipelines neccesary to preprocess the information in the feature. Then
-    constructs an sklearn pipeline to execute those pipelines across the dataframe.
+    Fits to a pandas dataframe and matches columns to a corresponding Intent
+    class that contains pipelines neccesary to preprocess the information in
+    the feature. Then constructs an sklearn pipeline to execute those
+    pipelines across the dataframe.
 
-    Optionally takes in JSON configuration file to override internals decision making.
+    Optionally takes in JSON configuration file to override internals
+    decision making.
 
     Parameters:
         from_json: Dictionary representing JSON config file (See docs for more)
         y_var: Boolean that indicates the processing of a response variable
 
     Attributes:
-        pipeline: Internal representation of sklearn pipeline. Can be exported and
-            act independently of Preprocessor object.
+        pipeline: Internal representation of sklearn pipeline. Can be
+                  exported and act independently of Preprocessor object.
         is_fit: Boolean representing the fit state of the internals pipeline.
 
     """
@@ -51,8 +53,8 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
     def _get_columns(self, intent):
         """
-        Iterates columns in intent_map. If intent or intent in its
-        hierarchy matches `intent` then it is appended to a list which is returned.
+        Iterates columns in intent_map. If intent or intent in its hierarchy
+        matches `intent` then it is appended to a list which is returned.
 
         Effectively returns all columns related to an intent.
 
@@ -65,10 +67,11 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
     def _map_intents(self, X_df):
         """
-        Iterates coluns in dataframe. For each column, the intent tree is traversed
-        and the best-match is returned. This key value pair is added to a dictionary.
-        Any current values in the intent map are allowed to override any new values,
-        this allows the JSON configuration to override the automatic system.
+        Iterates coluns in dataframe. For each column, the intent tree is
+        traversed and the best-match is returned. This key value pair is added
+        to a dictionary. Any current values in the intent map are allowed to
+        override any new values, this allows the JSON configuration to override
+        the automatic system.
         """
         temp_map = {}
         columns = X_df.columns
@@ -101,7 +104,8 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             if intent.__name__ in intent_order.keys():
                 continue
 
-            # Use slice to remove own class and object and BaseIntent superclass
+            # Use slice to remove own class and object and BaseIntent
+            # superclass
             parents = inspect.getmro(intent)[1:-2]
             # Determine order using class hierarchy
             order = len(parents)
@@ -139,7 +143,8 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                 if v.__name__ not in self._intent_pipelines.keys()
                 and len(v.single_pipeline(self.y_var)) > 0
             },
-            # Extracts already resolved single pipelines from JSON intent overrides
+            # Extracts already resolved single pipelines from JSON intent
+            # overrides
             **{
                 k: self._intent_pipelines[v.__name__].get(
                     "single",
@@ -175,7 +180,12 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                     else [("null", None)]
                 ),
                 # Extract multi pipeline from JSON config (highest priority)
-                **{k: v for k, v in self._intent_pipelines.get(v.__name__, {}).items()},
+                **{
+                    k: v
+                    for k, v in self._intent_pipelines.get(
+                        v.__name__, {}
+                    ).items()
+                },
             }
             for v in self._intent_trace
         }
@@ -201,7 +211,8 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             if val[2].steps[0][0] != "null"
         ]
 
-        # Construct multi pipeline from intent trace and intent pipeline dictionary
+        # Construct multi pipeline from intent trace and intent pipeline
+        # dictionary
         processors = [
             (
                 intent.__name__,
@@ -225,7 +236,8 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         if len(multi_processors + processors) == 0:
             return None
 
-        # Return pipeline with multi_pipeline transformers and postprocess transformers
+        # Return pipeline with multi_pipeline transformers and postprocess
+        # transformers
         return Pipeline(processors + multi_processors)
 
     def _construct_linear_pipeline(self, X):
@@ -269,7 +281,9 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             pipe.append(
                 (
                     "collapse",
-                    ParallelProcessor([("null", None, [])], collapse_index=True),
+                    ParallelProcessor(
+                        [("null", None, [])], collapse_index=True
+                    ),
                 )
             )
 
@@ -304,7 +318,8 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                     if validate_pipeline(v)
                 ]
 
-            # Resolve intents section into a dictionary of intents and pipelines
+            # Resolve intents section into a dictionary of intents and
+            # pipelines
             if "intents" in config.keys():
                 self._intent_pipelines = {
                     k: {l: resolve_pipeline(j) for l, j in v.items()}
@@ -312,14 +327,19 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                 }
 
         except KeyError as e:
-            raise ValueError("JSON Configuration is malformed: {}".format(str(e)))
+            raise ValueError(
+                "JSON Configuration is malformed: {}".format(str(e))
+            )
         except ValueError as e:
             raise e
 
     def get_params(self, deep=True):
         if self.pipeline is None:
             return {"from_json": self.from_json}
-        return {"from_json": self.from_json, **self.pipeline.get_params(deep=deep)}
+        return {
+            "from_json": self.from_json,
+            **self.pipeline.get_params(deep=deep),
+        }
 
     def set_params(self, **params):
 
@@ -334,9 +354,9 @@ class Preprocessor(BaseEstimator, TransformerMixin):
     def serialize(self):
         """Serialized internals arguments and logic.
 
-        Creates a python dictionary that represents the processes used to transform
-        the dataframe. This can be exported to a JSON file and modified in order to
-        change pipeline behavior.
+        Creates a python dictionary that represents the processes used to
+        transform the dataframe. This can be exported to a JSON file and
+        modified in order to change pipeline behavior.
 
         Returns:
             Dictionary configuration (See docs for more detail)
@@ -348,14 +368,20 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                 "pipeline": serialize_pipeline(
                     self._pipeline_map.get(k, Pipeline([("null", None)]))
                 ),
-                "all_matched_intents": [c[1].__name__ for c in self._choice_map[k]],
+                "all_matched_intents": [
+                    c[1].__name__ for c in self._choice_map[k]
+                ],
             }
             for k in self._intent_map.keys()
         }
 
         # Serialize multi-column processors
         json_multi = [
-            {"name": v[0], "columns": v[1], "pipeline": serialize_pipeline(v[2])}
+            {
+                "name": v[0],
+                "columns": v[1],
+                "pipeline": serialize_pipeline(v[2]),
+            }
             for v in self._multi_column_map
         ]
 
@@ -379,7 +405,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                 df (pandas.DataFrame): The DataFrame to analyze
 
             Returns: A json dictionary of values with each key representing
-                a column and its the value representing the results of that 
+                a column and its the value representing the results of that
                 intent's column_summary() function
         """
         return {
@@ -401,7 +427,8 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                 Input data to be transformed
 
         Returns:
-            :obj:`Pipeline <sklearn.pipeline.Pipeline>`: Fitted internal pipeline
+            :obj:`Pipeline <sklearn.pipeline.Pipeline>`: Fitted internal
+                                                         pipeline
 
         """
         X = check_df(X)
@@ -452,7 +479,8 @@ def serialize_pipeline(pipeline):
     """Serializes sklearn Pipeline object into JSON object for reconstruction.
 
     Args:
-        pipeline (:obj:`sklearn.pipeline.Pipeline`): Pipeline object to serialize
+        pipeline (:obj:`sklearn.pipeline.Pipeline`): Pipeline object to
+                                                     serialize
 
     Returns:
         list: JSON serializable object of form ``[cls, name, {**params}]``
@@ -486,7 +514,9 @@ def resolve_pipeline(pipeline_json):
     module_externals = __import__(
         "transformers.externals", globals(), locals(), ["object"], 1
     )
-    module_smart = __import__("transformers.smart", globals(), locals(), ["object"], 1)
+    module_smart = __import__(
+        "transformers.smart", globals(), locals(), ["object"], 1
+    )
 
     for trans in pipeline_json:
 
@@ -495,12 +525,11 @@ def resolve_pipeline(pipeline_json):
             name = trans["name"]
             params = trans["parameters"]
 
-        except KeyError as e:
+        except KeyError:
             raise KeyError(
                 "Malformed transformer {} correct syntax is"
-                '["transformer": cls, "name": name, "pipeline": {{**params}}]'.format(
-                    trans
-                )
+                '["transformer": cls, "name": name, "pipeline": '
+                "{{**params}}]".format(trans)
             )
 
         try:
@@ -516,14 +545,18 @@ def resolve_pipeline(pipeline_json):
 
             cls = getattr(search_module, clsname)
 
-        except Exception as e:
-            raise ValueError("Could not import defined transformer {}".format(clsname))
+        except Exception:
+            raise ValueError(
+                "Could not import defined transformer {}".format(clsname)
+            )
 
         try:
             pipe.append((name, cls(**params)))
-        except TypeError as e:
+        except TypeError:
             raise ValueError(
-                "Params {} invalid for transfomer {}".format(params, cls.__name__)
+                "Params {} invalid for transfomer {}".format(
+                    params, cls.__name__
+                )
             )
 
     if len(pipe) == 0:
@@ -542,4 +575,6 @@ def validate_pipeline(v):
     Returns: True if dict is valid pipeline
     """
 
-    return "columns" in v.keys() and "pipeline" in v.keys() and "name" in v.keys()
+    return (
+        "columns" in v.keys() and "pipeline" in v.keys() and "name" in v.keys()
+    )

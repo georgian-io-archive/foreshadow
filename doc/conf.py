@@ -15,7 +15,6 @@
 import os
 import sys
 
-import toml
 
 sys.path.append(os.path.join(os.path.dirname(__name__), ".."))
 sys.path.append(os.path.join(os.path.dirname(__name__), "../.."))
@@ -64,6 +63,7 @@ extensions = [
 
 # Autodoc Settings
 autodoc_default_flags = ["members", "undoc-members"]
+autodoc_member_order = "bysource"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -163,7 +163,9 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "Foreshadow", u"Foreshadow Documentation", [author], 1)]
+man_pages = [
+    (master_doc, "Foreshadow", u"Foreshadow Documentation", [author], 1)
+]
 
 
 # -- Options for Texinfo output ----------------------------------------------
@@ -189,7 +191,12 @@ texinfo_documents = [
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {"https://docs.python.org/": None}
+intersphinx_mapping = {
+    "python": ("http://docs.python.org/", None),
+    "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
+    "numpy": ("https://docs.scipy.org/doc/numpy", None),
+    "sklearn": ("https://scikit-learn.org/stable/", None),
+}
 
 # -- Options for todo extension ----------------------------------------------
 

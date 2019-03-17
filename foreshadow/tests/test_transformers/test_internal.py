@@ -2,7 +2,6 @@ import pytest
 
 
 def test_dummy_encoder():
-    import numpy as np
     import pandas as pd
 
     from foreshadow.transformers.internals import DummyEncoder
@@ -24,7 +23,6 @@ def test_dummy_encoder():
 
 
 def test_dummy_encoder_other():
-    import numpy as np
     import pandas as pd
 
     from foreshadow.transformers.internals import DummyEncoder
@@ -97,7 +95,7 @@ def test_transformer_fancy_impute_invalid_init():
     from foreshadow.transformers.internals import FancyImputer
 
     with pytest.raises(ValueError) as e:
-        impute = FancyImputer(method="INVALID")
+        _ = FancyImputer(method="INVALID")
 
     assert str(e.value) == (
         "Invalid method. Possible values are BiScaler, KNN, "
@@ -122,7 +120,9 @@ def test_transformer_onehotencoder_fit_transform():
     import pandas as pd
     from foreshadow.transformers.externals import OneHotEncoder
 
-    df = pd.DataFrame({"neat": ["apple", "apple", "orange", "apple", "orange"]})
+    df = pd.DataFrame(
+        {"neat": ["apple", "apple", "orange", "apple", "orange"]}
+    )
     ohe = OneHotEncoder(use_cat_names=True, handle_unknown="ignore")
     assert ohe.fit(df) == ohe
     assert list(ohe.transform(df)) == [
@@ -135,9 +135,14 @@ def test_transformer_onehotencoder_fit_transform_keep_cols():
     import pandas as pd
     from foreshadow.transformers.externals import OneHotEncoder
 
-    df = pd.DataFrame({"neat": ["apple", "apple", "orange", "apple", "orange"]})
+    df = pd.DataFrame(
+        {"neat": ["apple", "apple", "orange", "apple", "orange"]}
+    )
     ohe = OneHotEncoder(
-        keep_columns=True, name="encoder", use_cat_names=True, handle_unknown="ignore"
+        keep_columns=True,
+        name="encoder",
+        use_cat_names=True,
+        handle_unknown="ignore",
     )
     assert ohe.fit(df) == ohe
     assert list(ohe.transform(df)) == [
@@ -229,7 +234,17 @@ def test_prepare_financial():
         ]
     )
     expected = pd.DataFrame(
-        [np.nan, "(123)", "123", "[123]", "123,", "123.", "-123", "123,123", "123.3"]
+        [
+            np.nan,
+            "(123)",
+            "123",
+            "[123]",
+            "123,",
+            "123.",
+            "-123",
+            "123,123",
+            "123.3",
+        ]
     ).values
     out = PrepareFinancial().fit_transform(x).values
 
@@ -242,7 +257,17 @@ def test_convert_financial_us():
     from foreshadow.transformers.internals import ConvertFinancial
 
     x = pd.DataFrame(
-        ["0", "000", "0.9", "[0.9]", "-.3", "30.00", "1,000", "1.000,000", "1.1.1"]
+        [
+            "0",
+            "000",
+            "0.9",
+            "[0.9]",
+            "-.3",
+            "30.00",
+            "1,000",
+            "1.000,000",
+            "1.1.1",
+        ]
     )
     expected = pd.DataFrame(
         [0.0, 0.0, 0.9, -0.9, -0.3, 30.0, 1000.0, np.nan, np.nan]
@@ -257,7 +282,17 @@ def test_convert_financial_eu():
     from foreshadow.transformers.internals import ConvertFinancial
 
     x = pd.DataFrame(
-        ["0", "000", "0,9", "[0,9]", "-,3", "30,00", "1.000", "1,000.000", "1.1.1"]
+        [
+            "0",
+            "000",
+            "0,9",
+            "[0,9]",
+            "-,3",
+            "30,00",
+            "1.000",
+            "1,000.000",
+            "1.1.1",
+        ]
     )
     expected = pd.DataFrame(
         [0, 0, 0.9, -0.9, -0.3, 30.0, 1000.0, np.nan, np.nan]
@@ -279,7 +314,9 @@ def test_uncommon_remover_integers():
         pd.unique(standard.values.ravel()),
         np.array(["UncommonRemover_Other", 1, 3], dtype="object"),
     )
-    assert np.array_equal(pd.unique(set_replacement.values.ravel()), np.array([1, 3]))
+    assert np.array_equal(
+        pd.unique(set_replacement.values.ravel()), np.array([1, 3])
+    )
 
 
 def test_uncommon_remover_strings():
@@ -287,7 +324,9 @@ def test_uncommon_remover_strings():
     import pandas as pd
     from foreshadow.transformers.internals import UncommonRemover
 
-    x = pd.DataFrame({"A": np.array(["A", "B", "C"] + ["D"] * 400 + ["E"] * 400)})
+    x = pd.DataFrame(
+        {"A": np.array(["A", "B", "C"] + ["D"] * 400 + ["E"] * 400)}
+    )
     standard = UncommonRemover().fit_transform(x)
     set_replacement = UncommonRemover(replacement="D").fit_transform(x)
 

@@ -83,7 +83,6 @@ passenv =
 commands =
     poetry install -v -E dev
     poetry run pytest
-    py36: black --check --diff foreshadow
 """
 
 [tool.black]
@@ -104,7 +103,6 @@ exclude = '''
 
 [tool.isort]
 known_first_party = 'foreshadow'
-not_skip = '__init__.py'
 multi_line_output = 3
 lines_after_imports = 2
 force_grid_wrap = 0

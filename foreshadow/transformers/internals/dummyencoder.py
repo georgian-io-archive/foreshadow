@@ -1,7 +1,5 @@
-import numpy as np
 import pandas as pd
-from sklearn.base import TransformerMixin, BaseEstimator
-from sklearn.utils import check_array
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 
 
@@ -48,7 +46,9 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         check_is_fitted(self, ["categories"])
 
         kwargs = {
-            k: X.applymap(separate(k, self.delimeter, self.other, self.other_name))
+            k: X.applymap(
+                separate(k, self.delimeter, self.other, self.other_name)
+            )
             .iloc[:, 0]
             .tolist()
             for k in self.categories
