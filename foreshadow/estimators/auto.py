@@ -120,12 +120,6 @@ class AutoEstimator(BaseEstimator):
 
             return getattr(tpot, estimator_choices[self.auto][self.problem_type])
 
-    def _determine_problem_type(self, y):
-        """Simple heuristic to determine problem type"""
-        return (
-            "classification" if np.unique(y.values.ravel()).size == 2 else "regression"
-        )
-
     def _pick_estimator(self):
         """Pick auto estimator based on benchmarked results"""
         return "tpot" if self.problem_type == "regression" else "autosklearn"
@@ -161,7 +155,7 @@ class AutoEstimator(BaseEstimator):
     def _setup_estimator(self, y):
         """Construct and return the auto estimator instance"""
         self.problem_type = (
-            self._determine_problem_type(y)
+            determine_problem_type(y)
             if self.problem_type is None
             else self.problem_type
         )
@@ -230,3 +224,8 @@ class AutoEstimator(BaseEstimator):
         X = check_df(X)
         y = check_df(y)
         return self.estimator.score(X, y)
+
+
+def determine_problem_type(y):
+    """Simple heuristic to determine problem type"""
+    return "classification" if np.unique(y.values.ravel()).size == 2 else "regression"
