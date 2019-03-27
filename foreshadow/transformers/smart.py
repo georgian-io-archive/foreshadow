@@ -24,12 +24,12 @@ from ..transformers.internals import (
     DummyEncoder,
     HTMLRemover,
 )
+from ..transformers.internals import FixedLabelEncoder as LabelEncoder
 from ..transformers.externals import (
     MinMaxScaler,
     StandardScaler,
     RobustScaler,
     HashingEncoder,
-    LabelEncoder,
     OneHotEncoder,
     TfidfVectorizer,
 )

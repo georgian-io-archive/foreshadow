@@ -92,7 +92,7 @@ def test_smart_encoder_y_var():
     import pandas as pd
 
     from foreshadow.transformers.smart import Encoder
-    from foreshadow.transformers.externals import LabelEncoder
+    from foreshadow.transformers.internals import FixedLabelEncoder as LabelEncoder
 
     y_df = pd.DataFrame({"A": np.array([1, 2, 10] * 3)})
     smart_coder = Encoder(y_var=True)

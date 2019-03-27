@@ -8,10 +8,11 @@ import lxml.html
 from foreshadow.utils import check_df
 
 
+HTML_REGEX = r"<[^<]+?>"
+
+
 class HTMLRemover(BaseEstimator, TransformerMixin):
     """Removes html tags from text data."""
-
-    HTML_REGEX = r"<[^<]+?>"
 
     def is_html(input_str):
         return lxml.html.fromstring(input_str).find(".//*") is not None

@@ -407,14 +407,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
             self._verify_transformer(X, y, refit=True, **self.kwargs)
         inject = _inject_df(self.transformer, kwargs.pop("full_df", None))
 
-        # Check if using a sklearn transformer with only y vars
-        if all(
-            i not in inspect.getfullargspec(self.transformer.fit).args
-            for i in ["X", "raw_documents"]
-        ):
-            return self.transformer.fit(X, **{**kwargs, **inject})
-        else:
-            return self.transformer.fit(X, y, **{**kwargs, **inject})
+        return self.transformer.fit(X, y, **{**kwargs, **inject})
 
     def inverse_transform(self, X):
         X = check_df(X)

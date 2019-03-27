@@ -1,9 +1,12 @@
+import importlib
 import inspect
 from functools import partialmethod, wraps
 
+from copy import deepcopy
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.feature_extraction.text import VectorizerMixin
 
 from ..utils import check_df
 
@@ -23,11 +26,12 @@ def _get_modules(classes, globals_, mname):
     transformers = [
         cls
         for cls in classes
-        if issubclass(cls, TransformerMixin) and issubclass(cls, BaseEstimator)
+        if issubclass(cls, BaseEstimator)
+        and (issubclass(cls, TransformerMixin) or issubclass(cls, VectorizerMixin))
     ]
 
     for t in transformers:
-        copied_t = type(t.__name__, t.__bases__, dict(t.__dict__))
+        copied_t = type(t.__name__, (t, *t.__bases__), dict(t.__dict__))
         copied_t.__module__ = mname
         globals_[copied_t.__name__] = wrap_transformer(copied_t)
 
@@ -51,9 +55,9 @@ def wrap_transformer(transformer):
         m
         for m in members
         if any(
-            arg in inspect.getfullargspec(m).args for arg in ["X", "y", "raw_documents"]
+            name == m.__name__
+            for name in ["fit", "fit_transform", "transform", "inverse_transform"]
         )
-        and not m.__name__[0] == "_"
     ]
 
     for w in wrap_candidates:
@@ -241,7 +245,17 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
         try:
             out = func(self, df, *args, **kwargs)
         except Exception as e:
-            out = func(self, df, *args)
+            try:
+                out = func(self, df, *args)
+            except Exception as e:
+                from sklearn.utils import check_array
+
+                dat = check_array(
+                    df, accept_sparse=True, dtype=None, force_all_finite=False
+                ).tolist()
+                dat = [i for t in dat for i in t]
+                out = func(self, dat, *args)
+
     else:
         fname = func.__name__
         if "transform" in fname:
