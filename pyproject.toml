@@ -47,7 +47,6 @@ fancyimpute = "^0.3.2"
 category-encoders = "^1.2.8"
 toml = "^0.10.0"
 auto-sklearn = { version = "0.4.0", optional = true }
-lxml = "^4.3"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^18.6b4", python = "^3.6"}

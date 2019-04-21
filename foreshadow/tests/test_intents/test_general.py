@@ -1,4 +1,4 @@
-import pytest
+from unittest.mock import patch
 
 
 def test_generic_intent_is_intent():
@@ -153,10 +153,10 @@ def test_categorical_intent_is_intent_string():
     assert CategoricalIntent.is_intent(X)
 
 
-def test_categorical_intent_column_summary():
+def test_standard_intent_column_summary():
     import numpy as np
     import pandas as pd
-    from foreshadow.intents import CategoricalIntent
+    from foreshadow.intents.general import _standard_col_summary
 
     X = pd.DataFrame(["test"] * 5 + ["hi"] * 10 + [np.nan] * 5)
     expected_dict = {
@@ -165,4 +165,15 @@ def test_categorical_intent_column_summary():
         "top10": [["hi", 10, 0.5], ["test", 5, 0.25]],
     }
 
-    assert CategoricalIntent.column_summary(X) == expected_dict
+    assert _standard_col_summary(X) == expected_dict
+
+
+def test_standard_intent_column_summary_calls():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.intents import CategoricalIntent, TextIntent
+
+    X = pd.DataFrame(["test"] * 5 + ["hi"] * 10 + [np.nan] * 5)
+
+    CategoricalIntent.column_summary(X)
+    TextIntent.column_summary(X)

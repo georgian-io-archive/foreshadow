@@ -7,7 +7,6 @@ wrapped or transformed. Only classes extending SmartTransformer should exist her
 """
 
 from copy import deepcopy
-import lxml.html
 
 import numpy as np
 import scipy.stats as ss
@@ -23,6 +22,7 @@ from ..transformers.internals import (
     UncommonRemover,
     DummyEncoder,
     HTMLRemover,
+    ToString,
 )
 from ..transformers.internals import FixedLabelEncoder as LabelEncoder
 from ..transformers.externals import (
@@ -223,47 +223,46 @@ class FinancialCleaner(SmartTransformer):
 
 
 class SmartText(SmartTransformer):
-    """Automatically choose appropriate parameters for a text column"""
+    """Automatically choose appropriate parameters for a text column
+        
+        Args:
+            threshold (float): threshold of missing data where to use these 
+                strategies
+    """
 
-    def __init__(
-        self, ngram_range=(1, 2), max_df=0.9, min_df=0.05, max_features=None, **kwargs
-    ):
-        self.ngram_range = ngram_range
-        self.max_df = max_df
-        self.min_df = min_df
-        self.max_features = max_features
+    def __init__(self, html_cutoff=0.4, **kwargs):
+        self.html_cutoff = html_cutoff
 
         super().__init__(**kwargs)
 
     def _get_transformer(self, X, y=None, **fit_params):
-        # tfidf = TfidfVectorizer(
-        #     decode_error='replace',
-        #     strip_accents='unicode',
-        #     stop_words='english',
-        #     ngram_range=self.ngram_range,
-        #     max_df=self.max_df,
-        #     min_df=self.min_df,
-        #     max_features=self.max_features,
-        #     sublinear_tf=True,
-        # )
+        data = X.iloc[:, 0]
 
-        # data = X.iloc[:, 0]
-        #
-        # if data.apply(HTMLRemover.is_html).all():
-        #     return Pipeline([
-        #         ('hr', HTMLRemover()),
-        #         ('tfidf', tfidf)
-        #     ])
-        #
-        # else:
-        #     return TfidfVectorizer(
-        #     decode_error='replace',
-        #     strip_accents='unicode',
-        #     stop_words='english',
-        #     ngram_range=self.ngram_range,
-        #     max_df=self.max_df,
-        #     min_df=self.min_df,
-        #     max_features=self.max_features,
-        #     sublinear_tf=True,
-        # )
-        return TfidfVectorizer()
+        steps = []
+
+        if (data.dtype.type is not np.str_) and not all(
+            [isinstance(i, str) for i in data]
+        ):
+            steps.append(("num", ToString()))
+
+        html_ratio = (data.astype("str").apply(HTMLRemover.is_html).sum()) / len(data)
+        if html_ratio > self.html_cutoff:
+            steps.append(("hr", HTMLRemover()))
+
+        # TODO: find heuristic for finding optimal values for values
+        tfidf = TfidfVectorizer(
+            decode_error="replace",
+            strip_accents="unicode",
+            stop_words="english",
+            ngram_range=(1, 2),
+            max_df=0.9,
+            min_df=0.05,
+            max_features=None,
+            sublinear_tf=True,
+        )
+        steps.append(("tfidf", tfidf))
+
+        if len(steps) == 1:
+            return tfidf
+        else:
+            return Pipeline(steps)

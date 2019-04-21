@@ -274,10 +274,20 @@ def test_smart_text():
 
     from foreshadow.transformers.smart import SmartText
     from foreshadow.transformers.externals import TfidfVectorizer
+    from foreshadow.transformers.internals import ToString, HTMLRemover
 
-    x = pd.DataFrame(["abc", "def", "1321", "tester"])
-    y = pd.DataFrame(["<p> Hello </p>", "World", "<h1> Tag </h1>"])
+    inst_in_steps = lambda pipe, inst: any(isinstance(tf, inst) for n, tf in pipe.steps)
 
-    # assert isinstance(SmartText().fit(x), TfidfVectorizer)
-    # assert isinstance(SmartText().fit(y), Pipeline)
-    assert SmartText().fit(x)
+    X1 = pd.DataFrame(["abc", "def", "1321", "tester"])
+    tf1 = SmartText().fit(X1)
+
+    assert isinstance(tf1, TfidfVectorizer)
+
+    X2 = pd.DataFrame(["<p> Hello </p>", "World", "<h1> Tag </h1>"])
+    tf2 = SmartText().fit(X2)
+
+    assert inst_in_steps(tf2, HTMLRemover)
+    assert isinstance(tf2.steps[-1][1], TfidfVectorizer)
+
+    X3 = pd.DataFrame([1, 2, 3, np.nan])
+    tf3 = SmartText().fit(X3)

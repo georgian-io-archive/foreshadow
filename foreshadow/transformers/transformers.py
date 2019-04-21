@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_extraction.text import VectorizerMixin
+import scipy
 
 from ..utils import check_df
 
@@ -247,6 +248,7 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
         except Exception as e:
             try:
                 out = func(self, df, *args)
+                data_path = True
             except Exception as e:
                 from sklearn.utils import check_array
 
@@ -255,7 +257,6 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
                 ).tolist()
                 dat = [i for t in dat for i in t]
                 out = func(self, dat, *args)
-
     else:
         fname = func.__name__
         if "transform" in fname:
@@ -265,7 +266,6 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
 
     # If output is DataFrame (custom transform has occured)
     if isinstance(out, pd.DataFrame):
-
         if hasattr(out, "from_transformer"):
             return out
 
@@ -287,6 +287,9 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
         out.from_transformer = True
 
         return out
+
+    if scipy.sparse.issparse(out):  # densify sparse matricies
+        out = out.toarray()
 
     # If output is numpy array (transform has occurred)
     if isinstance(out, np.ndarray):

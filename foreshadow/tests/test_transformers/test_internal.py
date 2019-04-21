@@ -321,3 +321,20 @@ def test_html_remover_is_html():
 
     assert HTMLRemover.is_html(html)
     assert not HTMLRemover.is_html(not_html)
+
+
+def test_to_string_tf():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.internals import ToString
+
+    data = [0, 1, 2, 3, np.nan]
+    arr = np.array(data)
+    df = pd.DataFrame(data)
+
+    expected = ["0.0", "1.0", "2.0", "3.0", "nan"]
+
+    ts = ToString()
+
+    assert expected == ts.transform(arr).values.ravel().tolist()
+    assert expected == ts.transform(df).values.ravel().tolist()
