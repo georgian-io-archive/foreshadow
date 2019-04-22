@@ -503,7 +503,8 @@
     "y_var": false,
     "combinations": [
         {
-            "columns.age.intent": "['NumericIntent', 'CategoricalIntent']"
+            "columns.age.intent": "['NumericIntent', 'CategoricalIntent']",
+            "columns.fnlwgt.pipeline.2.transformer": "['StandardScaler', 'MinMaxScaler']"
         }
     ]
 }

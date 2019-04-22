@@ -148,14 +148,16 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             },
             # Extracts already resolved single pipelines from JSON intent overrides
             **{
-                k: deepcopy(self._intent_pipelines[v.__name__].get(
-                    "single",
-                    Pipeline(
-                        deepcopy(v.single_pipeline(self.y_var))
-                        if len(v.single_pipeline(self.y_var)) > 0
-                        else [("null", None)]
-                    ),
-                ))
+                k: deepcopy(
+                    self._intent_pipelines[v.__name__].get(
+                        "single",
+                        Pipeline(
+                            v.single_pipeline(self.y_var)
+                            if len(v.single_pipeline(self.y_var)) > 0
+                            else [("null", None)]
+                        ),
+                    )
+                )
                 for k, v in self._intent_map.items()
                 if v.__name__ in self._intent_pipelines.keys()
             },
