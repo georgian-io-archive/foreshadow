@@ -16,6 +16,9 @@ from foreshadow import Foreshadow
 
 
 def generate_model(args):
+    """ Takes the arguments passed to the console and generates the Foreshadow model that
+    must be fit.
+    """
 
     parser = argparse.ArgumentParser(
         description="Peer into the future of a data science project"
@@ -120,6 +123,10 @@ def generate_model(args):
 
 
 def execute_model(fs, X_train, y_train, X_test, y_test):
+    """ Executes the model produced by generate_model() and exports the data to json
+    as well as returning the exported json object containing the results and the serialized
+    Foreshadow object. Also prints simple model accuracy metrics.
+    """
 
     print("Fitting final model...")
     fs.fit(X_train, y_train)
@@ -149,11 +156,18 @@ def execute_model(fs, X_train, y_train, X_test, y_test):
 
 
 def cmd():  # pragma: no cover
+    """ Entry point to foreshadow via console command. Uncovered as
+    this function only serves to be executed manually.
+    """
+
     model = generate_model(sys.argv[1:])
     execute_model(*model)
 
 
 def get_method(arg, X_train):
+    """ Function to determine what estimator to use given a set of X data
+    and a passed argument referencing an sklearn Estimator class.
+    """
 
     if arg is not None:
         try:
