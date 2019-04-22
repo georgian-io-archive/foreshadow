@@ -24,4 +24,4 @@ def get_version():
 
 __version__ = get_version()
 
-__all__ = ["Foreshadow", "Preprocessor", "__version__"]
+__all__ = ["Foreshadow", "Preprocessor", "console", "__version__"]

@@ -1,15 +1,21 @@
+import sys
+import warnings
+
 import pandas as pd
 import argparse
 import json
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.base import BaseEstimator
 
 from foreshadow.estimators.auto import determine_problem_type
+from foreshadow.estimators import AutoEstimator
+from foreshadow import Preprocessor
 from foreshadow import Foreshadow
 
 
-def run():
+def generate_model(args):
 
     parser = argparse.ArgumentParser(
         description="Peer into the future of a data science project"
@@ -38,28 +44,28 @@ def run():
         type=int,
         help="Time limit in minutes to apply to model parameter search. (Default 10)",
     )
-    cargs = parser.parse_args()
+    cargs = parser.parse_args(args)
 
-    if cargs.level == 3 and method is not None:
-        print("WARNING: Level 3 model search enabled. Method will be ignored.")
+    if cargs.level == 3 and cargs.method is not None:
+        warnings.warn("WARNING: Level 3 model search enabled. Method will be ignored.")
 
     if cargs.level != 3 and cargs.time != 10:
-        print(
+        warnings.warn(
             "WARNING: Time parameter not applicable to feature engineering. Must be in level 3."
         )
 
     try:
         df = pd.read_csv(cargs.data)
     except Exception as e:
-        print("Failed to load file. Please verify it exists and is a valid CSV.")
-        quit()
+        raise ValueError(
+            "Failed to load file. Please verify it exists and is a valid CSV."
+        )
 
     try:
         X_df = df.drop(columns=cargs.target)
         y_df = df[[cargs.target]]
     except:
-        print("Invalid target variable")
-        quit()
+        raise ValueError("Invalid target variable")
 
     X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.2)
 
@@ -67,7 +73,7 @@ def run():
         # Default everything with basic estimator
         fs = Foreshadow(estimator=get_method(cargs.method, X_train))
 
-    elif cargs.level == 2 or cargs.level == 3:
+    elif cargs.level == 2:
         # Parameter search on all matched intents
         X_proc = Preprocessor()
         y_proc = Preprocessor()
@@ -80,12 +86,12 @@ def run():
         y_result = y_proc.serialize()
 
         X_space = {
-            "columns.{}.intent" % (c["name"]): c["all_matched intents"]
-            for c in X_result["columns"]
+            "columns.{}.intent".format(k): v["all_matched_intents"]
+            for k, v in X_result["columns"].items()
         }
         y_space = {
-            "columns.{}.intent" % (c["name"]): c["all_matched intents"]
-            for c in y_result["columns"]
+            "columns.{}.intent".format(k): v["all_matched_intents"]
+            for k, v in y_result["columns"].items()
         }
 
         X_search = Preprocessor(from_json=X_space)
@@ -97,14 +103,23 @@ def run():
         fs = Foreshadow(
             X_preprocessor=X_search,
             y_preprocessor=y_search,
-            estimator=get_method(cargs.method, X_train)
-            if cargs.level == 2
-            else AutoEstimator(estimator_kwcargs={"max_time_mins": cargs.time}),
+            estimator=get_method(cargs.method, X_train),
+        )
+
+    elif cargs.level == 3:
+        # Default intent and advanced model search using 3rd party AutoML
+
+        fs = Foreshadow(
+            estimator=AutoEstimator(estimator_kwargs={"max_time_mins": cargs.time})
         )
 
     else:
-        print("Invalid level (1 - 3)")
-        quit()
+        raise ValueError("Invalid Level. Levels 1 - 3 supported.")
+
+    return fs, X_train, y_train, X_test, y_test
+
+
+def execute_model(fs, X_train, y_train, X_test, y_test):
 
     print("Fitting final model...")
     fs.fit(X_train, y_train)
@@ -130,20 +145,26 @@ def run():
         "Results of model fiting have been saved to model.json. Refer to docs to read and process."
     )
 
+    return all_results
+
+
+def cmd():  # pragma: no cover
+    model = generate_model(sys.argv[1:])
+    execute_model(*model)
+
 
 def get_method(arg, X_train):
 
     if arg is not None:
         try:
-            mod = __import__("sklearn.linear_model", globals(), locals(), ["object"], 1)
+            mod = __import__("sklearn.linear_model", globals(), locals(), ["object"], 0)
             cls = getattr(mod, arg)
-            if not issubclass(cls, BaseEstimator):
-                raise Exception("Invalid Estimator Class")
             return cls()
-        except:
-            print("Invalid method. Must be a valid estimator")
+        except Exception as e:
+            raise ValueError("Invalid method. Must be a valid estimator")
     else:
-        if determine_problem_type(X_train) == "regression":
-            return LinearRegression()
-        else:
-            return LogisticRegression()
+        return (
+            LinearRegression()
+            if determine_problem_type(X_train) == "regression"
+            else LogisticRegression()
+        )

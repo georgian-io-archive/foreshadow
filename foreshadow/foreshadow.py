@@ -183,12 +183,10 @@ class Foreshadow(BaseEstimator):
             self.opt_instance.fit(X_df, y_df)
             self.pipeline = self.opt_instance.best_estimator_
             # extract trained preprocessors
-            if self.X_preprocessor is not None:
-                self.X_preprocessor = self.opt_instance.best_estimator_.steps[0][1]
-            if self.y_preprocessor is not None:
-                self.y_preprocessor = self.opt_instance.best_estimator_.steps[1][
-                    1
-                ].preprocessor
+            self.X_preprocessor = self.opt_instance.best_estimator_.steps[0][1]
+            # self.y_preprocessor = self.opt_instance.best_estimator_.steps[1][
+            #        1
+            #    ].preprocessor
         else:
             self.pipeline.fit(X_df, y_df)
 
