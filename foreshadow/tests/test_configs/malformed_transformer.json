@@ -3,7 +3,7 @@
     "crim":{
 	    "intent": "TestGenericIntent",
             "pipeline":[
-	    {"transformer": "StandardScaler", 
+	    {"cls": "StandardScaler",
 	       "name": "Scaler", 
 	       "parameters": {"with_mean":false}
 	    }]},

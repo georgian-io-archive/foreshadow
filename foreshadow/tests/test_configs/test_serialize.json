@@ -16,8 +16,7 @@
             }
          ],
          "all_matched_intents":[
-            "TestGenericIntent",
-            "TestNumericIntent"
+            "TestGenericIntent"
          ]
       },
       "zn":{
@@ -48,8 +47,7 @@
 
          ],
          "all_matched_intents":[
-            "TestGenericIntent",
-            "TestNumericIntent"
+            "TestGenericIntent"
          ]
       },
       "chas":{

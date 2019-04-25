@@ -21,7 +21,7 @@
   "intents":{
     "TestNumericIntent":{
       "single":[
-	      {"transformer": "Imputer", "name": "impute", "parameters": {"strategy":"mean"}}
+	      {"transformer": "Imputer", "name": "impute", "parameters": {"strategy":"mean", "name":  "impute"}}
       ],
       "multi":[
 	      {"transformer": "PCA", "name": "pca", "parameters": {"n_components":5}}

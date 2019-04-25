@@ -35,6 +35,12 @@ class Preprocessor(BaseEstimator, TransformerMixin):
     """
 
     def __init__(self, from_json=None, y_var=False, **fit_params):
+        self.fit_params = fit_params
+        self.from_json = from_json
+        self.y_var = y_var
+        self._initialize()
+
+    def _initialize(self):
         self._intent_map = {}
         self._pipeline_map = {}
         self._choice_map = {}
@@ -42,10 +48,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         self._intent_pipelines = {}
         self._intent_trace = []
         self.pipeline = None
-        self.fit_params = fit_params
         self.is_fit = False
-        self.from_json = from_json
-        self.y_var = y_var
         self.is_linear = False
         self._init_json()
 
@@ -74,15 +77,19 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         columns = X_df.columns
         # Iterate columns
         for c in columns:
-            col_data = X_df.loc[:, [c]]
-            # Traverse intent tree
-            valid_cols = [
-                (i, k)
-                for i, k in enumerate(GenericIntent.priority_traverse())
-                if k.is_intent(col_data)
-            ]
-            self._choice_map[c] = valid_cols
-            temp_map[c] = valid_cols[-1][1]
+            if c in self._intent_map:
+                # column is already mapped to an intent, no need to do the traverse here
+                self._choice_map[c] = [(0, self._intent_map[c])]
+            else:
+                col_data = X_df.loc[:, [c]]
+                # Traverse intent tree
+                valid_cols = [
+                    (i, k)
+                    for i, k in enumerate(GenericIntent.priority_traverse())
+                    if k.is_intent(col_data)
+                ]
+                self._choice_map[c] = valid_cols
+                temp_map[c] = valid_cols[-1][1]
 
         # Set intent map with override
         self._intent_map = {**temp_map, **self._intent_map}
@@ -141,13 +148,15 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             },
             # Extracts already resolved single pipelines from JSON intent overrides
             **{
-                k: self._intent_pipelines[v.__name__].get(
-                    "single",
-                    Pipeline(
-                        deepcopy(v.single_pipeline(self.y_var))
-                        if len(v.single_pipeline(self.y_var)) > 0
-                        else [("null", None)]
-                    ),
+                k: deepcopy(
+                    self._intent_pipelines[v.__name__].get(
+                        "single",
+                        Pipeline(
+                            v.single_pipeline(self.y_var)
+                            if len(v.single_pipeline(self.y_var)) > 0
+                            else [("null", None)]
+                        ),
+                    )
                 )
                 for k, v in self._intent_map.items()
                 if v.__name__ in self._intent_pipelines.keys()
@@ -236,7 +245,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         """Constructs the final internal pipeline to be used"""
 
         # Parse JSON config and populate intent_map and pipeline_map
-        self._init_json()
+        self._initialize()
 
         # Map intents to columns
         self._map_intents(X)
@@ -493,12 +502,12 @@ def resolve_pipeline(pipeline_json):
         try:
             clsname = trans["transformer"]
             name = trans["name"]
-            params = trans["parameters"]
+            params = trans.get("parameters", {})
 
         except KeyError as e:
             raise KeyError(
                 "Malformed transformer {} correct syntax is"
-                '["transformer": cls, "name": name, "pipeline": {{**params}}]'.format(
+                '["transformer": cls, "name": name, "parameters": {{**params}}]'.format(
                     trans
                 )
             )
