@@ -3,10 +3,10 @@ Parameter mapping utils
 """
 
 import itertools
-
 from copy import deepcopy
 
-from ..preprocessor import Preprocessor
+from foreshadow.preprocessor import Preprocessor
+
 
 # TODO: Write default parameters here
 
@@ -14,37 +14,42 @@ config_dict = {"StandardScaler.with_std": [True, False]}
 
 
 def _param_mapping(pipeline, X_df, y_df):
-    """Generate parameter search space using an unfit pipeline and sample X and Y
-    data. This pulls search space information from :code:`config_dict` and from the
-    JSON configuration of the Preprocessor objects in the given Pipeline.
+    """Generate parameter search space using an unfit pipeline and sample X
+    and Y data. This pulls search space information from :code:`config_dict`
+    and from the JSON configuration of the Preprocessor objects in the given
+    Pipeline.
 
     Args:
-        pipeline (:obj:`Pipeline <sklearn.pipeline.Pipeline>`): Input unfit pipeline
+        pipeline (:obj:`Pipeline <sklearn.pipeline.Pipeline>`): Input unfit
+            pipeline
         X_df: (:obj:`pandas.DataFrame`): Input X dataframe
         y_df: (:obj:`pandas.DataFrame`): Input y dataframe
 
     Returns
-        list: List of dict for which keys are parameters and the value is a list
-            representing the search space
+        list: List of dict for which keys are parameters and the value is a
+            list representing the search space
 
     """
 
     # Get preprocessors from the Pipeline
     preprocessors = [
-        k for k, v in pipeline.get_params().items() if isinstance(v, Preprocessor)
+        k
+        for k, v in pipeline.get_params().items()
+        if isinstance(v, Preprocessor)
     ]
 
-    # For each preprocessor object extract the search space defined in the config
-    # This dict is of the form preprocessor: list(configs)
+    # For each preprocessor object extract the search space defined in the
+    # config. This dict is of the form preprocessor: list(configs)
     configs = {
-        p: _parse_json_params(pipeline.get_params()[p].from_json) for p in preprocessors
+        p: _parse_json_params(pipeline.get_params()[p].from_json)
+        for p in preprocessors
     }
 
     # For each preprocessor zip the list of configs into a list of tuples
     # of the form (preprocessor, config) and concatenate those lists.
     #
-    # Apply a inner product to those tuples to get every combination of configuration
-    # Convert to list of tasks
+    # Apply a inner product to those tuples to get every combination of
+    # configuration. Convert to list of tasks
     tasks = [
         {k: tsk for k, tsk in i}
         for i in itertools.product(
@@ -57,7 +62,9 @@ def _param_mapping(pipeline, X_df, y_df):
     for task in tasks:
 
         # Set parameters of pipeline using config
-        pipeline.set_params(**{"{}__from_json".format(k): v for k, v in task.items()})
+        pipeline.set_params(
+            **{"{}__from_json".format(k): v for k, v in task.items()}
+        )
 
         # Fit the param on the sample data
         pipeline.fit(X_df, y_df)
@@ -67,9 +74,11 @@ def _param_mapping(pipeline, X_df, y_df):
 
         # Create a dictionary of parameters
         # One parameter is from_json (the configuration dict we calculated)
-        # Other parameters are pulled from config_dict using extract_config_params()
+        # Other parameters are pulled from config_dict using
+        # extract_config_params()
         explicit_params = {
-            "{}__from_json".format(k): [param[k].serialize()] for k, v in task.items()
+            "{}__from_json".format(k): [param[k].serialize()]
+            for k, v in task.items()
         }
 
         params.append({**explicit_params, **_extract_config_params(param)})
@@ -84,7 +93,8 @@ def _parse_json_params(from_json):
         from_json (dict): JSON configuration file with combinations section
 
     Returns:
-        list: List of dictionaries of possible configurations for this preprocessor
+        list: List of dictionaries of possible configurations for this
+            preprocessor
 
     """
 
@@ -106,8 +116,9 @@ def _parse_json_params(from_json):
         # Expand into list of dictionaries of individual parameter configs
         d = [{k: v for k, v in i} for i in c]
 
-        # For each dict of parameter configurations create the full configuration
-        # dict needed for the preprocessor using the other sections of from_json
+        # For each dict of parameter configurations create the full
+        # configuration dict needed for the preprocessor using the other
+        # sections of from_json
         out += [_override_dict(i, from_json) for i in d]
 
     if len(out) < 1:
@@ -167,10 +178,10 @@ def _set_path(key, value, original):
         if path[-1] == "transformer":
             del temp["parameters"]
 
-    except KeyError as e:
+    except KeyError:
         raise ValueError("Invalid JSON Key {} in {}".format(curr_key, temp))
 
-    except ValueError as e:
+    except ValueError:
         raise ValueError(
             "Attempted to index list {} with value {}".format(temp, curr_key)
         )
@@ -183,7 +194,8 @@ def _extract_config_params(param):
         param (dict): Result of pipeline.get_params()
 
     Returns:
-        dict: Dict of parameters for which the key is a list of values to search
+        dict: Dict of parameters for which the key is a list of values to
+            search
 
     """
 
@@ -196,7 +208,7 @@ def _extract_config_params(param):
         # Iterate each level in a single parameter
         for i, t in enumerate(trace[0:-1]):
             # Append class name and atrribute to names
-            key = "__".join(trace[0 : i + 1])
+            key = "__".join(trace[0 : i + 1])  # noqa: E203
             name = type(param.get(key, None)).__name__
             if name not in [
                 "ParallelProcessor",

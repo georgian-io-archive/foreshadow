@@ -90,7 +90,7 @@ Key Features
 - Ease of Extensibility
 - Scikit-Learn Compatible
 
-Foreshadow supports python 3.5+
+Foreshadow supports python 3.6+
 
 Documentation
 -------------

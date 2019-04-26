@@ -2,29 +2,29 @@
 AutoEstimator and its selection
 """
 
-import operator
 import warnings
 
 import numpy as np
 from sklearn.base import BaseEstimator
 
-from ..utils import check_df, check_module_installed
-from .config import get_tpot_config
+from foreshadow.estimators.config import get_tpot_config
+from foreshadow.utils import check_df, check_module_installed
 
 
 class AutoEstimator(BaseEstimator):
-    """An automatic machine learning solution wrapper selects the appropriate solution
-    for a given problem.
+    """An automatic machine learning solution wrapper selects the appropriate
+    solution for a given problem.
 
-    By default each automatic machine learning solution runs for 1 minute but that can be changed 
-    through passed kwargs. Autosklearn is not required for this to work but if installed it can
-    be used alongside TPOT.
-    
+    By default each automatic machine learning solution runs for 1 minute but
+    that can be changed  through passed kwargs. Autosklearn is not required for
+    this to work but if installed it can be used alongside TPOT.
+
     Args:
         problem_type (str): The problem type, 'regression' or 'classification'
         auto (str): The automatic estimator, 'tpot' or 'autosklearn'
-        include_preprocessors (bool): Whether include preprocessors in automl pipelines
-        estimator_kwargs (dict): A dictionary of args to pass to the specified 
+        include_preprocessors (bool): Whether include preprocessors in automl
+            pipelines
+        estimator_kwargs (dict): A dictionary of args to pass to the specified
             auto estimator (both problem_type and auto must be specified)
     """
 
@@ -44,7 +44,9 @@ class AutoEstimator(BaseEstimator):
 
     @property
     def problem_type(self):
-        """Type of machine learning problem. Either 'regression' or 'classification'"""
+        """Type of machine learning problem. Either 'regression' or
+        'classification'
+        """
         return self._problem_type
 
     @problem_type.setter
@@ -77,15 +79,17 @@ class AutoEstimator(BaseEstimator):
             if not isinstance(ek, dict) or not all(
                 isinstance(k, str) for k in ek.keys()
             ):
-                raise ValueError("estimator_kwargs must be a valid kwarg dictionary")
+                raise ValueError(
+                    "estimator_kwargs must be a valid kwarg dictionary"
+                )
 
             self._estimator_kwargs = ek
         else:
             self._estimator_kwargs = {}
 
     def _get_optimal_estimator_class(self):
-        """Picks the optimal estimator class and defaults to a working estimator if autosklearn
-        is not installed
+        """Picks the optimal estimator class and defaults to a working
+        estimator if autosklearn is not installed
         """
         auto_ = self._pick_estimator() if self.auto is None else self.auto
 
@@ -94,13 +98,18 @@ class AutoEstimator(BaseEstimator):
                 "classification": "AutoSklearnClassifier",
                 "regression": "AutoSklearnRegressor",
             },
-            "tpot": {"classification": "TPOTClassifier", "regression": "TPOTRegressor"},
+            "tpot": {
+                "classification": "TPOTClassifier",
+                "regression": "TPOTRegressor",
+            },
         }
 
         if not check_module_installed(auto_):
             selected_auto = "tpot"
             warnings.warn(
-                "{} is not available, defaulting to {}".format(auto_, selected_auto)
+                "{} is not available, defaulting to {}".format(
+                    auto_, selected_auto
+                )
             )
             self.auto = selected_auto
         else:
@@ -118,12 +127,16 @@ class AutoEstimator(BaseEstimator):
         else:
             import tpot
 
-            return getattr(tpot, estimator_choices[self.auto][self.problem_type])
+            return getattr(
+                tpot, estimator_choices[self.auto][self.problem_type]
+            )
 
     def _determine_problem_type(self, y):
         """Simple heuristic to determine problem type"""
         return (
-            "classification" if np.unique(y.values.ravel()).size == 2 else "regression"
+            "classification"
+            if np.unique(y.values.ravel()).size == 2
+            else "regression"
         )
 
     def _pick_estimator(self):
@@ -131,8 +144,8 @@ class AutoEstimator(BaseEstimator):
         return "tpot" if self.problem_type == "regression" else "autosklearn"
 
     def _pre_configure_estimator_kwargs(self):
-        """Configure auto estimators to perform similarly (time scale) and remove 
-        preprocessors if necessary
+        """Configure auto estimators to perform similarly (time scale) and
+        remove preprocessors if necessary
         """
         if self.auto == "tpot" and "config_dict" not in self.estimator_kwargs:
             self.estimator_kwargs["config_dict"] = get_tpot_config(
@@ -172,12 +185,14 @@ class AutoEstimator(BaseEstimator):
         return self.estimator_class(**self.estimator_kwargs)
 
     def fit(self, X, y):
-        """Fits the AutoEstimator instance using a selected automatic machine learning
-        estimator
+        """Fits the AutoEstimator instance using a selected automatic machine
+        learning estimator
 
         Args:
-            data_df (pandas.DataFrame or numpy.ndarray or list): The input feature(s)
-            y_df (pandas.DataFrame or numpy.ndarray or list): The response feature(s)
+            data_df (pandas.DataFrame or numpy.ndarray or list): The input
+                feature(s)
+            y_df (pandas.DataFrame or numpy.ndarray or list): The response
+                feature(s)
 
         Returns:
             The selected estimator
@@ -190,10 +205,12 @@ class AutoEstimator(BaseEstimator):
         return self.estimator
 
     def predict(self, X):
-        """Uses the trained estimator to predict the response for an input dataset
+        """Uses the trained estimator to predict the response for an input
+        dataset
 
         Args:
-            data_df (pandas.DataFrame or numpy.ndarray or list): The input feature(s)
+            data_df (pandas.DataFrame or numpy.ndarray or list): The input
+                feature(s)
 
         Returns:
             pandas.DataFrame: The response feature(s)
@@ -206,10 +223,12 @@ class AutoEstimator(BaseEstimator):
         for an input dataset
 
         Args:
-            data_df (pandas.DataFrame or numpy.ndarray or list): The input feature(s)
+            data_df (pandas.DataFrame or numpy.ndarray or list): The input
+                feature(s)
 
         Returns:
-            pandas.DataFrame: The probability associated with each response feature
+            pandas.DataFrame: The probability associated with each response
+                feature
         """
         X = check_df(X)
         return self.estimator.predict_proba(X)
@@ -222,8 +241,9 @@ class AutoEstimator(BaseEstimator):
 
         Args:
             X (pandas.DataFrame or numpy.ndarray or list): The input feature(s)
-            y (pandas.DataFrame or numpy.ndarray or list): The response feature(s)
-        
+            y (pandas.DataFrame or numpy.ndarray or list): The response
+                feature(s)
+
         Returns:
             float: A computed prediction fitness score
         """

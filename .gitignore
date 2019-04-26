@@ -112,3 +112,5 @@ pip-wheel-metadata/
 
 # Other
 .DS_Store
+*.sublime-project
+*.sublime-workspace

@@ -6,7 +6,8 @@ class FancyImputer(BaseEstimator, TransformerMixin):
     python package.
 
     Parameters:
-        method (str): String of function from FancyImpute to invoke when transforming
+        method (str): String of function from FancyImpute to invoke when
+            transforming
 
     """
 
@@ -16,7 +17,7 @@ class FancyImputer(BaseEstimator, TransformerMixin):
         try:
             module = __import__("fancyimpute", [method], 1)
             self.cls = getattr(module, method)
-        except Exception as e:
+        except Exception:
             raise ValueError(
                 "Invalid method. Possible values are BiScaler, KNN, "
                 "NuclearNormMinimization and SoftImpute"
@@ -37,7 +38,7 @@ class FancyImputer(BaseEstimator, TransformerMixin):
         try:
             module = __import__("fancyimpute", [method], 1)
             self.cls = getattr(module, method)
-        except Exception as e:
+        except Exception:
             raise ValueError(
                 "Invalid method. Possible values are BiScaler, KNN, "
                 "NuclearNormMinimization and SoftImpute"

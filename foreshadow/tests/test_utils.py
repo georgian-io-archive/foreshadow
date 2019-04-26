@@ -44,7 +44,8 @@ def test_check_df_raises_on_invalid():
     with pytest.raises(ValueError) as e:
         input_df = check_df(input_df)
     assert str(e.value) == (
-        "Invalid input type, neither pd.DataFrame, pd.Series, np.ndarray, nor" " list"
+        "Invalid input type, neither pd.DataFrame, pd.Series, np.ndarray, nor"
+        " list"
     )
 
 
@@ -62,7 +63,7 @@ def test_check_df_single_column():
     input_arr = np.arange(8).reshape((4, 2))
 
     with pytest.raises(ValueError) as e:
-        input_df = check_df(input_arr, single_column=True)
+        _ = check_df(input_arr, single_column=True)
 
     assert str(e.value) == ("Input Dataframe must have only one column")
 
@@ -70,13 +71,13 @@ def test_check_df_single_column():
 def test_module_not_installed():
     from foreshadow.utils import check_module_installed
 
-    assert check_module_installed("not_installed") == False
+    assert check_module_installed("not_installed") is False
 
 
 def test_module_installed():
     from foreshadow.utils import check_module_installed
 
-    assert check_module_installed("sys") == True
+    assert check_module_installed("sys") is True
 
 
 def test_check_transformer_imports(capsys):

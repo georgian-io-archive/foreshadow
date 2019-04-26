@@ -23,7 +23,9 @@ def patch_intents(mocker):
         single_pipeline_template = []
         multi_pipeline_template = [
             PipelineTemplateEntry(
-                "pca", TransformerEntry(PCA, {"n_components": 2, "name": "pca"}), False
+                "pca",
+                TransformerEntry(PCA, {"n_components": 2, "name": "pca"}),
+                False,
             )
         ]
 
@@ -42,7 +44,9 @@ def patch_intents(mocker):
         single_pipeline_template = [
             PipelineTemplateEntry(
                 "impute",
-                TransformerEntry(Imputer, {"strategy": "mean", "name": "impute"}),
+                TransformerEntry(
+                    Imputer, {"strategy": "mean", "name": "impute"}
+                ),
                 False,
             )
         ]
@@ -113,7 +117,9 @@ def patch_intents(mocker):
 
 
 def test_preprocessor_init_empty():
-    """Verifies that preprocessor object initializes correctly with empty values."""
+    """Verifies that preprocessor object initializes correctly with empty
+    values.
+    """
 
     from foreshadow.preprocessor import Preprocessor
 
@@ -135,7 +141,10 @@ def test_preprocessor_init_json_intent_map():
     proc = Preprocessor(
         from_json=json.load(
             open(
-                "./foreshadow/tests/test_configs/override_column_intent_pipeline.json",
+                (
+                    "./foreshadow/tests/test_configs/"
+                    "override_column_intent_pipeline.json"
+                ),
                 "r",
             )
         )
@@ -177,7 +186,8 @@ def test_preprocessor_intent_dependency_order():
 
 
 def test_preprocessor_init_json_pipeline_map():
-    """Loads config from JSON and checks to ensure pipeline map was populated"""
+    """Loads config from JSON and checks to ensure pipeline map was populated
+    """
 
     import json
     from foreshadow.preprocessor import Preprocessor
@@ -186,7 +196,10 @@ def test_preprocessor_init_json_pipeline_map():
     proc = Preprocessor(
         from_json=json.load(
             open(
-                "./foreshadow/tests/test_configs/override_column_intent_pipeline.json",
+                (
+                    "./foreshadow/tests/test_configs/"
+                    "override_column_intent_pipeline.json"
+                ),
                 "r",
             )
         )
@@ -195,7 +208,9 @@ def test_preprocessor_init_json_pipeline_map():
     assert "crim" in proc._pipeline_map.keys()
     assert type(proc._pipeline_map["crim"]).__name__ == "Pipeline"
     assert len(proc._pipeline_map["crim"].steps) == 1
-    assert proc._pipeline_map["crim"].steps[0][PipelineStep["NAME"]] == "Scaler"
+    assert (
+        proc._pipeline_map["crim"].steps[0][PipelineStep["NAME"]] == "Scaler"
+    )
 
     transformer = proc._pipeline_map["crim"].steps[0][PipelineStep["CLASS"]]
 
@@ -205,7 +220,9 @@ def test_preprocessor_init_json_pipeline_map():
 
 
 def test_preprocessor_init_json_multi_pipeline():
-    """Loads config from JSON and checks to ensure _multi_column_map was populated"""
+    """Loads config from JSON and checks to ensure _multi_column_map was
+    populated
+    """
 
     import json
     from foreshadow.preprocessor import Preprocessor
@@ -213,7 +230,10 @@ def test_preprocessor_init_json_multi_pipeline():
 
     proc = Preprocessor(
         from_json=json.load(
-            open("./foreshadow/tests/test_configs/override_multi_pipeline.json", "r")
+            open(
+                "./foreshadow/tests/test_configs/override_multi_pipeline.json",
+                "r",
+            )
         )
     )
 
@@ -240,7 +260,8 @@ def test_preprocessor_init_json_multi_pipeline():
 
 def test_preprocessor_init_json_intent_override_multi():
     """Loads config from JSON and checks to ensure
-    multi-pipeline intent maps are populated"""
+    multi-pipeline intent maps are populated
+    """
 
     import json
     from foreshadow.preprocessor import Preprocessor
@@ -249,7 +270,10 @@ def test_preprocessor_init_json_intent_override_multi():
     proc = Preprocessor(
         from_json=json.load(
             open(
-                "./foreshadow/tests/test_configs/override_intent_pipeline_multi.json",
+                (
+                    "./foreshadow/tests/test_configs/"
+                    "override_intent_pipeline_multi.json"
+                ),
                 "r",
             )
         )
@@ -279,7 +303,8 @@ def test_preprocessor_init_json_intent_override_multi():
 
 def test_preprocessor_init_json_intent_override_single():
     """Loads config from JSON and checks to ensure
-    single-pipeline intent maps are populated"""
+    single-pipeline intent maps are populated
+    """
 
     import json
     from foreshadow.preprocessor import Preprocessor
@@ -288,7 +313,10 @@ def test_preprocessor_init_json_intent_override_single():
     proc = Preprocessor(
         from_json=json.load(
             open(
-                "./foreshadow/tests/test_configs/override_intent_pipeline_single.json",
+                (
+                    "./foreshadow/tests/test_configs/"
+                    "override_intent_pipeline_single.json"
+                ),
                 "r",
             )
         )
@@ -318,7 +346,9 @@ def test_preprocessor_init_json_intent_override_single():
 
 def test_preprocessor_fit_map_intents_default():
     """Loads config from JSON and fits preprocessor and ensures config
-    intent maps override auto-detect"""
+    intent maps override auto-detect
+    """
+
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
@@ -334,7 +364,8 @@ def test_preprocessor_fit_map_intents_default():
 
 def test_preprocessor_fit_map_intents_override():
     """Loads config from JSON and fits preprocessor and ensures
-    config intent maps override auto-detect"""
+    config intent maps override auto-detect
+    """
 
     import json
     import pandas as pd
@@ -345,7 +376,10 @@ def test_preprocessor_fit_map_intents_override():
     proc_override = Preprocessor(
         from_json=json.load(
             open(
-                "./foreshadow/tests/test_configs/override_column_intent_pipeline.json",
+                (
+                    "./foreshadow/tests/test_configs/"
+                    "override_column_intent_pipeline.json"
+                ),
                 "r",
             )
         )
@@ -359,7 +393,8 @@ def test_preprocessor_fit_map_intents_override():
 
 def test_preprocessor_fit_create_single_pipeline_default():
     """Loads config from JSON and fits preprocessor
-    and ensures pipeline maps are overridden"""
+    and ensures pipeline maps are overridden
+    """
 
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
@@ -384,7 +419,8 @@ def test_preprocessor_fit_create_single_pipeline_default():
 
 def test_preprocessor_fit_create_single_pipeline_override_column():
     """Loads config from JSON and fits preprocessor
-    and ensures pipeline maps are overridden"""
+    and ensures pipeline maps are overridden
+    """
 
     import json
     import pandas as pd
@@ -397,7 +433,10 @@ def test_preprocessor_fit_create_single_pipeline_override_column():
     proc_column = Preprocessor(
         from_json=json.load(
             open(
-                "./foreshadow/tests/test_configs/override_column_intent_pipeline.json",
+                (
+                    "./foreshadow/tests/test_configs/"
+                    "override_column_intent_pipeline.json"
+                ),
                 "r",
             )
         )
@@ -408,12 +447,16 @@ def test_preprocessor_fit_create_single_pipeline_override_column():
         assert c in proc_column._pipeline_map
         assert type(proc_column._pipeline_map[c]).__name__ == "Pipeline"
 
-    assert proc_column._pipeline_map["crim"].steps[0][PipelineStep["NAME"]] == "Scaler"
+    assert (
+        proc_column._pipeline_map["crim"].steps[0][PipelineStep["NAME"]]
+        == "Scaler"
+    )
 
 
 def test_preprocessor_fit_create_single_pipeline_override_intent():
     """Loads config from JSON and fits preprocessor
-    and ensures pipeline maps are overridden"""
+    and ensures pipeline maps are overridden
+    """
 
     import json
     import pandas as pd
@@ -426,7 +469,10 @@ def test_preprocessor_fit_create_single_pipeline_override_intent():
     proc_intent = Preprocessor(
         from_json=json.load(
             open(
-                "./foreshadow/tests/test_configs/override_intent_pipeline_single.json",
+                (
+                    "./foreshadow/tests/test_configs/"
+                    "override_intent_pipeline_single.json"
+                ),
                 "r",
             )
         )
@@ -438,7 +484,10 @@ def test_preprocessor_fit_create_single_pipeline_override_intent():
         assert c in proc_intent._pipeline_map
         assert type(proc_intent._pipeline_map[c]).__name__ == "Pipeline"
 
-    assert proc_intent._pipeline_map["crim"].steps[0][PipelineStep["NAME"]] == "impute"
+    assert (
+        proc_intent._pipeline_map["crim"].steps[0][PipelineStep["NAME"]]
+        == "impute"
+    )
 
 
 def test_preprocessor_make_empty_pipeline():
@@ -451,7 +500,9 @@ def test_preprocessor_make_empty_pipeline():
 
     proc = Preprocessor(
         from_json=json.load(
-            open("./foreshadow/tests/test_configs/empty_pipeline_test.json", "r")
+            open(
+                "./foreshadow/tests/test_configs/empty_pipeline_test.json", "r"
+            )
         )
     )
     proc.fit(df)
@@ -465,7 +516,8 @@ def test_preprocessor_make_empty_pipeline():
 
 def test_preprocessor_make_pipeline():
     """Loads config from JSON that utilizes all
-    functionality of system and verifies successful pipeline completion"""
+    functionality of system and verifies successful pipeline completion
+    """
 
     import json
     import pandas as pd
@@ -477,7 +529,10 @@ def test_preprocessor_make_pipeline():
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
     proc = Preprocessor(
         from_json=json.load(
-            open("./foreshadow/tests/test_configs/complete_pipeline_test.json", "r")
+            open(
+                "./foreshadow/tests/test_configs/complete_pipeline_test.json",
+                "r",
+            )
         )
     )
 
@@ -493,7 +548,10 @@ def test_preprocessor_make_pipeline():
         type(proc.pipeline.steps[0][PipelineStep["CLASS"]]).__name__
         == "ParallelProcessor"
     )
-    assert type(proc.pipeline.steps[1][PipelineStep["CLASS"]]).__name__ == "Pipeline"
+    assert (
+        type(proc.pipeline.steps[1][PipelineStep["CLASS"]]).__name__
+        == "Pipeline"
+    )
     assert (
         type(proc.pipeline.steps[2][PipelineStep["CLASS"]]).__name__
         == "ParallelProcessor"
@@ -503,7 +561,11 @@ def test_preprocessor_make_pipeline():
         [
             t.steps[0][PipelineStep["NAME"]]
             for t in list(
-                zip(*proc.pipeline.steps[0][PipelineStep["CLASS"]].transformer_list)
+                zip(
+                    *proc.pipeline.steps[0][
+                        PipelineStep["CLASS"]
+                    ].transformer_list
+                )
             )[1]
         ]
     ) == Counter(
@@ -527,7 +589,9 @@ def test_preprocessor_make_pipeline():
     assert len(proc.pipeline.steps[1][PipelineStep["CLASS"]].steps) == 3
 
     assert (
-        proc.pipeline.steps[1][PipelineStep["CLASS"]].steps[0][PipelineStep["NAME"]]
+        proc.pipeline.steps[1][PipelineStep["CLASS"]].steps[0][
+            PipelineStep["NAME"]
+        ]
         == "TestNumericIntent"
     )
     assert (
@@ -539,7 +603,9 @@ def test_preprocessor_make_pipeline():
     )
 
     assert (
-        proc.pipeline.steps[1][PipelineStep["CLASS"]].steps[1][PipelineStep["NAME"]]
+        proc.pipeline.steps[1][PipelineStep["CLASS"]].steps[1][
+            PipelineStep["NAME"]
+        ]
         == "TestGenericIntent"
     )
     assert str(
@@ -550,7 +616,9 @@ def test_preprocessor_make_pipeline():
     ) == str(registry_eval("TestGenericIntent").multi_pipeline())
 
     assert (
-        proc.pipeline.steps[1][PipelineStep["CLASS"]].steps[2][PipelineStep["NAME"]]
+        proc.pipeline.steps[1][PipelineStep["CLASS"]].steps[2][
+            PipelineStep["NAME"]
+        ]
         == "pca"
     )
 
@@ -570,11 +638,15 @@ def test_preprocessor_fit_transform():
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
     truth = pd.read_csv(
-        "./foreshadow/tests/test_data/boston_housing_processed.csv", index_col=0
+        "./foreshadow/tests/test_data/boston_housing_processed.csv",
+        index_col=0,
     )
     proc = Preprocessor(
         from_json=json.load(
-            open("./foreshadow/tests/test_configs/complete_pipeline_test.json", "r")
+            open(
+                "./foreshadow/tests/test_configs/complete_pipeline_test.json",
+                "r",
+            )
         )
     )
     proc.fit(df)
@@ -586,7 +658,6 @@ def test_preprocessor_fit_transform():
 
 
 def test_preprocessor_inverse_transform():
-
     import numpy as np
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
@@ -611,12 +682,12 @@ def test_preprocessor_inverse_transform():
     proc.fit(col)
 
     assert proc.is_linear
-    assert np.allclose(proc.inverse_transform(proc.transform(col)).values, col.values)
+    assert np.allclose(
+        proc.inverse_transform(proc.transform(col)).values, col.values
+    )
 
 
 def test_preprocessor_inverse_transform_unfit():
-
-    import numpy as np
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
@@ -629,7 +700,6 @@ def test_preprocessor_inverse_transform_unfit():
 
 
 def test_preprocessor_inverse_transform_multicol():
-
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
@@ -668,10 +738,15 @@ def test_preprocessor_get_params():
     from foreshadow.preprocessor import Preprocessor
 
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
-    truth = pickle.load(open("./foreshadow/tests/test_configs/tests_params.pkl", "rb"))
+    truth = pickle.load(
+        open("./foreshadow/tests/test_configs/tests_params.pkl", "rb")
+    )
     proc = Preprocessor(
         from_json=json.load(
-            open("./foreshadow/tests/test_configs/complete_pipeline_test.json", "r")
+            open(
+                "./foreshadow/tests/test_configs/complete_pipeline_test.json",
+                "r",
+            )
         )
     )
     proc.fit(df)
@@ -686,10 +761,15 @@ def test_preprocessor_set_params():
     from foreshadow.preprocessor import Preprocessor
 
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
-    params = pickle.load(open("./foreshadow/tests/test_configs/tests_params.pkl", "rb"))
+    params = pickle.load(
+        open("./foreshadow/tests/test_configs/tests_params.pkl", "rb")
+    )
     proc = Preprocessor(
         from_json=json.load(
-            open("./foreshadow/tests/test_configs/complete_pipeline_test.json", "r")
+            open(
+                "./foreshadow/tests/test_configs/complete_pipeline_test.json",
+                "r",
+            )
         )
     )
 
@@ -706,7 +786,13 @@ def test_preprocessor_malformed_json_transformer():
     with pytest.raises(ValueError) as e:
         Preprocessor(
             from_json=json.load(
-                open("./foreshadow/tests/test_configs/malformed_transformer.json", "r")
+                open(
+                    (
+                        "./foreshadow/tests/test_configs/"
+                        "malformed_transformer.json"
+                    ),
+                    "r",
+                )
             )
         )
 
@@ -721,7 +807,10 @@ def test_preprocessor_invalid_json_transformer_class():
         Preprocessor(
             from_json=json.load(
                 open(
-                    "./foreshadow/tests/test_configs/invalid_transformer_class.json",
+                    (
+                        "./foreshadow/tests/test_configs/"
+                        "invalid_transformer_class.json"
+                    ),
                     "r",
                 )
             )
@@ -738,7 +827,10 @@ def test_preprocessor_invalid_json_transformer_params():
         Preprocessor(
             from_json=json.load(
                 open(
-                    "./foreshadow/tests/test_configs/invalid_transformer_params.json",
+                    (
+                        "./foreshadow/tests/test_configs/"
+                        "invalid_transformer_params.json"
+                    ),
                     "r",
                 )
             )
@@ -789,10 +881,15 @@ def test_preprocessor_serialize():
 
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
-    truth = json.load(open("./foreshadow/tests/test_configs/test_serialize.json", "r"))
+    truth = json.load(
+        open("./foreshadow/tests/test_configs/test_serialize.json", "r")
+    )
     proc = Preprocessor(
         from_json=json.load(
-            open("./foreshadow/tests/test_configs/complete_pipeline_test.json", "r")
+            open(
+                "./foreshadow/tests/test_configs/complete_pipeline_test.json",
+                "r",
+            )
         )
     )
     proc.fit(df)
@@ -802,7 +899,6 @@ def test_preprocessor_serialize():
 
 
 def test_preprocessor_continuity():
-    import json
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
@@ -811,7 +907,7 @@ def test_preprocessor_continuity():
     proc = Preprocessor()
     proc.fit(df)
     ser = proc.serialize()
-    proc2 = Preprocessor(from_json=ser)
+    _ = Preprocessor(from_json=ser)
 
     assert ser == proc.serialize()
 
@@ -838,7 +934,10 @@ def test_preprocessor_summarize():
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
     proc = Preprocessor(
         from_json=json.load(
-            open("./foreshadow/tests/test_configs/complete_pipeline_test.json", "r")
+            open(
+                "./foreshadow/tests/test_configs/complete_pipeline_test.json",
+                "r",
+            )
         )
     )
     proc.fit(df)

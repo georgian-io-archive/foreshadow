@@ -1,9 +1,12 @@
-import pandas as pd
-from sklearn.metrics import classification_report, accuracy_score
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-import foreshadow as fs
 import json
+
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.model_selection import train_test_split
+
+import foreshadow as fs
+
 
 RANDOM_SEED = 42
 adult = pd.read_csv("adult.csv").iloc[:1000]

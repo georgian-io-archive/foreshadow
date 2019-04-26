@@ -6,8 +6,9 @@ from abc import ABCMeta
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from ..transformers.base import SmartTransformer
-from .base import PipelineTemplateEntry, TransformerEntry
+from foreshadow.intents import base
+from foreshadow.transformers.base import SmartTransformer
+
 
 _registry = {}
 
@@ -16,7 +17,9 @@ def _register_intent(cls_target):
     """Registers an intent with the library"""
     global _registry
     if cls_target.__name__ in _registry:
-        raise TypeError("Intent already exists in registry, use a different name")
+        raise TypeError(
+            "Intent already exists in registry, use a different name"
+        )
     _registry[cls_target.__name__] = cls_target
 
 
@@ -28,7 +31,9 @@ def _unregister_intent(cls_target):
         if clsname not in _registry:
             raise ValueError("{} was not found in registry".format(clsname))
 
-    if isinstance(cls_target, list) and all(isinstance(s, str) for s in cls_target):
+    if isinstance(cls_target, list) and all(
+        isinstance(s, str) for s in cls_target
+    ):
         [validate_input(c) for c in cls_target]
         for c in cls_target:
             del _registry[c]
@@ -42,7 +47,7 @@ def _unregister_intent(cls_target):
 def _process_templates(cls_target):
     def _resolve_template(template):
         if not all(
-            isinstance(s, PipelineTemplateEntry)
+            isinstance(s, base.PipelineTemplateEntry)
             and (
                 (
                     isinstance(s.transformer_entry, type)
@@ -51,7 +56,7 @@ def _process_templates(cls_target):
                     )
                 )
                 or (
-                    isinstance(s.transformer_entry, TransformerEntry)
+                    isinstance(s.transformer_entry, base.TransformerEntry)
                     and isinstance(s.transformer_entry.transformer, type)
                     and issubclass(
                         s.transformer_entry.transformer,
@@ -69,7 +74,9 @@ def _process_templates(cls_target):
                 s.transformer_name,
                 s.transformer_entry()
                 if callable(s.transformer_entry)
-                else s.transformer_entry.transformer(**s.transformer_entry.args_dict),
+                else s.transformer_entry.transformer(
+                    **s.transformer_entry.args_dict
+                ),
             )
             for s in template
         ]
@@ -89,7 +96,9 @@ def _process_templates(cls_target):
                     **{
                         "y_var": True
                         for _ in range(1)
-                        if issubclass(s.transformer_entry.transformer, SmartTransformer)
+                        if issubclass(
+                            s.transformer_entry.transformer, SmartTransformer
+                        )
                     }
                 ),
             )
@@ -119,7 +128,9 @@ def _process_templates(cls_target):
     cls_target.single_pipeline = _process_template(
         cls_target, "single_pipeline_template"
     )
-    cls_target.multi_pipeline = _process_template(cls_target, "multi_pipeline_template")
+    cls_target.multi_pipeline = _process_template(
+        cls_target, "multi_pipeline_template"
+    )
 
 
 def registry_eval(cls_target):
@@ -129,7 +140,8 @@ def registry_eval(cls_target):
         cls_target(str): String name of Intent
 
     Return:
-        :class:`BaseIntent <foreshadow.intents.base.BaseIntent>`: Intent class object
+        :class:`BaseIntent <foreshadow.intents.base.BaseIntent>`: Intent class
+            object
 
     """
     return _registry[cls_target]
@@ -141,13 +153,13 @@ class _IntentRegistry(ABCMeta):
     def __new__(cls, *args, **kwargs):
         class_ = super(_IntentRegistry, cls).__new__(cls, *args, **kwargs)
 
-        if class_.__abstractmethods__ and class_.__name__ is not "BaseIntent":
+        if class_.__abstractmethods__ and class_.__name__ != "BaseIntent":
             raise NotImplementedError(
                 "{} has not implemented abstract methods {}".format(
                     class_.__name__, ", ".join(class_.__abstractmethods__)
                 )
             )
-        elif class_.__name__ is not "BaseIntent":
+        elif class_.__name__ != "BaseIntent":
             class_._check_intent()
             _process_templates(class_)
             _register_intent(class_)

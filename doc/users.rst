@@ -351,31 +351,44 @@ An example configuration for processing the Boston Housing dataset is below. We 
 .. code-block:: json
 
     {
-      "columns":{
-        "crim":{"intent": "GenericIntent",
-                "pipeline": [
-                  {"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}
-                ]},
-        "indus":{"intent": "GenericIntent"}
-      },
-
-      "postprocess":[
-        {"name":"pca",
-         "columns": ["age"],
-         "pipeline": [
-          {"transformer": "PCA", "name": "PCA", "parameters": {"n_components":2}}
-        ]}
-      ],
-
-      "intents":{
-        "NumericIntent":{
-          "single":[
-            {"transformer": "Imputer", "name": "impute", "parameters": {"strategy":"mean"}}
-          ],
-          "multi":[]
+        "columns": {
+            "crim": {
+                "intent": "GenericIntent",
+                "pipeline": [{
+                    "transformer": "StandardScaler",
+                    "name": "Scaler",
+                    "parameters": {
+                        "with_mean": false
+                    }
+                }]
+            },
+            "indus": {
+                "intent": "GenericIntent"
+            }
+        },
+        "postprocess": [{
+            "name": "pca",
+            "columns": ["age"],
+            "pipeline": [{
+                "transformer": "PCA",
+                "name": "PCA",
+                "parameters": {
+                    "n_components": 2
+                }
+            }]
+        }],
+        "intents": {
+            "NumericIntent": {
+                "single": [{
+                    "transformer": "Imputer",
+                    "name": "impute",
+                    "parameters": {
+                        "strategy": "mean"
+                    }
+                }],
+                "multi": []
+            }
         }
-      },
-
     }
 
 The configuration file is composed of a root dictionary containing three hard-coded keys: :code:`columns`,
@@ -384,26 +397,40 @@ The configuration file is composed of a root dictionary containing three hard-co
 Column Override
 ~~~~~~~~~~~~~~~
 
-.. code-block:: json
+.. code-block:: python
 
-      "columns":{
-        "crim":{"intent": "GenericIntent",
-                "pipeline": [
-                  {"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}
-                ]},
-        "indus":{"intent": "GenericIntent"}
-      }
+    "columns": {
+        "crim": {
+            "intent": "GenericIntent",
+            "pipeline": [{
+                "transformer": "StandardScaler",
+                "name": "Scaler",
+                "parameters": {
+                    "with_mean": false
+                }
+            }]
+        },
+        "indus": {
+            "intent": "GenericIntent"
+        }
+    }
 
 This section is a dictionary containing two keys, each of which are columns in the Boston Housing set. First we will look at the value
 of the :code:`"crim"` key which is a dict.
 
 
 .. code-block:: json
-        
-        {"intent": "GenericIntent",
-                "pipeline": [
-                  {"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}
-        ]}
+
+    {
+        "intent": "GenericIntent",
+        "pipeline": [{
+            "transformer": "StandardScaler",
+            "name": "Scaler",
+            "parameters": {
+                "with_mean": false
+            }
+        }]
+    }
 
 Here we can see that this column has been assigned the intent :code:`"GenericIntent`
 and the pipeline :code:`[{"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}]`
@@ -427,16 +454,20 @@ compatibility issues.
 Intent Override
 ~~~~~~~~~~~~~~~
 
-.. code-block:: json
+.. code-block:: python
 
-      "intents":{
-        "NumericIntent":{
-          "single":[
-            {"transformer": "Imputer", "name": "impute", "parameters": {"strategy":"mean"}}
-          ],
-          "multi":[]
+    "intents": {
+        "NumericIntent": {
+            "single": [{
+                "transformer": "Imputer",
+                "name": "impute",
+                "parameters": {
+                    "strategy": "mean"
+                }
+            }],
+            "multi": []
         }
-      }
+    }
 
 
 Next, we will examine the :code:`intents` section. This section is used to override intents globally, unlike the columns section which overrode intents on a per-column
@@ -457,12 +488,19 @@ Postprocessor Override
 
 .. code-block:: json
 
-
-    {"postprocess":[
-        {"name":"pca","columns":["age"],"pipeline":[
-            {"class":"PCA", "name":"PCA", "parameters":{"n_components":2}}
-        ]}
-    ]}
+    {
+        "postprocess": [{
+            "name": "pca",
+            "columns": ["age"],
+            "pipeline": [{
+                "class": "PCA",
+                "name": "PCA",
+                "parameters": {
+                    "n_components": 2
+                }
+            }]
+        }]
+    }
 
 Finally, in the :code:`postprocess` section of the configuration, you can manually define pipelines to execute on columns of your choosing. The
 content of this section is a list of dictionaries of the form :code:`[{"name":name, "columns":[cols, ...], "pipeline":pipeline}, ...]`. Each list defines a pipeline that will
@@ -518,28 +556,33 @@ This is what a combinations section looks like.
 
 .. code-block:: json
 
-
-        {
-          "columns":{
-            "crim":{"intent": "GenericIntent",
-                    "pipeline": [
-                            {"transformer": "StandardScaler", "name": "Scaler", "parameters": {"with_mean":false}}
-                    ]},
-            "indus":{"intent": "GenericIntent"}
-          },
-
-          "postprocess":[],
-
-          "intents":{},
-
-          "combinations": [
-            {
-              "columns.crim.pipeline.0.parameters.with_mean": "[True, False]",
-              "columns.crim.pipeline.0.name": "['Scaler', 'SuperScaler']"
+    {
+        "columns": {
+            "crim": {
+                "intent": "GenericIntent",
+                "pipeline": [{
+                    "transformer": "StandardScaler",
+                    "name": "Scaler",
+                    "parameters": {
+                        "with_mean": false
+                    }
+                }]
+            },
+            "indus": {
+                "intent": "GenericIntent"
             }
-          ]
-
-        }
+        },
+    
+        "postprocess": [],
+    
+        "intents": {},
+    
+        "combinations": [{
+            "columns.crim.pipeline.0.parameters.with_mean": "[True, False]",
+            "columns.crim.pipeline.0.name": "['Scaler', 'SuperScaler']"
+        }]
+    
+    }
 
 
 

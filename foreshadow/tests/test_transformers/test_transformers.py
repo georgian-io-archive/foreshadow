@@ -7,7 +7,7 @@ def test_transformer_wrapper_init():
     scaler = StandardScaler(name="test-scaler", keep_columns=True)
 
     assert scaler.name == "test-scaler"
-    assert scaler.keep_columns == True
+    assert scaler.keep_columns is True
 
 
 def test_transformer_wrapper_no_init():
@@ -18,7 +18,7 @@ def test_transformer_wrapper_no_init():
         pass
 
     trans = wrap_transformer(NewTransformer)
-    instance = trans()
+    _ = trans()
 
     assert hasattr(trans.__init__, "__defaults__")
 
@@ -27,7 +27,9 @@ def test_transformer_wrapper_function():
     import numpy as np
     import pandas as pd
     from sklearn.preprocessing import StandardScaler as StandardScaler
-    from foreshadow.transformers.externals import StandardScaler as CustomScaler
+    from foreshadow.transformers.externals import (
+        StandardScaler as CustomScaler,
+    )
 
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
@@ -53,7 +55,9 @@ def test_transformer_wrapper_empty_input():
     import pandas as pd
 
     from sklearn.preprocessing import StandardScaler as StandardScaler
-    from foreshadow.transformers.externals import StandardScaler as CustomScaler
+    from foreshadow.transformers.externals import (
+        StandardScaler as CustomScaler,
+    )
 
     df = pd.DataFrame({"A": np.array([])})
 
@@ -71,7 +75,9 @@ def test_transformer_wrapper_empty_input():
 
 def test_transformer_keep_cols():
     import pandas as pd
-    from foreshadow.transformers.externals import StandardScaler as CustomScaler
+    from foreshadow.transformers.externals import (
+        StandardScaler as CustomScaler,
+    )
 
     df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
@@ -160,7 +166,13 @@ def test_transformer_parallel():
     ss = StandardScaler(name="scaled")
 
     proc = ParallelProcessor(
-        [("scaled", StandardScaler(keep_columns=False), ["crim", "zn", "indus"])],
+        [
+            (
+                "scaled",
+                StandardScaler(keep_columns=False),
+                ["crim", "zn", "indus"],
+            )
+        ],
         collapse_index=True,
     )
 
@@ -189,7 +201,9 @@ def test_transformer_pipeline():
 
     np.random.seed(1337)
 
-    from foreshadow.transformers.externals import StandardScaler as CustomScaler
+    from foreshadow.transformers.externals import (
+        StandardScaler as CustomScaler,
+    )
     from foreshadow.transformers.base import ParallelProcessor
 
     from sklearn.preprocessing import StandardScaler
@@ -250,7 +264,10 @@ def test_smarttransformer_notimplemented():
     with pytest.raises(NotImplementedError) as e:
         transformer.fit(df[["crim"]])
 
-    assert str(e.value) == "WrappedTransformer _get_transformer was not implimented."
+    assert (
+        str(e.value)
+        == "WrappedTransformer _get_transformer was not implimented."
+    )
 
 
 def test_smarttransformer_attributeerror():
@@ -443,7 +460,6 @@ def test_smarttransformer_get_params():
 
 def test_smarttransformer_empty_inverse():
     from foreshadow.transformers.base import SmartTransformer
-    from foreshadow.transformers.internals import DropFeature
 
     class TestSmartTransformer(SmartTransformer):
         def _get_transformer(self, X, y=None, **fit_params):

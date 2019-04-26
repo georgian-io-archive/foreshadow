@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from sklearn.base import TransformerMixin, BaseEstimator
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
@@ -10,9 +10,11 @@ class DropFeature(BaseEstimator, TransformerMixin):
        threshold
 
         Parameters:
-            threshold (float): if percentage of valid data is less than the threshold 
-                               then the feature will be dropped
-            raise_on_inverse (bool): allow or disallow return empty array on inverse
+            threshold (float): if percentage of valid data is less than the
+                threshold then the feature will be dropped
+            raise_on_inverse (bool): allow or disallow return empty array on
+                inverse
+
     """
 
     def __init__(self, threshold=0.3, raise_on_inverse=False, **kwargs):
@@ -56,5 +58,6 @@ class DropFeature(BaseEstimator, TransformerMixin):
             return np.array([])
         else:
             raise ValueError(
-                "inverse_transform is not permitted on this" " DropFeature instance"
+                "inverse_transform is not permitted on this"
+                " DropFeature instance"
             )

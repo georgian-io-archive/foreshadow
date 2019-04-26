@@ -1,5 +1,3 @@
-import itertools
-
 import pytest
 
 
@@ -21,7 +19,7 @@ def test_auto_config_invalid_input():
     from foreshadow.estimators.config import get_tpot_config
 
     with pytest.raises(ValueError) as e:
-        s = get_tpot_config("test")
+        _ = get_tpot_config("test")
 
     assert str(e.value) == "type_ must be either classification or regression"
 
@@ -30,7 +28,7 @@ def test_invalid_problem_type():
     from foreshadow.estimators import AutoEstimator
 
     with pytest.raises(ValueError) as e:
-        ae = AutoEstimator(problem_type="test")
+        _ = AutoEstimator(problem_type="test")
     assert "problem type must be in " in str(e.value)
 
 
@@ -38,7 +36,7 @@ def test_invalid_auto():
     from foreshadow.estimators import AutoEstimator
 
     with pytest.raises(ValueError) as e:
-        ae = AutoEstimator(auto="test")
+        _ = AutoEstimator(auto="test")
     assert "auto must be in " in str(e.value)
 
 
@@ -46,7 +44,7 @@ def test_invalid_kwargs_not_dict():
     from foreshadow.estimators import AutoEstimator
 
     with pytest.raises(ValueError) as e:
-        ae = AutoEstimator(
+        _ = AutoEstimator(
             problem_type="regression", auto="tpot", estimator_kwargs="test"
         )
     assert str(e.value) == "estimator_kwargs must be a valid kwarg dictionary"
@@ -76,8 +74,8 @@ def test_temp():
 
     y = pd.DataFrame(np.array([0] * 50 + [1] * 50))
     ae1 = AutoEstimator()
-    est = ae1._setup_estimator(y)
-    ae2 = AutoEstimator()
+    _ = ae1._setup_estimator(y)
+    _ = AutoEstimator()
 
 
 def test_default_estimator_setup_classification():
@@ -93,7 +91,9 @@ def test_default_estimator_setup_classification():
     assert isinstance(est, AutoSklearnClassifier)
 
 
-def test_default_estimator_setup_classification_autosklearn_not_installed(mocker):
+def test_default_estimator_setup_classification_autosklearn_not_installed(
+    mocker
+):
     import numpy as np
     import pandas as pd
     from tpot import TPOTClassifier
@@ -171,7 +171,6 @@ def test_auto_default_to_autosklearn():
 
     print(ae_predict.tolist())
     print(ae_predict_proba.tolist())
-    print(ae_predict_score)
 
     raise Exception()
 
