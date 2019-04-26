@@ -173,6 +173,10 @@ def _set_path(key, value, original):
 
         # Always Dictionary
         temp[path[-1]] = value
+        if path[-1] == "intent":
+            del temp["pipeline"]
+        if path[-1] == "transformer":
+            del temp["parameters"]
 
     except KeyError:
         raise ValueError("Invalid JSON Key {} in {}".format(curr_key, temp))
