@@ -81,7 +81,8 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         # Iterate columns
         for c in columns:
             if c in self._intent_map:
-                # column is already mapped to an intent, no need to do the traverse here
+                # column is already mapped to an intent, no need to do the
+                # traverse here
                 self._choice_map[c] = [(0, self._intent_map[c])]
             else:
                 col_data = X_df.loc[:, [c]]
