@@ -1,16 +1,18 @@
 import numpy as np
-from scipy.stats import boxcox
 from scipy.special import inv_boxcox1p
-from sklearn.base import TransformerMixin, BaseEstimator
+from scipy.stats import boxcox
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
 
 class BoxCox(BaseEstimator, TransformerMixin):
-    """Transformer that performs BoxCox transformation on continuous numeric data."""
+    """Transformer that performs BoxCox transformation on continuous numeric
+    data
+    """
 
-    # TODO: Remove this internal function and use PowerTransform from sklearn when
-    #       sklearn version is upgraded to 0.20
+    # TODO: Remove this internal function and use PowerTransform from sklearn
+    # when sklearn version is upgraded to 0.20
 
     def fit(self, X, y=None):
         """Fits translate and lambda attributes to X data

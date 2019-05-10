@@ -22,7 +22,6 @@ fi
 
 echo Installing neccesary python versions
 
-pyenv install -s 3.5.5
 pyenv install -s 3.6.5
 
 echo Installing pyenv-virtualenv
@@ -46,9 +45,9 @@ source ~/.bash_profile
 echo Setting up virtual environment
 
 if [[ -z "${DEPLOY_ENV}" ]]; then
-  pyenv local 3.5.5 3.6.5
+  pyenv local 3.6.5
   pyenv virtualenv venv
-  pyenv local venv 3.6.5 3.5.5
+  pyenv local venv 3.6.5
 else
   echo Already in virutalenv skipping setup...
 fi

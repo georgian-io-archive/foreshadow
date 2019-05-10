@@ -1,5 +1,6 @@
-from .foreshadow import Foreshadow
-from .preprocessor import Preprocessor
+from foreshadow.foreshadow import Foreshadow
+from foreshadow.preprocessor import Preprocessor
+
 
 __doc__ = """
 foreshadow - Peer into the future of a data science project

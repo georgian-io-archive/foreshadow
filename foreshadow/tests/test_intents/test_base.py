@@ -111,7 +111,7 @@ def test_valid_mock_subclass():
         single_pipeline_template = []
         multi_pipeline_template = []
 
-    t = TestIntent()
+    _ = TestIntent()
     _unregister_intent(TestIntent.__name__)
 
 
@@ -277,7 +277,13 @@ def test_priority_traverse():
         def column_summary(cls, df):
             return {}
 
-    class_list = [TestIntent, TestIntent1, TestIntent11, TestIntent12, TestIntent2]
+    class_list = [
+        TestIntent,
+        TestIntent1,
+        TestIntent11,
+        TestIntent12,
+        TestIntent2,
+    ]
 
     assert class_list == list(TestIntent.priority_traverse())
     _unregister_intent(list(map(lambda x: x.__name__, class_list)))

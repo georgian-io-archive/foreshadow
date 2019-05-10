@@ -1,7 +1,8 @@
 """
 Integration Tests
 
-Slow-running tests that verify the performance of the framework on simple datasets
+Slow-running tests that verify the performance of the framework on simple
+datasets
 """
 
 import pytest
@@ -75,7 +76,6 @@ def test_integration_multiclass_classification():
 @slow
 def test_integration_regression():
     import foreshadow as fs
-    import numpy as np
     import pandas as pd
     from sklearn.datasets import load_boston
     from sklearn.model_selection import train_test_split

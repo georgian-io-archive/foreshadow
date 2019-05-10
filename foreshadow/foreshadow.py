@@ -4,40 +4,45 @@ Main foreshadow object
 
 import inspect
 import warnings
-
 from copy import deepcopy
+
 from sklearn.base import BaseEstimator
 from sklearn.model_selection._search import BaseSearchCV
 from sklearn.pipeline import Pipeline
 
-from .preprocessor import Preprocessor
-from .estimators.auto import AutoEstimator
-from .estimators.meta import MetaEstimator
-from .utils import check_df
-from .optimizers.param_mapping import _param_mapping
+from foreshadow.estimators.auto import AutoEstimator
+from foreshadow.estimators.meta import MetaEstimator
+from foreshadow.optimizers.param_mapping import _param_mapping
+from foreshadow.preprocessor import Preprocessor
+from foreshadow.utils import check_df
 
 
 class Foreshadow(BaseEstimator):
     """Scikit-learn pipeline wrapper that preprocesses and automatically tunes
     a machine learning model
-    
+
     Args:
         X_preprocessor \
-            (:obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`, optional):
-            Preprocessor instance that will apply to X data. Passing False prevents
-            the automatic generation of an instance.
+            (:obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`, \
+            optional): Preprocessor instance that will apply to X data. Passing
+            False prevents the automatic generation of an instance.
         y_preprocessor \
-            (:obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`, optional):
-            Preprocessor instance that will apply to y data.  Passing False prevents
-            the automatic generation of an instance.
-        estimator (:obj:`sklearn.base.BaseEstimator`, optional): Estimator instance to
-            fit on processed data
-        optimizer (:class:`sklearn.grid_search.BaseSeachCV`, optional): Optimizer class
-            to optimize feature engineering and model hyperparameters
+            (:obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`, \
+            optional): Preprocessor instance that will apply to y data. Passing
+            False prevents the automatic generation of an instance.
+        estimator (:obj:`sklearn.base.BaseEstimator`, optional): Estimator
+            instance to fit on processed data
+        optimizer (:class:`sklearn.grid_search.BaseSeachCV`, optional):
+            Optimizer class to optimize feature engineering and model
+            hyperparameters
     """
 
     def __init__(
-        self, X_preprocessor=None, y_preprocessor=None, estimator=None, optimizer=None
+        self,
+        X_preprocessor=None,
+        y_preprocessor=None,
+        estimator=None,
+        optimizer=None,
     ):
         self.X_preprocessor = X_preprocessor
         self.y_preprocessor = y_preprocessor
@@ -46,7 +51,7 @@ class Foreshadow(BaseEstimator):
         self.pipeline = None
         self.data_columns = None
 
-        if isinstance(self.estimator, AutoEstimator) and not optimizer is None:
+        if isinstance(self.estimator, AutoEstimator) and optimizer is not None:
             warnings.warn(
                 "An automatic estimator cannot be used with an optimizer."
                 " Proceeding without use of optimizer"
@@ -55,21 +60,21 @@ class Foreshadow(BaseEstimator):
 
     @property
     def X_preprocessor(self):
-        """
-        Preprocessor object for performing feature engineering on X data
+        """Preprocessor object for performing feature engineering on X data
 
-        Getter: Returns Preprocessor object
+        :getter: Returns Preprocessor object
 
-        Setter: Verifies Preprocessor object, if None, creates a default Preprocessor
+        :setter: Verifies Preprocessor object, if None, creates a default
+            Preprocessor
 
-        Type: :obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`
+        :type: :obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`
         """
         return self._X_preprocessor
 
     @X_preprocessor.setter
     def X_preprocessor(self, dp):
         if dp is not None:
-            if dp == False:
+            if dp is False:
                 self._X_preprocessor = None
             elif isinstance(dp, Preprocessor):
                 self._X_preprocessor = dp
@@ -80,21 +85,21 @@ class Foreshadow(BaseEstimator):
 
     @property
     def y_preprocessor(self):
-        """
-        Preprocessor object for performing scaling and encoding on Y data
+        """Preprocessor object for performing scaling and encoding on Y data
 
-        Getter: Returns Preprocessor object
+        :getter: Returns Preprocessor object
 
-        Setter: Verifies Preprocessor object, if None, creates a default Preprocessor
+        :setter: Verifies Preprocessor object, if None, creates a default
+            Preprocessor
 
-        Type: :obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`
+        :type: :obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`
         """
         return self._y_preprocessor
 
     @y_preprocessor.setter
     def y_preprocessor(self, yp):
         if yp is not None:
-            if yp == False:
+            if yp is False:
                 self._y_preprocessor = None
             elif isinstance(yp, Preprocessor):
                 self._y_preprocessor = yp
@@ -105,16 +110,15 @@ class Foreshadow(BaseEstimator):
 
     @property
     def estimator(self):
-        """
-        Estimator object for fitting preprocessed data.
+        """Estimator object for fitting preprocessed data.
 
-        Getter: Returns Estimator object
+        :getter: Returns Estimator object
 
-        Setter: Verifies Estimator object. If None, an
+        :setter: Verifies Estimator object. If None, an
             :obj:`AutoEstimator <foreshadow.estimators.AutoEstimator>`
             object is created in place.
 
-        Type: :obj:`sklearn.base.BaseEstimator`
+        :type: :obj:`sklearn.base.BaseEstimator`
         """
         return self._estimator
 
@@ -127,18 +131,20 @@ class Foreshadow(BaseEstimator):
                 raise ValueError("Invalid value passed as estimator")
         else:
             self._estimator = AutoEstimator(
-                include_preprocessors=False if self.X_preprocessor is not None else True
+                include_preprocessors=False
+                if self.X_preprocessor is not None
+                else True
             )
 
     @property
     def optimizer(self):
-        """
-        Optimizer class that will perform a grid or random search algorithm on the
-        parameter space from the preprocessors and estimators in the pipeline
+        """Optimizer class that will perform a grid or random search algorithm
+        on the parameter space from the preprocessors and estimators in the
+        pipeline
 
-        Getter: Returns optimizer class
+        :getter: Returns optimizer class
 
-        Setter: Verifies Optimizer class, defaults to None
+        :setter: Verifies Optimizer class, defaults to None
         """
         return self._optimizer
 
@@ -153,12 +159,12 @@ class Foreshadow(BaseEstimator):
         """Fits the Foreshadow instance using the provided input data
 
         Args:
-            data_df\
-                (:obj:`DataFrame <pandas.DataFrame>` or :obj:`numpy.ndarray` or list):
-                The input feature(s)
-            y_df\
-                (:obj:`DataFrame <pandas.DataFrame>` or :obj:`numpy.ndarray` or list):
-                The response feature(s)
+            data_df \
+                (:obj:`DataFrame <pandas.DataFrame>` or :obj:`numpy.ndarray` \
+                or list): The input feature(s)
+            y_df \
+                (:obj:`DataFrame <pandas.DataFrame>` or :obj:`numpy.ndarray` \
+                or list): The response feature(s)
         """
         X_df = check_df(data_df)
         y_df = check_df(y_df)
@@ -170,7 +176,10 @@ class Foreshadow(BaseEstimator):
 
         if self.X_preprocessor is not None:
             self.pipeline = Pipeline(
-                [("preprocessor", self.X_preprocessor), ("estimator", self.estimator)]
+                [
+                    ("preprocessor", self.X_preprocessor),
+                    ("estimator", self.estimator),
+                ]
             )
         else:
             self.pipeline = Pipeline([("estimator", self.estimator)])
@@ -183,10 +192,14 @@ class Foreshadow(BaseEstimator):
             self.opt_instance.fit(X_df, y_df)
             self.pipeline = self.opt_instance.best_estimator_
             # extract trained preprocessors
-            self.X_preprocessor = self.opt_instance.best_estimator_.steps[0][1]
-            # self.y_preprocessor = self.opt_instance.best_estimator_.steps[1][
-            #        1
-            #    ].preprocessor
+            if self.X_preprocessor is not None:
+                self.X_preprocessor = self.opt_instance.best_estimator_.steps[
+                    0
+                ][1]
+            if self.y_preprocessor is not None:
+                self.y_preprocessor = self.opt_instance.best_estimator_.steps[
+                    1
+                ][1].preprocessor
         else:
             self.pipeline.fit(X_df, y_df)
 
@@ -197,19 +210,21 @@ class Foreshadow(BaseEstimator):
         if self.pipeline is None:
             raise ValueError("Foreshadow has not been fit yet")
         elif pred_cols.values.tolist() != self.data_columns:
-            raise ValueError("Predict must have the same columns as train columns")
+            raise ValueError(
+                "Predict must have the same columns as train columns"
+            )
 
     def predict(self, data_df):
-        """Uses the trained estimator to predict the response for an input dataset
+        """Uses the trained estimator to predict the response for an input
+        dataset
 
         Args:
-            data_df \
-                (:obj:`DataFrame <pandas.DataFrame>` or :obj:`numpy.ndarray` or list):
-                The input feature(s)
+            data_df (:obj:`DataFrame <pandas.DataFrame>` or \
+                :obj:`numpy.ndarray` or list): The input feature(s)
 
         Returns:
-            :obj:`DataFrame <pandas.DataFrame>`:
-                The response feature(s) (transformed if necessary)
+            :obj:`DataFrame <pandas.DataFrame>`: The response feature(s)
+                (transformed if necessary)
         """
         data_df = check_df(data_df)
         self._prepare_predict(data_df.columns)
@@ -220,13 +235,12 @@ class Foreshadow(BaseEstimator):
         for an input dataset
 
         Args:
-            data_df \
-                (:obj:`DataFrame <pandas.DataFrame>` or :obj:`numpy.ndarray` or list):
-                The input feature(s)
+            data_df (:obj:`DataFrame <pandas.DataFrame>` or \
+                :obj:`numpy.ndarray` or list): The input feature(s)
 
         Returns:
-            :obj:`DataFrame <pandas.DataFrame>`:
-                The probability associated with each response feature
+            :obj:`DataFrame <pandas.DataFrame>`: The probability associated
+                with each response feature
         """
         data_df = check_df(data_df)
         self._prepare_predict(data_df.columns)
@@ -238,15 +252,15 @@ class Foreshadow(BaseEstimator):
 
         Args:
             data_df \
-                (:obj:`DataFrame <pandas.DataFrame>` or :obj:`numpy.ndarray` or list):
-                The input feature(s)
+                (:obj:`DataFrame <pandas.DataFrame>` or :obj:`numpy.ndarray` \
+                    or list): The input feature(s)
 
             y_df \
-                (:obj:`DataFrame <pandas.DataFrame>` or :obj:`numpy.ndarray` or list):
-                The response feature(s)
+                (:obj:`DataFrame <pandas.DataFrame>` or :obj:`numpy.ndarray` \
+                    or list): The response feature(s)
 
-            sample_weight (:obj:`numpy.ndarray`, optional):
-                The weights to be used when scoring each sample
+            sample_weight (:obj:`numpy.ndarray`, optional): The weights to be \
+                used when scoring each sample
 
         Returns:
             float: A computed prediction fitness score

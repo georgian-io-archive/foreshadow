@@ -43,11 +43,10 @@ General Setup
 
       .. code-block:: console
       
-         $ pyenv install 3.5.5
          $ pyenv install 3.6.5
          $ pyenv global 3.6.5
          $ pyenv virtualenv -p python3.6 3.6.5 venv
-         $ pyenv local venv 3.6.5 3.5.5
+         $ pyenv local venv 3.6.5
    
    3. Install poetry package manager
 

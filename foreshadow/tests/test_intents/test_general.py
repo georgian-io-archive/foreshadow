@@ -1,6 +1,3 @@
-import pytest
-
-
 def test_generic_intent_is_intent():
     import pandas as pd
     from foreshadow.intents import GenericIntent
@@ -45,7 +42,10 @@ def test_mode_freq():
     assert _mode_freq(X1) == ([], [])
     assert _mode_freq(X2) == ([0], [[0, 1, 1.0]])
     assert _mode_freq(X3) == ([10], [[10, 2, 2 / 3], [0, 1, 1 / 3]])
-    assert _mode_freq(X4) == ([10, 20], [[20, 2, 0.4], [10, 2, 0.4], [0, 1, 0.2]])
+    assert _mode_freq(X4) == (
+        [10, 20],
+        [[20, 2, 0.4], [10, 2, 0.4], [0, 1, 0.2]],
+    )
     assert _mode_freq(X5) == (
         [3],
         [
@@ -78,7 +78,9 @@ def test_outliers():
             ]
         )
     )
-    expected_arr = np.array([-997, 977, 973, -958, -952, 921, 910, -907, -902, 900])
+    expected_arr = np.array(
+        [-997, 977, 973, -958, -952, 921, 910, -907, -902, 900]
+    )
     assert np.array_equal(_outliers(X).values, expected_arr)
 
 
@@ -90,7 +92,10 @@ def test_numeric_intent_column_summary():
     np.random.seed(0)
     X = pd.DataFrame(
         np.concatenate(
-            [np.rint(np.random.normal(50, 10, 1000)), np.random.randint(100, 200, 10)]
+            [
+                np.rint(np.random.normal(50, 10, 1000)),
+                np.random.randint(100, 200, 10),
+            ]
         )
     )
     expected_dict = {
