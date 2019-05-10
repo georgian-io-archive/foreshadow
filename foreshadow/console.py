@@ -5,9 +5,10 @@ import pandas as pd
 import argparse
 import json
 
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.base import BaseEstimator
+
 
 from foreshadow.estimators.auto import determine_problem_type
 from foreshadow.estimators import AutoEstimator
@@ -47,6 +48,18 @@ def generate_model(args):
         type=int,
         help="Time limit in minutes to apply to model parameter search. (Default 10)",
     )
+    parser.add_argument(
+        "--x_config",
+        default=None,
+        type=str,
+        help="Path to JSON configuration file for X Preprocessor",
+    )
+    parser.add_argument(
+        "--y_config",
+        default=None,
+        type=str,
+        help="Path to JSON configuration file for y Preprocessor",
+    )
     cargs = parser.parse_args(args)
 
     if cargs.level == 3 and cargs.method is not None:
@@ -74,31 +87,36 @@ def generate_model(args):
 
     if cargs.level == 1:
         # Default everything with basic estimator
-        fs = Foreshadow(estimator=get_method(cargs.method, X_train))
+        fs = Foreshadow(estimator=get_method(cargs.method, y_train))
 
     elif cargs.level == 2:
         # Parameter search on all matched intents
-        X_proc = Preprocessor()
-        y_proc = Preprocessor()
-        print("Getting initial fit...")
-        X_proc.fit(X_train)
-        y_proc.fit(y_train)
 
-        print("Fitting all possible intents...")
-        X_result = X_proc.serialize()
-        y_result = y_proc.serialize()
+        if cargs.x_config is not None:
+            try:
+                with open(cargs.x_config, "r") as f:
+                    X_search = Preprocessor(from_json=json.load(f))
+            except Exception as e:
+                raise ValueError(
+                    "Could not read X config file {}".format(cargs.x_config)
+                )
+            print("Reading config for X Preprocessor")
+        else:
+            X_search = search_intents(X_train)
+            print("Searching over valid intent space for X data")
 
-        X_space = {
-            "columns.{}.intent".format(k): v["all_matched_intents"]
-            for k, v in X_result["columns"].items()
-        }
-        y_space = {
-            "columns.{}.intent".format(k): v["all_matched_intents"]
-            for k, v in y_result["columns"].items()
-        }
-
-        X_search = Preprocessor(from_json=X_space)
-        y_search = Preprocessor(from_json=y_space)
+        if cargs.y_config is not None:
+            try:
+                with open(cargs.y_config, "r") as f:
+                    y_search = Preprocessor(from_json=json.load(f))
+            except Exception as e:
+                raise ValueError(
+                    "Could not read y config file {}".format(cargs.y_config)
+                )
+            print("Reading config for y Preprocessor")
+        else:
+            y_search = search_intents(y_train)
+            print("Searching over valid intent space for y data")
 
         # If level 3 also do model parameter search with AutoEstimator
         # Input time limit into Foreshadow to be passed into AutoEstimator
@@ -107,6 +125,7 @@ def generate_model(args):
             X_preprocessor=X_search,
             y_preprocessor=y_search,
             estimator=get_method(cargs.method, X_train),
+            optimizer=GridSearchCV,
         )
 
     elif cargs.level == 3:
@@ -164,7 +183,7 @@ def cmd():  # pragma: no cover
     execute_model(*model)
 
 
-def get_method(arg, X_train):
+def get_method(arg, y_train):
     """ Function to determine what estimator to use given a set of X data
     and a passed argument referencing an sklearn Estimator class.
     """
@@ -175,10 +194,36 @@ def get_method(arg, X_train):
             cls = getattr(mod, arg)
             return cls()
         except Exception as e:
-            raise ValueError("Invalid method. Must be a valid estimator")
+            raise ValueError(
+                "Invalid method. {} is not a valid estimator from sklearn.linear_model".format(
+                    arg
+                )
+            )
+
     else:
         return (
             LinearRegression()
-            if determine_problem_type(X_train) == "regression"
+            if determine_problem_type(y_train) == "regression"
             else LogisticRegression()
         )
+
+
+def search_intents(data):
+
+    proc = Preprocessor()
+
+    proc.fit(data)
+
+    result = proc.serialize()
+
+    space = {
+        "columns": {k: {"intent": v["intent"]} for k, v in result["columns"].items()},
+        "combinations": [
+            {
+                "columns.{}.intent".format(k): v["all_matched_intents"]
+                for k, v in result["columns"].items()
+            }
+        ],
+    }
+
+    return Preprocessor(from_json=space)

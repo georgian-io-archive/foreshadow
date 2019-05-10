@@ -117,6 +117,85 @@ def test_console_generate_level2():
     assert isinstance(model[0].estimator, LinearRegression)
 
 
+def test_console_generate_config():
+    import json
+
+    from foreshadow.console import generate_model
+    from sklearn.linear_model import LinearRegression
+
+    args = [
+        "--data",
+        "./foreshadow/tests/test_data/boston_housing.csv",
+        "--target",
+        "medv",
+        "--level",
+        "2",
+        "--x_config",
+        "./foreshadow/tests/test_configs/override_multi_pipeline.json",
+        "--y_config",
+        "./foreshadow/tests/test_configs/override_multi_pipeline.json",
+    ]
+
+    model = generate_model(args)
+
+    assert model[0].X_preprocessor.from_json == json.load(
+        open("./foreshadow/tests/test_configs/override_multi_pipeline.json", "r")
+    )
+    assert model[0].y_preprocessor.from_json == json.load(
+        open("./foreshadow/tests/test_configs/override_multi_pipeline.json", "r")
+    )
+
+
+def test_console_invalid_x_config():
+    import json
+
+    from foreshadow.console import generate_model
+    from sklearn.linear_model import LinearRegression
+
+    args = [
+        "--data",
+        "./foreshadow/tests/test_data/boston_housing.csv",
+        "--target",
+        "medv",
+        "--level",
+        "2",
+        "--x_config",
+        "./foreshadow/tests/test_configs/invalid.json",
+        "--y_config",
+        "./foreshadow/tests/test_configs/override_multi_pipeline.json",
+    ]
+
+    with pytest.raises(ValueError) as e:
+        generate_model(args)
+
+    assert "Could not read X config file" in str(e.value)
+
+
+def test_console_invalid_y_config():
+    import json
+
+    from foreshadow.console import generate_model
+    from sklearn.linear_model import LinearRegression
+
+    args = [
+        "--data",
+        "./foreshadow/tests/test_data/boston_housing.csv",
+        "--target",
+        "medv",
+        "--level",
+        "2",
+        "--x_config",
+        "./foreshadow/tests/test_configs/override_multi_pipeline.json",
+        "--y_config",
+        "./foreshadow/tests/test_configs/invalid.json",
+    ]
+
+    with pytest.raises(ValueError) as e:
+        generate_model(args)
+
+    assert "Could not read y config file" in str(e.value)
+
+
 def test_console_generate_level3():
     from foreshadow.estimators import AutoEstimator
     from foreshadow.console import generate_model
