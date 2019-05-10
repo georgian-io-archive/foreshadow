@@ -1,24 +1,20 @@
+import argparse
+import json
 import sys
 import warnings
 
 import pandas as pd
-import argparse
-import json
-
-from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.base import BaseEstimator
+from sklearn.model_selection import GridSearchCV, train_test_split
 
-
-from foreshadow.estimators.auto import determine_problem_type
+from foreshadow import Foreshadow, Preprocessor
 from foreshadow.estimators import AutoEstimator
-from foreshadow import Preprocessor
-from foreshadow import Foreshadow
+from foreshadow.estimators.auto import determine_problem_type
 
 
 def generate_model(args):
-    """ Takes the arguments passed to the console and generates the Foreshadow model that
-    must be fit.
+    """ Takes the arguments passed to the console and generates
+    the Foreshadow model that must be fit.
     """
 
     parser = argparse.ArgumentParser(
@@ -28,25 +24,32 @@ def generate_model(args):
         "--data", type=str, help="File path of a valid CSV file to load"
     )
     parser.add_argument(
-        "--target", type=str, help="Name of target column to predict in dataset"
+        "--target",
+        type=str,
+        help="Name of target column to predict in dataset",
     )
     parser.add_argument(
         "--level",
         default=1,
         type=int,
-        help="Level of fitting 1: All defaults 2: Feature engineering parameter search 3: Model parameter search using AutoSklearn or TPOT ",
+        help="Level of fitting 1: All defaults 2: Feature engineering"
+        "parameter search 3: Model parameter search"
+        "using AutoSklearn or TPOT ",
     )
     parser.add_argument(
         "--method",
         default=None,
         type=str,
-        help="Name of Estimator class from sklearn.linear_model to use. Defaults to LogisticRegression for classification and LinearRegression for regression",
+        help="Name of Estimator class from sklearn.linear_model to use."
+        "Defaults to LogisticRegression for classification"
+        "and LinearRegression for regression",
     )
     parser.add_argument(
         "--time",
         default=10,
         type=int,
-        help="Time limit in minutes to apply to model parameter search. (Default 10)",
+        help="Time limit in minutes to apply to model"
+        "parameter search. (Default 10)",
     )
     parser.add_argument(
         "--x_config",
@@ -63,16 +66,19 @@ def generate_model(args):
     cargs = parser.parse_args(args)
 
     if cargs.level == 3 and cargs.method is not None:
-        warnings.warn("WARNING: Level 3 model search enabled. Method will be ignored.")
+        warnings.warn(
+            "WARNING: Level 3 model search enabled. Method will be ignored."
+        )
 
     if cargs.level != 3 and cargs.time != 10:
         warnings.warn(
-            "WARNING: Time parameter not applicable to feature engineering. Must be in level 3."
+            "WARNING: Time parameter not applicable "
+            "to feature engineering. Must be in level 3."
         )
 
     try:
         df = pd.read_csv(cargs.data)
-    except Exception as e:
+    except Exception:
         raise ValueError(
             "Failed to load file. Please verify it exists and is a valid CSV."
         )
@@ -80,10 +86,12 @@ def generate_model(args):
     try:
         X_df = df.drop(columns=cargs.target)
         y_df = df[[cargs.target]]
-    except:
+    except Exception:
         raise ValueError("Invalid target variable")
 
-    X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.2)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_df, y_df, test_size=0.2
+    )
 
     if cargs.level == 1:
         # Default everything with basic estimator
@@ -96,7 +104,7 @@ def generate_model(args):
             try:
                 with open(cargs.x_config, "r") as f:
                     X_search = Preprocessor(from_json=json.load(f))
-            except Exception as e:
+            except Exception:
                 raise ValueError(
                     "Could not read X config file {}".format(cargs.x_config)
                 )
@@ -109,7 +117,7 @@ def generate_model(args):
             try:
                 with open(cargs.y_config, "r") as f:
                     y_search = Preprocessor(from_json=json.load(f))
-            except Exception as e:
+            except Exception:
                 raise ValueError(
                     "Could not read y config file {}".format(cargs.y_config)
                 )
@@ -132,7 +140,9 @@ def generate_model(args):
         # Default intent and advanced model search using 3rd party AutoML
 
         fs = Foreshadow(
-            estimator=AutoEstimator(estimator_kwargs={"max_time_mins": cargs.time})
+            estimator=AutoEstimator(
+                estimator_kwargs={"max_time_mins": cargs.time}
+            )
         )
 
     else:
@@ -142,8 +152,9 @@ def generate_model(args):
 
 
 def execute_model(fs, X_train, y_train, X_test, y_test):
-    """ Executes the model produced by generate_model() and exports the data to json
-    as well as returning the exported json object containing the results and the serialized
+    """ Executes the model produced by generate_model()
+    and exports the data to json as well as returning the
+    exported json object containing the results and the serialized
     Foreshadow object. Also prints simple model accuracy metrics.
     """
 
@@ -168,7 +179,8 @@ def execute_model(fs, X_train, y_train, X_test, y_test):
         json.dump(all_results, outfile)
 
     print(
-        "Results of model fiting have been saved to model.json. Refer to docs to read and process."
+        "Results of model fiting have been saved to model.json."
+        "Refer to docs to read and process."
     )
 
     return all_results
@@ -190,14 +202,15 @@ def get_method(arg, y_train):
 
     if arg is not None:
         try:
-            mod = __import__("sklearn.linear_model", globals(), locals(), ["object"], 0)
+            mod = __import__(
+                "sklearn.linear_model", globals(), locals(), ["object"], 0
+            )
             cls = getattr(mod, arg)
             return cls()
-        except Exception as e:
+        except Exception:
             raise ValueError(
-                "Invalid method. {} is not a valid estimator from sklearn.linear_model".format(
-                    arg
-                )
+                "Invalid method. {} is not a valid "
+                "estimator from sklearn.linear_model".format(arg)
             )
 
     else:
@@ -217,7 +230,9 @@ def search_intents(data):
     result = proc.serialize()
 
     space = {
-        "columns": {k: {"intent": v["intent"]} for k, v in result["columns"].items()},
+        "columns": {
+            k: {"intent": v["intent"]} for k, v in result["columns"].items()
+        },
         "combinations": [
             {
                 "columns.{}.intent".format(k): v["all_matched_intents"]

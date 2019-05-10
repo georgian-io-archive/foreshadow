@@ -15,7 +15,7 @@ def test_console_generate_ignore_method():
         "medv",
     ]
 
-    with pytest.warns(UserWarning, match="Method will be ignored") as w:
+    with pytest.warns(UserWarning, match="Method will be ignored"):
         generate_model(args)
 
 
@@ -33,7 +33,7 @@ def test_console_generate_ignore_time():
         "medv",
     ]
 
-    with pytest.warns(UserWarning, match="Time parameter not applicable") as w:
+    with pytest.warns(UserWarning, match="Time parameter not applicable"):
         generate_model(args)
 
 
@@ -82,7 +82,6 @@ def test_console_generate_default():
 
 def test_console_generate_invalid():
     from foreshadow.console import generate_model
-    from sklearn.linear_model import LinearRegression
 
     args = [
         "--data",
@@ -121,7 +120,6 @@ def test_console_generate_config():
     import json
 
     from foreshadow.console import generate_model
-    from sklearn.linear_model import LinearRegression
 
     args = [
         "--data",
@@ -139,18 +137,19 @@ def test_console_generate_config():
     model = generate_model(args)
 
     assert model[0].X_preprocessor.from_json == json.load(
-        open("./foreshadow/tests/test_configs/override_multi_pipeline.json", "r")
+        open(
+            "./foreshadow/tests/test_configs/override_multi_pipeline.json", "r"
+        )
     )
     assert model[0].y_preprocessor.from_json == json.load(
-        open("./foreshadow/tests/test_configs/override_multi_pipeline.json", "r")
+        open(
+            "./foreshadow/tests/test_configs/override_multi_pipeline.json", "r"
+        )
     )
 
 
 def test_console_invalid_x_config():
-    import json
-
     from foreshadow.console import generate_model
-    from sklearn.linear_model import LinearRegression
 
     args = [
         "--data",
@@ -172,10 +171,7 @@ def test_console_invalid_x_config():
 
 
 def test_console_invalid_y_config():
-    import json
-
     from foreshadow.console import generate_model
-    from sklearn.linear_model import LinearRegression
 
     args = [
         "--data",
@@ -228,12 +224,16 @@ def test_console_execute():
     X_df = pd.DataFrame(boston.data, columns=boston.feature_names)
     y_df = pd.DataFrame(boston.target, columns=["target"])
 
-    X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.2)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_df, y_df, test_size=0.2
+    )
     fs = Foreshadow(estimator=LinearRegression())
 
     results = execute_model(fs, X_train, y_train, X_test, y_test)
 
-    assert set(["X_Model", "X_Summary", "y_Model", "y_summary"]) == set(results.keys())
+    assert set(["X_Model", "X_Summary", "y_Model", "y_summary"]) == set(
+        results.keys()
+    )
 
 
 def test_console_get_method_default():
@@ -249,7 +249,9 @@ def test_console_get_method_default():
     X_df = pd.DataFrame(boston.data, columns=boston.feature_names)
     y_df = pd.DataFrame(boston.target, columns=["target"])
 
-    X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.2)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_df, y_df, test_size=0.2
+    )
 
     result = get_method(None, X_train)
 
@@ -268,8 +270,6 @@ def test_console_get_method_override():
 
 def test_console_get_method_error():
     from foreshadow.console import get_method
-
-    from sklearn.linear_model import LogisticRegression
 
     with pytest.raises(ValueError) as e:
         get_method("InvalidRegression", None)
