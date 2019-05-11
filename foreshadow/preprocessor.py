@@ -500,24 +500,42 @@ def serialize_pipeline(pipeline, include_smart=False):
     """
 
     return [
-        {
-            "transformer": type(
-                step[PipelineStep["CLASS"]].transformer
-            ).__name__,
-            "name": step[PipelineStep["NAME"]],
-            "parameters": step[PipelineStep["CLASS"]].transformer.get_params(
-                deep=False
-            ),
-        }
-        if isinstance(step[PipelineStep["CLASS"]], SmartTransformer)
-        and not include_smart
-        else {
-            "transformer": type(step[PipelineStep["CLASS"]]).__name__,
-            "name": step[PipelineStep["NAME"]],
-            "parameters": step[PipelineStep["CLASS"]].get_params(deep=False),
-        }
-        for step in pipeline.steps
-        if pipeline.steps[0][PipelineStep["NAME"]] != "null"
+        p
+        for s in [
+            (
+                [
+                    {
+                        "transformer": type(
+                            step[PipelineStep["CLASS"]].transformer
+                        ).__name__,
+                        "name": step[PipelineStep["NAME"]],
+                        "parameters": step[
+                            PipelineStep["CLASS"]
+                        ].transformer.get_params(deep=False),
+                    }
+                ]
+                if not isinstance(
+                    step[PipelineStep["CLASS"]].transformer, Pipeline
+                )
+                else serialize_pipeline(
+                    step[PipelineStep["CLASS"]].transformer
+                )
+            )
+            if isinstance(step[PipelineStep["CLASS"]], SmartTransformer)
+            and not include_smart
+            else [
+                {
+                    "transformer": type(step[PipelineStep["CLASS"]]).__name__,
+                    "name": step[PipelineStep["NAME"]],
+                    "parameters": step[PipelineStep["CLASS"]].get_params(
+                        deep=False
+                    ),
+                }
+            ]
+            for step in pipeline.steps
+            if pipeline.steps[0][PipelineStep["NAME"]] != "null"
+        ]
+        for p in s
     ]
 
 
