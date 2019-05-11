@@ -6,7 +6,7 @@ from sklearn.pipeline import Pipeline
 
 from foreshadow.intents import GenericIntent
 from foreshadow.intents.registry import registry_eval
-from foreshadow.transformers.base import ParallelProcessor
+from foreshadow.transformers.base import ParallelProcessor, SmartTransformer
 from foreshadow.utils import PipelineStep, check_df
 
 
@@ -397,7 +397,10 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
         # Serialize intent multi processors
         json_intents = {
-            k: {l: serialize_pipeline(j) for l, j in v.items()}
+            k: {
+                l: serialize_pipeline(j, include_smart=True)
+                for l, j in v.items()
+            }
             for k, v in self._intent_pipelines.items()
         }
 
@@ -485,7 +488,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         return self.pipeline.inverse_transform(X)
 
 
-def serialize_pipeline(pipeline):
+def serialize_pipeline(pipeline, include_smart=False):
     """Serializes sklearn Pipeline object into JSON object for reconstruction.
 
     Args:
@@ -495,8 +498,20 @@ def serialize_pipeline(pipeline):
     Returns:
         list: JSON serializable object of form ``[cls, name, {**params}]``
     """
+
     return [
         {
+            "transformer": type(
+                step[PipelineStep["CLASS"]].transformer
+            ).__name__,
+            "name": step[PipelineStep["NAME"]],
+            "parameters": step[PipelineStep["CLASS"]].transformer.get_params(
+                deep=False
+            ),
+        }
+        if isinstance(step[PipelineStep["CLASS"]], SmartTransformer)
+        and not include_smart
+        else {
             "transformer": type(step[PipelineStep["CLASS"]]).__name__,
             "name": step[PipelineStep["NAME"]],
             "parameters": step[PipelineStep["CLASS"]].get_params(deep=False),
