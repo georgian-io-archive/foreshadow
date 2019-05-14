@@ -1,6 +1,3 @@
-import pytest
-
-
 def test_metaestimator_predict():
     import numpy as np
 
@@ -30,12 +27,13 @@ def test_metaestimator_predict():
 def test_metaestimator_predict_proba():
     import numpy as np
 
-    from sklearn.preprocessing import OneHotEncoder
     from sklearn.linear_model import LogisticRegression
     from sklearn.model_selection import train_test_split
 
     from foreshadow.estimators import MetaEstimator
-    from foreshadow.transformers.internals import FixedLabelEncoder as LabelEncoder
+    from foreshadow.transformers.internals import (
+        FixedLabelEncoder as LabelEncoder,
+    )
 
     np.random.seed(0)
 
@@ -55,12 +53,13 @@ def test_metaestimator_predict_proba():
 def test_metaestimator_score():
     import numpy as np
 
-    from sklearn.preprocessing import OneHotEncoder
     from sklearn.linear_model import LogisticRegression
     from sklearn.model_selection import train_test_split
 
     from foreshadow.estimators import MetaEstimator
-    from foreshadow.transformers.internals import FixedLabelEncoder as LabelEncoder
+    from foreshadow.transformers.internals import (
+        FixedLabelEncoder as LabelEncoder,
+    )
 
     np.random.seed(0)
 

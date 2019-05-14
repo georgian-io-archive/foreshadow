@@ -84,7 +84,9 @@ def test_smart_encoder_more_than_30_levels_that_reduces():
         [np.random.choice(29, size=500), np.array([31, 32, 33, 34, 35, 36])]
     )
     smart_coder = Encoder()
-    assert isinstance(smart_coder.fit(gt_30_random_data).steps[-1][1], OneHotEncoder)
+    assert isinstance(
+        smart_coder.fit(gt_30_random_data).steps[-1][1], OneHotEncoder
+    )
 
 
 def test_smart_encoder_y_var():
@@ -92,7 +94,9 @@ def test_smart_encoder_y_var():
     import pandas as pd
 
     from foreshadow.transformers.smart import Encoder
-    from foreshadow.transformers.internals import FixedLabelEncoder as LabelEncoder
+    from foreshadow.transformers.internals import (
+        FixedLabelEncoder as LabelEncoder,
+    )
 
     y_df = pd.DataFrame({"A": np.array([1, 2, 10] * 3)})
     smart_coder = Encoder(y_var=True)
@@ -203,18 +207,21 @@ def test_preprocessor_hashencoder_no_name_collision():
     cat2 = [str(uuid.uuid4()) for _ in range(40)]
 
     input = pd.DataFrame(
-        {"col1": np.random.choice(cat1, 1000), "col2": np.random.choice(cat2, 1000)}
+        {
+            "col1": np.random.choice(cat1, 1000),
+            "col2": np.random.choice(cat2, 1000),
+        }
     )
 
     processor = Preprocessor()
     output = processor.fit_transform(input)
-    # since the number of categories for each column are above 30, HashingEncoder will be used with 30 components. The transformed
-    # output should have in total 60 unique names.
+    # since the number of categories for each column are above 30,
+    # HashingEncoder will be used with 30 components. The transformed output
+    # should have in total 60 unique names.
     assert len(set(output.columns)) == 60
 
 
 def test_smart_encoder_delimmited():
-    import numpy as np
     import pandas as pd
     from foreshadow.transformers.smart import Encoder
     from foreshadow.transformers.internals import DummyEncoder
@@ -241,7 +248,17 @@ def test_smart_financial_cleaner_us():
     from foreshadow.transformers.smart import FinancialCleaner
 
     x = pd.DataFrame(
-        ["Test", "0", "000", "1,000", "0.9", "[0.9]", "-.3", "30.00", "3,000.35"]
+        [
+            "Test",
+            "0",
+            "000",
+            "1,000",
+            "0.9",
+            "[0.9]",
+            "-.3",
+            "30.00",
+            "3,000.35",
+        ]
     )
     expected = pd.DataFrame(
         [np.nan, 0.0, 0.0, 1000, 0.9, -0.9, -0.3, 30.0, 3000.35]
@@ -257,7 +274,17 @@ def test_smart_financial_cleaner_eu():
     from foreshadow.transformers.smart import FinancialCleaner
 
     x = pd.DataFrame(
-        ["Test", "0", "000", "1.000", "0,9", "[0,9]", "-,3", "30,00", "3.000,35"]
+        [
+            "Test",
+            "0",
+            "000",
+            "1.000",
+            "0,9",
+            "[0,9]",
+            "-,3",
+            "30,00",
+            "3.000,35",
+        ]
     )
     expected = pd.DataFrame(
         [np.nan, 0.0, 0.0, 1000, 0.9, -0.9, -0.3, 30.0, 3000.35]
@@ -270,13 +297,10 @@ def test_smart_financial_cleaner_eu():
 def test_smart_text():
     import numpy as np
     import pandas as pd
-    from sklearn.pipeline import Pipeline
 
     from foreshadow.transformers.smart import SmartText
     from foreshadow.transformers.externals import TfidfVectorizer
-    from foreshadow.transformers.internals import ToString, HTMLRemover
-
-    inst_in_steps = lambda pipe, inst: any(isinstance(tf, inst) for n, tf in pipe.steps)
+    from foreshadow.transformers.internals import HTMLRemover
 
     X1 = pd.DataFrame(["abc", "def", "1321", "tester"])
     tf1 = SmartText().fit(X1)
@@ -286,8 +310,7 @@ def test_smart_text():
     X2 = pd.DataFrame(["<p> Hello </p>", "World", "<h1> Tag </h1>"])
     tf2 = SmartText().fit(X2)
 
-    assert inst_in_steps(tf2, HTMLRemover)
+    assert any(isinstance(tf, HTMLRemover) for n, tf in tf2.steps)
     assert isinstance(tf2.steps[-1][1], TfidfVectorizer)
 
-    X3 = pd.DataFrame([1, 2, 3, np.nan])
-    tf3 = SmartText().fit(X3)
+    assert SmartText().fit(pd.DataFrame([1, 2, 3, np.nan]))

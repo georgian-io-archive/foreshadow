@@ -1,23 +1,22 @@
-import importlib
 import inspect
-from functools import partialmethod, wraps
+from functools import wraps
 
-from copy import deepcopy
 import numpy as np
 import pandas as pd
+import scipy
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_extraction.text import VectorizerMixin
-import scipy
 
-from ..utils import check_df
+from foreshadow.utils import check_df
 
 
 def _get_modules(classes, globals_, mname):
     """Imports sklearn transformers from transformers directory.
 
     Searches transformers directory for classes implementing BaseEstimator and
-    TransformerMixin and duplicates them, wraps their init methods and public functions
-    to support pandas dataframes, and exposes them as foreshadow.transformers.[name]
+    TransformerMixin and duplicates them, wraps their init methods and public
+    functions to support pandas dataframes, and exposes them as
+    foreshadow.transformers.[name]
 
     Returns:
         The list of wrapped transformers.
@@ -28,7 +27,10 @@ def _get_modules(classes, globals_, mname):
         cls
         for cls in classes
         if issubclass(cls, BaseEstimator)
-        and (issubclass(cls, TransformerMixin) or issubclass(cls, VectorizerMixin))
+        and (
+            issubclass(cls, TransformerMixin)
+            or issubclass(cls, VectorizerMixin)
+        )
     ]
 
     for t in transformers:
@@ -43,27 +45,33 @@ def wrap_transformer(transformer):
     """Wraps an sklearn transformer to support dataframes.
 
     Args:
-        transformer: sklearn transformer implementing BaseEstimator and TransformerMixin
+        transformer: sklearn transformer implementing BaseEstimator and
+        TransformerMixin
 
     Returns:
         A wrapped form of transformer
     """
 
     members = [
-        m[1] for m in inspect.getmembers(transformer, predicate=inspect.isfunction)
+        m[1]
+        for m in inspect.getmembers(transformer, predicate=inspect.isfunction)
     ]
     wrap_candidates = [
         m
         for m in members
         if any(
             name == m.__name__
-            for name in ["fit", "fit_transform", "transform", "inverse_transform"]
+            for name in [
+                "fit",
+                "fit_transform",
+                "transform",
+                "inverse_transform",
+            ]
         )
     ]
 
     for w in wrap_candidates:
         # Wrap public function calls
-        # method = partialmethod(pandas_wrapper, w)
         method = pandas_partial(pandas_partial(w))
         method.__doc__ = w.__doc__
         setattr(transformer, w.__name__, method)
@@ -82,8 +90,8 @@ def wrap_transformer(transformer):
 
 
 class Sigcopy(object):
-    """
-    Copies the argspec between two functions. Used to copy the argspec from a partial function.
+    """Copies the argspec between two functions. Used to copy the argspec from
+    a partial function.
     """
 
     def __init__(self, src_func):
@@ -122,7 +130,9 @@ class Sigcopy(object):
         )
 
         # Write new function
-        sigcall = inspect.formatargspec(formatvalue=lambda val: "", *newargspec)[1:-1]
+        sigcall = inspect.formatargspec(
+            formatvalue=lambda val: "", *newargspec
+        )[1:-1]
         signature = inspect.formatargspec(*newargspec)[1:-1]
 
         signature = signature.replace("*,", "")
@@ -131,7 +141,11 @@ class Sigcopy(object):
         new_func = (
             "def _wrapper_(%(signature)s):\n"
             "    return %(tgt_func)s(%(sigcall)s)"
-            % {"signature": signature, "tgt_func": "tgt_func", "sigcall": sigcall}
+            % {
+                "signature": signature,
+                "tgt_func": "tgt_func",
+                "sigcall": sigcall,
+            }
         )
 
         # Set new metadata
@@ -146,7 +160,9 @@ class Sigcopy(object):
 
 
 def init_partial(func):
-    def transform_constructor(self, *args, keep_columns=False, name=None, **kwargs):
+    def transform_constructor(
+        self, *args, keep_columns=False, name=None, **kwargs
+    ):
 
         self.name = args[-1]
         self.keep_columns = args[-2]
@@ -185,7 +201,7 @@ class _Empty(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, y=None):
-        """Pass through transform 
+        """Pass through transform
 
         Args:
             X (:obj:`numpy.ndarray`): X data
@@ -198,7 +214,7 @@ class _Empty(BaseEstimator, TransformerMixin):
         return np.array([])
 
     def inverse_transform(self, X):
-        """Pass through transform 
+        """Pass through transform
 
         Args:
             X (:obj:`numpy.ndarray`): X data
@@ -216,12 +232,12 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
 
     Selects columns from df and executes inner function only on columns.
 
-    This expects that public functions within the sklearn transformer follow the sklearn
-    standard. This includes the format ``func(X, y=None, *args, **kwargs)`` and either a
-    return self or return X
+    This expects that public functions within the sklearn transformer follow
+    the sklearn standard. This includes the format
+    ``func(X, y=None, *args, **kwargs)`` and either a return self or return X
 
-    Adds ability of transformer to handle DataFrame input and output with persistent
-    column names.
+    Adds ability of transformer to handle DataFrame input and output with
+    persistent column names.
 
     Args:
         self: The sklearn transformer object
@@ -232,8 +248,6 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
         Same as return type of func
     """
 
-    stack = inspect.stack()
-    caller = stack[1][0].f_locals["self"].__class__
     current = inspect.currentframe()
     calframe = inspect.getouterframes(current, 3)
     if calframe[2][3] != "pandas_wrapper":
@@ -245,11 +259,10 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
     if not df.empty or isinstance(self, _Empty):
         try:
             out = func(self, df, *args, **kwargs)
-        except Exception as e:
+        except Exception:
             try:
                 out = func(self, df, *args)
-                data_path = True
-            except Exception as e:
+            except Exception:
                 from sklearn.utils import check_array
 
                 dat = check_array(
@@ -275,12 +288,14 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
             prefix = type(self).__name__
 
         out.columns = [
-            "{}_{}_{}".format("_".join(init_cols), prefix, c) for c in out.columns
+            "{}_{}_{}".format("_".join(init_cols), prefix, c)
+            for c in out.columns
         ]
 
         if self.keep_columns:
             df.columns = [
-                "{}_{}_origin_{}".format(c, prefix, i) for i, c in enumerate(df.columns)
+                "{}_{}_origin_{}".format(c, prefix, i)
+                for i, c in enumerate(df.columns)
             ]
             return pd.concat([df, out], axis=1)
 

@@ -2,14 +2,12 @@ import re
 
 import numpy as np
 import pandas as pd
-from sklearn.base import TransformerMixin, BaseEstimator
-from sklearn.utils import check_array
-from sklearn.utils.validation import check_is_fitted
+from sklearn.base import BaseEstimator, TransformerMixin
 
 
 class PrepareFinancial(BaseEstimator, TransformerMixin):
-    """Cleans data in preparation for a financial transformer 
-    (requires pandas inputs)
+    """Cleans data in preparation for a financial transformer (requires pandas
+    inputs)
     """
 
     def fit(self, X, y=None):
@@ -52,7 +50,16 @@ class ConvertFinancial(BaseEstimator, TransformerMixin):
 
     def __init__(self, is_euro=False):
         self.is_euro = is_euro
-        self.clean_us = r"(?<!\S)(\[|\()?((-(?=[0-9\.]))?([0-9](\,(?=[0-9]{3}))?)*((\.(?=[0-9]))|((?<=[0-9]))\.)?[0-9]*)(\)|\])?(?!\S)"
+        self.clean_us = (
+            r"(?<!\S)"  # Negative lookbehind any non whitespace
+            r"(\[|\()?"  # Look for zero or 1 --> [ or (
+            r"("  # CG 1:
+            r"(-(?=[0-9\.]))?"  # Look for or or 1 (negative num case)
+            r"([0-9](\,(?=[0-9]{3}))?)*"  # Positive num case w/ ,
+            r"((\.(?=[0-9]))|((?<=[0-9]))\.)?[0-9]*)"  # decimals
+            r"(\)|\])?"  # Look for zero or 1 --> ] or )
+            r"(?!\S)"  # Negative lookahead whitespace
+        )
 
     def fit(self, X, y=None):
         """Empty fit"""

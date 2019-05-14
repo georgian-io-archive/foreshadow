@@ -1,4 +1,4 @@
-from unittest.mock import patch, PropertyMock
+from unittest.mock import PropertyMock, patch
 
 import pytest
 
@@ -41,7 +41,7 @@ def test_foreshadow_X_preprocessor_error():
 
     preprocessor = "Invalid"
     with pytest.raises(ValueError) as e:
-        foreshadow = Foreshadow(X_preprocessor=preprocessor)
+        _ = Foreshadow(X_preprocessor=preprocessor)
 
     assert str(e.value) == "Invalid value passed as X_preprocessor"
 
@@ -67,7 +67,7 @@ def test_foreshadow_y_preprocessor_error():
 
     preprocessor = "Invalid"
     with pytest.raises(ValueError) as e:
-        foreshadow = Foreshadow(y_preprocessor=preprocessor)
+        _ = Foreshadow(y_preprocessor=preprocessor)
 
     assert str(e.value) == "Invalid value passed as y_preprocessor"
 
@@ -86,7 +86,7 @@ def test_foreshadow_estimator_error():
 
     estimator = "Invalid"
     with pytest.raises(ValueError) as e:
-        foreshadow = Foreshadow(estimator=estimator)
+        _ = Foreshadow(estimator=estimator)
 
     assert str(e.value) == "Invalid value passed as estimator"
 
@@ -110,7 +110,7 @@ def test_foreshadow_optimizer_error_invalid():
 
     optimizer = "Invalid"
     with pytest.raises(ValueError) as e:
-        foreshadow = Foreshadow(optimizer=optimizer)
+        _ = Foreshadow(optimizer=optimizer)
 
     assert str(e.value) == "Invalid value passed as optimizer"
 
@@ -120,7 +120,7 @@ def test_foreshadow_optimizer_error_wrongclass():
 
     optimizer = Foreshadow
     with pytest.raises(ValueError) as e:
-        foreshadow = Foreshadow(optimizer=optimizer)
+        _ = Foreshadow(optimizer=optimizer)
 
     assert str(e.value) == "Invalid value passed as optimizer"
 
@@ -133,7 +133,7 @@ def test_foreshadow_warns_on_set_estimator_optimizer():
         pass
 
     with pytest.warns(Warning) as w:
-        foreshadow = Foreshadow(optimizer=DummySearch)
+        _ = Foreshadow(optimizer=DummySearch)
 
     assert str(w[0].message) == (
         "An automatic estimator cannot be used with an"
@@ -305,7 +305,7 @@ def test_foreshadow_predict_before_fit():
     )
 
     with pytest.raises(ValueError) as e:
-        foreshadow_predict = foreshadow.predict(X_test)
+        _ = foreshadow.predict(X_test)
 
     assert str(e.value) == "Foreshadow has not been fit yet"
 
@@ -328,9 +328,11 @@ def test_foreshadow_predict_diff_cols():
     foreshadow.fit(X_train, y_train)
 
     with pytest.raises(ValueError) as e:
-        foreshadow_predict = foreshadow.predict(X_test[:, :-1])
+        _ = foreshadow.predict(X_test[:, :-1])
 
-    assert str(e.value) == "Predict must have the same columns as train columns"
+    assert (
+        str(e.value) == "Predict must have the same columns as train columns"
+    )
 
 
 @patch("foreshadow.preprocessor.Preprocessor")
@@ -340,7 +342,6 @@ def test_foreshadow_param_optimize_fit(mock_p):
     from sklearn.model_selection._search import BaseSearchCV
 
     from foreshadow import Foreshadow
-    from foreshadow.preprocessor import Preprocessor
 
     data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
@@ -394,9 +395,13 @@ def test_foreshadow_param_optimize():  # TODO: Make this test faster
     from foreshadow.optimizers.param_mapping import _param_mapping
 
     data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
-    js = json.load(open("./foreshadow/tests/test_configs/optimizer_test.json", "r"))
+    js = json.load(
+        open("./foreshadow/tests/test_configs/optimizer_test.json", "r")
+    )
 
-    fs = Foreshadow(Preprocessor(from_json=js), False, LinearRegression(), GridSearchCV)
+    fs = Foreshadow(
+        Preprocessor(from_json=js), False, LinearRegression(), GridSearchCV
+    )
 
     fs.pipeline = Pipeline(
         [("preprocessor", fs.X_preprocessor), ("estimator", fs.estimator)]
@@ -465,7 +470,9 @@ def test_foreshadow_param_optimize_no_combinations():
 
     data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
-    fs = Foreshadow(Preprocessor(from_json={}), False, LinearRegression(), GridSearchCV)
+    fs = Foreshadow(
+        Preprocessor(from_json={}), False, LinearRegression(), GridSearchCV
+    )
 
     fs.pipeline = Pipeline(
         [("preprocessor", fs.X_preprocessor), ("estimator", fs.estimator)]
@@ -499,7 +506,10 @@ def test_foreshadow_param_optimize_invalid_array_idx():
 
     data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
     cfg = json.load(
-        open("./foreshadow/tests/test_configs/invalid_optimizer_config.json", "r")
+        open(
+            "./foreshadow/tests/test_configs/invalid_optimizer_config.json",
+            "r",
+        )
     )
 
     fs = Foreshadow(

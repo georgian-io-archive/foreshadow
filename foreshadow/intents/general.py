@@ -1,29 +1,32 @@
 """
 General intents defenitions
 """
-import json
 from collections import OrderedDict
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-from .base import BaseIntent, PipelineTemplateEntry, TransformerEntry
-
-from ..transformers.internals import DropFeature
-from ..transformers.externals import TfidfVectorizer
-from ..transformers.smart import SimpleImputer, MultiImputer, Scaler, Encoder, SmartText
+from foreshadow.intents.base import BaseIntent, PipelineTemplateEntry
+from foreshadow.transformers.internals import DropFeature
+from foreshadow.transformers.smart import (
+    Encoder,
+    MultiImputer,
+    Scaler,
+    SimpleImputer,
+    SmartText,
+)
 
 
 def _mode_freq(s, count=10):
     """Computes the mode and the most frequent values
 
-        Args:
-            s (pandas.Series): the series to analyze
-            count (int): the n number of most frequent values
+    Args:
+        s (:obj:`Series <pandas.Series>`): the series to analyze
+        count (int): the n number of most frequent values
 
-        Returns:
-            A tuple with the list of modes and (the 10 most common values, their
-            frequency counts, % frequencies)
+    Returns:
+        A tuple with the list of modes and (the 10 most common values,
+        their frequency counts, % frequencies)
     """
     mode = s.mode().values.tolist()
     vc = s.value_counts().nlargest(count).reset_index()
@@ -34,11 +37,11 @@ def _mode_freq(s, count=10):
 def _outliers(s, count=10):
     """Computes the mode and the most frequent values
 
-        Args:
-            s (pandas.Series): the series to analyze
-            count (int): the n largest (magnitude) outliers
+    Args:
+        s (:obj:`Series <pandas.Series>`): the series to analyze
+        count (int): the n largest (magnitude) outliers
 
-        Returns a pandas.Series of outliers
+    Returns: a :obj:`Series <pandas.Series>` of outliers
     """
     out_ser = s[np.abs(s - s.mean()) > (3 * s.std())]
     out_df = out_ser.to_frame()
@@ -58,8 +61,8 @@ def _standard_col_summary(df):
 class GenericIntent(BaseIntent):
     """See base class.
 
-    Serves as root of Intent tree. In the case that no other intent applies this
-    intent will serve as a placeholder.
+    Serves as root of Intent tree. In the case that no other intent applies
+    this intent will serve as a placeholder.
 
     """
 
@@ -119,27 +122,28 @@ class NumericIntent(GenericIntent):
     def column_summary(cls, df):
         """Returns computed statistics for a NumericIntent column
 
-            The following are computed:
-                nan: count of nans pass into dataset
-                invalid: number of invalid values after converting to numeric
-                mean: -
-                std: -
-                min: -
-                25th: 25th percentile
-                median: -
-                75th: 75th percentile
-                max: -
-                mode: mode or np.nan if data is mostly unique
-                top10: top 10 most frequent values or empty array if mostly unique
-                    [(value, count),...,]
-                10outliers: largest 10 outliers
+        The following are computed:
+            nan: count of nans pass into dataset
+            invalid: number of invalid values after converting to numeric
+            mean: -
+            std: -
+            min: -
+            25th: 25th percentile
+            median: -
+            75th: 75th percentile
+            max: -
+            mode: mode or np.nan if data is mostly unique
+            top10: top 10 most frequent values or empty array if mostly
+                unique [(value, count),...,]
+            10outliers: largest 10 outliers
 
         """
 
         data = df.iloc[:, 0]
         nan_num = int(data.isnull().sum())
         invalid_num = int(
-            pd.to_numeric(df.iloc[:, 0], errors="coerce").isnull().sum() - nan_num
+            pd.to_numeric(df.iloc[:, 0], errors="coerce").isnull().sum()
+            - nan_num
         )
         outliers = _outliers(data).values.tolist()
         mode, top10 = _mode_freq(data)
@@ -148,13 +152,13 @@ class NumericIntent(GenericIntent):
             [
                 ("nan", nan_num),
                 ("invalid", invalid_num),
-                ("mean", data.mean()),
-                ("std", data.std()),
-                ("min", data.min()),
-                ("25th", data.quantile(0.25)),
-                ("median", data.quantile()),
-                ("75th", data.quantile(0.75)),
-                ("max", data.max()),
+                ("mean", float(data.mean())),
+                ("std", float(data.std())),
+                ("min", float(data.min())),
+                ("25th", float(data.quantile(0.25))),
+                ("median", float(data.quantile(0.5))),
+                ("75th", float(data.quantile(0.75))),
+                ("max", float(data.max())),
                 ("mode", mode),
                 ("top10", top10),
                 ("10outliers", outliers),
@@ -194,11 +198,11 @@ class CategoricalIntent(GenericIntent):
     def column_summary(cls, df):
         """Returns computed statistics for a CategoricalIntent column
 
-            The following are computed:
-                nan: count of nans pass into dataset
-                mode: mode or np.nan if data is mostly unique
-                top10: top 10 most frequent values or empty array if mostly unique
-                    [(value, count),...,]
+        The following are computed:
+            nan: count of nans pass into dataset
+            mode: mode or np.nan if data is mostly unique
+            top10: top 10 most frequent values or empty array if mostly
+                unique [(value, count),...,]
         """
 
         return _standard_col_summary(df)
@@ -214,7 +218,9 @@ class TextIntent(GenericIntent):
     children = []
     """No children"""
 
-    single_pipeline_template = [PipelineTemplateEntry("text", SmartText, False)]
+    single_pipeline_template = [
+        PipelineTemplateEntry("text", SmartText, False)
+    ]
     """Encodes the column automatically"""
 
     multi_pipeline_template = []
@@ -233,8 +239,8 @@ class TextIntent(GenericIntent):
             The following are computed:
                 nan: count of nans pass into dataset
                 mode: mode or np.nan if data is mostly unique
-                top10: top 10 most frequent values or empty array if mostly unique
-                    [(value, count),...,]
+                top10: top 10 most frequent values or empty array if mostly
+                    unique [(value, count),...,]
         """
 
         return _standard_col_summary(df)

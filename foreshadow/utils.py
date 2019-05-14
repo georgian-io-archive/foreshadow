@@ -1,23 +1,21 @@
-"""
-Utils used throughout foreshadow
-"""
-
 import warnings
 
 import numpy as np
 import pandas as pd
+
 
 PipelineStep = {"NAME": 0, "CLASS": 1, "COLS": 2}
 
 
 def check_df(input_data, ignore_none=False, single_column=False):
     """Convert non dataframe inputs into dataframes. (or series)
-    
+
     Args:
         input_data (:obj:`pandas.DataFrame`, :obj:`numpy.ndarray`, list):
             input to convert
         ignore_none (bool): allow None to pass through check_df
-        single_column (bool): check if frame is of a single column and return series
+        single_column (bool): check if frame is of a single column and return
+            series
 
     Returns:
         :obj:`pandas.DataFrame`: Converted and validated input dataframes
@@ -29,18 +27,23 @@ def check_df(input_data, ignore_none=False, single_column=False):
     ret_df = None
     if isinstance(input_data, pd.DataFrame):
         if len(input_data.columns) > len(set(input_data.columns)):
-            warnings.warn("Columns are not all uniquely named, automatically resolving")
+            warnings.warn(
+                "Columns are not all uniquely named, automatically resolving"
+            )
             input_data.columns = pd.io.parsers.ParserBase(
                 {"names": input_data.columns}
             )._maybe_dedup_names(input_data.columns)
         ret_df = input_data
     elif isinstance(input_data, pd.Series):
         ret_df = input_data.to_frame()
-    elif isinstance(input_data, np.ndarray) or isinstance(input_data, (list, tuple)):
+    elif isinstance(input_data, np.ndarray) or isinstance(
+        input_data, (list, tuple)
+    ):
         ret_df = pd.DataFrame(input_data)
     else:
         raise ValueError(
-            "Invalid input type, neither pd.DataFrame, pd.Series, np.ndarray, nor list"
+            "Invalid input type, neither pd.DataFrame, pd.Series, np.ndarray, "
+            "nor list"
         )
 
     if single_column and len(ret_df.columns) != 1:

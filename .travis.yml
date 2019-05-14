@@ -18,7 +18,6 @@ before_install:
   - pip install poetry
 install:
   - poetry install -v -E dev
-  - poetry run pip install tox tox-travis coveralls
 script:
   - poetry run tox
 after_success:
@@ -29,7 +28,6 @@ env:
 
 jobs:
   include:
-    - python: "3.5"
     - python: "3.6"
 
     - stage: linting

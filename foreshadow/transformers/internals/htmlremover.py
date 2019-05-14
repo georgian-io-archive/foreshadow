@@ -1,15 +1,22 @@
 import re
 
-import pandas as pd
-import numpy as np
-from sklearn.base import TransformerMixin, BaseEstimator
+from sklearn.base import BaseEstimator, TransformerMixin
 
 from foreshadow.utils import check_df
 
 
 HTML_REGEX = re.compile(r"<[^<]+?>")
 IS_HTML_REGEX = re.compile(
-    r"<(br|basefont|hr|input|source|frame|param|area|meta|!--|col|link|option|base|img|wbr|!DOCTYPE).*?>|<(a|abbr|acronym|address|applet|article|aside|audio|b|bdi|bdo|big|blockquote|body|button|canvas|caption|center|cite|code|colgroup|command|datalist|dd|del|details|dfn|dialog|dir|div|dl|dt|em|embed|fieldset|figcaption|figure|font|footer|form|frameset|head|header|hgroup|h1|h2|h3|h4|h5|h6|html|i|iframe|ins|kbd|keygen|label|legend|li|map|mark|menu|meter|nav|noframes|noscript|object|ol|optgroup|output|p|pre|progress|q|rp|rt|ruby|s|samp|script|section|select|small|span|strike|strong|style|sub|summary|sup|table|tbody|td|textarea|tfoot|th|thead|time|title|tr|track|tt|u|ul|var|video).*?<\/\2>"
+    r"<(br|basefont|hr|input|source|frame|param|area|meta|!--|col|link|option"
+    r"|base|img|wbr|!DOCTYPE).*?>|<(a|abbr|acronym|address|applet|article"
+    r"|aside|audio|b|bdi|bdo|big|blockquote|body|button|canvas|caption|center"
+    r"|cite|code|colgroup|command|datalist|dd|del|details|dfn|dialog|dir|div"
+    r"|dl|dt|em|embed|fieldset|figcaption|figure|font|footer|form|frameset"
+    r"|head|header|hgroup|h1|h2|h3|h4|h5|h6|html|i|iframe|ins|kbd|keygen|label"
+    r"|legend|li|map|mark|menu|meter|nav|noframes|noscript|object|ol|optgroup"
+    r"|output|p|pre|progress|q|rp|rt|ruby|s|samp|script|section|select|small"
+    r"|span|strike|strong|style|sub|summary|sup|table|tbody|td|textarea|tfoot"
+    r"|th|thead|time|title|tr|track|tt|u|ul|var|video).*?<\/\2>"
 )
 
 
