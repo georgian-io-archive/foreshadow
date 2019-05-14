@@ -335,37 +335,52 @@ def test_foreshadow_predict_diff_cols():
     )
 
 
-def test_foreshadow_param_optimize_fit():
+@patch("foreshadow.preprocessor.Preprocessor")
+def test_foreshadow_param_optimize_fit(mock_p):
     import pandas as pd
-    from sklearn.base import BaseEstimator
+    from sklearn.base import BaseEstimator, TransformerMixin
     from sklearn.model_selection._search import BaseSearchCV
 
     from foreshadow import Foreshadow
-    from foreshadow.preprocessor import Preprocessor
 
     data = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
 
-    class DummyRegressor(BaseEstimator):
+    class DummyRegressor(BaseEstimator, TransformerMixin):
         def fit(self, X, y):
-            pass
+            return self
 
     class DummySearch(BaseSearchCV):
         def __init__(self, estimator, params):
             self.best_estimator_ = estimator
 
         def fit(self, X, y=None, **fit_params):
-            pass
+            return self
 
-    fs = Foreshadow(Preprocessor(), False, DummyRegressor(), DummySearch)
+    class DummyPreprocessor(BaseEstimator, TransformerMixin):
+        def fit(self, X, y):
+            return self
 
+    mock_p.return_value = DummyPreprocessor()
+
+    fs = Foreshadow(estimator=DummyRegressor(), optimizer=DummySearch)
     x = data.drop(["medv"], axis=1, inplace=False)
     y = data[["medv"]]
 
     fs.fit(x, y)
-    assert isinstance(fs.pipeline.steps[1][1], DummyRegressor)
+    assert isinstance(fs.pipeline.steps[-1][1].estimator, DummyRegressor)
+
+    fs2 = Foreshadow(
+        X_preprocessor=False,
+        y_preprocessor=False,
+        estimator=DummyRegressor(),
+        optimizer=DummySearch,
+    )
+
+    fs2.fit(x, y)
+    assert isinstance(fs2.pipeline.steps[-1][1], DummyRegressor)
 
 
-def test_foreshadow_param_optimize():
+def test_foreshadow_param_optimize():  # TODO: Make this test faster
     import pickle
     import json
 

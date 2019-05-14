@@ -17,18 +17,21 @@ from sklearn.pipeline import Pipeline
 from foreshadow.transformers.base import SmartTransformer
 from foreshadow.transformers.externals import (
     HashingEncoder,
-    LabelEncoder,
     MinMaxScaler,
     OneHotEncoder,
     RobustScaler,
     StandardScaler,
+    TfidfVectorizer,
 )
 from foreshadow.transformers.internals import (
     BoxCox,
     ConvertFinancial,
     DummyEncoder,
     FancyImputer,
+    FixedLabelEncoder as LabelEncoder,
+    HTMLRemover,
     PrepareFinancial,
+    ToString,
     UncommonRemover,
 )
 from foreshadow.utils import check_df
@@ -179,7 +182,7 @@ class SimpleImputer(SmartTransformer):
             return FancyImputer("SimpleFill", fill_method="mean")
 
     def _get_transformer(self, X, y=None, **fit_params):
-        s = X.ix[:, 0]
+        s = X.iloc[:, 0]
         ratio = s.isnull().sum() / s.count()
 
         if 0 < ratio <= self.threshold:
@@ -233,3 +236,51 @@ class FinancialCleaner(SmartTransformer):
             return eu_pipeline
         else:
             return us_pipeline
+
+
+class SmartText(SmartTransformer):
+    """Automatically choose appropriate parameters for a text column
+
+        Args:
+            threshold (float): threshold of missing data where to use these
+                strategies
+    """
+
+    def __init__(self, html_cutoff=0.4, **kwargs):
+        self.html_cutoff = html_cutoff
+
+        super().__init__(**kwargs)
+
+    def _get_transformer(self, X, y=None, **fit_params):
+        data = X.iloc[:, 0]
+
+        steps = []
+
+        if (data.dtype.type is not np.str_) and not all(
+            [isinstance(i, str) for i in data]
+        ):
+            steps.append(("num", ToString()))
+
+        html_ratio = (
+            data.astype("str").apply(HTMLRemover.is_html).sum()
+        ) / len(data)
+        if html_ratio > self.html_cutoff:
+            steps.append(("hr", HTMLRemover()))
+
+        # TODO: find heuristic for finding optimal values for values
+        tfidf = TfidfVectorizer(
+            decode_error="replace",
+            strip_accents="unicode",
+            stop_words="english",
+            ngram_range=(1, 2),
+            max_df=0.9,
+            min_df=0.05,
+            max_features=None,
+            sublinear_tf=True,
+        )
+        steps.append(("tfidf", tfidf))
+
+        if len(steps) == 1:
+            return tfidf
+        else:
+            return Pipeline(steps)

@@ -3,7 +3,9 @@ from functools import wraps
 
 import numpy as np
 import pandas as pd
+import scipy
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.feature_extraction.text import VectorizerMixin
 
 from foreshadow.utils import check_df
 
@@ -24,11 +26,15 @@ def _get_modules(classes, globals_, mname):
     transformers = [
         cls
         for cls in classes
-        if issubclass(cls, TransformerMixin) and issubclass(cls, BaseEstimator)
+        if issubclass(cls, BaseEstimator)
+        and (
+            issubclass(cls, TransformerMixin)
+            or issubclass(cls, VectorizerMixin)
+        )
     ]
 
     for t in transformers:
-        copied_t = type(t.__name__, t.__bases__, dict(t.__dict__))
+        copied_t = type(t.__name__, (t, *t.__bases__), dict(t.__dict__))
         copied_t.__module__ = mname
         globals_[copied_t.__name__] = wrap_transformer(copied_t)
 
@@ -53,8 +59,15 @@ def wrap_transformer(transformer):
     wrap_candidates = [
         m
         for m in members
-        if any(arg in inspect.getfullargspec(m).args for arg in ["X", "y"])
-        and not m.__name__[0] == "_"
+        if any(
+            name == m.__name__
+            for name in [
+                "fit",
+                "fit_transform",
+                "transform",
+                "inverse_transform",
+            ]
+        )
     ]
 
     for w in wrap_candidates:
@@ -247,7 +260,16 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
         try:
             out = func(self, df, *args, **kwargs)
         except Exception:
-            out = func(self, df, *args)
+            try:
+                out = func(self, df, *args)
+            except Exception:
+                from sklearn.utils import check_array
+
+                dat = check_array(
+                    df, accept_sparse=True, dtype=None, force_all_finite=False
+                ).tolist()
+                dat = [i for t in dat for i in t]
+                out = func(self, dat, *args)
     else:
         fname = func.__name__
         if "transform" in fname:
@@ -257,7 +279,6 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
 
     # If output is DataFrame (custom transform has occured)
     if isinstance(out, pd.DataFrame):
-
         if hasattr(out, "from_transformer"):
             return out
 
@@ -281,6 +302,9 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
         out.from_transformer = True
 
         return out
+
+    if scipy.sparse.issparse(out):  # densify sparse matricies
+        out = out.toarray()
 
     # If output is numpy array (transform has occurred)
     if isinstance(out, np.ndarray):

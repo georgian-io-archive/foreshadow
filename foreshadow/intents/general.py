@@ -13,6 +13,7 @@ from foreshadow.transformers.smart import (
     MultiImputer,
     Scaler,
     SimpleImputer,
+    SmartText,
 )
 
 
@@ -49,6 +50,14 @@ def _outliers(s, count=10):
     return out_df.loc[out_df["selector"].nlargest(count).index].iloc[:, 0]
 
 
+def _standard_col_summary(df):
+    data = df.iloc[:, 0]
+    nan_num = int(data.isnull().sum())
+    mode, top10 = _mode_freq(data)
+
+    return OrderedDict([("nan", nan_num), ("mode", mode), ("top10", top10)])
+
+
 class GenericIntent(BaseIntent):
     """See base class.
 
@@ -57,7 +66,7 @@ class GenericIntent(BaseIntent):
 
     """
 
-    children = ["NumericIntent", "CategoricalIntent"]
+    children = ["TextIntent", "NumericIntent", "CategoricalIntent"]
     """Matches to CategoricalIntent over NumericIntent"""
 
     single_pipeline_template = []
@@ -103,7 +112,7 @@ class NumericIntent(GenericIntent):
     def is_intent(cls, df):
         """Returns true if data is numeric according to pandas."""
         return (
-            not pd.to_numeric(df.ix[:, 0], errors="coerce")
+            not pd.to_numeric(df.iloc[:, 0], errors="coerce")
             .isnull()
             .values.ravel()
             .all()
@@ -130,10 +139,10 @@ class NumericIntent(GenericIntent):
 
         """
 
-        data = df.ix[:, 0]
+        data = df.iloc[:, 0]
         nan_num = int(data.isnull().sum())
         invalid_num = int(
-            pd.to_numeric(df.ix[:, 0], errors="coerce").isnull().sum()
+            pd.to_numeric(df.iloc[:, 0], errors="coerce").isnull().sum()
             - nan_num
         )
         outliers = _outliers(data).values.tolist()
@@ -179,7 +188,7 @@ class CategoricalIntent(GenericIntent):
     @classmethod
     def is_intent(cls, df):
         """Returns true if the majority of data is categorical by uniqueness"""
-        data = df.ix[:, 0]
+        data = df.iloc[:, 0]
         if not np.issubdtype(data.dtype, np.number):
             return True
         else:
@@ -195,10 +204,43 @@ class CategoricalIntent(GenericIntent):
             top10: top 10 most frequent values or empty array if mostly
                 unique [(value, count),...,]
         """
-        data = df.ix[:, 0]
-        nan_num = int(data.isnull().sum())
-        mode, top10 = _mode_freq(data)
 
-        return OrderedDict(
-            [("nan", nan_num), ("mode", mode), ("top10", top10)]
-        )
+        return _standard_col_summary(df)
+
+
+class TextIntent(GenericIntent):
+    """See base class.
+
+    All features can be treated as text
+
+    """
+
+    children = []
+    """No children"""
+
+    single_pipeline_template = [
+        PipelineTemplateEntry("text", SmartText, False)
+    ]
+    """Encodes the column automatically"""
+
+    multi_pipeline_template = []
+    """No multi pipeline"""
+
+    @classmethod
+    def is_intent(cls, df):
+        """Every column can be interpreted as a text"""
+
+        return True
+
+    @classmethod
+    def column_summary(cls, df):
+        """Returns standard computed statistics for a TextIntent column
+
+            The following are computed:
+                nan: count of nans pass into dataset
+                mode: mode or np.nan if data is mostly unique
+                top10: top 10 most frequent values or empty array if mostly
+                    unique [(value, count),...,]
+        """
+
+        return _standard_col_summary(df)
