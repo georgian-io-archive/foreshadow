@@ -1,4 +1,3 @@
-# flake8: noqa
 """External Transformers
 
 All sklearn transformers imported here will be wrapped and made available in
