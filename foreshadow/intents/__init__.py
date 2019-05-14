@@ -22,4 +22,5 @@ __all__ = [
     "NumericIntent",
     "registry_eval",
     "FinancialIntent",
+    "TextIntent",
 ]
