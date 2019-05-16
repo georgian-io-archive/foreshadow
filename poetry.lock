@@ -268,6 +268,14 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 version = "0.29.7"
 
 [[package]]
+category = "main"
+description = "A utility for ensuring Google-style docstringsstay up to date with the source code."
+name = "darglint"
+optional = false
+python-versions = ">=3.5"
+version = "0.5.4"
+
+[[package]]
 category = "dev"
 description = "A backport of the dataclasses module for Python 3.6"
 marker = "python_version == \"3.6\" and python_version < \"4.0\""
@@ -380,8 +388,20 @@ pyflakes = ">=2.1.0,<2.2.0"
 
 [[package]]
 category = "dev"
+description = "Extension for flake8 which uses pydocstyle to check docstrings"
+name = "flake8-docstrings"
+optional = false
+python-versions = "*"
+version = "1.3.0"
+
+[package.dependencies]
+flake8 = "*"
+flake8-polyfill = "*"
+pydocstyle = ">=2.1"
+
+[[package]]
+category = "dev"
 description = "Polyfill package for Flake8 plugins"
-marker = "python_version >= \"3.6\" and python_version < \"4.0\""
 name = "flake8-polyfill"
 optional = false
 python-versions = "*"
@@ -894,6 +914,18 @@ name = "pycodestyle"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "2.5.0"
+
+[[package]]
+category = "dev"
+description = "Python docstring style checker"
+name = "pydocstyle"
+optional = false
+python-versions = "*"
+version = "3.0.0"
+
+[package.dependencies]
+six = "*"
+snowballstemmer = "*"
 
 [[package]]
 category = "dev"
@@ -1457,7 +1489,7 @@ version = "0.5.0"
 dev = ["auto-sklearn"]
 
 [metadata]
-content-hash = "b1635d0fae4bce0fc1adb8e1769d03bb6e01b25d48fc0635d5a53e17e29f8080"
+content-hash = "2ad87fc611b09413218ac1a47a7e0f08e03ab427807b8a60c7ded00d161cff20"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -1485,6 +1517,7 @@ coverage = ["0c5fe441b9cfdab64719f24e9684502a59432df7570521563d7b1aff27ac755f", 
 coveralls = ["baa26648430d5c2225ab12d7e2067f75597a4b967034bba7e3d5ab7501d207a1", "ff9b7823b15070f26f654837bb02a201d006baaf2083e0514ffd3b34a3ffed81"]
 cvxpy = ["15be5ed1f6db08e0e81404894ee4030df4206bc8edf32ff899290caa07a814fe"]
 cython = ["0ce8f6c789c907472c9084a44b625eba76a85d0189513de1497ab102a9d39ef8", "0d67964b747ac09758ba31fe25da2f66f575437df5f121ff481889a7a4485f56", "1630823619a87a814e5c1fa9f96544272ce4f94a037a34093fbec74989342328", "1a4c634bb049c8482b7a4f3121330de1f1c1f66eac3570e1e885b0c392b6a451", "1ec91cc09e9f9a2c3173606232adccc68f3d14be1a15a8c5dc6ab97b47b31528", "237a8fdd8333f7248718875d930d1e963ffa519fefeb0756d01d91cbfadab0bc", "28a308cbfdf9b7bb44def918ad4a26b2d25a0095fa2f123addda33a32f308d00", "2fe3dde34fa125abf29996580d0182c18b8a240d7fa46d10984cc28d27808731", "30bda294346afa78c49a343e26f3ab2ad701e09f6a6373f579593f0cfcb1235a", "33d27ea23e12bf0d420e40c20308c03ef192d312e187c1f72f385edd9bd6d570", "34d24d9370a6089cdd5afe56aa3c4af456e6400f8b4abb030491710ee765bafc", "4e4877c2b96fae90f26ee528a87b9347872472b71c6913715ca15c8fe86a68c9", "50d6f1f26702e5f2a19890c7bc3de00f9b8a0ec131b52edccd56a60d02519649", "55d081162191b7c11c7bfcb7c68e913827dfd5de6ecdbab1b99dab190586c1e8", "59d339c7f99920ff7e1d9d162ea309b35775172e4bab9553f1b968cd43b21d6d", "6cf4d10df9edc040c955fca708bbd65234920e44c30fccd057ecf3128efb31ad", "6ec362539e2a6cf2329cd9820dec64868d8f0babe0d8dc5deff6c87a84d13f68", "7edc61a17c14b6e54d5317b0300d2da23d94a719c466f93cafa3b666b058c43b", "8e37fc4db3f2c4e7e1ed98fe4fe313f1b7202df985de4ee1451d2e331332afae", "b8c996bde5852545507bff45af44328fa48a7b22b5bec2f43083f0b8d1024fd9", "bf9c16f3d46af82f89fdefc0d64b2fb02f899c20da64548a8ea336beefcf8d23", "c1038aba898bed34ab1b5ddb0d3f9c9ae33b0649387ab9ffe6d0af677f66bfc1", "d405649c1bfc42e20d86178257658a859a3217b6e6d950ee8cb76353fcea9c39", "db6eeb20a3bd60e1cdcf6ce9a784bc82aec6ab891c800dc5d7824d5cfbfe77f2", "e382f8cb40dca45c3b439359028a4b60e74e22d391dc2deb360c0b8239d6ddc0", "f3f6c09e2c76f2537d61f907702dd921b04d1c3972f01d5530ef1f748f22bd89", "f749287087f67957c020e1de26906e88b8b0c4ea588facb7349c115a63346f67", "f86b96e014732c0d1ded2c1f51444c80176a98c21856d0da533db4e4aef54070"]
+darglint = ["3e73077e75dd5ba720c422319e22caafd46eba8928960f59e239493b24fec4b9", "9dd0077a94275724feb0bc3b6f1499e001ddb8416c88e976a334735c4ac54d2d"]
 dataclasses = ["454a69d788c7fda44efd71e259be79577822f5e3f53f029a22d08004e951dc9f", "6988bd2b895eef432d562370bb707d540f32f7360ab13da45340101bc2307d84"]
 deap = ["95c63e66d755ec206c80fdb2908851c0bef420ee8651ad7be4f0578e9e909bcf"]
 decorator = ["86156361c50488b84a3f148056ea716ca587df2f0de1d34750d35c21312725de", "f069f3a01830ca754ba5258fde2278454a0b5b79e0d7f5c13b3b97e57d4acff6"]
@@ -1496,6 +1529,7 @@ entrypoints = ["589f874b313739ad35be6e0cd7efde2a4e9b6fea91edcc34e58ecbb8dbe56d19
 fancyimpute = ["5db78d27e046e56cb8f8e6a61101ca3bdc1d1a62cde3af123b146c77200d47ae", "d49c44e878e6c9a73b3083ec84f4ee3b5ffaa80c1009ac0c966be6e5b9cd9891"]
 filelock = ["b8d5ca5ca1c815e1574aee746650ea7301de63d87935b3463d26368b76e31633", "d610c1bb404daf85976d7a82eb2ada120f04671007266b708606565dd03b5be6"]
 flake8 = ["859996073f341f2670741b51ec1e67a01da142831aa1fdc6242dbf88dffbe661", "a796a115208f5c03b18f332f7c11729812c8c3ded6c46319c59b53efd3819da8"]
+flake8-docstrings = ["4e0ce1476b64e6291520e5570cf12b05016dd4e8ae454b8a8a9a48bc5f84e1cd", "8436396b5ecad51a122a2c99ba26e5b4e623bf6e913b0fea0cb6c2c4050f91eb"]
 flake8-polyfill = ["12be6a34ee3ab795b19ca73505e7b55826d5f6ad7230d31b18e106400169b9e9", "e44b087597f6da52ec6393a709e7108b2905317d0c0b744cdca6208e670d8eda"]
 future = ["67045236dcfd6816dc439556d009594abf643e5eb48992e36beac09c2ca659b8"]
 gast = ["fe939df4583692f0512161ec1c880e0a10e71e6a232da045ab8edd3756fbadf0"]
@@ -1544,6 +1578,7 @@ protobuf = ["21e395d7959551e759d604940a115c51c6347d90a475c9baf471a1a86b5604a9", 
 psutil = ["206eb909aa8878101d0eca07f4b31889c748f34ed6820a12eb3168c7aa17478e", "649f7ffc02114dced8fbd08afcd021af75f5f5b2311bc0e69e53e8f100fe296f", "6ebf2b9c996bb8c7198b385bade468ac8068ad8b78c54a58ff288cd5f61992c7", "753c5988edc07da00dafd6d3d279d41f98c62cd4d3a548c4d05741a023b0c2e7", "76fb0956d6d50e68e3f22e7cc983acf4e243dc0fcc32fd693d398cb21c928802", "828e1c3ca6756c54ac00f1427fdac8b12e21b8a068c3bb9b631a1734cada25ed", "a4c62319ec6bf2b3570487dd72d471307ae5495ce3802c1be81b8a22e438b4bc", "acba1df9da3983ec3c9c963adaaf530fcb4be0cd400a8294f1ecc2db56499ddd", "ef342cb7d9b60e6100364f50c57fa3a77d02ff8665d5b956746ac01901247ac4"]
 py = ["64f65755aee5b381cea27766a3a147c3f15b9b6b9ac88676de66ba2ae36793fa", "dc639b046a6e2cff5bbe40194ad65936d6ba360b52b3c3fe1d08a82dd50b5e53"]
 pycodestyle = ["95a2219d12372f05704562a14ec30bc76b05a5b297b21a5dfe3f6fac3491ae56", "e40a936c9a450ad81df37f549d676d127b1b66000a6c500caa2b085bc0ca976c"]
+pydocstyle = ["2258f9b0df68b97bf3a6c29003edc5238ff8879f1efb6f1999988d934e432bd8", "5741c85e408f9e0ddf873611085e819b809fca90b619f5fd7f34bd4959da3dd4", "ed79d4ec5e92655eccc21eb0c6cf512e69512b4a97d215ace46d17e4990f2039"]
 pyflakes = ["17dbeb2e3f4d772725c777fabc446d5634d1038f234e77343108ce445ea69ce0", "d976835886f8c5b31d47970ed689944a0262b5f3afa00a5a7b4dc81e5449f8a2"]
 pygments = ["31cba6ffb739f099a85e243eff8cb717089fdd3c7300767d9fc34cb8e1b065f5", "5ad302949b3c98dd73f8d9fcdc7e9cb592f120e32a18e23efd7f3dc51194472b"]
 pynisher = ["b4cfd460143c6651db61ef494515a9c2fc83820fdc290b7da19b6486ff1f0a6b"]

@@ -71,7 +71,8 @@ class BaseIntent(metaclass=_IntentRegistry):
 
     children = None
     """More-specific intents that require this intent to match to be
-            considered."""
+    considered.
+    """
 
     single_pipeline_template = None
     """A template for single pipelines of smart transformers that affect a
@@ -80,13 +81,13 @@ class BaseIntent(metaclass=_IntentRegistry):
 
     The template needs an additional boolean at the end of the constructor
     that determines whether the transformation can be applied to response
-    variables.
+    variables::
 
-    Example: single_pipeline_template = [
-        PipelineTemplateEntry('t1', Transformer1, False),
-        PipelineTemplateEntry('t2', (Transformer2, {'arg1': True}), True),
-        PipelineTemplateEntry('t3', Transformer1, True),
-    ]
+        single_pipeline_template = [
+            PipelineTemplateEntry('t1', Transformer1, False),
+            PipelineTemplateEntry('t2', (Transformer2, {'arg1': True}), True),
+            PipelineTemplateEntry('t3', Transformer1, True),
+        ]
     """
 
     multi_pipeline_template = None

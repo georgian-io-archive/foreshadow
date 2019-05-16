@@ -1,4 +1,7 @@
 [flake8]
 exclude = .git,__pycache__
+ignore = 
+	W503, # Line break occurred after a binary operator (opposite of W504) 
+	D107 # Missing docstring in __init__
 per-file-ignores =
 	foreshadow/transformers/externals.py:F401
