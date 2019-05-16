@@ -1,6 +1,4 @@
-"""
-Intent base and registry defentions
-"""
+"""Intent base and registry defentions"""
 
 from abc import abstractmethod
 from collections import namedtuple

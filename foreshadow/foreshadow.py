@@ -16,7 +16,7 @@ from foreshadow.utils import check_df
 
 
 class Foreshadow(BaseEstimator):
-    r"""An end-to-end pipeline to preprocess and tune a machine learning model.
+    """An end-to-end pipeline to preprocess and tune a machine learning model.
 
     Args:
         X_preprocessor \
@@ -67,7 +67,6 @@ class Foreshadow(BaseEstimator):
 
         :type: :obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`
 
-        #noqa: I201
         """
         return self._X_preprocessor
 
@@ -94,7 +93,6 @@ class Foreshadow(BaseEstimator):
 
         :type: :obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`
 
-        #noqa: I201
         """
         return self._y_preprocessor
 
@@ -122,7 +120,6 @@ class Foreshadow(BaseEstimator):
 
         :type: :obj:`sklearn.base.BaseEstimator`
 
-        #noqa: I201
         """
         return self._estimator
 
@@ -151,7 +148,6 @@ class Foreshadow(BaseEstimator):
 
         :setter: Verifies Optimizer class, defaults to None
 
-        #noqa: I201
         """
         return self._optimizer
 
@@ -231,7 +227,7 @@ class Foreshadow(BaseEstimator):
             )
 
     def predict(self, data_df):
-        r"""Use the trained estimator to predict the response variable.
+        """Use the trained estimator to predict the response variable.
 
         Args:
             data_df (:obj:`DataFrame <pandas.DataFrame>`): The input feature(s)
@@ -246,7 +242,7 @@ class Foreshadow(BaseEstimator):
         return self.pipeline.predict(data_df)
 
     def predict_proba(self, data_df):
-        r"""Use the trained estimator to predict the response variable.
+        """Use the trained estimator to predict the response variable.
 
         Uses the predicted confidences instead of binary predictions.
 

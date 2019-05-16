@@ -10,7 +10,7 @@ PipelineStep = {"NAME": 0, "CLASS": 1, "COLS": 2}
 
 
 def check_df(input_data, ignore_none=False, single_column=False):
-    r"""Convert non dataframe inputs into dataframes (or series).
+    """Convert non dataframe inputs into dataframes (or series).
 
     Args:
         input_data (:obj:`pandas.DataFrame`, :obj:`numpy.ndarray`, list): input
@@ -26,7 +26,6 @@ def check_df(input_data, ignore_none=False, single_column=False):
     Raises:
         ValueError: Invalid input type
         ValueError: Input dataframe must only have one column
-
 
     """
     if input_data is None and ignore_none:
@@ -68,7 +67,6 @@ def check_module_installed(name):
 
     Returns:
         bool: Whether the module can be imported
-    #noqa: I202
 
     """
     try:
@@ -80,7 +78,7 @@ def check_module_installed(name):
 
 
 def check_transformer_imports(printout=True):
-    r"""Determine which transformers were automatically imported.
+    """Determine which transformers were automatically imported.
 
     Args:
         printout (bool, optional): Whether to output to stdout

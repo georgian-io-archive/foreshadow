@@ -473,7 +473,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         }
 
     def summarize(self, X_df):
-        r"""Generate statistics for each column.
+        """Generate statistics for each column.
 
         Args:
             X_df (:obj:`DataFrame <pandas.DataFrame>`): input X dataframe
@@ -559,7 +559,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
 
 def _serialize_pipeline(pipeline):
-    r"""Serialize :obj:`Pipeline <sklearn.pipeline.Pipeline>`.
+    """Serialize :obj:`Pipeline <sklearn.pipeline.Pipeline>`.
 
     Serializes object into JSON object for reconstruction.
 
