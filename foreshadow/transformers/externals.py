@@ -1,7 +1,7 @@
 """External transformers.
 
 All sklearn transformers imported here will be wrapped and made available in
-the module foreshadow.transformers
+the module :mod:`foreshadow.transformers`
 
 """
 

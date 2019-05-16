@@ -1,3 +1,5 @@
+"""Base classes for transformers."""
+
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.externals.joblib import Parallel, delayed
@@ -13,8 +15,7 @@ from foreshadow.utils import check_df
 
 
 class ParallelProcessor(FeatureUnion):
-    """Class extending FeatureUnion to support parallel operation on
-    dataframes.
+    """Class to support parallel operation on dataframes.
 
     This class functions similarly to a FeatureUnion except it divides a given
     pandas dataframe according to the transformer definition in the constructor
@@ -33,13 +34,12 @@ class ParallelProcessor(FeatureUnion):
     tracking for the Preprocessor. This can be suppressed.
 
     Parameters:
-        collapse_index: Boolean defining whether multi-index should be
+        collapse_index (bool): Boolean defining whether multi-index should be
             flattened
-        n_jobs: See base class
-        transformer_weights: See base class
-        transformer_list: List of transformer objects in form
+        n_jobs (int): See base class
+        transformer_weights (:obj:`numpy.ndarray`): See base class
+        transformer_list (list): List of transformer objects in form
             [(name, [cols], TransformerObject), ...]
-
 
     """
 
@@ -62,24 +62,43 @@ class ParallelProcessor(FeatureUnion):
         )
 
     def get_params(self, deep=True):
-        """Returns parameters of internal transformers. See FeatureUnion"""
+        """Return parameters of internal transformers.
 
+        See :class:`sklearn.pipeline.FeatureUnion`
+
+        Args:
+            deep (bool): If True, will return the parameters for this estimator
+                and contained subobjects that are estimators.
+
+        Returns:
+            dict: Parameter names mapped to their values.
+
+        """
         self.default_transformer_list = [
             (a, b) for a, b, c in self.transformer_list
         ]
         return self._get_params("default_transformer_list", deep=deep)
 
     def set_params(self, **kwargs):
-        """Sets parameters of internal transformers. See FeatureUnion"""
+        """Set parameters of internal transformers.
 
+        See :class:`sklearn.pipeline.FeatureUnion`
+
+        Returns:
+            self
+
+        """
         self.default_transformer_list = [
             (a, b) for a, b, c in self.transformer_list
         ]
         return self._set_params("default_transformer_list", **kwargs)
 
     def _set_names(self, item):
-        """Sets internal names of transformers
-        using names define in transformers list"""
+        """Set internal names of transformers.
+
+        Uses names define in transformers list.
+
+        """
         # Sets name if name attribute exists
         if hasattr(item[1], "name"):
             item[1].name = item[0]
@@ -93,7 +112,7 @@ class ParallelProcessor(FeatureUnion):
                 self._set_names(trans)
 
     def _update_transformer_list(self, transformers):
-        """Updates local transformers list"""
+        """Update local transformers list."""
         transformers = iter(transformers)
         self.transformer_list[:] = [
             (name, None if old is None else next(transformers), cols)
@@ -101,7 +120,7 @@ class ParallelProcessor(FeatureUnion):
         ]
 
     def _validate_transformers(self):
-        """Validates fit and transform methods exist and names are unique"""
+        """Validate fit and transform methods exist and names are unique."""
         names, transformers, cols = zip(*self.transformer_list)
 
         # validate names
@@ -120,8 +139,12 @@ class ParallelProcessor(FeatureUnion):
                 )
 
     def _iter(self):
-        """Iterates transformers list and returns name, cols, transformer
-        object and the transformer weights (non-applicable here)
+        """Iterate transformers list.
+
+        Returns:
+            list(list): tuple of (name, cols, transformer object, and the \
+                transformer weights (non-applicable here))
+
         """
         get_weight = (self.transformer_weights or {}).get
 
@@ -132,8 +155,10 @@ class ParallelProcessor(FeatureUnion):
         )
 
     def _get_other_cols(self, X):
-        """Gets all columns that are not defined in a transformer but exist in
-        the DataFrame
+        """Get all columns that are not defined in a transformer.
+
+        Only include those that exist in the input dataframe.
+
         """
         full = set(list(X))
         partial = set(
@@ -149,7 +174,7 @@ class ParallelProcessor(FeatureUnion):
         return list(full - partial)
 
     def fit(self, X, y=None, **fit_params):
-        """Fits data on set of transformers.
+        """Fit data on the set of transformers.
 
         Args:
             X (:obj:`pandas.DataFrame`): Input X data
@@ -178,7 +203,7 @@ class ParallelProcessor(FeatureUnion):
         return self
 
     def transform(self, X):
-        """Transforms data with internal transformers
+        """Transform data using internal transformers.
 
         Args:
             X (:obj:`pandas.DataFrame`): Input X data
@@ -215,7 +240,7 @@ class ParallelProcessor(FeatureUnion):
         return Xs
 
     def fit_transform(self, X, y=None, **fit_params):
-        """Performs both a fit and a transform."""
+        """Perform both a fit and a transform."""
         self._validate_transformers()
 
         result = Parallel(n_jobs=self.n_jobs)(
@@ -258,7 +283,7 @@ class ParallelProcessor(FeatureUnion):
 
 
 class SmartTransformer(BaseEstimator, TransformerMixin):
-    """Abstract class following sklearn transformer standard.
+    """Abstract transformer class for meta transformer selection decisions.
 
     This class contains the logic necessary to determine a single transformer
     or pipeline object that should act in its place.
@@ -294,6 +319,16 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         self._set_to_empty = False
 
     def get_params(self, deep=True):
+        """Get parameters for this estimator.
+
+        Args:
+            deep (bool): If True, will return the parameters for this estimator
+                and contained subobjects that are estimators.
+
+        Returns:
+            Parameter names mapped to their values.
+
+        """
         return {
             "y_var": self.y_var,
             "override": self.override,
@@ -310,9 +345,9 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         }
 
     def _resolve(self, clsname):
-        """Resolves a transformer class name to a transformer object
+        """Resolve a transformer class name to a transformer object.
 
-        **NOTE:** transformer must exist in internals or externals to properly
+        Note: transformer must exist in internals or externals to properly
             resolve
 
         Args:
@@ -343,6 +378,14 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         return cls
 
     def set_params(self, **params):
+        """Set the parameters of this estimator.
+
+        Valid parameter keys can be listed with :meth:`get_params()`.
+
+        Returns:
+            self
+
+        """
         self.name = params.pop("name", self.name)
         self.keep_columns = params.pop("keep_columns", self.keep_columns)
         self.y_var = params.pop("y_var", self.y_var)
@@ -360,16 +403,13 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
             self.transformer.set_params(**valid_params)
 
     def _get_transformer(self, X, y=None, **fit_params):
-        """Method that returns transformer object for implementations"""
+        """Get the transformer object for implementations."""
         raise NotImplementedError(
             "WrappedTransformer _get_transformer was not implimented."
         )
 
     def _verify_transformer(self, X, y=None, refit=False, **fit_params):
-        """Verifies that transformers have the necessary methods and
-        attributes
-        """
-
+        """Verify transformers have the necessary methods and attributes."""
         # If refit transformer needs to be re-resolved
         if refit:
             self.transformer = None
@@ -441,6 +481,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         return self.transformer.fit(X, y, **{**kwargs, **inject})
 
     def inverse_transform(self, X):
+        """Invert transform if possible."""
         X = check_df(X)
         if not self._set_to_empty:
             self._verify_transformer(X)
@@ -448,7 +489,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
 
 
 def _slice_cols(X, cols, drop_level=True):
-    """Searches for columns in dataframe using multi-index.
+    """Search for columns in dataframe using multi-index.
 
     Args:
         X (:obj:`pandas.DataFrame`): Input dataframe
@@ -500,9 +541,11 @@ def _slice_cols(X, cols, drop_level=True):
 
 
 def _inject_df(trans, df):
-    """Inserts a parameter into fit_params dictionary with original df in
-    case a transformer needs other columns for calculations or hypothesis
-    testing
+    """Insert temp parameters into fit_params dictionary.
+
+    This is in case a transformer needs other columns for calculations or
+    for hypothesis testing
+
     """
     return {
         "{}__full_df".format(k): df
@@ -512,7 +555,7 @@ def _inject_df(trans, df):
 
 
 def _pandas_transform_one(transformer, weight, X, cols):
-    """Transforms dataframe using sklearn transformer then adds multi-index"""
+    """Transform dataframe using sklearn transformer then adds multi-index."""
     colname = sorted(cols)[0]
     # Run original transform function
     res = _transform_one(transformer, weight, X)
@@ -524,9 +567,7 @@ def _pandas_transform_one(transformer, weight, X, cols):
 
 
 def _pandas_fit_transform_one(transformer, weight, X, y, cols, **fit_params):
-    """Fits pandas dataframe, executes transformation, then adds
-    multi-index
-    """
+    """Fit dataframe, executes transformation, then adds multi-index."""
     colname = sorted(cols)[0]
     # Run original fit_transform function
     res, t = _fit_transform_one(transformer, weight, X, y, **fit_params)
