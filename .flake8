@@ -1,0 +1,4 @@
+[flake8]
+exclude = .git,__pycache__
+per-file-ignores =
+	foreshadow/transformers/externals.py:F401

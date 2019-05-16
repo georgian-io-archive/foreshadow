@@ -1,4 +1,3 @@
-# flake8: noqa
 """External Transformers
 
 All sklearn transformers imported here will be wrapped and made available in
@@ -10,9 +9,9 @@ import inspect
 
 from category_encoders import HashingEncoder, OneHotEncoder
 from sklearn.decomposition import PCA
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import (
     Imputer,
-    LabelEncoder,
     MinMaxScaler,
     RobustScaler,
     StandardScaler,

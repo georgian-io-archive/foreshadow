@@ -1,5 +1,3 @@
-import inspect
-
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.externals.joblib import Parallel, delayed
@@ -441,11 +439,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
             self._verify_transformer(X, y, refit=True, **self.kwargs)
         inject = _inject_df(self._transformer, kwargs.pop("full_df", None))
 
-        # Check if using a sklearn transformer with only y vars
-        if "X" not in inspect.getfullargspec(self._transformer.fit).args:
-            return self._transformer.fit(X, **{**kwargs, **inject})
-        else:
-            return self._transformer.fit(X, y, **{**kwargs, **inject})
+        return self._transformer.fit(X, y, **{**kwargs, **inject})
 
     def inverse_transform(self, X):
         X = check_df(X)

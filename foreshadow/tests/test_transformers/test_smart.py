@@ -94,7 +94,9 @@ def test_smart_encoder_y_var():
     import pandas as pd
 
     from foreshadow.transformers.smart import Encoder
-    from foreshadow.transformers.externals import LabelEncoder
+    from foreshadow.transformers.internals import (
+        FixedLabelEncoder as LabelEncoder,
+    )
 
     y_df = pd.DataFrame({"A": np.array([1, 2, 10] * 3)})
     smart_coder = Encoder(y_var=True)
@@ -290,3 +292,25 @@ def test_smart_financial_cleaner_eu():
     out = FinancialCleaner().fit_transform(x).values
 
     assert np.all((out == expected) | (pd.isnull(out) == pd.isnull(expected)))
+
+
+def test_smart_text():
+    import numpy as np
+    import pandas as pd
+
+    from foreshadow.transformers.smart import SmartText
+    from foreshadow.transformers.externals import TfidfVectorizer
+    from foreshadow.transformers.internals import HTMLRemover
+
+    X1 = pd.DataFrame(["abc", "def", "1321", "tester"])
+    tf1 = SmartText().fit(X1)
+
+    assert isinstance(tf1, TfidfVectorizer)
+
+    X2 = pd.DataFrame(["<p> Hello </p>", "World", "<h1> Tag </h1>"])
+    tf2 = SmartText().fit(X2)
+
+    assert any(isinstance(tf, HTMLRemover) for n, tf in tf2.steps)
+    assert isinstance(tf2.steps[-1][1], TfidfVectorizer)
+
+    assert SmartText().fit(pd.DataFrame([1, 2, 3, np.nan]))

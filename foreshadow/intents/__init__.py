@@ -7,6 +7,7 @@ from foreshadow.intents.general import (
     CategoricalIntent,
     GenericIntent,
     NumericIntent,
+    TextIntent,
 )
 from foreshadow.intents.registry import registry_eval
 from foreshadow.intents.subnumeric import FinancialIntent
@@ -21,4 +22,5 @@ __all__ = [
     "NumericIntent",
     "registry_eval",
     "FinancialIntent",
+    "TextIntent",
 ]
