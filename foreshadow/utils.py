@@ -1,3 +1,5 @@
+"""Common module utilities."""
+
 import warnings
 
 import numpy as np
@@ -8,19 +10,25 @@ PipelineStep = {"NAME": 0, "CLASS": 1, "COLS": 2}
 
 
 def check_df(input_data, ignore_none=False, single_column=False):
-    """Convert non dataframe inputs into dataframes. (or series)
+    r"""Convert non dataframe inputs into dataframes (or series).
 
     Args:
-        input_data (:obj:`pandas.DataFrame`, :obj:`numpy.ndarray`, list):
-            input to convert
+        input_data (:obj:`pandas.DataFrame`, :obj:`numpy.ndarray`, list): input
+            to convert
         ignore_none (bool): allow None to pass through check_df
         single_column (bool): check if frame is of a single column and return
             series
 
     Returns:
-        :obj:`pandas.DataFrame`: Converted and validated input dataframes
-    """
+        :obj:`DataFrame <pandas.DataFrame>`: Converted and validated input \
+            dataframes
 
+    Raises:
+        ValueError: Invalid input type
+        ValueError: Input dataframe must only have one column
+
+
+    """
     if input_data is None and ignore_none:
         return None
 
@@ -53,7 +61,16 @@ def check_df(input_data, ignore_none=False, single_column=False):
 
 
 def check_module_installed(name):
-    """Checks whether a module is available for import"""
+    """Check whether a module is available for import.
+
+    Args:
+        name (str): module name
+
+    Returns:
+        bool: Whether the module can be imported
+    #noqa: I202
+
+    """
     try:
         __import__(name)
     except ImportError:
@@ -63,10 +80,18 @@ def check_module_installed(name):
 
 
 def check_transformer_imports(printout=True):
-    """Determines which transformers were automatically imported"""
+    r"""Determine which transformers were automatically imported.
 
-    from .transformers import externals as exter
-    from .transformers import internals as inter
+    Args:
+        printout (bool, optional): Whether to output to stdout
+
+    Returns:
+        tuple(list): A tuple of the internal transformers and the external \
+            transformers
+
+    """
+    from foreshadow.transformers import externals as exter
+    from foreshadow.transformers import internals as inter
 
     if printout:
         print(

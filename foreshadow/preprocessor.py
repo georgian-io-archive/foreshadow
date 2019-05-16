@@ -385,7 +385,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                     k: {l: _resolve_pipeline(j) for l, j in v.items()}
                     for k, v in config["intents"].items()
                 }
-        except (KeyError, ValueError) as e:
+        except KeyError as e:
             raise ValueError(
                 "JSON Configuration is malformed: {}".format(str(e))
             )
