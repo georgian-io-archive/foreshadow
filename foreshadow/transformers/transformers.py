@@ -247,7 +247,11 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
         try:
             out = func(self, df, *args, **kwargs)
         except Exception:
-            out = func(self, df, *args)
+            try:
+                out = func(self, df, *args)
+            except Exception:
+                out = func(self, df)
+
     else:
         fname = func.__name__
         if "transform" in fname:

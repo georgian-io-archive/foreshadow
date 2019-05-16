@@ -499,6 +499,19 @@ def serialize_pipeline(pipeline, include_smart=False):
         list: JSON serializable object of form ``[cls, name, {**params}]``
     """
 
+    def ser_params(trans):
+        from foreshadow.transformers.externals import no_serialize_params
+
+        bad_params = [
+            "name",
+            *no_serialize_params.get(type(trans).__name__, []),
+        ]
+        return {
+            k: v
+            for k, v in trans.get_params(deep=False).items()
+            if k not in bad_params
+        }
+
     return [
         p
         for s in [
@@ -509,9 +522,9 @@ def serialize_pipeline(pipeline, include_smart=False):
                             step[PipelineStep["CLASS"]].transformer
                         ).__name__,
                         "name": step[PipelineStep["NAME"]],
-                        "parameters": step[
-                            PipelineStep["CLASS"]
-                        ].transformer.get_params(deep=False),
+                        "parameters": ser_params(
+                            step[PipelineStep["CLASS"]].transformer
+                        ),
                     }
                 ]
                 if not isinstance(
@@ -527,9 +540,7 @@ def serialize_pipeline(pipeline, include_smart=False):
                 {
                     "transformer": type(step[PipelineStep["CLASS"]]).__name__,
                     "name": step[PipelineStep["NAME"]],
-                    "parameters": step[PipelineStep["CLASS"]].get_params(
-                        deep=False
-                    ),
+                    "parameters": ser_params(step[PipelineStep["CLASS"]]),
                 }
             ]
             for step in pipeline.steps
