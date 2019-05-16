@@ -1,3 +1,5 @@
+"""Transformer wrapping utility classes and functions."""
+
 import inspect
 from functools import wraps
 
@@ -11,7 +13,7 @@ from foreshadow.utils import check_df
 
 
 def _get_modules(classes, globals_, mname):
-    """Imports sklearn transformers from transformers directory.
+    """Import sklearn transformers from transformers directory.
 
     Searches transformers directory for classes implementing BaseEstimator and
     TransformerMixin and duplicates them, wraps their init methods and public
@@ -22,7 +24,6 @@ def _get_modules(classes, globals_, mname):
         The list of wrapped transformers.
 
     """
-
     transformers = [
         cls
         for cls in classes
@@ -42,7 +43,7 @@ def _get_modules(classes, globals_, mname):
 
 
 def wrap_transformer(transformer):
-    """Wraps an sklearn transformer to support dataframes.
+    """Wrap an sklearn transformer to support dataframes.
 
     Args:
         transformer: sklearn transformer implementing BaseEstimator and
@@ -50,8 +51,8 @@ def wrap_transformer(transformer):
 
     Returns:
         A wrapped form of transformer
-    """
 
+    """
     members = [
         m[1]
         for m in inspect.getmembers(transformer, predicate=inspect.isfunction)
@@ -90,18 +91,20 @@ def wrap_transformer(transformer):
 
 
 class Sigcopy(object):
-    """Copies the argspec between two functions. Used to copy the argspec from
-    a partial function.
+    """Copy the argspec between two functions.
+
+    Used to copy the argspec from a partial function.
+
     """
 
     def __init__(self, src_func):
-        """Saves necessary info to copy over"""
+        """Save necessary info to copy over."""
         self.argspec = inspect.getfullargspec(src_func)
         self.src_doc = src_func.__doc__
         self.src_defaults = src_func.__defaults__
 
     def __call__(self, tgt_func):
-        """Runs when Sigcopy object is called. Returns new function"""
+        """Run when Sigcopy object is called. Returns new function."""
         tgt_argspec = inspect.getfullargspec(tgt_func)
 
         name = tgt_func.__name__
@@ -160,6 +163,7 @@ class Sigcopy(object):
 
 
 def init_partial(func):
+    """Partial wrapped transformer for injecting custom args."""
     def transform_constructor(
         self, *args, keep_columns=False, name=None, **kwargs
     ):
@@ -172,6 +176,7 @@ def init_partial(func):
 
 
 def pandas_partial(func):
+    """Partial wrapper for the pandas transformer wrapper."""
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         return pandas_wrapper(self, func, *args, **kwargs)
@@ -180,15 +185,16 @@ def pandas_partial(func):
 
 
 def init_replace(self, keep_columns=False, name=None):
+    """Set the default values of custom transformer attributes."""
     self.keep_columns = keep_columns
     self.name = name
 
 
 class _Empty(BaseEstimator, TransformerMixin):
-    """Transformer that performs _Empty transformation"""
+    """Transformer that performs _Empty transformation."""
 
     def fit(self, X, y=None):
-        """Empty fit function
+        """Empty fit function.
 
         Args:
             X (:obj:`numpy.ndarray`): Fit data
@@ -197,11 +203,10 @@ class _Empty(BaseEstimator, TransformerMixin):
             self
 
         """
-
         return self
 
     def transform(self, X, y=None):
-        """Pass through transform
+        """Pass through transform.
 
         Args:
             X (:obj:`numpy.ndarray`): X data
@@ -210,11 +215,10 @@ class _Empty(BaseEstimator, TransformerMixin):
             :obj:`numpy.ndarray`: Empty numpy array
 
         """
-
         return np.array([])
 
     def inverse_transform(self, X):
-        """Pass through transform
+        """Pass through transform.
 
         Args:
             X (:obj:`numpy.ndarray`): X data
@@ -223,12 +227,11 @@ class _Empty(BaseEstimator, TransformerMixin):
             :obj:`numpy.ndarray`: Empty numpy array
 
         """
-
         return np.array([])
 
 
 def pandas_wrapper(self, func, df, *args, **kwargs):
-    """Wrapper function to replace public transformer functions.
+    """Replace public transformer functions using wrapper.
 
     Selects columns from df and executes inner function only on columns.
 
@@ -246,8 +249,8 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
 
     Returns:
         Same as return type of func
-    """
 
+    """
     current = inspect.currentframe()
     calframe = inspect.getouterframes(current, 3)
     if calframe[2][3] != "pandas_wrapper":

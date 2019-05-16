@@ -1,4 +1,4 @@
-"""External Transformers
+"""External transformers.
 
 All sklearn transformers imported here will be wrapped and made available in
 the module foreshadow.transformers
@@ -21,7 +21,7 @@ from foreshadow.transformers.transformers import _get_modules
 
 
 def _get_classes():
-    """Returns list of classes found in transforms directory."""
+    """Return a list of classes found in transforms directory."""
     return [c for c in globals().values() if inspect.isclass(c)]
 
 
