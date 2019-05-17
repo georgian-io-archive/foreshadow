@@ -2,3 +2,5 @@
 exclude = .git,__pycache__
 per-file-ignores =
 	foreshadow/transformers/externals.py:F401
+
+# Migrate to pyproject.toml when: https://gitlab.com/pycqa/flake8/issues/428

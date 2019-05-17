@@ -1,3 +1,4 @@
+# macos.sh
 
 echo Checking for Brew....
 
@@ -22,7 +23,7 @@ fi
 
 echo Installing neccesary python versions
 
-pyenv install -s 3.6.5
+pyenv install -s 3.6.8
 
 echo Installing pyenv-virtualenv
 
@@ -45,9 +46,9 @@ source ~/.bash_profile
 echo Setting up virtual environment
 
 if [[ -z "${DEPLOY_ENV}" ]]; then
-  pyenv local 3.6.5
+  pyenv local 3.6.8
   pyenv virtualenv venv
-  pyenv local venv 3.6.5
+  pyenv local venv 3.6.8
 else
   echo Already in virutalenv skipping setup...
 fi
@@ -67,14 +68,15 @@ else
   brew install gcc@5
 fi
 
+pyenv shell system
+curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+pyenv shell --unset
+poetry install -v
+
+# Install optional dependencies
 export CC=gcc-5
 export CXX=g++-5
+poetry install -v -E dev
 
-if [ ! -f requirements.txt ]; then
-    echo "Could not find requirements will now exit"
-    exit 2
-fi
-
-pip install -r pre_requirements.txt
-pip install -r test_requirements.txt
-pip install -r requirements.txt
+# Run tests
+pytest
