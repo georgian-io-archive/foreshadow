@@ -1,4 +1,10 @@
+#!/bin/bash
 # macos.sh
+
+# make sure system python is currently being used and install pip
+export PATH="/usr/bin/python":$PATH
+command -v pip >/dev/null 2>&1 || { echo >&2 "Installing pip now"; \
+sudo easy_install pip; }
 
 echo Checking for Brew....
 
@@ -71,6 +77,19 @@ fi
 pyenv shell system
 curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
 pyenv shell --unset
+
+# Add poetry to bash_profile
+# Setup poetry
+export PATH="$HOME/.poetry/bin:$PATH"
+source "$HOME/.poetry/env"
+  cat >> ~/.bash_profile <<EOF
+  # Setup poetry
+  export PATH="$HOME/.poetry/bin:$PATH"
+  source "$HOME/.poetry/env"
+EOF
+
+source ~/.bash_profile
+
 poetry install -v
 
 # Install optional dependencies
