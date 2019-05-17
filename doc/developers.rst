@@ -39,10 +39,11 @@ General Setup
          fi
          eval "$(pyenv virtualenv-init -)"
       
-      Restart your shell session for the changes to take effect and perform the following setup **in the root directory of the project**. This sets up a convenient virtualenv that automatically activates in the root of your project.
+      Restart your shell session for the changes to take effect and perform the following setup **in the root directory of the project**. This sets up a convenient virtualenv that automatically activates in the root of your project. (Note: there is a `known error with pyenv <https://github.com/pyenv/pyenv/issues/1219#issuecomment-487206619>`_. Also, you may need to change the file path depending on your version or you may not even need to do that step.
 
       .. code-block:: console
-      
+         
+         $ open /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg
          $ pyenv install 3.6.8
          $ pyenv global 3.6.8
          $ pyenv virtualenv -p python3.6 3.6.8 venv
