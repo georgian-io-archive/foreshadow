@@ -1,3 +1,5 @@
+"""Financial transformers."""
+
 import re
 
 import numpy as np
@@ -6,16 +8,18 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 
 class PrepareFinancial(BaseEstimator, TransformerMixin):
-    """Cleans data in preparation for a financial transformer (requires pandas
-    inputs)
+    """Clean data in preparation for a financial transformer.
+
+    Note: requires pandas input dataframes.
+
     """
 
     def fit(self, X, y=None):
-        """Empty fit"""
+        """Empty fit."""
         return self
 
     def transform(self, X, y=None):
-        """Cleans string columns to prepare for financial transformer
+        """Clean string columns to prepare for financial transformer.
 
         Args:
             X (:obj:`pandas.DataFrame`): X data
@@ -24,7 +28,6 @@ class PrepareFinancial(BaseEstimator, TransformerMixin):
             :obj:`pandas.DataFrame`: Transformed data
 
         """
-
         X = X.copy()
         for c in X:
             X[c] = (
@@ -42,10 +45,11 @@ class PrepareFinancial(BaseEstimator, TransformerMixin):
 
 
 class ConvertFinancial(BaseEstimator, TransformerMixin):
-    """Converts clean financial data into a numeric format
+    """Convert clean financial data into a numeric format.
 
-        Args:
-            is_euro (bool): transform as a european number
+    Args:
+        is_euro (bool): transform as a european number
+
     """
 
     def __init__(self, is_euro=False):
@@ -62,11 +66,11 @@ class ConvertFinancial(BaseEstimator, TransformerMixin):
         )
 
     def fit(self, X, y=None):
-        """Empty fit"""
+        """Empty fit."""
         return self
 
     def transform(self, X, y=None):
-        """Prepares data to be processed by FinancialIntent
+        """Prepare data to be processed by FinancialIntent.
 
         Args:
             X (:obj:`pandas.DataFrame`): X data

@@ -1,3 +1,5 @@
+"""Uncommon remover."""
+
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 
@@ -5,14 +7,15 @@ from foreshadow.utils import check_df
 
 
 class UncommonRemover(BaseEstimator, TransformerMixin):
-    """Merges uncommon values in a categorical column to an other value
+    """Merge uncommon values in a categorical column to an other value.
 
-        Note: Unseen values from fitting will alse be merged.
+    Note: Unseen values from fitting will also be merged.
 
-        Args:
-            threshold (float): data that is less frequant than this percentage
-                will be merged into a singular unique value
-            replacement (Optional): value with which to replace uncommon values
+    Args:
+        threshold (float): data that is less frequent than this percentage
+            will be merged into a singular unique value
+        replacement (Optional): value with which to replace uncommon values
+
     """
 
     def __init__(self, threshold=0.01, replacement="UncommonRemover_Other"):
@@ -20,13 +23,14 @@ class UncommonRemover(BaseEstimator, TransformerMixin):
         self.replacement = replacement
 
     def fit(self, X, y=None):
-        """
-        Finds the uncommon values and sets the replacement value
+        """Find the uncommon values and set the replacement value.
 
-            Args:
-                X (:obj:`pandas.DataFrame`): input dataframe
-            returns:
-                (self) object instance
+        Args:
+            X (:obj:`pandas.DataFrame`): input dataframe
+
+        Returns:
+            self
+
         """
         X = check_df(X, single_column=True).iloc[:, 0]
 
@@ -39,6 +43,15 @@ class UncommonRemover(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, y=None):
+        """Apply the computed transform to the passed in data.
+
+        Args:
+            X (:obj:`pandas.DataFrame`): input DataFrame
+
+        Returns:
+            :obj:`pandas.DataFrame`: transformed dataframe
+
+        """
         X = check_df(X, single_column=True).iloc[:, 0]
         check_is_fitted(self, ["values_", "merge_values_"])
         X[

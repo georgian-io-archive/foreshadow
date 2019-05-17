@@ -1,10 +1,12 @@
+"""DummyEncoder transformer."""
+
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 
 
 class DummyEncoder(BaseEstimator, TransformerMixin):
-    """Dummy encodes delimmited data within column of dataframe"""
+    """Dummy encode delimited data within column of dataframe."""
 
     def __init__(self, delimeter=",", other_cutoff=0.1, other_name="other"):
         self.delimeter = delimeter
@@ -12,7 +14,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         self.other_name = other_name
 
     def fit(self, X, y=None):
-        """Determines dummy categories
+        """Determine dummy categories.
 
         Args:
             X (:obj:`numpy.ndarray`): Fit data
@@ -33,7 +35,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, y=None):
-        """Performs Dummy Encoding on data
+        """Perform dummy encoding on data.
 
         Args:
             X (:obj:`numpy.ndarray`): X data
@@ -42,12 +44,11 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
             :obj:`numpy.ndarray`: Transformed data
 
         """
-
         check_is_fitted(self, ["categories"])
 
         kwargs = {
             k: X.applymap(
-                separate(k, self.delimeter, self.other, self.other_name)
+                _separate(k, self.delimeter, self.other, self.other_name)
             )
             .iloc[:, 0]
             .tolist()
@@ -58,7 +59,9 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         return df
 
 
-def separate(cat, delim, other, other_name):
+def _separate(cat, delim, other, other_name):
+    """Separate categories using wrapper function."""
+
     def sep(X):
         if cat == other_name:
             if set(other) & set(X.split(delim)):

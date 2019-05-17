@@ -164,6 +164,7 @@ class Sigcopy(object):
 
 def init_partial(func):
     """Partial wrapped transformer for injecting custom args."""
+
     def transform_constructor(
         self, *args, keep_columns=False, name=None, **kwargs
     ):
@@ -177,6 +178,7 @@ def init_partial(func):
 
 def pandas_partial(func):
     """Partial wrapper for the pandas transformer wrapper."""
+
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         return pandas_wrapper(self, func, *args, **kwargs)

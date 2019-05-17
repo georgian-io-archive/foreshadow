@@ -1,3 +1,5 @@
+"""BoxCox transform class."""
+
 import numpy as np
 from scipy.special import inv_boxcox1p
 from scipy.stats import boxcox
