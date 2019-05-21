@@ -1,5 +1,5 @@
 <!--
-Thanks you for taking the time to submit a pull request! Please take a look at some guideliens before submitting a pull request: https://github.com/georgianpartners/foreshadow/blob/development/doc/contrib.rst
+Thanks you for taking the time to submit a pull request! Please take a look at some guidelines before submitting a pull request: https://github.com/georgianpartners/foreshadow/blob/development/doc/contrib.rst
 -->
 
 ### Related Issue
@@ -12,5 +12,5 @@ is merged. See https://github.com/blog/1506-closing-issues-via-pull-requests
 
 ### Description
 <!--
-Please add a narrative description of your the changes made and the rationale behind them. If making a enhancement include the motivation and use cases addressed.
+Please add a narrative description of your the changes made and the rationale behind them. If making an enhancement include the motivation and use cases addressed.
 -->
