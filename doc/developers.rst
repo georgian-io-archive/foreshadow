@@ -39,14 +39,15 @@ General Setup
          fi
          eval "$(pyenv virtualenv-init -)"
       
-      Restart your shell session for the changes to take effect and perform the following setup *in the root directory of the project*. This sets up a convenient virtualenv that automatically activates in the root of your project.
+      Restart your shell session for the changes to take effect and perform the following setup **in the root directory of the project**. This sets up a convenient virtualenv that automatically activates in the root of your project. (Note: there is a `known error with pyenv <https://github.com/pyenv/pyenv/issues/1219#issuecomment-487206619>`_. Also, you may need to change the file path depending on your version or you may not even need to do that step.
 
       .. code-block:: console
-      
-         $ pyenv install 3.6.5
-         $ pyenv global 3.6.5
-         $ pyenv virtualenv -p python3.6 3.6.5 venv
-         $ pyenv local venv 3.6.5
+         
+         $ open /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg
+         $ pyenv install 3.6.8
+         $ pyenv global 3.6.8
+         $ pyenv virtualenv -p python3.6 3.6.8 venv
+         $ pyenv local venv 3.6.8
    
    3. Install poetry package manager
 
@@ -75,7 +76,7 @@ Prepare for Autosklearn install
    
       .. code-block:: console
       
-         (venv) $ brew install gcc # (or apt-get)
+         (venv) $ brew install gcc@5 # (or apt-get)
 
 Install all the packages and commit hooks
    When the project is installed through poetry both project requirements and development requirements are installed. Install commit-hooks using the `pre-commit`_ utility.
@@ -85,6 +86,8 @@ Install all the packages and commit hooks
    .. code-block:: console
    
       (venv) $ poetry install -v
+      (venv) $ export CC=gcc-5; export CXX=g++-5;
+      (venv) $ poetry install -E dev
       (venv) $ poetry run pre-commit install
 
 Making sure everything works

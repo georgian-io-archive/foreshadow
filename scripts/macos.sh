@@ -1,3 +1,10 @@
+#!/bin/bash
+# macos.sh
+
+# make sure system python is currently being used and install pip
+export PATH="/usr/bin/python":$PATH
+command -v pip >/dev/null 2>&1 || { echo >&2 "Installing pip now"; \
+sudo easy_install pip; }
 
 echo Checking for Brew....
 
@@ -22,7 +29,7 @@ fi
 
 echo Installing neccesary python versions
 
-pyenv install -s 3.6.5
+pyenv install -s 3.6.8
 
 echo Installing pyenv-virtualenv
 
@@ -30,13 +37,14 @@ if brew ls --versions pyenv-virtualenv > /dev/null; then
   echo pyenv-virutalenv is installed... skipping...
 else
   brew install pyenv-virtualenv
-  cat >> ~/.bash_profile <<EOF
-  export PYENV_ROOT="$HOME/.pyenv"
-  export PATH="$PYENV_ROOT/bin:$PATH"
+  cat >> ~/.bash_profile << EOF
+  # Setup pyenv
+  export PYENV_ROOT="\$HOME/.pyenv"
+  export PATH="\$PYENV_ROOT/bin:\$PATH"
   if command -v pyenv 1>/dev/null 2>&1; then
-    eval "$(pyenv init -)"
+    eval "\$(pyenv init -)"
   fi
-  eval "$(pyenv virtualenv-init -)"
+  eval "\$(pyenv virtualenv-init -)"
 EOF
 fi
 
@@ -45,9 +53,9 @@ source ~/.bash_profile
 echo Setting up virtual environment
 
 if [[ -z "${DEPLOY_ENV}" ]]; then
-  pyenv local 3.6.5
+  pyenv local 3.6.8
   pyenv virtualenv venv
-  pyenv local venv 3.6.5
+  pyenv local venv 3.6.8
 else
   echo Already in virutalenv skipping setup...
 fi
@@ -67,14 +75,26 @@ else
   brew install gcc@5
 fi
 
+pyenv shell system
+curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+pyenv shell --unset
+
+# Add poetry to bash_profile
+cat >> ~/.bash_profile <<EOF
+
+# Setup poetry
+export PATH="\$HOME/.poetry/bin:\$PATH"
+source "\$HOME/.poetry/env"
+EOF
+
+source ~/.bash_profile
+
+poetry install -v
+
+# Install optional dependencies
 export CC=gcc-5
 export CXX=g++-5
+poetry install -v -E dev
 
-if [ ! -f requirements.txt ]; then
-    echo "Could not find requirements will now exit"
-    exit 2
-fi
-
-pip install -r pre_requirements.txt
-pip install -r test_requirements.txt
-pip install -r requirements.txt
+# Run tests
+pytest
