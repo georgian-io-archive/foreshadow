@@ -279,7 +279,7 @@ def test_smarttransformer_attributeerror():
 
     class TestSmartTransformer(SmartTransformer):
         def _get_transformer(self, X, y=None, **fit_params):
-            return None
+            return "INVALID"
 
     transformer = TestSmartTransformer()
 
@@ -413,7 +413,21 @@ def test_smarttransformer_set_params_empty():
     smart = TestSmartTransformer()
     smart.set_params()
 
-    assert smart.transformer is None
+    assert smart._transformer is None
+
+
+def test_smarttransformer_null_transformer():
+    from foreshadow.transformers.base import SmartTransformer
+
+    class TestSmartTransformer(SmartTransformer):
+        pass
+
+    smart = TestSmartTransformer()
+
+    with pytest.raises(ValueError) as e:
+        smart.transformer
+
+    assert str(e.value) == "Smart Transformer not Fit"
 
 
 def test_smarttransformer_set_params_default():

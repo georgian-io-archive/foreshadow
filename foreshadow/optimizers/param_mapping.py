@@ -74,6 +74,7 @@ def _param_mapping(pipeline, X_df, y_df):
         # One parameter is from_json (the configuration dict we calculated)
         # Other parameters are pulled from config_dict using
         # extract_config_params()
+
         explicit_params = {
             "{}__from_json".format(k): [param[k].serialize()]
             for k, v in task.items()
