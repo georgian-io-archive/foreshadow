@@ -59,7 +59,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         return df
 
 
-def _separate(cat, delim, other, other_name):
+def _separate(cat, delim, other, other_name):  # noqa: D202
     """Get wrapped separate categories helper function."""
 
     def sep(X):

@@ -162,7 +162,7 @@ class Sigcopy(object):
         return wrapped
 
 
-def init_partial(func):
+def init_partial(func):  # noqa: D202
     """Partial function for injecting custom args into transformers."""
 
     def transform_constructor(
@@ -176,7 +176,7 @@ def init_partial(func):
     return transform_constructor
 
 
-def pandas_partial(func):
+def pandas_partial(func):  # noqa: D202
     """Partial function for the pandas transformer wrapper."""
 
     @wraps(func)

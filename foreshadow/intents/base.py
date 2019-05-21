@@ -16,7 +16,7 @@ PipelineTemplateEntry = namedtuple(
 TransformerEntry = namedtuple("TransformerEntry", ["transformer", "args_dict"])
 
 
-def check_base(ofunc):
+def check_base(ofunc):  # noqa: D202
     """Get classmethods decorator to check if called from BaseIntent."""
 
     @wraps(ofunc)

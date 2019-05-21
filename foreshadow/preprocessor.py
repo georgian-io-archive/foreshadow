@@ -561,9 +561,21 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         return self.pipeline.inverse_transform(X)
 
 
+def _ser_params(trans):
+    """Serialize transformer parameters."""
+    from foreshadow.transformers.externals import no_serialize_params
+
+    bad_params = ["name", *no_serialize_params.get(type(trans).__name__, [])]
+    return {
+        k: v
+        for k, v in trans.get_params(deep=False).items()
+        if k not in bad_params
+    }
+
+
 def _serialize_pipeline(pipeline, include_smart=False):
-    """Serialize :obj:`Pipeline <sklearn.pipeline.Pipeline>`. 
-        
+    """Serialize :obj:`Pipeline <sklearn.pipeline.Pipeline>`.
+
     Serializes object into JSON object for reconstruction.
 
     Args:
@@ -575,20 +587,6 @@ def _serialize_pipeline(pipeline, include_smart=False):
             :code:`[cls, name, {**params}]`
 
     """
-
-    def ser_params(trans):
-        from foreshadow.transformers.externals import no_serialize_params
-
-        bad_params = [
-            "name",
-            *no_serialize_params.get(type(trans).__name__, []),
-        ]
-        return {
-            k: v
-            for k, v in trans.get_params(deep=False).items()
-            if k not in bad_params
-        }
-
     return [
         p
         for s in [
@@ -599,7 +597,7 @@ def _serialize_pipeline(pipeline, include_smart=False):
                             step[PipelineStep["CLASS"]].transformer
                         ).__name__,
                         "name": step[PipelineStep["NAME"]],
-                        "parameters": ser_params(
+                        "parameters": _ser_params(
                             step[PipelineStep["CLASS"]].transformer
                         ),
                     }
@@ -607,7 +605,7 @@ def _serialize_pipeline(pipeline, include_smart=False):
                 if not isinstance(
                     step[PipelineStep["CLASS"]].transformer, Pipeline
                 )
-                else serialize_pipeline(
+                else _serialize_pipeline(
                     step[PipelineStep["CLASS"]].transformer
                 )
             )
@@ -617,7 +615,7 @@ def _serialize_pipeline(pipeline, include_smart=False):
                 {
                     "transformer": type(step[PipelineStep["CLASS"]]).__name__,
                     "name": step[PipelineStep["NAME"]],
-                    "parameters": ser_params(step[PipelineStep["CLASS"]]),
+                    "parameters": _ser_params(step[PipelineStep["CLASS"]]),
                 }
             ]
             for step in pipeline.steps

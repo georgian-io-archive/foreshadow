@@ -320,6 +320,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
 
     @property
     def transformer(self):
+        """Get the selected transformer from the SmartTransformer."""
         if self._transformer is None:
             raise ValueError("Smart Transformer not Fit")
         else:

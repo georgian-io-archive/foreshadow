@@ -69,7 +69,7 @@ class ConvertFinancial(BaseEstimator, TransformerMixin):
         """Empty fit."""
         return self
 
-    def transform(self, X, y=None):
+    def transform(self, X, y=None):  # noqa: D202
         """Prepare data to be processed by FinancialIntent.
 
         Args:
