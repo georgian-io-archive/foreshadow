@@ -44,8 +44,9 @@ class Scaler(SmartTransformer):
     neither distribution fits then a BoxCox transformation is applied and a
     RobustScaler is used.
 
-        Args:
-            p_val (float): p value cutoff for the ks-test
+    Args:
+        p_val (float): p value cutoff for the ks-test
+
     """
 
     def __init__(self, p_val=0.05, **kwargs):

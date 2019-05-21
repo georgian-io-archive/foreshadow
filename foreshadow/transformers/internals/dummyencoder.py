@@ -60,7 +60,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
 
 
 def _separate(cat, delim, other, other_name):
-    """Separate categories using wrapper function."""
+    """Get wrapped separate categories helper function."""
 
     def sep(X):
         if cat == other_name:

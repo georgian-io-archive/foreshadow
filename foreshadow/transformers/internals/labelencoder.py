@@ -1,4 +1,4 @@
-"""FixedLabelEncoder"""
+"""FixedLabelEncoder."""
 
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import LabelEncoder as SklearnLabelEncoder
@@ -49,6 +49,13 @@ class FixedLabelEncoder(BaseEstimator, TransformerMixin):
         return self.encoder.fit_transform(X)
 
     def inverse_transform(self, X):
-        """
+        """Transform labels back to original encoding.
+
+        Args:
+            X: iterable
+
+        Returns:
+            iterable: Inverted transformed samples
+
         """
         return self.encoder.inverse_transform(X)

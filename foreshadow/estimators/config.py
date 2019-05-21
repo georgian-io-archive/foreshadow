@@ -1,11 +1,11 @@
-"""Configuration file for auto estimators"""
+"""Configuration file for AutoEstimators."""
 
 from tpot.config.classifier import classifier_config_dict
 from tpot.config.regressor import regressor_config_dict
 
 
 def get_tpot_config(type_, include_preprocessors=False):
-    """Get default configs from TPOT.
+    """Get default configurations from TPOT.
 
     Drops feature engineering steps by default.
 

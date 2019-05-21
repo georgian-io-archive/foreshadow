@@ -1,4 +1,4 @@
-"""Intent base and registry defentions"""
+"""Intent base and registry definitions."""
 
 from abc import abstractmethod
 from collections import namedtuple
@@ -17,9 +17,7 @@ TransformerEntry = namedtuple("TransformerEntry", ["transformer", "args_dict"])
 
 
 def check_base(ofunc):
-    """Decorator to wrap classmethods to check if they are being called from
-    BaseIntent
-    """
+    """Get classmethods decorator to check if called from BaseIntent."""
 
     @wraps(ofunc)
     def nfunc(*args, **kwargs):
@@ -92,14 +90,15 @@ class BaseIntent(metaclass=_IntentRegistry):
     """A template for multi pipelines of smart transformers that affect
     multiple columns in an intent
 
-    See single_pipeline_template for an example defention
+    See single_pipeline_template for an example definition
     """
 
     @classmethod
     @check_base
     def to_string(cls, level=0):
-        """String representation of intent. Intended to assist in visualizing
-        tree.
+        """Get string representation of intent.
+
+        Intended to assist in visualizing tree.
 
         Args:
             cls(:class:`BaseIntent  <foreshadow.intents.base.BaseIntent>`):
@@ -121,7 +120,7 @@ class BaseIntent(metaclass=_IntentRegistry):
     @classmethod
     @check_base
     def priority_traverse(cls):
-        """Traverses intent tree downward from Intent.
+        """Traverse intent tree downward from Intent.
 
         Args:
             cls(:class:`BaseIntent  <foreshadow.intents.base.BaseIntent>`):
@@ -144,13 +143,14 @@ class BaseIntent(metaclass=_IntentRegistry):
     @check_base
     @abstractmethod
     def is_intent(cls, df):
-        """Determines whether intent is the appropriate fit
+        """Determine whether intent is the appropriate fit.
 
         Args:
             df: pd.DataFrame to determine intent fit
 
         Returns:
-            Boolean determining whether intent is valid for feature in df
+            bool: determines whether intent is valid for feature in df
+
         """
         pass  # pragma: no cover
 
@@ -158,19 +158,20 @@ class BaseIntent(metaclass=_IntentRegistry):
     @check_base
     @abstractmethod
     def column_summary(cls, df):
-        """Computes relavent statistics and returns a JSON dict of those values
+        """Compute relevant statistics and returns a JSON dict of those values.
 
         Args:
             df: pd.DataFrame to summarize
 
         Returns:
-            A JSON dict of relavent statistics
+            dict: A JSON representation of relevant statistics
+
         """
         pass  # pragma: no cover
 
     @classmethod
     def _check_intent(cls):
-        """Validate class variables are setup properly"""
+        """Validate class variables are setup properly."""
         define_attrs = [
             "children",
             "single_pipeline_template",
