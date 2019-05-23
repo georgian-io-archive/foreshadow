@@ -1,3 +1,4 @@
+"""Intent slotting for columns."""
 from foreshadow.intents.base import (
     BaseIntent,
     PipelineTemplateEntry,

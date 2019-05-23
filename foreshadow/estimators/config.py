@@ -1,20 +1,22 @@
-"""Configuration file for auto estimators"""
+"""Configuration file for AutoEstimators."""
 
-from tpot.config.classifier import (
-    classifier_config_dict as tpot_classifier_config,
-)
-from tpot.config.regressor import (
-    regressor_config_dict as tpot_regressor_config,
-)
+from tpot.config.classifier import classifier_config_dict
+from tpot.config.regressor import regressor_config_dict
 
 
 def get_tpot_config(type_, include_preprocessors=False):
-    """Gets default config from TPOT and drops all feature engineering
-    tools
+    """Get default configurations from TPOT.
+
+    Drops feature engineering steps by default.
+
+    Args:
+        include_preprocessors (bool, optional): whether or not to include
+            feature engineering steps.
+
     """
     configs = {
-        "classification": tpot_classifier_config,
-        "regression": tpot_regressor_config,
+        "classification": classifier_config_dict,
+        "regression": regressor_config_dict,
     }
 
     drop_partials = [

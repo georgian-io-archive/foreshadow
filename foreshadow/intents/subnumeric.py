@@ -1,4 +1,4 @@
-"""Sub Numeric Intents"""
+"""Sub Numeric Intents."""
 
 import re
 
@@ -13,7 +13,7 @@ from foreshadow.transformers.smart import (
 
 
 class FinancialIntent(NumericIntent):
-    """Matches financial data.
+    """Match financial data.
 
     Handles American and European Style numbers. Handles brackets for
     accounting data.
@@ -33,7 +33,7 @@ class FinancialIntent(NumericIntent):
 
     @classmethod
     def is_intent(cls, df):
-        """Returns true by default such that a column must match this"""
+        """Return true if column contains financial data."""
         us_num = re.compile(
             (
                 r"(?<!\S)(\[|\()?((-(?=[0-9\.]))?([0-9](\,(?=[0-9]{3}))?)*"

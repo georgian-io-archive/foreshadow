@@ -1,3 +1,5 @@
+"""BoxCox transform class."""
+
 import numpy as np
 from scipy.special import inv_boxcox1p
 from scipy.stats import boxcox
@@ -7,15 +9,13 @@ from sklearn.utils.validation import check_is_fitted
 
 
 class BoxCox(BaseEstimator, TransformerMixin):
-    """Transformer that performs BoxCox transformation on continuous numeric
-    data
-    """
+    """Perform BoxCox transformation on continuous numeric data."""
 
     # TODO: Remove this internal function and use PowerTransform from sklearn
     # when sklearn version is upgraded to 0.20
 
     def fit(self, X, y=None):
-        """Fits translate and lambda attributes to X data
+        """Fit translate and lambda attributes to X data.
 
         Args:
             X (:obj:`numpy.ndarray`): Fit data
@@ -31,7 +31,7 @@ class BoxCox(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        """Performs Box Cox transform on data
+        """Perform Box Cox transform on input.
 
         Args:
             X (:obj:`numpy.ndarray`): X data
@@ -46,7 +46,7 @@ class BoxCox(BaseEstimator, TransformerMixin):
         return X
 
     def inverse_transform(self, X):
-        """Reverses Box Cox transform
+        """Reverse Box Cox transform.
 
         Args:
             X (:obj:`numpy.ndarray`): Transformed X data

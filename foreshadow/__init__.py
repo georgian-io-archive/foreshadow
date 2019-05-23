@@ -1,3 +1,5 @@
+"""An end-to-end AutoML package to streamline the datascience workflow."""
+
 from foreshadow.foreshadow import Foreshadow
 from foreshadow.preprocessor import Preprocessor
 

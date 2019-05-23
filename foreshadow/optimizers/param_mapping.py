@@ -1,6 +1,4 @@
-"""
-Parameter mapping utils
-"""
+"""Parameter mapping utilities."""
 
 import itertools
 from copy import deepcopy
@@ -14,10 +12,11 @@ config_dict = {"StandardScaler.with_std": [True, False]}
 
 
 def _param_mapping(pipeline, X_df, y_df):
-    """Generate parameter search space using an unfit pipeline and sample X
-    and Y data. This pulls search space information from :code:`config_dict`
-    and from the JSON configuration of the Preprocessor objects in the given
-    Pipeline.
+    """Generate parameter search space.
+
+    Generated using an unfit pipeline and sample X and Y data. This pulls
+    search space information from :code:`config_dict` and from the JSON
+    configuration of the Preprocessor objects in the given Pipeline.
 
     Args:
         pipeline (:obj:`Pipeline <sklearn.pipeline.Pipeline>`): Input unfit
@@ -26,11 +25,10 @@ def _param_mapping(pipeline, X_df, y_df):
         y_df: (:obj:`pandas.DataFrame`): Input y dataframe
 
     Returns
-        list: List of dict for which keys are parameters and the value is a
+        list: List of dict for which keys are parameters and the value is a \
             list representing the search space
 
     """
-
     # Get preprocessors from the Pipeline
     preprocessors = [
         k
@@ -88,17 +86,16 @@ def _param_mapping(pipeline, X_df, y_df):
 
 
 def _parse_json_params(from_json):
-    """Generates list of possible configuration files using JSON config
+    """Generate list of possible configuration files using JSON config.
 
     Args:
         from_json (dict): JSON configuration file with combinations section
 
     Returns:
-        list: List of dictionaries of possible configurations for this
+        list: List of dictionaries of possible configurations for this \
             preprocessor
 
     """
-
     if from_json is None:
         return [None]
 
@@ -129,7 +126,7 @@ def _parse_json_params(from_json):
 
 
 def _override_dict(override, original):
-    """Overrides dictionary with keys from another dict
+    """Override dictionary with keys from another dict.
 
     Args:
         override (dict): Dictionary with override keys
@@ -147,7 +144,7 @@ def _override_dict(override, original):
 
 
 def _set_path(key, value, original):
-    """Sets the path of a dictionary using a string key
+    """Set the path of a dictionary using a string key.
 
     Args:
         key (str): Path in dictionary
@@ -189,17 +186,16 @@ def _set_path(key, value, original):
 
 
 def _extract_config_params(param):
-    """Extracts the configuration parameters from get_params() from a Pipeline
+    """Extract the configuration parameters from get_params() from a Pipeline.
 
     Args:
         param (dict): Result of pipeline.get_params()
 
     Returns:
-        dict: Dict of parameters for which the key is a list of values to
+        dict: Dict of parameters for which the key is a list of values to \
             search
 
     """
-
     out = {}
 
     # Iterate parameters
