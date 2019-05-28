@@ -174,7 +174,10 @@ def _set_path(key, value, original):
         # Always Dictionary
         temp[path[-1]] = value
         if path[-1] == "intent":
-            del temp["pipeline"]
+            try:
+                del temp["pipeline"]
+            except Exception:
+                pass
         if path[-1] == "transformer":
             del temp["parameters"]
 

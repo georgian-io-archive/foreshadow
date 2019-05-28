@@ -21,12 +21,10 @@ def generate_model(args):
         description="Peer into the future of a data science project"
     )
     parser.add_argument(
-        "--data", type=str, help="File path of a valid CSV file to load"
+        "data", type=str, help="File path of a valid CSV file to load"
     )
     parser.add_argument(
-        "--target",
-        type=str,
-        help="Name of target column to predict in dataset",
+        "target", type=str, help="Name of target column to predict in dataset"
     )
     parser.add_argument(
         "--level",
@@ -123,7 +121,7 @@ def generate_model(args):
                 )
             print("Reading config for y Preprocessor")
         else:
-            y_search = search_intents(y_train)
+            y_search = search_intents(y_train, y_var=True)
             print("Searching over valid intent space for y data")
 
         # If level 3 also do model parameter search with AutoEstimator
@@ -132,18 +130,27 @@ def generate_model(args):
         fs = Foreshadow(
             X_preprocessor=X_search,
             y_preprocessor=y_search,
-            estimator=get_method(cargs.method, X_train),
+            estimator=get_method(cargs.method, y_train),
             optimizer=GridSearchCV,
         )
 
     elif cargs.level == 3:
         # Default intent and advanced model search using 3rd party AutoML
 
-        fs = Foreshadow(
-            estimator=AutoEstimator(
-                estimator_kwargs={"max_time_mins": cargs.time}
-            )
+        estimator = AutoEstimator()
+        estimator._setup_estimator(y_train)
+
+        kwargs = (
+            "max_time_mins"
+            if estimator.problem_type == "regression"
+            else "time_left_for_this_task"
         )
+        estimator.estimator_kwargs = {
+            kwargs: cargs.time,
+            **estimator.estimator_kwargs,
+        }
+
+        fs = Foreshadow(estimator=estimator)
 
     else:
         raise ValueError("Invalid Level. Levels 1 - 3 supported.")
@@ -176,7 +183,7 @@ def execute_model(fs, X_train, y_train, X_test, y_test):
     }
 
     with open("model.json", "w") as outfile:
-        json.dump(all_results, outfile)
+        json.dump(all_results, outfile, indent=4)
 
     print(
         "Results of model fiting have been saved to model.json."
@@ -221,9 +228,9 @@ def get_method(arg, y_train):
         )
 
 
-def search_intents(data):
+def search_intents(data, y_var=False):
 
-    proc = Preprocessor()
+    proc = Preprocessor(y_var=y_var)
 
     proc.fit(data)
 
@@ -235,10 +242,16 @@ def search_intents(data):
         },
         "combinations": [
             {
-                "columns.{}.intent".format(k): v["all_matched_intents"]
+                "columns.{}.intent".format(k): str(
+                    [
+                        i
+                        for i in v["all_matched_intents"]
+                        if i != "GenericIntent"
+                    ]
+                )
                 for k, v in result["columns"].items()
             }
         ],
     }
 
-    return Preprocessor(from_json=space)
+    return Preprocessor(from_json=space, y_var=y_var)
