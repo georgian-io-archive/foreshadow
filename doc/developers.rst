@@ -84,11 +84,18 @@ Install all the packages and commit hooks
    .. _pre-commit: https://pre-commit.com/
 
    .. code-block:: console
-   
+
       (venv) $ poetry install -v
       (venv) $ export CC=gcc-5; export CXX=g++-5;
       (venv) $ poetry install -E dev
       (venv) $ poetry run pre-commit install
+
+Configure PlantUML
+
+  .. code-block:: console
+
+  (venv) $ brew install plantuml # MacOS (requires brew cask install adoptopenjdk)
+  (venv) $ sudo apt install plantuml # Linux
 
 Making sure everything works
    1. Run pytest to make sure you're good to go
