@@ -12,13 +12,18 @@ from sklearn.feature_extraction.text import VectorizerMixin
 from foreshadow.utils import check_df
 
 
-def _get_modules(classes, globals_, mname):
+def _get_modules(classes, _globals, mname):
     """Import sklearn transformers from transformers directory.
 
     Searches transformers directory for classes implementing BaseEstimator and
     TransformerMixin and duplicates them, wraps their init methods and public
     functions to support pandas dataframes, and exposes them as
     foreshadow.transformers.[name]
+
+    Args:
+        classes: A list of classes
+        _globals: The globals in the callee's context
+        mname: The module name
 
     Returns:
         The list of wrapped transformers.
@@ -37,7 +42,7 @@ def _get_modules(classes, globals_, mname):
     for t in transformers:
         copied_t = type(t.__name__, (t, *t.__bases__), dict(t.__dict__))
         copied_t.__module__ = mname
-        globals_[copied_t.__name__] = wrap_transformer(copied_t)
+        _globals[copied_t.__name__] = wrap_transformer(copied_t)
 
     return [t.__name__ for t in transformers]
 
@@ -46,11 +51,12 @@ def wrap_transformer(transformer):
     """Wrap an sklearn transformer to support dataframes.
 
     Args:
-        transformer: sklearn transformer implementing BaseEstimator and
-        TransformerMixin
+        transformer: sklearn transformer implementing
+            `BaseEstimator <sklearn.base.BaseEstimator> and
+            `TransformerMixin <sklearn.base.TransformerMixin>`
 
     Returns:
-        A wrapped form of transformer
+        The wrapped form of a transformer
 
     """
     members = [
@@ -94,6 +100,12 @@ class Sigcopy(object):
     """Copy the argspec between two functions.
 
     Used to copy the argspec from a partial function.
+
+    Params:
+        src_func: The source function to copy
+
+    Call Params:
+        tgt_func: The target function to emulate
 
     """
 

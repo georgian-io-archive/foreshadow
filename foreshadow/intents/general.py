@@ -199,11 +199,11 @@ class CategoricalIntent(GenericIntent):
     def column_summary(cls, df):
         """Compute statistics for a CategoricalIntent column.
 
-        The following are computed:
-            nan: count of nans pass into dataset
-            mode: mode or np.nan if data is mostly unique
-            top10: top 10 most frequent values or empty array if mostly
-                unique [(value, count),...,]
+        The following are statistics are computed:
+        | nan: count of nans pass into dataset
+        | mode: mode or np.nan if data is mostly unique
+        | top10: top 10 most frequent values or empty array if mostly
+            unique ``[(value, count),...,]``
 
         """
         return _standard_col_summary(df)

@@ -67,6 +67,7 @@ class Foreshadow(BaseEstimator):
 
         :type: :obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`
 
+        .. # noqa: I201
         """
         return self._X_preprocessor
 
@@ -93,6 +94,7 @@ class Foreshadow(BaseEstimator):
 
         :type: :obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`
 
+        .. # noqa: I201
         """
         return self._y_preprocessor
 
@@ -120,6 +122,7 @@ class Foreshadow(BaseEstimator):
 
         :type: :obj:`sklearn.base.BaseEstimator`
 
+        .. # noqa: I201
         """
         return self._estimator
 
@@ -148,6 +151,7 @@ class Foreshadow(BaseEstimator):
 
         :setter: Verifies Optimizer class, defaults to None
 
+        .. # noqa: I201
         """
         return self._optimizer
 

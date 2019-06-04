@@ -117,9 +117,7 @@ def patch_intents(mocker):
 
 
 def test_preprocessor_init_empty():
-    """Verifies that preprocessor object initializes correctly with empty
-    values.
-    """
+    """Verifies preprocessor initializes with empty values."""
 
     from foreshadow.preprocessor import Preprocessor
 
