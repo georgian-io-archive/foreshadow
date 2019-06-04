@@ -1,6 +1,4 @@
-"""
-General intents definitions
-"""
+"""General intents."""
 from collections import OrderedDict
 
 import numpy as np
@@ -19,7 +17,7 @@ from foreshadow.transformers.smart import (
 
 
 def _mode_freq(s, count=10):
-    """Computes the mode and the most frequent values
+    """Compute the mode and the most frequent values.
 
     Args:
         s (:obj:`Series <pandas.Series>`): the series to analyze
@@ -28,6 +26,7 @@ def _mode_freq(s, count=10):
     Returns:
         A tuple with the list of modes and (the 10 most common values,
         their frequency counts, % frequencies)
+
     """
     mode = s.mode().values.tolist()
     vc = s.value_counts().nlargest(count).reset_index()
@@ -36,13 +35,15 @@ def _mode_freq(s, count=10):
 
 
 def _outliers(s, count=10):
-    """Computes the mode and the most frequent values
+    """Compute the mode and the most frequent values.
 
     Args:
         s (:obj:`Series <pandas.Series>`): the series to analyze
         count (int): the n largest (magnitude) outliers
 
-    Returns: a :obj:`Series <pandas.Series>` of outliers
+    Returns:
+        a :obj:`Series <pandas.Series>` of outliers
+
     """
     out_ser = s[np.abs(s - s.mean()) > (3 * s.std())]
     out_df = out_ser.to_frame()
@@ -68,7 +69,7 @@ class GenericIntent(BaseIntent):
     """
 
     children = ["TextIntent", "NumericIntent", "CategoricalIntent"]
-    """Matches to CategoricalIntent over NumericIntent"""
+    """Match to CategoricalIntent over NumericIntent"""
 
     single_pipeline_template = []
     """No transformers"""
@@ -76,16 +77,16 @@ class GenericIntent(BaseIntent):
     multi_pipeline_template = [
         PipelineTemplateEntry("multi_impute", MultiImputer, False)
     ]
-    """Performs multi imputation over the entire DataFrame"""
+    """Perform multi imputation over the entire DataFrame."""
 
     @classmethod
     def is_intent(cls, df):
-        """Returns true by default such that a column must match this"""
+        """Return true by default such that a column must match this."""
         return True
 
     @classmethod
     def column_summary(cls, df):
-        """No statistics can be computed for a general column"""
+        """No statistics can be computed for a general column."""
         return {}
 
 
@@ -104,14 +105,14 @@ class NumericIntent(GenericIntent):
         PipelineTemplateEntry("simple_imputer", SimpleImputer, False),
         PipelineTemplateEntry("scaler", Scaler, True),
     ]
-    """Performs imputation and scaling using Smart Transformers"""
+    """Perform imputation and scaling using Smart Transformers"""
 
     multi_pipeline_template = []
     """No multi pipeline"""
 
     @classmethod
     def is_intent(cls, df):
-        """Returns true if data is numeric according to pandas."""
+        """Return true if data is numeric according to pandas."""
         return (
             not pd.to_numeric(df.iloc[:, 0], errors="coerce")
             .isnull()
@@ -121,7 +122,7 @@ class NumericIntent(GenericIntent):
 
     @classmethod
     def column_summary(cls, df):
-        """Returns computed statistics for a NumericIntent column
+        """Return computed statistics for a NumericIntent column.
 
         The following are computed:
             nan: count of nans pass into dataset
@@ -139,7 +140,6 @@ class NumericIntent(GenericIntent):
             10outliers: largest 10 outliers
 
         """
-
         data = df.iloc[:, 0]
         nan_num = int(data.isnull().sum())
         invalid_num = int(
@@ -181,14 +181,14 @@ class CategoricalIntent(GenericIntent):
         PipelineTemplateEntry("dropper", DropFeature, False),
         PipelineTemplateEntry("impute_encode", Encoder, True),
     ]
-    """Encodes the column automatically"""
+    """Encode the column automatically"""
 
     multi_pipeline_template = []
     """No multi pipeline"""
 
     @classmethod
     def is_intent(cls, df):
-        """Returns true if the majority of data is categorical by uniqueness"""
+        """Return true if the majority of data is categorical by uniqueness."""
         data = df.iloc[:, 0]
         if not is_numeric_dtype(data.dtype):
             return True
@@ -197,22 +197,22 @@ class CategoricalIntent(GenericIntent):
 
     @classmethod
     def column_summary(cls, df):
-        """Returns computed statistics for a CategoricalIntent column
+        """Compute statistics for a CategoricalIntent column.
 
         The following are computed:
             nan: count of nans pass into dataset
             mode: mode or np.nan if data is mostly unique
             top10: top 10 most frequent values or empty array if mostly
                 unique [(value, count),...,]
-        """
 
+        """
         return _standard_col_summary(df)
 
 
 class TextIntent(GenericIntent):
     """See base class.
 
-    All features can be treated as text
+    All features can be treated as text.
 
     """
 
@@ -229,19 +229,18 @@ class TextIntent(GenericIntent):
 
     @classmethod
     def is_intent(cls, df):
-        """Every column can be interpreted as a text"""
-
+        """Every column can be interpreted as a text."""
         return True
 
     @classmethod
     def column_summary(cls, df):
-        """Returns standard computed statistics for a TextIntent column
+        """Return standard computed statistics for a TextIntent column.
 
-            The following are computed:
-                nan: count of nans pass into dataset
-                mode: mode or np.nan if data is mostly unique
-                top10: top 10 most frequent values or empty array if mostly
-                    unique [(value, count),...,]
+        The following are computed:
+            nan: count of nans pass into dataset
+            mode: mode or np.nan if data is mostly unique
+            top10: top 10 most frequent values or empty array if mostly
+                unique [(value, count),...,]
+
         """
-
         return _standard_col_summary(df)

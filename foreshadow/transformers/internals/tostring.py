@@ -1,15 +1,17 @@
+"""To String."""
+
 from sklearn.base import BaseEstimator, TransformerMixin
 
 
 class ToString(BaseEstimator, TransformerMixin):
-    """Converst passed in data to string format"""
+    """Convert passed in data to string format."""
 
     def fit(self, X, y=None):
-        """Empty fit"""
+        """Empty fit."""
         return self
 
     def transform(self, X, y=None):
-        """Converts a column to string form
+        """Convert a column to string form.
 
         Args:
             X (:obj:`pandas.DataFrame`): X data
@@ -18,5 +20,4 @@ class ToString(BaseEstimator, TransformerMixin):
             :obj:`pandas.DataFrame`: Transformed data
 
         """
-
         return X.astype("str")

@@ -1,9 +1,8 @@
-"""Smart Transformers
+"""Smart Transformers.
 
 Transformers here will be accessible through the namespace
-foreshadow.transformers.smart and will not be
-wrapped or transformed. Only classes extending SmartTransformer should exist
-here.
+:mod:`foreshadow.transformers.smart` and will not be wrapped or transformed.
+Only classes extending SmartTransformer should exist here.
 
 """
 
@@ -38,15 +37,16 @@ from foreshadow.utils import check_df
 
 
 class Scaler(SmartTransformer):
-    """Automatically Scales Numerical Features
+    """Automatically scale numerical features.
 
     Analyzes the distribution of the data. If the data is normally distributed,
     StandardScaler is used, if it is uniform, MinMaxScaler is used, and if
     neither distribution fits then a BoxCox transformation is applied and a
     RobustScaler is used.
 
-        Args:
-            p_val (float): p value cutoff for the ks-test
+    Args:
+        p_val (float): p value cutoff for the ks-test
+
     """
 
     def __init__(self, p_val=0.05, **kwargs):
@@ -73,7 +73,7 @@ class Scaler(SmartTransformer):
 
 
 class Encoder(SmartTransformer):
-    """Automatically Encodes Categorical Features
+    """Automatically encode categorical features.
 
     If there are less than 30 categories, then OneHotEncoder is used, if there
     are more then HashingEncoder is used. If the columns containing a
@@ -93,12 +93,12 @@ class Encoder(SmartTransformer):
         super().__init__(**kwargs)
 
     def will_transform(self, X, temp_ur):
-        """Checks if the transformer with the current settings will modify the
-        data
+        """Check if the transformer will modify the data.
+
+        Uses current settings.
 
             Returns: (tuple) bool and category counts
         """
-
         X = check_df(X, single_column=True).iloc[:, 0].values
         out = temp_ur.fit_transform(X).values.ravel()
 
@@ -144,7 +144,7 @@ class Encoder(SmartTransformer):
 
 
 class SimpleImputer(SmartTransformer):
-    """Automatically Imputes Single Columns
+    """Automatically impute single columns.
 
     Performs z-score test to determine whether to use mean or median
     imputation. If too many data points are missing then imputation is not
@@ -192,7 +192,7 @@ class SimpleImputer(SmartTransformer):
 
 
 class MultiImputer(SmartTransformer):
-    """Automatically chooses a method of Multiple Imputation if neccesary
+    """Automatically choose a method of multiple imputation.
 
     By default, currently uses KNN multiple imputation as it is the fastest,
     and most flexible.
@@ -216,10 +216,9 @@ class MultiImputer(SmartTransformer):
 
 
 class FinancialCleaner(SmartTransformer):
-    """Automatically choose apropriate parameters for a financial column"""
+    """Automatically choose appropriate parameters for a financial column."""
 
     def _get_transformer(self, X, y=None, **fit_params):
-
         us_pipeline = Pipeline(
             [("prepare", PrepareFinancial()), ("convert", ConvertFinancial())]
         )
@@ -239,11 +238,11 @@ class FinancialCleaner(SmartTransformer):
 
 
 class SmartText(SmartTransformer):
-    """Automatically choose appropriate parameters for a text column
+    """Automatically choose appropriate parameters for a text column.
 
-        Args:
-            threshold (float): threshold of missing data where to use these
-                strategies
+    Args:
+        threshold (float): threshold of missing data where to use these
+            strategies
     """
 
     def __init__(self, html_cutoff=0.4, **kwargs):
