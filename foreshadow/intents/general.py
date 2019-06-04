@@ -1,10 +1,11 @@
 """
-General intents defenitions
+General intents definitions
 """
 from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_numeric_dtype
 
 from foreshadow.intents.base import BaseIntent, PipelineTemplateEntry
 from foreshadow.transformers.internals import DropFeature
@@ -189,7 +190,7 @@ class CategoricalIntent(GenericIntent):
     def is_intent(cls, df):
         """Returns true if the majority of data is categorical by uniqueness"""
         data = df.iloc[:, 0]
-        if not np.issubdtype(data.dtype, np.number):
+        if not is_numeric_dtype(data.dtype):
             return True
         else:
             return (1.0 * data.nunique() / data.count()) < 0.2
