@@ -3,7 +3,15 @@
 Project Architecture
 ====================
 
-.. uml::
+.. note::
+   Open the diagram in a new tab to see the full details.
 
-   Alice -> Bob: Hi!
-   Alice <- Bob: How are you?
+UML Class Diagram
+-----------------
+
+.. uml:: foreshadow_class.uml
+
+UML Sequence Diagram
+--------------------
+
+.. uml:: foreshadow_sequence.uml

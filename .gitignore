@@ -114,3 +114,4 @@ pip-wheel-metadata/
 .DS_Store
 *.sublime-project
 *.sublime-workspace
+*.svg

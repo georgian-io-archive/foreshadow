@@ -1,0 +1,30 @@
+@startuml
+
+' This really isn't true and an oversimplification. 
+' Everything is in a pipeline and the previous object is not
+' calling the fits, the sklearn Pipeline is the one orchestrating
+' these calls. This suffices as a big picture view of the 
+' calls nevertheless.
+
+participant User
+
+User -> Foreshadow: fit(X, y)
+Foreshadow -> DataPreparer: fit(X, y)
+DataPreparer -> ColumnInfoSharer: __init__()
+
+DataPreparer -> FeatureCleaner: fit_transform(X, y)
+FeatureCleaner -> ColumnInfoSharer: set_column_tags()
+FeatureCleaner -> IntentResolver: fit_transform(X, y) (cleaned data)
+
+IntentResolver -> FeatureEngineerer: fit_transform(X, y)
+IntentResolver -> ColumnInfoSharer: set_column_intents()
+
+FeatureEngineerer -> FeaturePreprocessor: fit_transform(X, y)
+FeaturePreprocessor -> FeatureReducer: fit_transform(X, y)
+
+FeatureReducer -> LogisticRegression: fit(X, y)
+
+LogisticRegression -> Foreshadow: self
+
+center footer Georgian Partners
+@enduml
