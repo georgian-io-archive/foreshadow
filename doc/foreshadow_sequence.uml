@@ -14,15 +14,15 @@ DataPreparer -> ColumnInfoSharer: __init__()
 
 DataPreparer -> FeatureCleaner: fit_transform(X, y)
 FeatureCleaner -> ColumnInfoSharer: set_column_tags()
-FeatureCleaner -> IntentResolver: fit_transform(X, y) (cleaned data)
+DataPreparer -> IntentResolver: fit_transform(X, y) (cleaned data)
 
-IntentResolver -> FeatureEngineerer: fit_transform(X, y)
+DataPreparer -> FeatureEngineerer: fit_transform(X, y)
 IntentResolver -> ColumnInfoSharer: set_column_intents()
 
-FeatureEngineerer -> FeaturePreprocessor: fit_transform(X, y)
-FeaturePreprocessor -> FeatureReducer: fit_transform(X, y)
+DataPreparer -> FeaturePreprocessor: fit_transform(X, y)
+DataPreparer -> FeatureReducer: fit_transform(X, y)
 
-FeatureReducer -> LogisticRegression: fit(X, y)
+DataPreparer -> LogisticRegression: fit(X, y)
 
 LogisticRegression -> Foreshadow: self
 

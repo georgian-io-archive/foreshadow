@@ -2,8 +2,11 @@
 set namespaceSeparator none
 hide empty members
 
+left to right direction
+
 package foreshadow.utils {
     abstract class BaseRegistrar
+    class Logger
 }
 package foreshadow.intents {
     abstract class BaseIntent {
@@ -120,8 +123,10 @@ package foreshadow.config {
 package foreshadow.optimizers {
     abstract class sklearn.BaseSearchCV
     class sklearn.RandomizedSearchCV
+    class WrappedRandomizedSearchCV
 
     sklearn.BaseSearchCV <|-- sklearn.RandomizedSearchCV
+    sklearn.RandomizedSearchCV <|-- WrappedRandomizedSearchCV
 }
 package foreshadow.core {
     abstract class BaseFeatureMapper {
