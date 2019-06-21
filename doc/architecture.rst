@@ -11,7 +11,16 @@ UML Class Diagram
 
 .. uml:: foreshadow_class.uml
 
-UML Sequence Diagram
---------------------
+UML Sequence Diagrams
+---------------------
 
-.. uml:: foreshadow_sequence.uml
+Main Sequence Diagram
+^^^^^^^^^^^^^^^^^^^^^
+
+.. uml:: foreshadow_sequence_main.uml
+
+
+Hyperparameter Optimization Sequence Diagram
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. uml:: foreshadow_sequence_hyp.uml

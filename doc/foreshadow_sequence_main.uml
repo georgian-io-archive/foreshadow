@@ -1,0 +1,68 @@
+@startuml
+
+skinparam Shadowing false
+
+participant User
+
+User -> Foreshadow: ~__init__()
+
+note over Foreshadow, DataPreparer
+    Foreshadow and DataPreparer
+    are wrappers for an sklearn
+    Pipeline. Fit and transform
+    calls originate from sklearn
+    logic and not the objects
+    themselves.
+end note
+
+note over Foreshadow
+    shadow.steps = Pipeline([
+        ('t', DataPreparer()),
+        ('m', LogisticRegression()),
+    ])
+end note
+
+note over DataPreparer
+    ci = ColumnInfoSharer()
+    dp.steps = Pipeline([
+        ('c', FeatureCleaner(share=ci)),
+        ('i', IntentResolver(share=ci)),
+        ('e', FeatureEngineerer(share=ci)),
+        ('p', FeaturePreprocessor(share=ci)),
+        ('r', FeatureReducer(share=ci)),
+    ])
+end note
+
+User -> Foreshadow: fit(X, y)
+Foreshadow -> DataPreparer: fit(X, y)
+
+DataPreparer -> ColumnInfoSharer: ~__init__()
+
+DataPreparer -> FeatureCleaner: fit_transform(X, y)
+FeatureCleaner -> ColumnInfoSharer: set_info(column, 'tags', values)
+FeatureCleaner --> DataPreparer: X'
+
+DataPreparer -> IntentResolver: fit_transform(X', y)
+IntentResolver -> ColumnInfoSharer: set_info(column, 'intent', value)
+IntentResolver --> DataPreparer: X''
+
+DataPreparer -> FeatureEngineerer: fit_transform(X'', y)
+FeatureEngineerer -> ColumnInfoSharer: get_info(column, 'tags')
+return col_tag_list
+FeatureEngineerer --> DataPreparer: X'''
+
+DataPreparer -> FeaturePreprocessor: fit_transform(X''', y)
+FeaturePreprocessor -> ColumnInfoSharer: get_info(column, 'intent')
+return col_intent
+FeaturePreprocessor --> DataPreparer: X''''
+
+DataPreparer -> FeatureReducer: fit_transform(X'''', y)
+FeatureReducer -> ColumnInfoSharer: get_info(column, 'intent')
+return col_intent
+FeatureReducer --> DataPreparer: X'''''
+
+Foreshadow -> LogisticRegression: fit(X''''', y)
+
+LogisticRegression -> Foreshadow: self
+
+@enduml

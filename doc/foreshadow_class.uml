@@ -1,12 +1,18 @@
 @startuml
-set namespaceSeparator none
-hide empty members
 
+skinparam BackgroundColor transparent
+skinparam Shadowing false
+
+' Diagram setup
+hide empty members
 left to right direction
+set namespaceSeparator none
 
 package foreshadow.utils {
-    abstract class BaseRegistrar
-    class Logger
+    class check_df << (M,lemonchiffon) >>
+}
+package foreshadow.logging {
+    class ForeshadowLogger
 }
 package foreshadow.intents {
     abstract class BaseIntent {
@@ -25,108 +31,83 @@ package foreshadow.intents {
     BaseIntent <|-- CategoricalIntent
     BaseIntent <|-- TextIntent
 
-    BaseRegistrar <|-- BaseIntent
-
-    ' note "Composistion lines from transformers\nto their appropriate intents has\nbeen left of for clarity reasons." as N2
+    note "Config for intentless transformations (cleaner) are placed in\nBaseIntent's specification" as N1
 }
 
 together {
     package foreshadow.transformers.core {
+        abstract class SmartTransformer {
+            bool fixed_fit
+            log_decision()
+        }
+
         class ParallelProcessor
         class SigCopy
         class DropFeature
 
-        class FixedFitMixin << (X,peru) >>
-
         class wrap_transformer << (M,lemonchiffon) >>
-
-
-
         wrap_transformer o-- SigCopy
     }
+
     package foreshadow.transformers.smart {
-        abstract class SmartTransformer
-        
-        class Imputer
-        class Scaler
-        class Encoder
-
-        class FixedFitMixin << (X,peru) >>
-
-        FixedFitMixin <|-- SmartTransformer
-
+        SmartTransformer <|-- Cleaner
+        SmartTransformer <|-- Engineerer
         SmartTransformer <|-- Scaler
         SmartTransformer <|-- Imputer
-        SmartTransformer <|-- Encoder
+        SmartTransformer <|-- CategoricalEncoder
+        SmartTransformer <|-- TextEncoder
+        SmartTransformer <|-- Reducer
     }
 
-    package foreshadow.transformers.cleaning {
-        abstract class BaseCleaner {
-            list column_tags
-        }
+    package foreshadow.transformers.internal {
+        class FancyImpute
+        class UncommonRemover
+        class BoxCox
+
+        FancyImpute o-- Imputer
+        CategoricalEncoder o-- UncommonRemover
+        Scaler o-- BoxCox
+
+        class DaysSince
+        class NumericalFeatuerizer
+        class CategoricalFeatuerizer
+
+        Engineerer o-- DaysSince
+        Engineerer o-- NumericalFeatuerizer
+        Engineerer o-- CategoricalEncoder
 
         class ToString
         class SplitDate
         class FinancialCleaner
 
-        BaseCleaner <|-- ToString
-        BaseCleaner <|-- SplitDate
-
-        BaseCleaner <|-- FinancialCleaner
-        SmartTransformer <|-- FinancialCleaner
-
-        BaseCleaner <|-- BaseRegistrar
-
-
-    }
-
-    package foreshadow.transformers.engineering {
-        abstract class BaseEngineerer {
-            bool should_replace
-        }
-        class DaysSince
-
-        BaseEngineerer <|-- DaysSince
-    }
-
-    package foreshadow.transformers.preprocessing {
-        class UncommonRemover
-        class BoxCox
-        class FancyImpute
-        class LabelEncoder
-    }
-
-    package foreshadow.transformers.reducing {
-        abstract class BaseReducer
+        Cleaner o-- ToString
+        Cleaner o-- SplitDate
+        Cleaner o-- FinancialCleaner
 
         class Boruta
         class Hypothesis
 
-        BaseReducer <|-- Boruta
-        BaseReducer <|-- Hypothesis
-
-        BaseRegistrar <|-- BaseReducer
+        Reducer o-- Boruta
+        Reducer o-- Hypothesis
     }
 
     package foreshadow.transformers.external {
-        note "All sklearn transformers are mirrored\nand pandas wrapped here." as N1
+        note "All sklearn transformers are mirrored\nand pandas wrapped here." as N3
     }
 }
 
 package foreshadow.config {
     class ConfigManager {
-        json local_config_cache
-        json user_config_cache
+        json framework_config
+        json user_config
+        json local_config
     }
 }
 
-package foreshadow.optimizers {
-    abstract class sklearn.BaseSearchCV
-    class sklearn.RandomizedSearchCV
-    class WrappedRandomizedSearchCV
-
-    sklearn.BaseSearchCV <|-- sklearn.RandomizedSearchCV
-    sklearn.RandomizedSearchCV <|-- WrappedRandomizedSearchCV
+package foreshadow.tuners {
+    class WrappedTuner {
+        BaseEstimator tuner_type
+    }
 }
 package foreshadow.core {
     abstract class BaseFeatureMapper {
@@ -185,5 +166,4 @@ package sklearn.base {
     class BaseEstimator
 }
 
-center footer Georgian Partners
 @enduml
