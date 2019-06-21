@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
-from pandas.api.types import is_numeric_dtype
+from pandas.api.types import is_numeric_dtype, is_string_dtype
 
 from foreshadow.intents.base import BaseIntent, PipelineTemplateEntry
 from foreshadow.transformers.internals import DropFeature
@@ -230,7 +230,11 @@ class TextIntent(GenericIntent):
     @classmethod
     def is_intent(cls, df):
         """Every column can be interpreted as a text."""
-        return True
+        data = df.iloc[:, 0]
+        if is_string_dtype(data.dtype):
+            return True
+        else:
+            return False
 
     @classmethod
     def column_summary(cls, df):

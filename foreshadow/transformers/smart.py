@@ -20,7 +20,6 @@ from foreshadow.transformers.externals import (
     OneHotEncoder,
     RobustScaler,
     StandardScaler,
-    TfidfVectorizer,
 )
 from foreshadow.transformers.internals import (
     BoxCox,
@@ -28,6 +27,7 @@ from foreshadow.transformers.internals import (
     DummyEncoder,
     FancyImputer,
     FixedLabelEncoder as LabelEncoder,
+    FixedTfidfVectorizer as TfidfVectorizer,
     HTMLRemover,
     PrepareFinancial,
     ToString,

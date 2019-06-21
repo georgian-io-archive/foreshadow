@@ -265,16 +265,7 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
         try:
             out = func(self, df, *args, **kwargs)
         except Exception:
-            try:
-                out = func(self, df, *args)
-            except Exception:
-                from sklearn.utils import check_array
-
-                dat = check_array(
-                    df, accept_sparse=True, dtype=None, force_all_finite=False
-                ).tolist()
-                dat = [i for t in dat for i in t]
-                out = func(self, dat, *args)
+            out = func(self, df, *args)
     else:
         fname = func.__name__
         if "transform" in fname:
@@ -282,7 +273,7 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
         else:  # fit
             out = _Empty().fit(df)
 
-    # If output is DataFrame (custom transform has occured)
+    # If output is DataFrame (custom transform has occurred)
     if isinstance(out, pd.DataFrame):
         if hasattr(out, "from_transformer"):
             return out

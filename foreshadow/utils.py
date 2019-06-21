@@ -1,5 +1,6 @@
 """Common module utilities."""
 
+import sys
 import warnings
 
 import numpy as np
@@ -104,3 +105,20 @@ def check_transformer_imports(printout=True):
         )
 
     return inter.classes, exter.classes
+
+
+def _info(type, value, tb):
+    # Source: https://stackoverflow.com/questions/242485/starting-python-debugger-automatically-on-error # noqa
+    if hasattr(sys, "ps1") or not sys.stderr.isatty():
+        sys.__excepthook__(type, value, tb)
+    else:
+        import traceback
+        import pdb
+
+        traceback.print_exception(type, value, tb)
+        pdb.post_mortem(tb)
+
+
+def debug():
+    """Add pdb debugger on import."""
+    sys.excepthook = _info
