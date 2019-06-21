@@ -1,3 +1,4 @@
+"""DropFeature."""
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -6,14 +7,13 @@ from sklearn.utils.validation import check_is_fitted
 
 
 class DropFeature(BaseEstimator, TransformerMixin):
-    """Transformer that returns an emtpy array if the data doesn't pass a set
-       threshold
+    """Drop data if it doesn't pass a set threshold.
 
-        Parameters:
-            threshold (float): if percentage of valid data is less than the
-                threshold then the feature will be dropped
-            raise_on_inverse (bool): allow or disallow return empty array on
-                inverse
+    Parameters:
+        threshold (float): if percentage of valid data is less than the
+            threshold then the feature will be dropped
+        raise_on_inverse (bool): allow or disallow return empty array on
+            inverse
 
     """
 
@@ -22,8 +22,7 @@ class DropFeature(BaseEstimator, TransformerMixin):
         self.raise_on_inverse = raise_on_inverse
 
     def fit(self, X, y=None):
-        """Fits input data and sets drop condition using initialized
-           threshold value.
+        """Fit input data and set drop condition using threshold.
 
         Args:
             X (:obj:`pandas.DataFrame`): Fit data
@@ -39,7 +38,7 @@ class DropFeature(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, y=None):
-        """Drops column based on drop condition
+        """Remove column based on drop condition.
 
         Args:
             X (:obj:`pandas.DataFrame`): X data
@@ -53,7 +52,7 @@ class DropFeature(BaseEstimator, TransformerMixin):
         return X if not self.drop_ else np.array([])
 
     def inverse_transform(self, X):
-        """Returns empty inverse"""
+        """Return empty inverse."""
         if not self.raise_on_inverse:
             return np.array([])
         else:

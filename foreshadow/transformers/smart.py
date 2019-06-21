@@ -1,9 +1,8 @@
-"""Smart Transformers
+"""Smart Transformers.
 
 Transformers here will be accessible through the namespace
-foreshadow.transformers.smart and will not be
-wrapped or transformed. Only classes extending SmartTransformer should exist
-here.
+:mod:`foreshadow.transformers.smart` and will not be wrapped or transformed.
+Only classes extending SmartTransformer should exist here.
 
 """
 
@@ -17,33 +16,37 @@ from sklearn.pipeline import Pipeline
 from foreshadow.transformers.base import SmartTransformer
 from foreshadow.transformers.externals import (
     HashingEncoder,
-    LabelEncoder,
     MinMaxScaler,
     OneHotEncoder,
     RobustScaler,
     StandardScaler,
+    TfidfVectorizer,
 )
 from foreshadow.transformers.internals import (
     BoxCox,
     ConvertFinancial,
     DummyEncoder,
     FancyImputer,
+    FixedLabelEncoder as LabelEncoder,
+    HTMLRemover,
     PrepareFinancial,
+    ToString,
     UncommonRemover,
 )
 from foreshadow.utils import check_df
 
 
 class Scaler(SmartTransformer):
-    """Automatically Scales Numerical Features
+    """Automatically scale numerical features.
 
     Analyzes the distribution of the data. If the data is normally distributed,
     StandardScaler is used, if it is uniform, MinMaxScaler is used, and if
     neither distribution fits then a BoxCox transformation is applied and a
     RobustScaler is used.
 
-        Args:
-            p_val (float): p value cutoff for the ks-test
+    Args:
+        p_val (float): p value cutoff for the ks-test
+
     """
 
     def __init__(self, p_val=0.05, **kwargs):
@@ -70,7 +73,7 @@ class Scaler(SmartTransformer):
 
 
 class Encoder(SmartTransformer):
-    """Automatically Encodes Categorical Features
+    """Automatically encode categorical features.
 
     If there are less than 30 categories, then OneHotEncoder is used, if there
     are more then HashingEncoder is used. If the columns containing a
@@ -90,12 +93,12 @@ class Encoder(SmartTransformer):
         super().__init__(**kwargs)
 
     def will_transform(self, X, temp_ur):
-        """Checks if the transformer with the current settings will modify the
-        data
+        """Check if the transformer will modify the data.
+
+        Uses current settings.
 
             Returns: (tuple) bool and category counts
         """
-
         X = check_df(X, single_column=True).iloc[:, 0].values
         out = temp_ur.fit_transform(X).values.ravel()
 
@@ -141,7 +144,7 @@ class Encoder(SmartTransformer):
 
 
 class SimpleImputer(SmartTransformer):
-    """Automatically Imputes Single Columns
+    """Automatically impute single columns.
 
     Performs z-score test to determine whether to use mean or median
     imputation. If too many data points are missing then imputation is not
@@ -179,7 +182,7 @@ class SimpleImputer(SmartTransformer):
             return FancyImputer("SimpleFill", fill_method="mean")
 
     def _get_transformer(self, X, y=None, **fit_params):
-        s = X.ix[:, 0]
+        s = X.iloc[:, 0]
         ratio = s.isnull().sum() / s.count()
 
         if 0 < ratio <= self.threshold:
@@ -189,7 +192,7 @@ class SimpleImputer(SmartTransformer):
 
 
 class MultiImputer(SmartTransformer):
-    """Automatically chooses a method of Multiple Imputation if neccesary
+    """Automatically choose a method of multiple imputation.
 
     By default, currently uses KNN multiple imputation as it is the fastest,
     and most flexible.
@@ -213,10 +216,9 @@ class MultiImputer(SmartTransformer):
 
 
 class FinancialCleaner(SmartTransformer):
-    """Automatically choose apropriate parameters for a financial column"""
+    """Automatically choose appropriate parameters for a financial column."""
 
     def _get_transformer(self, X, y=None, **fit_params):
-
         us_pipeline = Pipeline(
             [("prepare", PrepareFinancial()), ("convert", ConvertFinancial())]
         )
@@ -233,3 +235,51 @@ class FinancialCleaner(SmartTransformer):
             return eu_pipeline
         else:
             return us_pipeline
+
+
+class SmartText(SmartTransformer):
+    """Automatically choose appropriate parameters for a text column.
+
+    Args:
+        threshold (float): threshold of missing data where to use these
+            strategies
+    """
+
+    def __init__(self, html_cutoff=0.4, **kwargs):
+        self.html_cutoff = html_cutoff
+
+        super().__init__(**kwargs)
+
+    def _get_transformer(self, X, y=None, **fit_params):
+        data = X.iloc[:, 0]
+
+        steps = []
+
+        if (data.dtype.type is not np.str_) and not all(
+            [isinstance(i, str) for i in data]
+        ):
+            steps.append(("num", ToString()))
+
+        html_ratio = (
+            data.astype("str").apply(HTMLRemover.is_html).sum()
+        ) / len(data)
+        if html_ratio > self.html_cutoff:
+            steps.append(("hr", HTMLRemover()))
+
+        # TODO: find heuristic for finding optimal values for values
+        tfidf = TfidfVectorizer(
+            decode_error="replace",
+            strip_accents="unicode",
+            stop_words="english",
+            ngram_range=(1, 2),
+            max_df=0.9,
+            min_df=0.05,
+            max_features=None,
+            sublinear_tf=True,
+        )
+        steps.append(("tfidf", tfidf))
+
+        if len(steps) == 1:
+            return tfidf
+        else:
+            return Pipeline(steps)

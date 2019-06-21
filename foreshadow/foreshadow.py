@@ -1,6 +1,4 @@
-"""
-Main foreshadow object
-"""
+"""Core end-to-end pipeline, foreshadow."""
 
 import inspect
 import warnings
@@ -18,8 +16,7 @@ from foreshadow.utils import check_df
 
 
 class Foreshadow(BaseEstimator):
-    """Scikit-learn pipeline wrapper that preprocesses and automatically tunes
-    a machine learning model
+    """An end-to-end pipeline to preprocess and tune a machine learning model.
 
     Args:
         X_preprocessor \
@@ -35,6 +32,7 @@ class Foreshadow(BaseEstimator):
         optimizer (:class:`sklearn.grid_search.BaseSeachCV`, optional):
             Optimizer class to optimize feature engineering and model
             hyperparameters
+
     """
 
     def __init__(
@@ -60,7 +58,7 @@ class Foreshadow(BaseEstimator):
 
     @property
     def X_preprocessor(self):
-        """Preprocessor object for performing feature engineering on X data
+        """Preprocessor object for performing feature engineering on X data.
 
         :getter: Returns Preprocessor object
 
@@ -68,6 +66,7 @@ class Foreshadow(BaseEstimator):
             Preprocessor
 
         :type: :obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`
+
         """
         return self._X_preprocessor
 
@@ -85,7 +84,7 @@ class Foreshadow(BaseEstimator):
 
     @property
     def y_preprocessor(self):
-        """Preprocessor object for performing scaling and encoding on Y data
+        """Preprocessor object for performing scaling and encoding on Y data.
 
         :getter: Returns Preprocessor object
 
@@ -93,6 +92,7 @@ class Foreshadow(BaseEstimator):
             Preprocessor
 
         :type: :obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`
+
         """
         return self._y_preprocessor
 
@@ -119,6 +119,7 @@ class Foreshadow(BaseEstimator):
             object is created in place.
 
         :type: :obj:`sklearn.base.BaseEstimator`
+
         """
         return self._estimator
 
@@ -138,13 +139,15 @@ class Foreshadow(BaseEstimator):
 
     @property
     def optimizer(self):
-        """Optimizer class that will perform a grid or random search algorithm
-        on the parameter space from the preprocessors and estimators in the
-        pipeline
+        """Optimizer class that will fit the model.
+
+        Performs a grid or random search algorithm on the parameter space from
+        the preprocessors and estimators in the pipeline
 
         :getter: Returns optimizer class
 
         :setter: Verifies Optimizer class, defaults to None
+
         """
         return self._optimizer
 
@@ -156,15 +159,15 @@ class Foreshadow(BaseEstimator):
             raise ValueError("Invalid value passed as optimizer")
 
     def fit(self, data_df, y_df):
-        """Fits the Foreshadow instance using the provided input data
+        """Fit the Foreshadow instance using the provided input data.
 
         Args:
-            data_df \
-                (:obj:`DataFrame <pandas.DataFrame>` or :obj:`numpy.ndarray` \
-                or list): The input feature(s)
-            y_df \
-                (:obj:`DataFrame <pandas.DataFrame>` or :obj:`numpy.ndarray` \
-                or list): The response feature(s)
+            data_df (:obj:`DataFrame <pandas.DataFrame>`): The input feature(s)
+            y_df (:obj:`DataFrame <pandas.DataFrame>`): The response feature(s)
+
+        Returns:
+            :obj:`Foreshadow`: The fitted instance.
+
         """
         X_df = check_df(data_df)
         y_df = check_df(y_df)
@@ -206,7 +209,16 @@ class Foreshadow(BaseEstimator):
         return self
 
     def _prepare_predict(self, pred_cols):
-        """Validates prior to predicting"""
+        """Validate prior to predicting.
+
+        Args:
+            pred_cols (:obj:`Index pandas.Index`): the predicted columns
+
+        Raises:
+            ValueError: Pipeline not fit yet
+            ValueError: Predict must have the same columns as train
+
+        """
         if self.pipeline is None:
             raise ValueError("Foreshadow has not been fit yet")
         elif pred_cols.values.tolist() != self.data_columns:
@@ -215,55 +227,52 @@ class Foreshadow(BaseEstimator):
             )
 
     def predict(self, data_df):
-        """Uses the trained estimator to predict the response for an input
-        dataset
+        """Use the trained estimator to predict the response variable.
 
         Args:
-            data_df (:obj:`DataFrame <pandas.DataFrame>` or \
-                :obj:`numpy.ndarray` or list): The input feature(s)
+            data_df (:obj:`DataFrame <pandas.DataFrame>`): The input feature(s)
 
         Returns:
-            :obj:`DataFrame <pandas.DataFrame>`: The response feature(s)
+            :obj:`DataFrame <pandas.DataFrame>`: The response feature(s) \
                 (transformed if necessary)
+
         """
         data_df = check_df(data_df)
         self._prepare_predict(data_df.columns)
         return self.pipeline.predict(data_df)
 
     def predict_proba(self, data_df):
-        """Uses the trained estimator to predict the probabilities of responses
-        for an input dataset
+        """Use the trained estimator to predict the response variable.
+
+        Uses the predicted confidences instead of binary predictions.
 
         Args:
-            data_df (:obj:`DataFrame <pandas.DataFrame>` or \
-                :obj:`numpy.ndarray` or list): The input feature(s)
+            data_df (:obj:`DataFrame <pandas.DataFrame>`): The input feature(s)
 
         Returns:
-            :obj:`DataFrame <pandas.DataFrame>`: The probability associated
+            :obj:`DataFrame <pandas.DataFrame>`: The probability associated \
                 with each response feature
+
         """
         data_df = check_df(data_df)
         self._prepare_predict(data_df.columns)
         return self.pipeline.predict_proba(data_df)
 
     def score(self, data_df, y_df=None, sample_weight=None):
-        """Uses the trained estimator to compute the evaluation score defined
-        by the estimator
+        """Use the trained estimator to compute the evaluation score.
+
+        The scoding method is defined by the selected estimator.
 
         Args:
-            data_df \
-                (:obj:`DataFrame <pandas.DataFrame>` or :obj:`numpy.ndarray` \
-                    or list): The input feature(s)
-
-            y_df \
-                (:obj:`DataFrame <pandas.DataFrame>` or :obj:`numpy.ndarray` \
-                    or list): The response feature(s)
-
-            sample_weight (:obj:`numpy.ndarray`, optional): The weights to be \
+            data_df (:obj:`DataFrame <pandas.DataFrame>`): The input feature(s)
+            y_df (:obj:`DataFrame <pandas.DataFrame>`, optional): The response
+                feature(s)
+            sample_weight (:obj:`numpy.ndarray`, optional): The weights to be
                 used when scoring each sample
 
         Returns:
             float: A computed prediction fitness score
+
         """
         data_df = check_df(data_df)
         y_df = check_df(y_df)

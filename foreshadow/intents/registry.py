@@ -1,6 +1,4 @@
-"""
-Intent Registry
-"""
+"""Intent Registry."""
 
 from abc import ABCMeta
 
@@ -14,7 +12,7 @@ _registry = {}
 
 
 def _register_intent(cls_target):
-    """Registers an intent with the library"""
+    """Register an intent with foreshadow."""
     global _registry
     if cls_target.__name__ in _registry:
         raise TypeError(
@@ -24,7 +22,7 @@ def _register_intent(cls_target):
 
 
 def _unregister_intent(cls_target):
-    """Removes intent from registry"""
+    """Remove intent from registry."""
     global _registry
 
     def validate_input(clsname):
@@ -134,7 +132,7 @@ def _process_templates(cls_target):
 
 
 def registry_eval(cls_target):
-    """Retrieve intent class from registry dictionary
+    """Retrieve intent class from registry dictionary.
 
     Args:
         cls_target(str): String name of Intent
@@ -148,7 +146,7 @@ def registry_eval(cls_target):
 
 
 class _IntentRegistry(ABCMeta):
-    """Metaclass for intents that registers defined intent classes"""
+    """Register defined intent classes using metaclass."""
 
     def __new__(cls, *args, **kwargs):
         class_ = super(_IntentRegistry, cls).__new__(cls, *args, **kwargs)

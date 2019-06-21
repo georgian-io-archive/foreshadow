@@ -1,6 +1,4 @@
-"""
-AutoEstimator and its selection
-"""
+"""AutoEstimator."""
 
 import warnings
 
@@ -12,20 +10,20 @@ from foreshadow.utils import check_df, check_module_installed
 
 
 class AutoEstimator(BaseEstimator):
-    """An automatic machine learning solution wrapper selects the appropriate
-    solution for a given problem.
+    """A wrapped estimator that selects the solution for a given problem.
 
     By default each automatic machine learning solution runs for 1 minute but
-    that can be changed  through passed kwargs. Autosklearn is not required for
+    that can be changed through passed kwargs. Autosklearn is not required for
     this to work but if installed it can be used alongside TPOT.
 
     Args:
         problem_type (str): The problem type, 'regression' or 'classification'
         auto (str): The automatic estimator, 'tpot' or 'autosklearn'
-        include_preprocessors (bool): Whether include preprocessors in automl
+        include_preprocessors (bool): Whether include preprocessors in AutoML
             pipelines
         estimator_kwargs (dict): A dictionary of args to pass to the specified
             auto estimator (both problem_type and auto must be specified)
+
     """
 
     def __init__(
@@ -44,8 +42,9 @@ class AutoEstimator(BaseEstimator):
 
     @property
     def problem_type(self):
-        """Type of machine learning problem. Either 'regression' or
-        'classification'
+        """Type of machine learning problem.
+
+        Either `regression` or `classification`.
         """
         return self._problem_type
 
@@ -58,7 +57,10 @@ class AutoEstimator(BaseEstimator):
 
     @property
     def auto(self):
-        """Type of automl package. Either 'tpot' or 'autosklearn'"""
+        """Type of automl package.
+
+        Either `tpot` or `autosklearn`.
+        """
         return self._auto
 
     @auto.setter
@@ -70,7 +72,7 @@ class AutoEstimator(BaseEstimator):
 
     @property
     def estimator_kwargs(self):
-        """Dictionary of kwargs to pass to automl package"""
+        """Get dictionary of kwargs to pass to AutoML package."""
         return self._estimator_kwargs
 
     @estimator_kwargs.setter
@@ -88,8 +90,9 @@ class AutoEstimator(BaseEstimator):
             self._estimator_kwargs = {}
 
     def _get_optimal_estimator_class(self):
-        """Picks the optimal estimator class and defaults to a working
-        estimator if autosklearn is not installed
+        """Pick the optimal estimator class.
+
+        Defaults to a working estimator if autosklearn is not installed.
         """
         auto_ = self._pick_estimator() if self.auto is None else self.auto
 
@@ -132,12 +135,13 @@ class AutoEstimator(BaseEstimator):
             )
 
     def _pick_estimator(self):
-        """Pick auto estimator based on benchmarked results"""
+        """Pick auto estimator based on benchmarked results."""
         return "tpot" if self.problem_type == "regression" else "autosklearn"
 
     def _pre_configure_estimator_kwargs(self):
-        """Configure auto estimators to perform similarly (time scale) and
-        remove preprocessors if necessary
+        """Configure auto estimators to perform similarly (time scale).
+
+        Also remove preprocessors if necessary.
         """
         if self.auto == "tpot" and "config_dict" not in self.estimator_kwargs:
             self.estimator_kwargs["config_dict"] = get_tpot_config(
@@ -164,7 +168,7 @@ class AutoEstimator(BaseEstimator):
         return self.estimator_kwargs
 
     def _setup_estimator(self, y):
-        """Construct and return the auto estimator instance"""
+        """Construct and return the auto estimator instance."""
         self.problem_type = (
             determine_problem_type(y)
             if self.problem_type is None
@@ -177,8 +181,9 @@ class AutoEstimator(BaseEstimator):
         return self.estimator_class(**self.estimator_kwargs)
 
     def fit(self, X, y):
-        """Fits the AutoEstimator instance using a selected automatic machine
-        learning estimator
+        """Fit the AutoEstimator instance.
+
+        Uses the selected AutoML estimator.
 
         Args:
             data_df (pandas.DataFrame or numpy.ndarray or list): The input
@@ -188,6 +193,7 @@ class AutoEstimator(BaseEstimator):
 
         Returns:
             The selected estimator
+
         """
         X = check_df(X)
         y = check_df(y)
@@ -197,8 +203,7 @@ class AutoEstimator(BaseEstimator):
         return self.estimator
 
     def predict(self, X):
-        """Uses the trained estimator to predict the response for an input
-        dataset
+        """Use the trained estimator to predict the response.
 
         Args:
             data_df (pandas.DataFrame or numpy.ndarray or list): The input
@@ -206,28 +211,28 @@ class AutoEstimator(BaseEstimator):
 
         Returns:
             pandas.DataFrame: The response feature(s)
+
         """
         X = check_df(X)
         return self.estimator.predict(X)
 
     def predict_proba(self, X):  # pragma: no cover
-        """Uses the trained estimator to predict the probabilities of responses
-        for an input dataset
+        """Use the trained estimator to predict the responses probabilities.
 
         Args:
             data_df (pandas.DataFrame or numpy.ndarray or list): The input
                 feature(s)
 
         Returns:
-            pandas.DataFrame: The probability associated with each response
+            pandas.DataFrame: The probability associated with each response \
                 feature
+
         """
         X = check_df(X)
         return self.estimator.predict_proba(X)
 
     def score(self, X, y, sample_weight=None):
-        """Uses the trained estimator to compute the evaluation score defined
-        by the estimator
+        """Use the trained estimator to compute the evaluation score.
 
         Note: sample weights are not supported
 
@@ -238,6 +243,7 @@ class AutoEstimator(BaseEstimator):
 
         Returns:
             float: A computed prediction fitness score
+
         """
         X = check_df(X)
         y = check_df(y)
