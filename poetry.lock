@@ -125,11 +125,11 @@ marker = "python_version >= \"3.6\" and python_version < \"4.0\""
 name = "black"
 optional = false
 python-versions = ">=3.6"
-version = "19.3b0"
+version = "18.9b0"
 
 [package.dependencies]
 appdirs = "*"
-attrs = ">=18.1.0"
+attrs = ">=17.4.0"
 click = ">=6.5"
 toml = ">=0.9.4"
 
@@ -723,7 +723,6 @@ six = "*"
 [[package]]
 category = "dev"
 description = "More routines for operating on iterables, beyond itertools"
-marker = "python_version > \"2.7\""
 name = "more-itertools"
 optional = false
 python-versions = ">=3.4"
@@ -1012,22 +1011,17 @@ description = "pytest: simple powerful testing with Python"
 name = "pytest"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "4.6.3"
+version = "3.10.1"
 
 [package.dependencies]
 atomicwrites = ">=1.0"
 attrs = ">=17.4.0"
 colorama = "*"
-importlib-metadata = ">=0.12"
-packaging = "*"
-pluggy = ">=0.12,<1.0"
+more-itertools = ">=4.0.0"
+pluggy = ">=0.7"
 py = ">=1.5.0"
+setuptools = "*"
 six = ">=1.10.0"
-wcwidth = "*"
-
-[package.dependencies.more-itertools]
-python = ">=2.8"
-version = ">=4.0.0"
 
 [[package]]
 category = "dev"
@@ -1473,14 +1467,6 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "16.6.1"
 
 [[package]]
-category = "dev"
-description = "Measures number of Terminal column cells of wide-character codes"
-name = "wcwidth"
-optional = false
-python-versions = "*"
-version = "0.1.7"
-
-[[package]]
 category = "main"
 description = "The comprehensive WSGI web application library."
 name = "werkzeug"
@@ -1550,7 +1536,7 @@ version = "0.5.1"
 dev = ["auto-sklearn"]
 
 [metadata]
-content-hash = "2cadeb2512440a7aca26f4d128198ebb8deb90e3fa0beb71cf1096850b60d24f"
+content-hash = "8b718ec69b1ea5792a5336b0b4713225a4905b380673a36d18cbd6f66fd69596"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -1565,7 +1551,7 @@ attrs = ["69c0dbf2ed392de1cb5ec704444b08a5ef81680a61cb899dc08127123af36a79", "f0
 auto-sklearn = ["d9bd91b964664b6e8983d6ecfb757e01af5f0113c2909009ff5b11d503b49c38"]
 babel = ["af92e6106cb7c55286b25b38ad7695f8b4efb36a90ba483d7f7a6628c46158ab", "e86135ae101e31e2c8ec20a4e0c5220f4eed12487d5cf3f78be7e98d3a57fc28"]
 "backports.weakref" = ["81bc9b51c0abc58edc76aefbbc68c62a787918ffe943a37947e162c3f8e19e82", "bc4170a29915f8b22c9e7c4939701859650f2eb84184aee80da329ac0b9825c2"]
-black = ["09a9dcb7c46ed496a9850b76e4e825d6049ecd38b611f1224857a79bd985a8cf", "68950ffd4d9169716bcb8719a56c07a2f4485354fec061cdd5910aa07369731c"]
+black = ["817243426042db1d36617910df579a54f1afd659adb96fc5032fcf4b36209739", "e030a9a28f542debc08acceb273f228ac422798e5215ba2a791a6ddeaaca22a5"]
 cached-property = ["3a026f1a54135677e7da5ce819b0c690f156f37976f3e30c5430740725203d7f", "9217a59f14a5682da7c4b8829deadbfc194ac22e9908ccf7c8820234e80a1504"]
 category-encoders = ["5dad7fdbadb85dc13af9ea7739b705447e5e19993359d75041913791d8f7f0c1", "f8c48db0214ab0fb5edb44e1c1df57bad1d358c2fb684e3d4689e678e5b9e723"]
 certifi = ["046832c04d4e752f37383b628bc601a7ea7211496b4638f6514d0e5b9acc4939", "945e3ba63a0b9f577b1395204e13c3a231f9bc0223888be653286534e5873695"]
@@ -1648,7 +1634,7 @@ pynisher = ["1b1079315ad1009de108c9ad701f6ae5274264e64503fc22c2de366d99953f34"]
 pyparsing = ["1873c03321fc118f4e9746baf201ff990ceb915f433f23b395f5580d1840cb2a", "9b6323ef4ab914af344ba97510e966d64ba91055d6b9afa6b30799340e89cc03"]
 pyrfr = ["d0ee214c8d938c135ef951e99989b18e0b8b86885c6ae8d9869eb16a79242be4"]
 pyrsistent = ["16692ee739d42cf5e39cef8d27649a8c1fdb7aa99887098f1460057c5eb75c3a"]
-pytest = ["4a784f1d4f2ef198fe9b7aef793e9fa1a3b2f84e822d9b3a64a181293a572d45", "926855726d8ae8371803f7b2e6ec0a69953d9c6311fa7c3b6c1b929ff92d27da"]
+pytest = ["3f193df1cfe1d1609d4c583838bea3d532b18d6160fd3f55c9447fdca30848ec", "e246cf173c01169b9617fc07264b7b1316e78d7a650055235d6d897bc80d9660"]
 pytest-cov = ["2b097cde81a302e1047331b48cadacf23577e431b61e9c6f49a1170bbe3d3da6", "e00ea4fdde970725482f1f35630d12f074e121a23801aabf2ae154ec6bdd343a"]
 pytest-mock = ["43ce4e9dd5074993e7c021bb1c22cbb5363e612a2b5a76bc6d956775b10758b7", "5bf5771b1db93beac965a7347dc81c675ec4090cb841e49d9d34637a25c30568"]
 python-dateutil = ["7e6584c74aeed623791615e26efd690f29817a27c73085b78e4bad02493df2fb", "c89805f6f4d64db21ed966fda138f8a5ed7a4fdbc1a8ee329ce1b74e3c74da9e"]
@@ -1686,7 +1672,6 @@ typing = ["38566c558a0a94d6531012c8e917b1b8518a41e418f7f15f00e129cc80162ad3", "5
 update-checker = ["59cfad7f9a0ee99f95f1dfc60f55bf184937bcab46a7270341c2c33695572453", "70e39446fccf77b21192cf7a8214051fa93a636dc3b5c8b602b589d100a168b8"]
 urllib3 = ["b246607a25ac80bedac05c6f282e3cdaf3afb65420fd024ac94435cabe6e18d1", "dbe59173209418ae49d485b87d1681aefa36252ee85884c31346debd19463232"]
 virtualenv = ["b7335cddd9260a3dd214b73a2521ffc09647bde3e9457fcca31dc3be3999d04a", "d28ca64c0f3f125f59cabf13e0a150e1c68e5eea60983cc4395d88c584495783"]
-wcwidth = ["3df37372226d6e63e1b1e1eda15c594bca98a22d33a23832a90998faa96bc65e", "f4ebe71925af7b40a864553f761ed559b43544f8f71746c2d756c7fe788ade7c"]
 werkzeug = ["865856ebb55c4dcd0630cdd8f3331a1847a819dda7e8c750d3db6f2aa6c0209c", "a0b915f0815982fb2a09161cb8f31708052d0951c3ba433ccc5e1aa276507ca6"]
 wheel = ["5e79117472686ac0c4aef5bad5172ea73a1c2d1646b808c35926bd26bdfb0c08", "62fcfa03d45b5b722539ccbc07b190e4bfff4bb9e3a4d470dd9f6a0981002565"]
 wily = ["3c9a9f931d051ca7874df035c0518aa67569ac68da06c6cca0823626277130b9", "e13810f60cb436b7dc0aa6a70a584db297bbecf8553ba2981b822e4160d06ba4"]
