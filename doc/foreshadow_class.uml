@@ -8,6 +8,9 @@ hide empty members
 left to right direction
 set namespaceSeparator none
 
+skinparam linetype polyline
+skinparam linetype ortho
+
 package foreshadow.utils {
     class check_df << (M,lemonchiffon) >>
 }
@@ -34,7 +37,6 @@ package foreshadow.intents {
     note "Config for intentless transformations (cleaner) are placed in\nBaseIntent's specification" as N1
 }
 
-together {
     package foreshadow.transformers.core {
         abstract class SmartTransformer {
             bool fixed_fit
@@ -73,7 +75,7 @@ together {
         class CategoricalFeatuerizer
 
         Engineerer o-- DaysSince
-        Engineerer o-- NumericalFeatuerizer
+        Engineerer o-- NumericalFeaturizer
         Engineerer o-- CategoricalEncoder
 
         class ToString
@@ -94,7 +96,8 @@ together {
     package foreshadow.transformers.external {
         note "All sklearn transformers are mirrored\nand pandas wrapped here." as N3
     }
-}
+
+    ' foreshadow.transformers.smart <|-r- foreshadow.transformers.internal
 
 package foreshadow.config {
     class ConfigManager {
@@ -105,7 +108,7 @@ package foreshadow.config {
 }
 
 package foreshadow.tuners {
-    class WrappedTuner {
+    class TunerWrapper {
         BaseEstimator tuner_type
     }
 }

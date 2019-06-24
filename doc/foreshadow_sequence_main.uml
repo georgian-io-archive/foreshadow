@@ -40,28 +40,28 @@ DataPreparer -> ColumnInfoSharer: ~__init__()
 
 DataPreparer -> FeatureCleaner: fit_transform(X, y)
 FeatureCleaner -> ColumnInfoSharer: set_info(column, 'tags', values)
-FeatureCleaner --> DataPreparer: X'
+FeatureCleaner --> DataPreparer: X
 
-DataPreparer -> IntentResolver: fit_transform(X', y)
+DataPreparer -> IntentResolver: fit_transform(X, y)
 IntentResolver -> ColumnInfoSharer: set_info(column, 'intent', value)
-IntentResolver --> DataPreparer: X''
+IntentResolver --> DataPreparer: X
 
-DataPreparer -> FeatureEngineerer: fit_transform(X'', y)
+DataPreparer -> FeatureEngineerer: fit_transform(X, y)
 FeatureEngineerer -> ColumnInfoSharer: get_info(column, 'tags')
 return col_tag_list
-FeatureEngineerer --> DataPreparer: X'''
+FeatureEngineerer --> DataPreparer: X
 
-DataPreparer -> FeaturePreprocessor: fit_transform(X''', y)
+DataPreparer -> FeaturePreprocessor: fit_transform(X, y)
 FeaturePreprocessor -> ColumnInfoSharer: get_info(column, 'intent')
 return col_intent
-FeaturePreprocessor --> DataPreparer: X''''
+FeaturePreprocessor --> DataPreparer: X
 
-DataPreparer -> FeatureReducer: fit_transform(X'''', y)
+DataPreparer -> FeatureReducer: fit_transform(X, y)
 FeatureReducer -> ColumnInfoSharer: get_info(column, 'intent')
 return col_intent
-FeatureReducer --> DataPreparer: X'''''
+FeatureReducer --> DataPreparer: X
 
-Foreshadow -> LogisticRegression: fit(X''''', y)
+Foreshadow -> LogisticRegression: fit(X, y)
 
 LogisticRegression -> Foreshadow: self
 
