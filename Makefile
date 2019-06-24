@@ -1,11 +1,12 @@
 CWD=$(shell pwd)
 PKG=foreshadow
+TST=tests
 
 clean:
 	find ./$(PKG) -name "*.pyc" -exec rm -rfv {} \;
 
 test:
-	tox -r
+	poetry run tox -r
 
 coverage:
 	coverage html; open htmlcov/index.html

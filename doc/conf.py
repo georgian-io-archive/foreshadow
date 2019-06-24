@@ -13,6 +13,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import platform
 import sys
 
 
@@ -59,6 +60,7 @@ extensions = [
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
+    "sphinxcontrib.plantuml",
 ]
 
 # Autodoc Settings
@@ -205,3 +207,10 @@ todo_include_todos = True
 
 # Additional Modifications
 add_module_names = False
+
+# Plant UML
+plantuml = "{} -Djava.awt.headless=true".format(
+    "/usr/local/bin/plantuml"
+    if platform.system() == "Darwin"
+    else "/usr/bin/plantuml"
+)

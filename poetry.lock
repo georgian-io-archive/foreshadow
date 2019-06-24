@@ -1246,6 +1246,17 @@ version = "0.4.3"
 sphinx = "*"
 
 [[package]]
+category = "dev"
+description = "Sphinx \"plantuml\" extension"
+name = "sphinxcontrib-plantuml"
+optional = false
+python-versions = "*"
+version = "0.16.1"
+
+[package.dependencies]
+Sphinx = ">=1.1"
+
+[[package]]
 category = "main"
 description = "Sphinx API for Web Apps"
 name = "sphinxcontrib-websupport"
@@ -1259,7 +1270,13 @@ description = "Statistical computations and models for Python"
 name = "statsmodels"
 optional = false
 python-versions = "*"
-version = "0.9.0"
+version = "0.10.0"
+
+[package.dependencies]
+numpy = ">=1.11"
+pandas = ">=0.19"
+patsy = ">=0.4.0"
+scipy = ">=0.18"
 
 [[package]]
 category = "main"
@@ -1533,7 +1550,7 @@ version = "0.5.1"
 dev = ["auto-sklearn"]
 
 [metadata]
-content-hash = "04f3cfc633cb7d4c7cd6d119ebaa39c2dd59dfbc1b8d64a934a8ffe8a42e94c7"
+content-hash = "2cadeb2512440a7aca26f4d128198ebb8deb90e3fa0beb71cf1096850b60d24f"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -1650,8 +1667,9 @@ smmap2 = ["0555a7bf4df71d1ef4218e4807bbf9b201f910174e6e08af2e138d4e517b4dde", "2
 snowballstemmer = ["919f26a68b2c17a7634da993d91339e288964f93c274f1343e3bbbe2096e1128", "9f3bcd3c401c3e862ec0ebe6d2c069ebc012ce142cce209c098ccb5b09136e89"]
 sphinx = ["9f3e17c64b34afc653d7c5ec95766e03043cc6d80b0de224f59b6b6e19d37c3c", "c7658aab75c920288a8cf6f09f244c6cfdae30d82d803ac1634d9f223a80ca08"]
 sphinx-rtd-theme = ["00cf895504a7895ee433807c62094cf1e95f065843bf3acd17037c3e9a2becd4", "728607e34d60456d736cc7991fd236afb828b21b82f956c5ea75f94c8414040a"]
+sphinxcontrib-plantuml = ["861c8ec78805598ba32e975dddf911716cd6461fc9c992a6eedf0b5a4c1a7e7a"]
 sphinxcontrib-websupport = ["1501befb0fdf1d1c29a800fdbf4ef5dc5369377300ddbdd16d2cd40e54c6eefc", "e02f717baf02d0b6c3dd62cf81232ffca4c9d5c331e03766982e3ff9f1d2bc3f"]
-statsmodels = ["0fd6af8db18b776c81c8fba54de20e9ec2f11b9310871b6b666d8805e3cf5ece", "18844bbd95fcf62885d195571334762533ae16de182e1032ccc1595a98ffffb4", "27e87cc6cd390fce8f44df225dadf589e1df6272f36b267ccdece2a9c4f52938", "2902f5eef49fc38c112ffd8168dd76f7ae27f6cb5aa735cf55bc887b49aaec6e", "31c2e26436a992e66355c0b3ef4b7c9714a0aa8375952d24f0593ac7c417b1e9", "5d91ad30b8e20a45f583077ffeb4352be01955033f3dcd09bc06c30be1d29e8f", "5de3d525b9a8679cd6c0f7f7c8cb8508275ab86cc3c1a140b2dc6b6390adb943", "6461f93a842c649922c2c9a9bc9d9c4834110b89de8c4af196a791ab8f42ba3b", "78d1b40c18d41f6c683c1c184be146264a782d409a89d8ed6c78acd1e1c11659", "7c1a7cf557139f4bcbf97172268a8001156e42a7eeccca04d15c0cb7c3491ada", "8532885c5778f94dae7ad83c4ac3f6916d4c8eb294f47ecefe2f0d3b967e6a16", "95d35b33a301ded560662c733780ce58b37e218d122bb1b9c14e216aa9d42a2a", "b48e283ba171698dca3989c0c03e6f25d3f431640383d926235d26ce48f3891c", "b4b4b25c0e4228b1d33098894c3b29f4546e45afb29b333582cbaa5e16f38f3c", "c06fd4af98f4c7ab61c9a79fd051ad4d7247991a691c3b4883c611029bac30a2", "d2003c70c854f35a6446a465c61c994486039feb2fd47345a1e9984e95d55878", "d7182803cdb09f1f17a335c0eae71d84905da9b0bc35c3d2c2379745f33096d9", "d9b85bd98e90a02f2192084a85c857465e40e508629ac922242dba70731d0449", "e2d9fd696e2d1523386d0f64f115352acbfaf59d5ca4c681c23ea064393a2ac4", "ede078fdc9af857ed454d1e9e51831b2d577255c794d4044ecc332d40f3e3b36", "f512afa7bc10b848aaacab5dfff6f61255142dd3a5581f82980c12745b0b6cd3", "fbf789cc6d3fadca4350fa87e5f710ad2628e1fdff71bf8f853ecd49599ebe23"]
+statsmodels = ["65f321640e21134fc18b312fb2f3edcfbd23ddc36831a06e2445f9f2d7c01aba"]
 stopit = ["f7f39c583fd92027bd9d06127b259aee7a5b7945c1f1fa56263811e1e766996d"]
 tabulate = ["8af07a39377cee1103a5c8b3330a421c2d99b9141e9cc5ddd2e3263fea416943"]
 tensorboard = ["50e0b1bdcd488dbe39fd9416976e089b2ff4df18d9f1fab47abf4c498209c3fc", "c35ba681a52d4922be6b225623cf77285033e7e4e68bac5c1d5490e47d129bb2"]
