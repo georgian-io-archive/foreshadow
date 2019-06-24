@@ -148,7 +148,9 @@ class AutoEstimator(BaseEstimator):
                 self.problem_type, self.include_preprocessors
             )
             if "max_time_mins" not in self.estimator_kwargs:
-                self.estimator_kwargs["max_time_mins"] = 1
+                self.estimator_kwargs["max_time_mins"] = 5
+            if "verbosity" not in self.estimator_kwargs:
+                self.estimator_kwargs["verbosity"] = 3
         elif (
             self.auto == "autosklearn"
             and not any(
@@ -157,13 +159,15 @@ class AutoEstimator(BaseEstimator):
             )
             and not self.include_preprocessors
         ):
-            self.estimator_kwargs["include_preprocessors"] = "no_preprocessing"
+            self.estimator_kwargs["include_preprocessors"] = [
+                "no_preprocessing"
+            ]
 
         if (
             self.auto == "autosklearn"
             and "time_left_for_this_task" not in self.estimator_kwargs
         ):
-            self.estimator_kwargs["time_left_for_this_task"] = 60
+            self.estimator_kwargs["time_left_for_this_task"] = 360
 
         return self.estimator_kwargs
 
