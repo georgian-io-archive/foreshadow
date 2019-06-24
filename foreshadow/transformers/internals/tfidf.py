@@ -71,4 +71,4 @@ class FixedTfidfVectorizer(BaseEstimator, VectorizerMixin):
             iterable: Inverted transformed samples
 
         """
-        return self.encoder.inverse_transform(X).reshape((1, -1))
+        return [list(i) for i in self.encoder.inverse_transform(X)]
