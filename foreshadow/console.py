@@ -1,3 +1,5 @@
+"""Foreshadow console wrapper."""
+
 import argparse
 import json
 import sys
@@ -13,10 +15,16 @@ from foreshadow.estimators.auto import determine_problem_type
 
 
 def generate_model(args):
-    """ Takes the arguments passed to the console and generates
-    the Foreshadow model that must be fit.
-    """
+    """Process command line args and generate a Foreshadow model to fit.
 
+    Args:
+        args (list): A list of string arguments to process
+
+    Returns:
+        tuple: A tuple of `fs, X_train, y_train, X_test, y_test` which \
+            represents the foreshadow model along with the split data.
+
+    """
     parser = argparse.ArgumentParser(
         description="Peer into the future of a data science project"
     )
@@ -159,12 +167,25 @@ def generate_model(args):
 
 
 def execute_model(fs, X_train, y_train, X_test, y_test):
-    """ Executes the model produced by generate_model()
-    and exports the data to json as well as returning the
-    exported json object containing the results and the serialized
-    Foreshadow object. Also prints simple model accuracy metrics.
-    """
+    """Execute the model produced by `generate_model()`.
 
+    Also, exports the data to json and returns the exported json object
+    containing the results and the serialized Foreshadow object. Also, prints
+    simple model accuracy metrics.
+
+    Args:
+        fs (foreshadow.Foreshadow): An unfit foreshadow object.
+        X_train (:obj:`DataFrame <pandas.DataFrame>`): The X train data.
+        X_test (:obj:`DataFrame <pandas.DataFrame>`): The X test data.
+        y_train (:obj:`DataFrame <pandas.DataFrame>`): The y train data.
+        y_test (:obj:`DataFrame <pandas.DataFrame>`): The y test data.
+
+    Returns:
+        dict: A dictionary with the following keys `X_Model`, `X_Summary`, \
+            `y_model`, and `y_summary` which each represent the serialized \
+            and summarized forms of each of those steps.
+
+    """
     print("Fitting final model...")
     fs.fit(X_train, y_train)
 
@@ -194,19 +215,26 @@ def execute_model(fs, X_train, y_train, X_test, y_test):
 
 
 def cmd():  # pragma: no cover
-    """ Entry point to foreshadow via console command. Uncovered as
-    this function only serves to be executed manually.
-    """
+    """Entry point to foreshadow via console command.
 
+    Uncovered as this function only serves to be executed manually.
+    """
     model = generate_model(sys.argv[1:])
     execute_model(*model)
 
 
 def get_method(arg, y_train):
-    """ Function to determine what estimator to use given a set of X data
-    and a passed argument referencing an sklearn Estimator class.
-    """
+    """Determine what estimator to use.
 
+    Uses set of X data and a passed argument referencing an
+    `BaseException <sklearn.base.BaseEstimator>` class.
+
+    Args:
+        arg (str): model name
+        y_train (:obj:`DataFrame <pandas.DataFrame>`): The response variable
+            data.
+
+    """
     if arg is not None:
         try:
             mod = __import__(
@@ -219,7 +247,6 @@ def get_method(arg, y_train):
                 "Invalid method. {} is not a valid "
                 "estimator from sklearn.linear_model".format(arg)
             )
-
     else:
         return (
             LinearRegression()
@@ -228,11 +255,18 @@ def get_method(arg, y_train):
         )
 
 
-def search_intents(data, y_var=False):
+def search_intents(X_train, y_var=False):
+    """Hyper-parameter searches across intents.
 
+    Args:
+        X_train (:obj:`DataFrame <pandas.DataFrame>`): The X train data.
+        y_var (bool, optional): specifies whether the
+            :obj:`Preprocessor <foreshadow.Preprocessor>` is of a y variable.
+
+    """
     proc = Preprocessor(y_var=y_var)
 
-    proc.fit(data)
+    proc.fit(X_train)
 
     result = proc.serialize()
 

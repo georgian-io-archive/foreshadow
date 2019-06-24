@@ -5,14 +5,12 @@ def test_console_generate_ignore_method():
     from foreshadow.console import generate_model
 
     args = [
-        "--data",
         "./foreshadow/tests/test_data/boston_housing.csv",
+        "medv",
         "--level",
         "3",
         "--method",
         "method",
-        "--target",
-        "medv",
     ]
 
     with pytest.warns(UserWarning, match="Method will be ignored"):
@@ -23,14 +21,12 @@ def test_console_generate_ignore_time():
     from foreshadow.console import generate_model
 
     args = [
-        "--data",
         "./foreshadow/tests/test_data/boston_housing.csv",
+        "medv",
         "--level",
         "2",
         "--time",
         "20",
-        "--target",
-        "medv",
     ]
 
     with pytest.warns(UserWarning, match="Time parameter not applicable"):
@@ -40,7 +36,7 @@ def test_console_generate_ignore_time():
 def test_console_generate_invalid_file():
     from foreshadow.console import generate_model
 
-    args = ["--data", "badfile.csv"]
+    args = ["badfile.csv", "test"]
 
     with pytest.raises(ValueError) as e:
         generate_model(args)
@@ -51,12 +47,7 @@ def test_console_generate_invalid_file():
 def test_console_generate_invalid_target():
     from foreshadow.console import generate_model
 
-    args = [
-        "--data",
-        "./foreshadow/tests/test_data/boston_housing.csv",
-        "--target",
-        "badtarget",
-    ]
+    args = ["./foreshadow/tests/test_data/boston_housing.csv", "badtarget"]
 
     with pytest.raises(ValueError) as e:
         generate_model(args)
@@ -68,12 +59,7 @@ def test_console_generate_default():
     from foreshadow.console import generate_model
     from sklearn.linear_model import LinearRegression
 
-    args = [
-        "--data",
-        "./foreshadow/tests/test_data/boston_housing.csv",
-        "--target",
-        "medv",
-    ]
+    args = ["./foreshadow/tests/test_data/boston_housing.csv", "medv"]
 
     model = generate_model(args)
 
@@ -84,9 +70,7 @@ def test_console_generate_invalid():
     from foreshadow.console import generate_model
 
     args = [
-        "--data",
         "./foreshadow/tests/test_data/boston_housing.csv",
-        "--target",
         "medv",
         "--level",
         "5",
@@ -103,9 +87,7 @@ def test_console_generate_level2():
     from sklearn.linear_model import LinearRegression
 
     args = [
-        "--data",
         "./foreshadow/tests/test_data/boston_housing.csv",
-        "--target",
         "medv",
         "--level",
         "2",
@@ -122,9 +104,7 @@ def test_console_generate_config():
     from foreshadow.console import generate_model
 
     args = [
-        "--data",
         "./foreshadow/tests/test_data/boston_housing.csv",
-        "--target",
         "medv",
         "--level",
         "2",
@@ -152,9 +132,7 @@ def test_console_invalid_x_config():
     from foreshadow.console import generate_model
 
     args = [
-        "--data",
         "./foreshadow/tests/test_data/boston_housing.csv",
-        "--target",
         "medv",
         "--level",
         "2",
@@ -174,9 +152,7 @@ def test_console_invalid_y_config():
     from foreshadow.console import generate_model
 
     args = [
-        "--data",
         "./foreshadow/tests/test_data/boston_housing.csv",
-        "--target",
         "medv",
         "--level",
         "2",
@@ -197,9 +173,7 @@ def test_console_generate_level3():
     from foreshadow.console import generate_model
 
     args = [
-        "--data",
         "./foreshadow/tests/test_data/boston_housing.csv",
-        "--target",
         "medv",
         "--level",
         "3",

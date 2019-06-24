@@ -251,7 +251,7 @@ class AutoEstimator(BaseEstimator):
 
 
 def determine_problem_type(y):
-    """Simple heuristic to determine problem type"""
+    """Determine modeling problem type."""
     return (
         "classification"
         if np.unique(y.values.ravel()).size == 2
