@@ -1369,13 +1369,14 @@ description = "tox is a generic virtualenv management and test command line tool
 name = "tox"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "3.12.1"
+version = "3.13.0"
 
 [package.dependencies]
 filelock = ">=3.0.0,<4"
-pluggy = ">=0.3.0,<1"
+importlib-metadata = ">=0.12,<1"
+packaging = ">=14"
+pluggy = ">=0.12.0,<1"
 py = ">=1.4.17,<2"
-setuptools = ">=30.0.0"
 six = ">=1.0.0,<2"
 toml = ">=0.9.4"
 virtualenv = ">=14.0.0"
@@ -1663,7 +1664,7 @@ tensorflow = ["0a3784c6ab223b85a87ba6b752d2e6dc97b9345c078172d9b0bb90f3e448a320"
 tensorflow-estimator = ["ca073f66063407a091d610ec1b22e39ea30248710198cc6f13769320bdbe3992"]
 termcolor = ["1d6d69ce66211143803fbc56652b41d73b4a400a2891d7bf7a1cdf4c02de613b"]
 toml = ["229f81c57791a41d65e399fc06bf0848bab550a9dfd5ed66df18ce5f05e73d5c", "235682dd292d5899d361a811df37e04a8828a5b1da3115886b73cf81ebc9100e", "f1db651f9657708513243e61e6cc67d101a39bad662eaa9b5546f789338e07a3"]
-tox = ["f5c8e446b51edd2ea97df31d4ded8c8b72e7d6c619519da6bb6084b9dd5770f9", "f87fd33892a2df0950e5e034def9468988b8d008c7e9416be665fcc0dd45b14f"]
+tox = ["2316d3f56339173c6d45e600dabcfac6fbed7fff82a7d35f4107152e9191a766", "66d9ccf81b383ab1edc1619410223eec0e046178304728797a850302092ed975"]
 tox-travis = ["7399968fc8a3dfdaa00b6c649b6fb049691aea0d217a28b03024fb350ae196d1"]
 tpot = ["22a3c380421ef6330802a52a764f0fa6ac0253cbb4b2879c950525d7c4309966", "c98f47e66679e9c2f07dc4c8b0f0db0d1e3d6f21fb2dd4e816e08b33539aaaec"]
 tqdm = ["14a285392c32b6f8222ecfbcd217838f88e11630affe9006cd0e94c7eff3cb61", "25d4c0ea02a305a688e7e9c2cdc8f862f989ef2a4701ab28ee963295f5b109ab"]
