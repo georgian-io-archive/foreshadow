@@ -25,6 +25,7 @@ jobs:
         - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt update; fi
         - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt install swig3.0; fi
         - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ln -s /usr/bin/swig3.0 /usr/bin/swig; fi
+        - pip install --upgrade pip
         - curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
         - source $HOME/.poetry/env
       install:
