@@ -45,11 +45,24 @@ class AutoEstimator(BaseEstimator):
         """Type of machine learning problem.
 
         Either `regression` or `classification`.
+
+        Returns:
+            self._problem_type
+
         """
         return self._problem_type
 
     @problem_type.setter
     def problem_type(self, pt):
+        """Set the problem type.
+
+        Args:
+            pt: problem type
+
+        Raises:
+            ValueError: pt not valid problem type
+
+        """
         pt_options = ["classification", "regression"]
         if pt is not None and pt not in pt_options:
             raise ValueError("problem type must be in {}".format(pt_options))
@@ -60,11 +73,24 @@ class AutoEstimator(BaseEstimator):
         """Type of automl package.
 
         Either `tpot` or `autosklearn`.
+
+        Returns:
+            self._auto, the type of automl package
+
         """
         return self._auto
 
     @auto.setter
     def auto(self, ae):
+        """Set type of automl package.
+
+        Args:
+            ae: automl packaage
+
+        Raises:
+            ValueError: ae not a valid ae
+
+        """
         ae_options = ["tpot", "autosklearn"]
         if ae is not None and ae not in ae_options:
             raise ValueError("auto must be in {}".format(ae_options))
@@ -72,11 +98,25 @@ class AutoEstimator(BaseEstimator):
 
     @property
     def estimator_kwargs(self):
-        """Get dictionary of kwargs to pass to AutoML package."""
+        """Get dictionary of kwargs to pass to AutoML package.
+
+        Returns:
+            estimator kwargs
+
+        """
         return self._estimator_kwargs
 
     @estimator_kwargs.setter
     def estimator_kwargs(self, ek):
+        """Set estimator kwargs.
+
+        Args:
+            ek: kwargs
+
+        Raises:
+            ValueError: ek not a valid kwargs dict.
+
+        """
         if ek is not None and ek is not {}:
             if not isinstance(ek, dict) or not all(
                 isinstance(k, str) for k in ek.keys()
@@ -93,6 +133,10 @@ class AutoEstimator(BaseEstimator):
         """Pick the optimal estimator class.
 
         Defaults to a working estimator if autosklearn is not installed.
+
+        Returns:
+            optimal estimator class.
+
         """
         auto_ = self._pick_estimator() if self.auto is None else self.auto
 
@@ -135,7 +179,15 @@ class AutoEstimator(BaseEstimator):
             )
 
     def _determine_problem_type(self, y):
-        """Determine problem type using simple heuristic."""
+        """Determine problem type using simple heuristic.
+
+        Args:
+            y: input labels
+
+        Returns:
+            problem type inferred from y.
+
+        """
         return (
             "classification"
             if np.unique(y.values.ravel()).size == 2
@@ -143,7 +195,12 @@ class AutoEstimator(BaseEstimator):
         )
 
     def _pick_estimator(self):
-        """Pick auto estimator based on benchmarked results."""
+        """Pick auto estimator based on benchmarked results.
+
+        Returns:
+            estimator
+
+        """
         return "tpot" if self.problem_type == "regression" else "autosklearn"
 
     def _pre_configure_estimator_kwargs(self):

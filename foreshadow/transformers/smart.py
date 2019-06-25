@@ -97,7 +97,13 @@ class Encoder(SmartTransformer):
 
         Uses current settings.
 
-            Returns: (tuple) bool and category counts
+        Args:
+            X: input observations column
+            temp_ur: transformer
+
+        Returns:
+            (tuple) bool and category counts
+
         """
         X = check_df(X, single_column=True).iloc[:, 0].values
         out = temp_ur.fit_transform(X).values.ravel()

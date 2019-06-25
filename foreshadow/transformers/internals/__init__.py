@@ -8,7 +8,12 @@ from foreshadow.transformers.transformers import _get_modules
 
 
 def _get_classes():
-    """Return list of classes found in transforms directory."""
+    """Return list of classes found in transforms directory.
+
+    Returns:
+        list of classes found in transforms directory
+
+    """
     files = glob.glob(os.path.dirname(__file__) + "/*.py")
     imports = [
         os.path.basename(f)[:-3]

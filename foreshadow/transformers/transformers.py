@@ -110,13 +110,27 @@ class Sigcopy(object):
     """
 
     def __init__(self, src_func):
-        """Save necessary info to copy over."""
+        """Save necessary info to copy over.
+
+        Args:
+            src_func: The source function to be copied.
+
+        """
         self.argspec = inspect.getfullargspec(src_func)
         self.src_doc = src_func.__doc__
         self.src_defaults = src_func.__defaults__
 
     def __call__(self, tgt_func):
-        """Run when Sigcopy object is called. Returns new function."""
+        """Run when Sigcopy object is called. Returns new function.
+
+        Args:
+            tgt_func: The target function to emulate
+
+        Returns:
+            source function wrapped as target function.
+            TODO(@Adithya) fix this docstring.
+
+        """
         tgt_argspec = inspect.getfullargspec(tgt_func)
 
         name = tgt_func.__name__
@@ -175,7 +189,15 @@ class Sigcopy(object):
 
 
 def init_partial(func):  # noqa: D202
-    """Partial function for injecting custom args into transformers."""
+    """Partial function for injecting custom args into transformers.
+
+    Args:
+        func: function to wrap
+
+    Returns:
+        wrapped function
+
+    """
 
     def transform_constructor(
         self, *args, keep_columns=False, name=None, **kwargs
@@ -189,7 +211,15 @@ def init_partial(func):  # noqa: D202
 
 
 def pandas_partial(func):  # noqa: D202
-    """Partial function for the pandas transformer wrapper."""
+    """Partial function for the pandas transformer wrapper.
+
+    Args:
+        func: function to wrap
+
+    Returns:
+        wrapped function
+
+    """
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
@@ -198,10 +228,17 @@ def pandas_partial(func):  # noqa: D202
     return wrapper
 
 
-def init_replace(self, keep_columns=False, name=None):
-    """Set the default values of custom transformer attributes."""
-    self.keep_columns = keep_columns
-    self.name = name
+def init_replace(transformer, keep_columns=False, name=None):
+    """Set the default values of custom transformer attributes.
+
+    Args:
+        transformer: transformer object
+        keep_columns: keep_columns value for transformer
+        name: name value for transformer
+
+    """
+    transformer.keep_columns = keep_columns
+    transformer.name = name
 
 
 class _Empty(BaseEstimator, TransformerMixin):
@@ -211,7 +248,8 @@ class _Empty(BaseEstimator, TransformerMixin):
         """Empty fit function.
 
         Args:
-            X (:obj:`numpy.ndarray`): Fit data
+            X (:obj:`numpy.ndarray`): input data to fit, observations
+            y: labels
 
         Returns:
             self
@@ -224,6 +262,7 @@ class _Empty(BaseEstimator, TransformerMixin):
 
         Args:
             X (:obj:`numpy.ndarray`): X data
+            y: labels
 
         Returns:
             :obj:`numpy.ndarray`: Empty numpy array
@@ -260,6 +299,8 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
         self: The sklearn transformer object
         func: The original public function to be wrapped
         df: Pandas dataframe as input
+        *args: args for func
+        **kwargs: kwargs for func
 
     Returns:
         Same as return type of func

@@ -26,6 +26,7 @@ class DropFeature(BaseEstimator, TransformerMixin):
 
         Args:
             X (:obj:`pandas.DataFrame`): Fit data
+            y: input labels
 
         Returns:
             self
@@ -42,6 +43,7 @@ class DropFeature(BaseEstimator, TransformerMixin):
 
         Args:
             X (:obj:`pandas.DataFrame`): X data
+            y: input labels
 
         Returns:
             :obj:`pandas.DataFrame`: Transformed data
@@ -52,7 +54,18 @@ class DropFeature(BaseEstimator, TransformerMixin):
         return X if not self.drop_ else np.array([])
 
     def inverse_transform(self, X):
-        """Return empty inverse."""
+        """Return empty inverse.
+
+        Args:
+            X: input observations
+
+        Returns:
+            empty inverse
+
+        Raises:
+            ValueError: if self.raise_on_inverse
+
+        """
         if not self.raise_on_inverse:
             return np.array([])
         else:
