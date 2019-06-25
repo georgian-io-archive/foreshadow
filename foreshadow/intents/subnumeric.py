@@ -33,7 +33,12 @@ class FinancialIntent(NumericIntent):
 
     @classmethod
     def is_intent(cls, df):
-        """Return true if column contains financial data."""
+        """Return true if column contains financial data.
+
+        # noqa: I101
+        # noqa: I201
+
+        """
         us_num = re.compile(
             (
                 r"(?<!\S)(\[|\()?((-(?=[0-9\.]))?([0-9](\,(?=[0-9]{3}))?)*"

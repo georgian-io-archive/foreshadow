@@ -17,7 +17,13 @@ TransformerEntry = namedtuple("TransformerEntry", ["transformer", "args_dict"])
 
 
 def check_base(ofunc):  # noqa: D202
-    """Get classmethods decorator to check if called from BaseIntent."""
+    """Get classmethods decorator to check if called from BaseIntent.
+
+    # noqa: I101
+    # noqa: I201
+    # noqa: I401
+
+    """
 
     @wraps(ofunc)
     def nfunc(*args, **kwargs):
@@ -107,6 +113,8 @@ class BaseIntent(metaclass=_IntentRegistry):
         Returns:
             str: ASCII Intent Tree visualization
 
+        # noqa: S001
+
         """
         ret = "\t" * level + str(cls.__name__) + "\n"
 
@@ -125,6 +133,8 @@ class BaseIntent(metaclass=_IntentRegistry):
         Args:
             cls(:class:`BaseIntent  <foreshadow.intents.base.BaseIntent>`):
                 Class of intent to start traversal from
+
+        # noqa: S001
 
         """
         lqueue = [cls]
@@ -151,6 +161,8 @@ class BaseIntent(metaclass=_IntentRegistry):
         Returns:
             bool: determines whether intent is valid for feature in df
 
+        # noqa: I202
+
         """
         pass  # pragma: no cover
 
@@ -166,12 +178,18 @@ class BaseIntent(metaclass=_IntentRegistry):
         Returns:
             dict: A JSON representation of relevant statistics
 
+        # noqa: I202
+
         """
         pass  # pragma: no cover
 
     @classmethod
     def _check_intent(cls):
-        """Validate class variables are setup properly."""
+        """Validate class variables are setup properly.
+
+        # noqa: I401
+
+        """
         define_attrs = [
             "children",
             "single_pipeline_template",

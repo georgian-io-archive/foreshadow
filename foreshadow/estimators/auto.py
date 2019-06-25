@@ -207,6 +207,10 @@ class AutoEstimator(BaseEstimator):
         """Configure auto estimators to perform similarly (time scale).
 
         Also remove preprocessors if necessary.
+
+        Returns:
+            estimator kwargs
+
         """
         if self.auto == "tpot" and "config_dict" not in self.estimator_kwargs:
             self.estimator_kwargs["config_dict"] = get_tpot_config(
@@ -233,7 +237,15 @@ class AutoEstimator(BaseEstimator):
         return self.estimator_kwargs
 
     def _setup_estimator(self, y):
-        """Construct and return the auto estimator instance."""
+        """Construct and return the auto estimator instance.
+
+        Args:
+            y: input labels
+
+        Returns:
+            autoestimator instance
+
+        """
         self.problem_type = (
             self._determine_problem_type(y)
             if self.problem_type is None
@@ -251,9 +263,9 @@ class AutoEstimator(BaseEstimator):
         Uses the selected AutoML estimator.
 
         Args:
-            data_df (pandas.DataFrame or numpy.ndarray or list): The input
+            X (pandas.DataFrame or numpy.ndarray or list): The input
                 feature(s)
-            y_df (pandas.DataFrame or numpy.ndarray or list): The response
+            y (pandas.DataFrame or numpy.ndarray or list): The response
                 feature(s)
 
         Returns:
@@ -271,7 +283,7 @@ class AutoEstimator(BaseEstimator):
         """Use the trained estimator to predict the response.
 
         Args:
-            data_df (pandas.DataFrame or numpy.ndarray or list): The input
+            X (pandas.DataFrame or numpy.ndarray or list): The input
                 feature(s)
 
         Returns:
@@ -285,7 +297,7 @@ class AutoEstimator(BaseEstimator):
         """Use the trained estimator to predict the responses probabilities.
 
         Args:
-            data_df (pandas.DataFrame or numpy.ndarray or list): The input
+            X (pandas.DataFrame or numpy.ndarray or list): The input
                 feature(s)
 
         Returns:
@@ -305,6 +317,7 @@ class AutoEstimator(BaseEstimator):
             X (pandas.DataFrame or numpy.ndarray or list): The input feature(s)
             y (pandas.DataFrame or numpy.ndarray or list): The response
                 feature(s)
+            sample_weight: sample weighting. Not implemented.
 
         Returns:
             float: A computed prediction fitness score
