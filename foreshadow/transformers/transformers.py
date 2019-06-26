@@ -73,7 +73,7 @@ def wrap_transformer(transformer):
 
     for w in wrap_candidates:
         # Wrap public function calls
-        method = pandas_partial(pandas_partial(w))
+        method = pandas_partial(w)
         method.__doc__ = w.__doc__
         setattr(transformer, w.__name__, method)
 
@@ -232,6 +232,10 @@ class _Empty(BaseEstimator, TransformerMixin):
         return np.array([])
 
 
+def _pandas_post_process(self):
+    pass
+
+
 def pandas_wrapper(self, func, df, *args, **kwargs):
     """Replace public transformer functions using wrapper.
 
@@ -253,34 +257,28 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
         Same as return type of func
 
     """
-    current = inspect.currentframe()
-    calframe = inspect.getouterframes(current, 3)
-    if calframe[2][3] != "pandas_wrapper":
-        return func(self, df, *args, **kwargs)
-
     df = check_df(df)
 
     init_cols = [str(col) for col in df]
-    if not df.empty or isinstance(self, _Empty):
-        try:
-            out = func(self, df, *args, **kwargs)
-        except Exception:
-            try:
-                out = func(self, df, *args)
-            except Exception:
-                from sklearn.utils import check_array
+    if df.empty and not isinstance(self, _Empty):
+        # this situation may happen when a transformer comes after the Empty
+        # transformer in a pipeline. Sklearn transformers will break on empty
+        # input and so we reroute to _Empty.
+        func = getattr(_Empty, func.__name__)
 
-                dat = check_array(
-                    df, accept_sparse=True, dtype=None, force_all_finite=False
-                ).tolist()
-                dat = [i for t in dat for i in t]
-                out = func(self, dat, *args)
-    else:
-        fname = func.__name__
-        if "transform" in fname:
-            out = df
-        else:  # fit
-            out = _Empty().fit(df)
+    try:
+        out = func(self, df, *args, **kwargs)
+    except Exception:
+        try:
+            out = func(self, df, *args)
+        except Exception:
+            from sklearn.utils import check_array
+
+            dat = check_array(
+                df, accept_sparse=True, dtype=None, force_all_finite=False
+            ).tolist()
+            dat = [i for t in dat for i in t]
+            out = func(self, dat, *args)
 
     # If output is DataFrame (custom transform has occured)
     if isinstance(out, pd.DataFrame):
@@ -312,7 +310,8 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
         out = out.toarray()
 
     # If output is numpy array (transform has occurred)
-    if isinstance(out, np.ndarray):
+    if isinstance(out, np.ndarray):  # TODO can we abstract away this code,
+        # TODO combine as much as possible.
 
         # Remove old columns if necessary
         if not self.keep_columns:
@@ -345,3 +344,4 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
 
 # Wrap _Empty manually after function definition
 _Empty = wrap_transformer(_Empty)
+
