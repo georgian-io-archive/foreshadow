@@ -65,7 +65,6 @@ sphinx = "^1.7.6"
 sphinx_rtd_theme = "^0.4.1"
 sphinxcontrib-plantuml = "^0.16.1"
 tox = "^3.9.0"
-tox-travis = "^0.10"
 wily = {version = "^1.12", python = "^3.6"}
 
 [tool.poetry.extras]
@@ -82,10 +81,6 @@ envlist = py36
 
 [testenv]
 whitelist_externals = poetry
-passenv =
-    TRAVIS
-    TRAVIS_BRANCH
-    TRAVIS_JOB_ID
 commands =
     poetry install -v -E dev
     poetry run pytest
