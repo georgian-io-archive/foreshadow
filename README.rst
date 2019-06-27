@@ -7,9 +7,8 @@ Foreshadow is an automatic pipeline generation tool that makes creating, iterati
 and evaluating machine learning pipelines a fast and intuitive experience allowing
 data scientists to spend more time on data science and less time on code.
 
-.. |BuildStatus| image:: https://travis-ci.org/georgianpartners/foreshadow.svg?branch=master
-  :target: https://travis-ci.org/georgianpartners/foreshadow
-  :alt: Build Status
+.. |BuildStatus| image:: https://dev.azure.com/georgianpartners/foreshadow/_apis/build/status/georgianpartners.foreshadow?branchName=master
+   :target: https://dev.azure.com/georgianpartners/foreshadow/_build/latest?definitionId=1&branchName=master
 
 .. |DocStatus| image:: https://readthedocs.org/projects/foreshadow/badge/?version=latest
   :target: https://foreshadow.readthedocs.io/en/latest/?badge=latest
