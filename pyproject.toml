@@ -63,6 +63,7 @@ seed-isort-config = "^1.7"
 sphinx = "^1.7.6"
 sphinx_rtd_theme = "^0.4.1"
 sphinxcontrib-plantuml = "^0.16.1"
+towncrier = "^19.2"
 tox = "^3.9.0"
 wily = {version = "^1.12", python = "^3.6"}
 
@@ -106,6 +107,17 @@ lines_after_imports = 2
 force_grid_wrap = 0
 combine_as_imports = true
 include_trailing_comma = true
+
+[tool.towncrier]
+# Usage: (Source: https://github.com/python-trio/trio/blob/master/pyproject.toml)
+# - PRs should drop a file like "issuenumber.feature" in newsfragments
+#   (or "bugfix", "doc", "removal", "misc"; misc gets no text, we can
+#    customize this)
+# - At release time after bumping version number, run:
+#   poetry run towncrier --draft, then poetry towncrier
+package = "foreshadow"
+filename = "doc/changelog.rst"
+directory = "newsfragments"
 
 [build-system]
 requires = ["numpy>=1.16.1", "Cython>=0.29.5", "poetry>=0.12"]
