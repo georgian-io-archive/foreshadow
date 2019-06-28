@@ -92,9 +92,7 @@ source ~/.bash_profile
 poetry install -v
 
 # Install optional dependencies
-export CC=gcc-5
-export CXX=g++-5
-poetry install -v -E dev
+export CC=gcc-5; export CXX=g++-5; poetry install -v -E dev
 
 # Run tests
-pytest
+poetry run pytest
