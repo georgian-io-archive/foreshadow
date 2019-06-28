@@ -58,7 +58,7 @@ def _unregister_intent(cls_target):
         raise ValueError("Input must be either a string or a list of strings")
 
 
-def _process_templates(cls_target):
+def _process_templates(cls_target):  # noqa: D202
     """Process template.
 
     Args:
@@ -68,6 +68,7 @@ def _process_templates(cls_target):
         ValueError: error encountered
 
     """
+
     def _resolve_template(template):
         if not all(
             isinstance(s, base.PipelineTemplateEntry)
