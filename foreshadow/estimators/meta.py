@@ -24,10 +24,13 @@ class MetaEstimator(BaseEstimator):
         """Fit the AutoEstimator instance using a selected AutoML estimator.
 
         Args:
-            X (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray` or list):
-                The input feature(s)
-            y (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray` or list):
-                The response feature(s)
+            X (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray` or list): The
+                input feature(s)
+            y (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray` or list): The
+                response feature(s)
+
+        Returns:
+            self
 
         """
         X = check_df(X)
@@ -54,8 +57,8 @@ class MetaEstimator(BaseEstimator):
         """Use the trained estimator to predict the response probabilities.
 
         Args:
-            X (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray` or list):
-                The input feature(s)
+            X (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray` or list): The
+                input feature(s)
 
         Returns:
             :obj:`pandas.DataFrame`: The probability associated with each \
@@ -71,10 +74,10 @@ class MetaEstimator(BaseEstimator):
         Note: sample weights are not supported
 
         Args:
-            X (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray` or list):
-                The input feature(s)
-            y (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray` or list):
-                The response feature(s)
+            X (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray` or list): The
+                input feature(s)
+            y (:obj:`pandas.DataFrame` or :obj:`numpy.ndarray` or list): The
+                response feature(s)
 
         Returns:
             float: A computed prediction fitness score
