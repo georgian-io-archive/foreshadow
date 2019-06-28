@@ -20,10 +20,6 @@ class Foreshadow(BaseEstimator):
 
     Example:
         >>> shadow = Foreshadow()
-        Foreshadow(X_preprocessor=Preprocessor(from_json=None),
-              estimator=AutoEstimator(auto=None, estimator_kwargs={},
-              include_preprocessors=False, problem_type=None), optimizer=None,
-              y_preprocessor=Preprocessor(from_json=None))
 
     Args:
         X_preprocessor \

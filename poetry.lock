@@ -1512,6 +1512,17 @@ python-versions = "*"
 version = "1.11.2"
 
 [[package]]
+category = "dev"
+description = "A rewrite of the builtin doctest module"
+name = "xdoctest"
+optional = false
+python-versions = "*"
+version = "0.8.1"
+
+[package.dependencies]
+six = "*"
+
+[[package]]
 category = "main"
 description = "XGBoost Python Package"
 name = "xgboost"
@@ -1535,7 +1546,7 @@ version = "0.5.1"
 dev = ["auto-sklearn"]
 
 [metadata]
-content-hash = "814e53f04f513882b30c49a501e1ea7991b328dcb6ef9b0f74cd321589a28cff"
+content-hash = "36a867367110bc58cabde3655ddbd5bc66c3ad1f0ecae5ce5f486cc16308f4be"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -1675,5 +1686,6 @@ werkzeug = ["865856ebb55c4dcd0630cdd8f3331a1847a819dda7e8c750d3db6f2aa6c0209c", 
 wheel = ["5e79117472686ac0c4aef5bad5172ea73a1c2d1646b808c35926bd26bdfb0c08", "62fcfa03d45b5b722539ccbc07b190e4bfff4bb9e3a4d470dd9f6a0981002565"]
 wily = ["3c9a9f931d051ca7874df035c0518aa67569ac68da06c6cca0823626277130b9", "e13810f60cb436b7dc0aa6a70a584db297bbecf8553ba2981b822e4160d06ba4"]
 wrapt = ["565a021fd19419476b9362b05eeaa094178de64f8361e44468f9e9d7843901e1"]
+xdoctest = ["916123c1ee127b70a93a70852ae3f0f4ca507ef59c2096a812a209bd247c50e5"]
 xgboost = ["4224193159763ab50352b3c53087510a9ebef4c9dcbafb5c5f8c7e2a1d6d7b70"]
 zipp = ["8c1019c6aad13642199fbe458275ad6a84907634cc9f0989877ccc4a2840139d", "ca943a7e809cc12257001ccfb99e3563da9af99d52f261725e96dfe0f9275bc3"]

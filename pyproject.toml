@@ -66,6 +66,7 @@ sphinx_rtd_theme = "^0.4.1"
 sphinxcontrib-plantuml = "^0.16.1"
 tox = "^3.9.0"
 wily = {version = "^1.12", python = "^3.6"}
+xdoctest = "^0.8.1"
 
 [tool.poetry.extras]
 dev = ["auto-sklearn"]

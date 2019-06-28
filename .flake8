@@ -1,5 +1,5 @@
 [flake8]
-exclude = .git,__pycache__,doc/*
+exclude = .git,__pycache__,doc/*,build,dist
 ignore = 
 	W503, # Line break occurred after a binary operator (opposite of W504) 
 	D107 # Missing docstring in __init__
