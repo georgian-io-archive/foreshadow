@@ -558,7 +558,7 @@ def test_smarttransformer_empty_inverse():
 
 
 def test_sparse_matrix_conversion():
-    from foreshadow.transformers.externals import TfidfVectorizer
+    from foreshadow.transformers.internals import FixedTfidfVectorizer
 
     corpus = [
         "Hello world!",
@@ -566,7 +566,7 @@ def test_sparse_matrix_conversion():
         "Small, incremental steps make progress",
     ]
 
-    tfidf = TfidfVectorizer()
+    tfidf = FixedTfidfVectorizer()
 
     # This tf generates sparse output by default and if not handled will
     # break pandas wrapper
