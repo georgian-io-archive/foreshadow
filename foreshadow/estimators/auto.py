@@ -10,7 +10,7 @@ from foreshadow.utils import check_df, check_module_installed
 
 
 class AutoEstimator(BaseEstimator):
-    """An wrapped estimator that selects the solution for a given problem.
+    """A wrapped estimator that selects the solution for a given problem.
 
     By default each automatic machine learning solution runs for 1 minute but
     that can be changed through passed kwargs. Autosklearn is not required for
@@ -178,22 +178,6 @@ class AutoEstimator(BaseEstimator):
                 tpot, estimator_choices[self.auto][self.problem_type]
             )
 
-    def _determine_problem_type(self, y):
-        """Determine problem type using simple heuristic.
-
-        Args:
-            y: input labels
-
-        Returns:
-            problem type inferred from y.
-
-        """
-        return (
-            "classification"
-            if np.unique(y.values.ravel()).size == 2
-            else "regression"
-        )
-
     def _pick_estimator(self):
         """Pick auto estimator based on benchmarked results.
 
@@ -217,7 +201,9 @@ class AutoEstimator(BaseEstimator):
                 self.problem_type, self.include_preprocessors
             )
             if "max_time_mins" not in self.estimator_kwargs:
-                self.estimator_kwargs["max_time_mins"] = 1
+                self.estimator_kwargs["max_time_mins"] = 5
+            if "verbosity" not in self.estimator_kwargs:
+                self.estimator_kwargs["verbosity"] = 3
         elif (
             self.auto == "autosklearn"
             and not any(
@@ -226,13 +212,15 @@ class AutoEstimator(BaseEstimator):
             )
             and not self.include_preprocessors
         ):
-            self.estimator_kwargs["include_preprocessors"] = "no_preprocessing"
+            self.estimator_kwargs["include_preprocessors"] = [
+                "no_preprocessing"
+            ]
 
         if (
             self.auto == "autosklearn"
             and "time_left_for_this_task" not in self.estimator_kwargs
         ):
-            self.estimator_kwargs["time_left_for_this_task"] = 60
+            self.estimator_kwargs["time_left_for_this_task"] = 360
 
         return self.estimator_kwargs
 
@@ -247,7 +235,7 @@ class AutoEstimator(BaseEstimator):
 
         """
         self.problem_type = (
-            self._determine_problem_type(y)
+            determine_problem_type(y)
             if self.problem_type is None
             else self.problem_type
         )
@@ -326,3 +314,20 @@ class AutoEstimator(BaseEstimator):
         X = check_df(X)
         y = check_df(y)
         return self.estimator.score(X, y)
+
+
+def determine_problem_type(y):
+    """Determine modeling problem type.
+
+    Args:
+        y: input labels
+
+    Returns:
+        problem type inferred from y.
+
+    """
+    return (
+        "classification"
+        if np.unique(y.values.ravel()).size == 2
+        else "regression"
+    )

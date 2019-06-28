@@ -77,8 +77,8 @@ category = "main"
 description = "Automated machine learning."
 name = "auto-sklearn"
 optional = true
-python-versions = ">=3.4.*"
-version = "0.4.0"
+python-versions = ">=3.5.*"
+version = "0.5.2"
 
 [package.dependencies]
 ConfigSpace = ">=0.4.0,<0.5"
@@ -90,15 +90,14 @@ nose = "*"
 numpy = ">=1.9.0"
 pandas = "*"
 psutil = "*"
-pynisher = ">=0.4,<0.5"
-pyrfr = ">=0.6.1,<0.8"
+pynisher = ">=0.4.2"
+pyrfr = ">=0.7,<0.8"
 pyyaml = "*"
 scikit-learn = ">=0.19,<0.20"
 scipy = ">=0.14.1"
 setuptools = "*"
-six = "*"
-smac = ">=0.8,<0.9"
-xgboost = "0.7.post3"
+smac = "0.8"
+xgboost = ">=0.80"
 
 [[package]]
 category = "main"
@@ -979,7 +978,7 @@ description = "A small Python library to limit the resources used by a function 
 name = "pynisher"
 optional = true
 python-versions = "*"
-version = "0.4.2"
+version = "0.5.0"
 
 [package.dependencies]
 docutils = ">=0.3"
@@ -1396,7 +1395,7 @@ description = "Tree-based Pipeline Optimization Tool"
 name = "tpot"
 optional = false
 python-versions = "*"
-version = "0.9.6"
+version = "0.10.1"
 
 [package.dependencies]
 deap = ">=1.0"
@@ -1406,7 +1405,7 @@ scikit-learn = ">=0.18.1"
 scipy = ">=0.19.0"
 stopit = ">=1.1.1"
 tqdm = ">=4.26.0"
-update_checker = ">=0.16"
+update-checker = ">=0.16"
 
 [[package]]
 category = "main"
@@ -1527,8 +1526,8 @@ category = "main"
 description = "XGBoost Python Package"
 name = "xgboost"
 optional = true
-python-versions = "*"
-version = "0.7.post3"
+python-versions = ">=3.4"
+version = "0.90"
 
 [package.dependencies]
 numpy = "*"
@@ -1546,7 +1545,7 @@ version = "0.5.1"
 dev = ["auto-sklearn"]
 
 [metadata]
-content-hash = "36a867367110bc58cabde3655ddbd5bc66c3ad1f0ecae5ce5f486cc16308f4be"
+content-hash = "db7ad46c6ac55e580fde9faa11a9852f74dc7aff34ada31372e00ffea1fbadf6"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -1558,7 +1557,7 @@ appdirs = ["9e5896d1372858f8dd3344faf4e5014d21849c756c8d5701f78f8a103b372d92", "
 astor = ["0e41295809baf43ae8303350e031aff81ae52189b6f881f36d623fa8b2f1960e", "37a6eed8b371f1228db08234ed7f6cfdc7817a3ed3824797e20cbb11dc2a7862"]
 atomicwrites = ["03472c30eb2c5d1ba9227e4c2ca66ab8287fbfbbda3888aa93dc2e28fc6811b4", "75a9445bac02d8d058d5e1fe689654ba5a6556a1dfd8ce6ec55a0ed79866cfa6"]
 attrs = ["69c0dbf2ed392de1cb5ec704444b08a5ef81680a61cb899dc08127123af36a79", "f0b870f674851ecbfbbbd364d6b5cbdff9dcedbc7f3f5e18a6891057f21fe399"]
-auto-sklearn = ["895bbdfabe5d7017b86595e81c2286b5a2de8095402652a5f4e9734dc226045f"]
+auto-sklearn = ["d9bd91b964664b6e8983d6ecfb757e01af5f0113c2909009ff5b11d503b49c38"]
 babel = ["af92e6106cb7c55286b25b38ad7695f8b4efb36a90ba483d7f7a6628c46158ab", "e86135ae101e31e2c8ec20a4e0c5220f4eed12487d5cf3f78be7e98d3a57fc28"]
 "backports.weakref" = ["81bc9b51c0abc58edc76aefbbc68c62a787918ffe943a37947e162c3f8e19e82", "bc4170a29915f8b22c9e7c4939701859650f2eb84184aee80da329ac0b9825c2"]
 black = ["817243426042db1d36617910df579a54f1afd659adb96fc5032fcf4b36209739", "e030a9a28f542debc08acceb273f228ac422798e5215ba2a791a6ddeaaca22a5"]
@@ -1641,7 +1640,7 @@ pycodestyle = ["95a2219d12372f05704562a14ec30bc76b05a5b297b21a5dfe3f6fac3491ae56
 pydocstyle = ["2258f9b0df68b97bf3a6c29003edc5238ff8879f1efb6f1999988d934e432bd8", "5741c85e408f9e0ddf873611085e819b809fca90b619f5fd7f34bd4959da3dd4", "ed79d4ec5e92655eccc21eb0c6cf512e69512b4a97d215ace46d17e4990f2039"]
 pyflakes = ["17dbeb2e3f4d772725c777fabc446d5634d1038f234e77343108ce445ea69ce0", "d976835886f8c5b31d47970ed689944a0262b5f3afa00a5a7b4dc81e5449f8a2"]
 pygments = ["71e430bc85c88a430f000ac1d9b331d2407f681d6f6aec95e8bcfbc3df5b0127", "881c4c157e45f30af185c1ffe8d549d48ac9127433f2c380c24b84572ad66297"]
-pynisher = ["b4cfd460143c6651db61ef494515a9c2fc83820fdc290b7da19b6486ff1f0a6b"]
+pynisher = ["1b1079315ad1009de108c9ad701f6ae5274264e64503fc22c2de366d99953f34"]
 pyparsing = ["1873c03321fc118f4e9746baf201ff990ceb915f433f23b395f5580d1840cb2a", "9b6323ef4ab914af344ba97510e966d64ba91055d6b9afa6b30799340e89cc03"]
 pyrfr = ["d0ee214c8d938c135ef951e99989b18e0b8b86885c6ae8d9869eb16a79242be4"]
 pyrsistent = ["16692ee739d42cf5e39cef8d27649a8c1fdb7aa99887098f1460057c5eb75c3a"]
@@ -1675,7 +1674,7 @@ tensorflow-estimator = ["ca073f66063407a091d610ec1b22e39ea30248710198cc6f1376932
 termcolor = ["1d6d69ce66211143803fbc56652b41d73b4a400a2891d7bf7a1cdf4c02de613b"]
 toml = ["229f81c57791a41d65e399fc06bf0848bab550a9dfd5ed66df18ce5f05e73d5c", "235682dd292d5899d361a811df37e04a8828a5b1da3115886b73cf81ebc9100e", "f1db651f9657708513243e61e6cc67d101a39bad662eaa9b5546f789338e07a3"]
 tox = ["45a265e953368fb372cca3eac33b69fdb1b1453e5b114be231c84fc3dfadceed", "f5cb0b5b8d14f2100982b0981c750d840228180a348e6bad355aa38e949fbc3f"]
-tpot = ["38fda283fd0e08b8dc1977a6ecc4f0ec8c5131c31f39911a7fc1f7c57ccf3aed"]
+tpot = ["22a3c380421ef6330802a52a764f0fa6ac0253cbb4b2879c950525d7c4309966", "c98f47e66679e9c2f07dc4c8b0f0db0d1e3d6f21fb2dd4e816e08b33539aaaec"]
 tqdm = ["14a285392c32b6f8222ecfbcd217838f88e11630affe9006cd0e94c7eff3cb61", "25d4c0ea02a305a688e7e9c2cdc8f862f989ef2a4701ab28ee963295f5b109ab"]
 traitlets = ["9c4bd2d267b7153df9152698efb1050a5d84982d3384a37b2c1f7723ba3e7835", "c6cb5e6f57c5a9bdaa40fa71ce7b4af30298fbab9ece9815b5d995ab6217c7d9"]
 typing = ["38566c558a0a94d6531012c8e917b1b8518a41e418f7f15f00e129cc80162ad3", "53765ec4f83a2b720214727e319607879fec4acde22c4fbb54fa2604e79e44ce", "84698954b4e6719e912ef9a42a2431407fe3755590831699debda6fba92aac55"]
@@ -1687,5 +1686,5 @@ wheel = ["5e79117472686ac0c4aef5bad5172ea73a1c2d1646b808c35926bd26bdfb0c08", "62
 wily = ["3c9a9f931d051ca7874df035c0518aa67569ac68da06c6cca0823626277130b9", "e13810f60cb436b7dc0aa6a70a584db297bbecf8553ba2981b822e4160d06ba4"]
 wrapt = ["565a021fd19419476b9362b05eeaa094178de64f8361e44468f9e9d7843901e1"]
 xdoctest = ["916123c1ee127b70a93a70852ae3f0f4ca507ef59c2096a812a209bd247c50e5"]
-xgboost = ["4224193159763ab50352b3c53087510a9ebef4c9dcbafb5c5f8c7e2a1d6d7b70"]
+xgboost = ["5ec073f6d68348784e9afdb831371fefb89de896d8eb58e79244ad05177c5753", "898f26bb66589c644d17deff1b03961504f7ad79296ed434d0d7a5e9cb4deae6", "d69f90d61a63e8889fd39a31ad00c629bac1ca627f8406b9b6d4594c9e29ab84"]
 zipp = ["8c1019c6aad13642199fbe458275ad6a84907634cc9f0989877ccc4a2840139d", "ca943a7e809cc12257001ccfb99e3563da9af99d52f261725e96dfe0f9275bc3"]

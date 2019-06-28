@@ -8,4 +8,7 @@ clean:
 test:
 	poetry run tox -r
 
-.PHONY: test clean
+coverage:
+	coverage html; open htmlcov/index.html
+
+.PHONY: test clean coverage

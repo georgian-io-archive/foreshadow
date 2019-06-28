@@ -10,8 +10,10 @@ steps:
   - script: $HOME/.poetry/bin/poetry install -vvv -E dev
     condition: eq( variables['Agent.OS'], 'Linux' )
     displayName: Install all packages (Linux)
+  # TODO: Fix manual patch for pyrfr after https://github.com/automl/auto-sklearn/issues/688 is closed
   - script: |
       $HOME/.poetry/bin/poetry install -vvv
       export CC=gcc-5; export CXX=g++-5; $HOME/.poetry/bin/poetry install -vvv -E dev
+      export CC=gcc-5; export CXX=g++-5; pip install --upgrade pyrfr
     condition: eq( variables['Agent.OS'], 'Darwin' )
     displayName: Install all packages (MacOS)
