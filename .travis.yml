@@ -1,0 +1,36 @@
+language: python
+cache:
+  pip: true
+  directories:
+    - "$HOME/.cache/pypoetry"
+    - "$HOME/.cache/pre-commit"
+stages:
+  - linting
+  - test
+jobs:
+  include:
+    - stage: linting
+      python: "3.6"
+      install:
+        - pip install pre-commit
+        - pre-commit install-hooks
+      script:
+        - pre-commit run --all-files
+    - stage: test
+      python: "3.6"
+      env:
+        - FORESHADOW_TESTS="ALL"
+      before_install:
+          # linux
+        - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt update; fi
+        - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt install swig3.0; fi
+        - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ln -s /usr/bin/swig3.0 /usr/bin/swig; fi
+        - pip install --upgrade pip
+        - curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+        - source $HOME/.poetry/env
+      install:
+        - poetry install -v -E dev
+      script:
+        - poetry run tox
+      after_success:
+        - poetry run coveralls

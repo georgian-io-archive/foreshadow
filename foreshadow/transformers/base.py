@@ -84,6 +84,9 @@ class ParallelProcessor(FeatureUnion):
 
         See :class:`sklearn.pipeline.FeatureUnion`
 
+        Args:
+            **kwargs: valid params of transformer to set
+
         Returns:
             self
 
@@ -96,7 +99,10 @@ class ParallelProcessor(FeatureUnion):
     def _set_names(self, item):
         """Set internal names of transformers.
 
-        Uses names define in transformers list.
+        Uses names defined in transformers list.
+
+        Args:
+            item: (name, transformer) tuple
 
         """
         # Sets name if name attribute exists
@@ -112,7 +118,11 @@ class ParallelProcessor(FeatureUnion):
                 self._set_names(trans)
 
     def _update_transformer_list(self, transformers):
-        """Update local transformers list."""
+        """Update local transformers list.
+
+        Args:
+            transformers: 1D iterable of transformers
+        """
         transformers = iter(transformers)
         self.transformer_list[:] = [
             (name, None if old is None else next(transformers), cols)
@@ -120,7 +130,12 @@ class ParallelProcessor(FeatureUnion):
         ]
 
     def _validate_transformers(self):
-        """Validate fit and transform methods exist and names are unique."""
+        """Validate fit and transform methods exist and names are unique.
+
+        Raises:
+            TypeError: if fit, fit_transform, or transform are not implemented
+
+        """
         names, transformers, cols = zip(*self.transformer_list)
 
         # validate names
@@ -159,6 +174,12 @@ class ParallelProcessor(FeatureUnion):
 
         Only include those that exist in the input dataframe.
 
+        Args:
+            X: input DataFrame
+
+        Returns:
+            Set of columns in DataFrame not defined in transformer
+
         """
         full = set(list(X))
         partial = set(
@@ -178,7 +199,9 @@ class ParallelProcessor(FeatureUnion):
 
         Args:
             X (:obj:`pandas.DataFrame`): Input X data
-            fit_params (dict): Parameters to apply to transformers when fitting
+            y (:obj: 'pandas.DataFrame'): labels Y for data
+            **fit_params (dict): Parameters to apply to transformers when
+                fitting
 
         Returns:
             self
@@ -240,7 +263,18 @@ class ParallelProcessor(FeatureUnion):
         return Xs
 
     def fit_transform(self, X, y=None, **fit_params):
-        """Perform both a fit and a transform."""
+        """Perform both a fit and a transform.
+
+        Args:
+            X (:obj:`pandas.DataFrame`): Input X data
+            y (:obj: 'pandas.DataFrame'): labels Y for data
+            **fit_params (dict): Parameters to apply to transformers when
+                fitting
+
+        Returns:
+            :obj:`pandas.DataFrame`: All transformations concatenated
+
+        """
         self._validate_transformers()
 
         result = Parallel(n_jobs=self.n_jobs)(
@@ -320,7 +354,12 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
 
     @property
     def transformer(self):
-        """Get the selected transformer from the SmartTransformer."""
+        """Get the selected transformer from the SmartTransformer.
+
+        Raises:
+            ValueError: if smart transformer is not yet fit.
+
+        """
         if self._transformer is None:
             raise ValueError("Smart Transformer not Fit")
         else:
@@ -364,6 +403,9 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         Returns:
             Transformer or SmartTransformer Object
 
+        Raises:
+            ValueError: if class could not be imported
+
         """
         try:
             module_internals = __import__(
@@ -390,8 +432,8 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
 
         Valid parameter keys can be listed with :meth:`get_params()`.
 
-        Returns:
-            self
+        Args:
+            **params (dict): any valid parameter of this estimator
 
         """
         self.name = params.pop("name", self.name)
@@ -411,13 +453,35 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
             self._transformer.set_params(**valid_params)
 
     def _get_transformer(self, X, y=None, **fit_params):
-        """Get the transformer object for implementations."""
+        """Get the transformer object for implementations.
+
+        Args:
+            X (:obj:`pandas.DataFrame`): Input X data
+            y (:obj: 'pandas.DataFrame'): labels Y for data
+            **fit_params (dict): Parameters to apply to transformers when
+                fitting
+
+        Raises:
+            NotImplementedError: need to override
+
+        """
         raise NotImplementedError(
             "WrappedTransformer _get_transformer was not implimented."
         )
 
     def _verify_transformer(self, X, y=None, refit=False, **fit_params):
-        """Verify transformers have the necessary methods and attributes."""
+        """Verify transformers have the necessary methods and attributes.
+
+        Args:
+            X: input observations
+            y: input labels
+            refit: ignore if previous fit was completed and refit
+            **fit_params: params to fit
+
+        Raises:
+            AttributeError: if invalid wrapped transformer
+
+        """
         # If refit transformer needs to be re-resolved
         if refit:
             self._transformer = None
@@ -463,14 +527,32 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         self._transformer.keep_columns = self.keep_columns
 
     def transform(self, X):
-        """See base class."""
+        """See base class.
+
+        Args:
+            X: transform
+
+        Returns:
+            transformed X using selected best transformer.
+
+        """
         X = check_df(X)
         if not self._set_to_empty:
             self._verify_transformer(X)
         return self._transformer.transform(X)
 
     def fit(self, X, y=None, **kwargs):
-        """See base class."""
+        """See base class.
+
+        Args:
+            X: see base class
+            y: see base class
+            **kwargs: see base class
+
+        Returns:
+            see base class
+
+        """
         X = check_df(X)
         y = check_df(y, ignore_none=True)
         if X.empty:
@@ -483,7 +565,15 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         return self._transformer.fit(X, y, **{**kwargs, **inject})
 
     def inverse_transform(self, X):
-        """Invert transform if possible."""
+        """Invert transform if possible.
+
+        Args:
+            X: transformed input observations using selected best transformer
+
+        Returns:
+            original input observations
+
+        """
         X = check_df(X)
         if not self._set_to_empty:
             self._verify_transformer(X)
@@ -546,7 +636,14 @@ def _inject_df(trans, df):
     """Insert temp parameters into fit_params dictionary.
 
     This is in case a transformer needs other columns for calculations or
-    for hypothesis testing
+    for hypothesis testing.
+
+    Args:
+        trans: transformer
+        df: input dataframe
+
+    Returns:
+        params dict
 
     """
     return {
@@ -557,7 +654,18 @@ def _inject_df(trans, df):
 
 
 def _pandas_transform_one(transformer, weight, X, cols):
-    """Transform dataframe using sklearn transformer then adds multi-index."""
+    """Transform dataframe using sklearn transformer then adds multi-index.
+
+    Args:
+        transformer: transformer
+        weight: weighting for the one transformer
+        X: input observations
+        cols: columns for X
+
+    Returns:
+        output from _transform_one
+
+    """
     colname = sorted(cols)[0]
     # Run original transform function
     res = _transform_one(transformer, weight, X)
@@ -569,7 +677,20 @@ def _pandas_transform_one(transformer, weight, X, cols):
 
 
 def _pandas_fit_transform_one(transformer, weight, X, y, cols, **fit_params):
-    """Fit dataframe, executes transformation, then adds multi-index."""
+    """Fit dataframe, executes transformation, then adds multi-index.
+
+    Args:
+        transformer: transformer to use
+        weight: weight to use
+        X: input observations
+        y: input labels
+        cols: column names as list
+        **fit_params: params to transformer fit
+
+    Returns:
+        output from _fit_transform_one
+
+    """
     colname = sorted(cols)[0]
     # Run original fit_transform function
     res, t = _fit_transform_one(transformer, weight, X, y, **fit_params)

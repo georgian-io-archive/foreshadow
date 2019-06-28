@@ -12,13 +12,18 @@ from sklearn.feature_extraction.text import VectorizerMixin
 from foreshadow.utils import check_df
 
 
-def _get_modules(classes, globals_, mname):
+def _get_modules(classes, _globals, mname):
     """Import sklearn transformers from transformers directory.
 
     Searches transformers directory for classes implementing BaseEstimator and
     TransformerMixin and duplicates them, wraps their init methods and public
     functions to support pandas dataframes, and exposes them as
     foreshadow.transformers.[name]
+
+    Args:
+        classes: A list of classes
+        _globals: The globals in the callee's context
+        mname: The module name
 
     Returns:
         The list of wrapped transformers.
@@ -37,7 +42,7 @@ def _get_modules(classes, globals_, mname):
     for t in transformers:
         copied_t = type(t.__name__, (t, *t.__bases__), dict(t.__dict__))
         copied_t.__module__ = mname
-        globals_[copied_t.__name__] = wrap_transformer(copied_t)
+        _globals[copied_t.__name__] = wrap_transformer(copied_t)
 
     return [t.__name__ for t in transformers]
 
@@ -46,11 +51,12 @@ def wrap_transformer(transformer):
     """Wrap an sklearn transformer to support dataframes.
 
     Args:
-        transformer: sklearn transformer implementing BaseEstimator and
-        TransformerMixin
+        transformer: sklearn transformer implementing
+            `BaseEstimator <sklearn.base.BaseEstimator> and
+            `TransformerMixin <sklearn.base.TransformerMixin>`
 
     Returns:
-        A wrapped form of transformer
+        The wrapped form of a transformer
 
     """
     members = [
@@ -95,16 +101,36 @@ class Sigcopy(object):
 
     Used to copy the argspec from a partial function.
 
+    Params:
+        src_func: The source function to copy
+
+    Call Params:
+        tgt_func: The target function to emulate
+
     """
 
     def __init__(self, src_func):
-        """Save necessary info to copy over."""
+        """Save necessary info to copy over.
+
+        Args:
+            src_func: The source function to be copied.
+
+        """
         self.argspec = inspect.getfullargspec(src_func)
         self.src_doc = src_func.__doc__
         self.src_defaults = src_func.__defaults__
 
     def __call__(self, tgt_func):
-        """Run when Sigcopy object is called. Returns new function."""
+        """Run when Sigcopy object is called. Returns new function.
+
+        Args:
+            tgt_func: The target function to emulate
+
+        Returns:
+            source function wrapped as target function.
+            TODO(@Adithya) fix this docstring.
+
+        """
         tgt_argspec = inspect.getfullargspec(tgt_func)
 
         name = tgt_func.__name__
@@ -163,7 +189,15 @@ class Sigcopy(object):
 
 
 def init_partial(func):  # noqa: D202
-    """Partial function for injecting custom args into transformers."""
+    """Partial function for injecting custom args into transformers.
+
+    Args:
+        func: function to wrap
+
+    Returns:
+        wrapped function
+
+    """
 
     def transform_constructor(
         self, *args, keep_columns=False, name=None, **kwargs
@@ -177,7 +211,15 @@ def init_partial(func):  # noqa: D202
 
 
 def pandas_partial(func):  # noqa: D202
-    """Partial function for the pandas transformer wrapper."""
+    """Partial function for the pandas transformer wrapper.
+
+    Args:
+        func: function to wrap
+
+    Returns:
+        wrapped function
+
+    """
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
@@ -186,10 +228,17 @@ def pandas_partial(func):  # noqa: D202
     return wrapper
 
 
-def init_replace(self, keep_columns=False, name=None):
-    """Set the default values of custom transformer attributes."""
-    self.keep_columns = keep_columns
-    self.name = name
+def init_replace(transformer, keep_columns=False, name=None):
+    """Set the default values of custom transformer attributes.
+
+    Args:
+        transformer: transformer object
+        keep_columns: keep_columns value for transformer
+        name: name value for transformer
+
+    """
+    transformer.keep_columns = keep_columns
+    transformer.name = name
 
 
 class _Empty(BaseEstimator, TransformerMixin):
@@ -199,7 +248,8 @@ class _Empty(BaseEstimator, TransformerMixin):
         """Empty fit function.
 
         Args:
-            X (:obj:`numpy.ndarray`): Fit data
+            X (:obj:`numpy.ndarray`): input data to fit, observations
+            y: labels
 
         Returns:
             self
@@ -212,6 +262,7 @@ class _Empty(BaseEstimator, TransformerMixin):
 
         Args:
             X (:obj:`numpy.ndarray`): X data
+            y: labels
 
         Returns:
             :obj:`numpy.ndarray`: Empty numpy array
@@ -248,6 +299,8 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
         self: The sklearn transformer object
         func: The original public function to be wrapped
         df: Pandas dataframe as input
+        *args: args for func
+        **kwargs: kwargs for func
 
     Returns:
         Same as return type of func
@@ -265,16 +318,7 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
         try:
             out = func(self, df, *args, **kwargs)
         except Exception:
-            try:
-                out = func(self, df, *args)
-            except Exception:
-                from sklearn.utils import check_array
-
-                dat = check_array(
-                    df, accept_sparse=True, dtype=None, force_all_finite=False
-                ).tolist()
-                dat = [i for t in dat for i in t]
-                out = func(self, dat, *args)
+            out = func(self, df, *args)
     else:
         fname = func.__name__
         if "transform" in fname:
@@ -282,7 +326,7 @@ def pandas_wrapper(self, func, df, *args, **kwargs):
         else:  # fit
             out = _Empty().fit(df)
 
-    # If output is DataFrame (custom transform has occured)
+    # If output is DataFrame (custom transform has occurred)
     if isinstance(out, pd.DataFrame):
         if hasattr(out, "from_transformer"):
             return out

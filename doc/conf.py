@@ -27,7 +27,9 @@ sys.path.append(os.path.join(os.path.dirname(__name__), "../.."))
 def get_version():
     import toml
 
-    with open("../pyproject.toml", "r") as fopen:
+    toml_path = os.path.join(os.path.dirname(__file__), "..", "pyproject.toml")
+
+    with open(toml_path, "r") as fopen:
         pyproject = toml.load(fopen)
 
     return pyproject["tool"]["poetry"]["version"]

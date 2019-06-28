@@ -64,21 +64,28 @@ def test_box_cox():
 
 
 def test_transformer_fancy_impute_set_params():
+    import os
+
     import pandas as pd
     from foreshadow.transformers.internals import FancyImputer
+
+    heart_path = os.path.join(
+        os.path.dirname(__file__), "..", "test_data", "heart-h.csv"
+    )
+    heart_impute_path = os.path.join(
+        os.path.dirname(__file__), "..", "test_data", "heart-h_impute_mean.csv"
+    )
 
     impute = FancyImputer(method="SimpleFill", fill_method="median")
     impute.set_params(**{"fill_method": "mean"})
 
-    df = pd.read_csv("./foreshadow/tests/test_data/heart-h.csv")
+    df = pd.read_csv(heart_path)
 
     data = df[["chol"]]
 
     impute.fit(data)
     out = impute.transform(data)
-    truth = pd.read_csv(
-        "./foreshadow/tests/test_data/heart-h_impute_mean.csv", index_col=0
-    )
+    truth = pd.read_csv(heart_impute_path, index_col=0)
 
     assert out.equals(truth)
 
@@ -381,3 +388,28 @@ def test_to_string_tf():
 
     assert expected == ts.transform(arr).values.ravel().tolist()
     assert expected == ts.transform(df).values.ravel().tolist()
+
+
+def test_tfidf_and_sparse_processing_core():
+    import numpy as np
+    import pandas as pd
+    from foreshadow.transformers.internals import FixedTfidfVectorizer
+
+    X1 = ["Test", "Another test", "How about another"]
+    X2 = pd.DataFrame(["Test", "Another test", "How about another"])
+
+    exp = [
+        [0.0, 0.0, 0.0, 1.0],
+        [0.0, 0.7071067811865476, 0.0, 0.7071067811865476],
+        [0.6227660078332259, 0.4736296010332684, 0.6227660078332259, 0.0],
+    ]
+    exp2 = [["test"], ["another", "test"], ["about", "another", "how"]]
+
+    tfidf = FixedTfidfVectorizer()
+
+    rslt1 = tfidf.fit_transform(X1)
+    rslt2 = tfidf.fit(X2).transform(X2)
+
+    assert np.allclose(rslt1, exp)
+    assert np.allclose(rslt2, exp)
+    assert tfidf.inverse_transform(rslt1) == exp2

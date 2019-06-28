@@ -15,7 +15,16 @@ class PrepareFinancial(BaseEstimator, TransformerMixin):
     """
 
     def fit(self, X, y=None):
-        """Empty fit."""
+        """Empty fit.
+
+        Args:
+            X: input observations
+            y: input labels
+
+        Returns:
+            self
+
+        """
         return self
 
     def transform(self, X, y=None):
@@ -23,6 +32,7 @@ class PrepareFinancial(BaseEstimator, TransformerMixin):
 
         Args:
             X (:obj:`pandas.DataFrame`): X data
+            y: input labels
 
         Returns:
             :obj:`pandas.DataFrame`: Transformed data
@@ -66,7 +76,16 @@ class ConvertFinancial(BaseEstimator, TransformerMixin):
         )
 
     def fit(self, X, y=None):
-        """Empty fit."""
+        """Empty fit.
+
+        Args:
+            X: input observations
+            y: input labels
+
+        Returns:
+            self
+
+        """
         return self
 
     def transform(self, X, y=None):  # noqa: D202
@@ -74,6 +93,7 @@ class ConvertFinancial(BaseEstimator, TransformerMixin):
 
         Args:
             X (:obj:`pandas.DataFrame`): X data
+            y: input labels
 
         Returns:
             :obj:`pandas.DataFrame`: Transformed data
