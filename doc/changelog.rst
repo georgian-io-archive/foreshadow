@@ -1,8 +1,3 @@
 .. _changelog:
 
-Changelog
-=========
-
-v0.1
-^^^^
-- Initial Release
+.. towncrier release notes start
