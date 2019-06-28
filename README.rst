@@ -1,20 +1,30 @@
-foreshadow
-==========
+Foreshadow: Simple Machine Learning Scaffolding
+===============================================
 
-|License| |BuildStatus| |Coverage| |Code style: black|
+|BuildStatus| |DocStatus| |Coverage| |CodeStyle| |License|
 
 Foreshadow is an automatic pipeline generation tool that makes creating, iterating,
 and evaluating machine learning pipelines a fast and intuitive experience allowing
 data scientists to spend more time on data science and less time on code.
 
-.. |License| image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg
-   :target: https://github.com/georgianpartners/foreshadow/blob/master/LICENSE
-.. |BuildStatus| image:: https://travis-ci.org/georgianpartners/foreshadow.svg?branch=master
-   :target: https://travis-ci.org/georgianpartners/foreshadow
+.. |BuildStatus| image:: https://dev.azure.com/georgianpartners/foreshadow/_apis/build/status/georgianpartners.foreshadow?branchName=master
+   :target: https://dev.azure.com/georgianpartners/foreshadow/_build/latest?definitionId=1&branchName=master
+
+.. |DocStatus| image:: https://readthedocs.org/projects/foreshadow/badge/?version=latest
+  :target: https://foreshadow.readthedocs.io/en/latest/?badge=latest
+  :alt: Documentation Status
+
 .. |Coverage| image:: https://coveralls.io/repos/github/georgianpartners/foreshadow/badge.svg?branch=development
-   :target: https://coveralls.io/github/georgianpartners/foreshadow
-.. |Code style: black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
-   :target: https://github.com/ambv/black
+  :target: https://coveralls.io/github/georgianpartners/foreshadow
+  :alt: Coverage
+
+.. |CodeStyle| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+  :target: https://github.com/ambv/black
+  :alt: Code Style
+
+.. |License| image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg
+  :target: https://github.com/georgianpartners/foreshadow/blob/master/LICENSE
+  :alt: License
 
 Installing Foreshadow
 ---------------------

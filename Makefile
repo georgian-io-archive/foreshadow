@@ -1,10 +1,11 @@
 CWD=$(shell pwd)
 PKG=foreshadow
+TST=tests
 
 clean:
 	find ./$(PKG) -name "*.pyc" -exec rm -rfv {} \;
 
 test:
-	tox -r
+	poetry run tox -r
 
 .PHONY: test clean

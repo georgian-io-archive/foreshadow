@@ -1,0 +1,172 @@
+@startuml
+
+skinparam BackgroundColor transparent
+skinparam Shadowing false
+
+' Diagram setup
+hide empty members
+left to right direction
+set namespaceSeparator none
+
+skinparam linetype polyline
+skinparam linetype ortho
+
+package foreshadow.utils {
+    class check_df << (M,lemonchiffon) >>
+}
+package foreshadow.logging {
+    class ForeshadowLogger
+}
+package foreshadow.intents {
+    abstract class BaseIntent {
+        list engineering_pipeline
+        list preprocessing_pipeline
+        resolve_intent()
+    }
+
+    class DropIntent
+    class NumericalIntent
+    class CategoricalIntent
+    class TextIntent
+
+    BaseIntent <|-- DropIntent
+    BaseIntent <|-- NumericalIntent
+    BaseIntent <|-- CategoricalIntent
+    BaseIntent <|-- TextIntent
+
+    note "Config for intentless transformations (cleaner) are placed in\nBaseIntent's specification" as N1
+}
+
+    package foreshadow.transformers.core {
+        abstract class SmartTransformer {
+            bool fixed_fit
+            log_decision()
+        }
+
+        class ParallelProcessor
+        class SigCopy
+        class DropFeature
+
+        class wrap_transformer << (M,lemonchiffon) >>
+        wrap_transformer o-- SigCopy
+    }
+
+    package foreshadow.transformers.smart {
+        SmartTransformer <|-- Cleaner
+        SmartTransformer <|-- Engineerer
+        SmartTransformer <|-- Scaler
+        SmartTransformer <|-- Imputer
+        SmartTransformer <|-- CategoricalEncoder
+        SmartTransformer <|-- TextEncoder
+        SmartTransformer <|-- Reducer
+    }
+
+    package foreshadow.transformers.internal {
+        class FancyImpute
+        class UncommonRemover
+        class BoxCox
+
+        FancyImpute o-- Imputer
+        CategoricalEncoder o-- UncommonRemover
+        Scaler o-- BoxCox
+
+        class DaysSince
+        class NumericalFeatuerizer
+        class CategoricalFeatuerizer
+
+        Engineerer o-- DaysSince
+        Engineerer o-- NumericalFeaturizer
+        Engineerer o-- CategoricalEncoder
+
+        class ToString
+        class SplitDate
+        class FinancialCleaner
+
+        Cleaner o-- ToString
+        Cleaner o-- SplitDate
+        Cleaner o-- FinancialCleaner
+
+        class Boruta
+        class Hypothesis
+
+        Reducer o-- Boruta
+        Reducer o-- Hypothesis
+    }
+
+    package foreshadow.transformers.external {
+        note "All sklearn transformers are mirrored\nand pandas wrapped here." as N3
+    }
+
+    ' foreshadow.transformers.smart <|-r- foreshadow.transformers.internal
+
+package foreshadow.config {
+    class ConfigManager {
+        json framework_config
+        json user_config
+        json local_config
+    }
+}
+
+package foreshadow.tuners {
+    class TunerWrapper {
+        BaseEstimator tuner_type
+    }
+}
+package foreshadow.core {
+    abstract class BaseFeatureMapper {
+        split_columns()
+        join_columns()
+    }
+
+    class Foreshadow
+    class DataPreparer {
+        bool is_y_var
+    }
+    class FeatureCleaner
+    class IntentResolver
+    class FeatureEngineerer
+    class FeaturePreprocessor
+    class FeatureReducer
+
+    class ColumnInfoSharer
+
+    class SerializerMixin << (X,peru) >>
+
+    Foreshadow "0..2" o-- DataPreparer
+    Foreshadow "0..1" o-- sklearn.RandomizedSearchCV
+
+    DataPreparer o-- FeatureCleaner
+    DataPreparer o-- IntentResolver
+    DataPreparer "0..1" o-- FeatureEngineerer
+    DataPreparer o-- FeaturePreprocessor
+    DataPreparer "0..1" o-- FeatureReducer
+
+    SerializerMixin <|-- DataPreparer
+    SerializerMixin <|-- FeatureCleaner
+    SerializerMixin <|-- IntentResolver
+    SerializerMixin <|-- FeatureEngineerer
+    SerializerMixin <|-- FeaturePreprocessor
+    SerializerMixin <|-- FeatureReducer
+
+    BaseFeatureMapper <|-- DataPreparer
+    BaseFeatureMapper <|-- FeatureCleaner
+    BaseFeatureMapper <|-- IntentResolver
+    BaseFeatureMapper <|-- FeatureEngineerer
+    BaseFeatureMapper <|-- FeaturePreprocessor
+    BaseFeatureMapper <|-- FeatureReducer    
+}
+package foreshadow.estimators {
+    class MetaEstimator
+    class AutoEstimator
+
+    MetaEstimator "0..1" o-- AutoEstimator
+    MetaEstimator o-- DataPreparer
+
+    Foreshadow "0..1" o-- MetaEstimator
+}
+package sklearn.base {
+    class TransformerMixin << (X,peru) >>
+    class BaseEstimator
+}
+
+@enduml

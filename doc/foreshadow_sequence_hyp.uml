@@ -1,0 +1,29 @@
+@startuml
+
+skinparam BackgroundColor transparent
+skinparam Shadowing false
+
+participant User
+
+User -> Foreshadow: ~__init__()
+
+note over Foreshadow
+    pipeline = Pipeline([
+        ('dp', DataPreparer()),
+        ('lr', LogisticRegression()),
+    ])
+end note
+
+Foreshadow -> TunerWrapper: ~__init__(pipeline, RandomizedSearchCV)
+
+User -> Foreshadow: fit(X, y)
+Foreshadow -> TunerWrapper: fit(X, y)
+TunerWrapper -> RandomizedSearchCV ++: fit_pipelines(X, y)
+return best_pipeline
+TunerWrapper -> RandomizedSearchCV ++: fit_params(X, y)
+return best_pipeline_params
+
+TunerWrapper --> Foreshadow: self
+Foreshadow --> User: self
+
+@enduml
