@@ -83,8 +83,8 @@ class GenericIntent(BaseIntent):
     def is_intent(cls, df):
         """Return true by default such that a column must match this.
 
-        # noqa: I101
-        # noqa: I201
+        .. # noqa: I101
+        .. # noqa: I201
 
         """
         return True
@@ -93,8 +93,8 @@ class GenericIntent(BaseIntent):
     def column_summary(cls, df):
         """No statistics can be computed for a general column.
 
-        # noqa: I101
-        # noqa: I201
+        .. # noqa: I101
+        .. # noqa: I201
 
         """
         return {}
@@ -124,8 +124,8 @@ class NumericIntent(GenericIntent):
     def is_intent(cls, df):
         """Return true if data is numeric according to pandas.
 
-        # noqa: I101
-        # noqa: I201
+        .. # noqa: I101
+        .. # noqa: I201
 
         """
         return (
@@ -140,22 +140,23 @@ class NumericIntent(GenericIntent):
         """Return computed statistics for a NumericIntent column.
 
         The following are computed:
-            nan: count of nans pass into dataset
-            invalid: number of invalid values after converting to numeric
-            mean: -
-            std: -
-            min: -
-            25th: 25th percentile
-            median: -
-            75th: 75th percentile
-            max: -
-            mode: mode or np.nan if data is mostly unique
-            top10: top 10 most frequent values or empty array if mostly
-                unique [(value, count),...,]
-            10outliers: largest 10 outliers
 
-        # noqa: I101
-        # noqa: I201
+        | nan: count of nans pass into dataset
+        | invalid: number of invalid values after converting to numeric
+        | mean: -
+        | std: -
+        | min: -
+        | 25th: 25th percentile
+        | median: -
+        | 75th: 75th percentile
+        | max: -
+        | mode: mode or np.nan if data is mostly unique
+        | top10: top 10 most frequent values or empty array if mostly \
+            unique [(value, count),...,]
+        | 10outliers: largest 10 outliers
+
+        .. # noqa: I101
+        .. # noqa: I201
 
         """
         data = df.iloc[:, 0]
@@ -208,8 +209,8 @@ class CategoricalIntent(GenericIntent):
     def is_intent(cls, df):
         """Return true if the majority of data is categorical by uniqueness.
 
-        # noqa: I101
-        # noqa: I201
+        .. # noqa: I101
+        .. # noqa: I201
 
         """
         data = df.iloc[:, 0]
@@ -223,14 +224,14 @@ class CategoricalIntent(GenericIntent):
         """Compute statistics for a CategoricalIntent column.
 
         The following are statistics are computed:
+
         | nan: count of nans pass into dataset
         | mode: mode or np.nan if data is mostly unique
-        | top10: top 10 most frequent values or empty array if mostly
-            unique ``[(value, count),...,]``
+        | top10: top 10 most frequent values or empty array if mostly unique
+            ``[(value, count),...,]``
 
-
-        # noqa: I101
-        # noqa: I201
+        .. # noqa: I101
+        .. # noqa: I201
 
         """
         return _standard_col_summary(df)
@@ -258,9 +259,8 @@ class TextIntent(GenericIntent):
     def is_intent(cls, df):
         """Every column can be interpreted as a text.
 
-        # noqa: I101
-        # noqa: I201
-
+        .. # noqa: I101
+        .. # noqa: I201
         """
         return True
 
@@ -269,13 +269,14 @@ class TextIntent(GenericIntent):
         """Return standard computed statistics for a TextIntent column.
 
         The following are computed:
-            nan: count of nans pass into dataset
-            mode: mode or np.nan if data is mostly unique
-            top10: top 10 most frequent values or empty array if mostly
-                unique [(value, count),...,]
 
-        # noqa: I101
-        # noqa: I201
+        | nan: count of nans pass into dataset
+        | mode: mode or np.nan if data is mostly unique
+        | top10: top 10 most frequent values or empty array if mostly \
+            unique [(value, count),...,]
+
+        .. # noqa: I101
+        .. # noqa: I201
 
         """
         return _standard_col_summary(df)

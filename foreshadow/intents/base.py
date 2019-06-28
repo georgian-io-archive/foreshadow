@@ -19,9 +19,9 @@ TransformerEntry = namedtuple("TransformerEntry", ["transformer", "args_dict"])
 def check_base(ofunc):  # noqa: D202
     """Get classmethods decorator to check if called from BaseIntent.
 
-    # noqa: I101
-    # noqa: I201
-    # noqa: I401
+    .. # noqa: I101
+    .. # noqa: I201
+    .. # noqa: I401
 
     """
 
@@ -113,7 +113,7 @@ class BaseIntent(metaclass=_IntentRegistry):
         Returns:
             str: ASCII Intent Tree visualization
 
-        # noqa: S001
+        .. # noqa: S001
 
         """
         ret = "\t" * level + str(cls.__name__) + "\n"
@@ -134,7 +134,7 @@ class BaseIntent(metaclass=_IntentRegistry):
             cls(:class:`BaseIntent  <foreshadow.intents.base.BaseIntent>`):
                 Class of intent to start traversal from
 
-        # noqa: S001
+        .. # noqa: S001
 
         """
         lqueue = [cls]
@@ -161,7 +161,7 @@ class BaseIntent(metaclass=_IntentRegistry):
         Returns:
             bool: determines whether intent is valid for feature in df
 
-        # noqa: I202
+        .. # noqa: I202
 
         """
         pass  # pragma: no cover
@@ -178,7 +178,7 @@ class BaseIntent(metaclass=_IntentRegistry):
         Returns:
             dict: A JSON representation of relevant statistics
 
-        # noqa: I202
+        .. # noqa: I202
 
         """
         pass  # pragma: no cover
@@ -187,7 +187,7 @@ class BaseIntent(metaclass=_IntentRegistry):
     def _check_intent(cls):
         """Validate class variables are setup properly.
 
-        # noqa: I401
+        .. # noqa: I401
 
         """
         define_attrs = [

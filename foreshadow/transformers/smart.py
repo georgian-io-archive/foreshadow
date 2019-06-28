@@ -80,10 +80,10 @@ class Encoder(SmartTransformer):
     delimmeter exceed delim_cuttoff then a DummyEncoder is used (set cutoff to
     -1 to force). If used in a y_var context, LabelEncoder is used.
 
-        Args:
-            unique_num_cutoff (float): number of allowable unique categories
-            merge_thresh (float): threshold passed into UncommonRemover if
-                selected
+    Args:
+        unique_num_cutoff (float): number of allowable unique categories
+        merge_thresh (float): threshold passed into UncommonRemover if
+            selected
 
     """
 

@@ -18,6 +18,13 @@ from foreshadow.utils import check_df
 class Foreshadow(BaseEstimator):
     """An end-to-end pipeline to preprocess and tune a machine learning model.
 
+    Example:
+        >>> shadow = Foreshadow()
+        Foreshadow(X_preprocessor=Preprocessor(from_json=None),
+              estimator=AutoEstimator(auto=None, estimator_kwargs={},
+              include_preprocessors=False, problem_type=None), optimizer=None,
+              y_preprocessor=Preprocessor(from_json=None))
+
     Args:
         X_preprocessor \
             (:obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`, \

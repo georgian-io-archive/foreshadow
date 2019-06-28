@@ -35,8 +35,8 @@ class FinancialIntent(NumericIntent):
     def is_intent(cls, df):
         """Return true if column contains financial data.
 
-        # noqa: I101
-        # noqa: I201
+        .. # noqa: I101
+        .. # noqa: I201
 
         """
         us_num = re.compile(

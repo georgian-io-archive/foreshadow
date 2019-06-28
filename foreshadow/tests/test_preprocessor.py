@@ -134,19 +134,17 @@ def test_preprocessor_init_json_intent_map():
     """Loads config from JSON and checks to ensure intent map was populated"""
 
     import json
+    import os
+
     from foreshadow.preprocessor import Preprocessor
 
-    proc = Preprocessor(
-        from_json=json.load(
-            open(
-                (
-                    "./foreshadow/tests/test_configs/"
-                    "override_column_intent_pipeline.json"
-                ),
-                "r",
-            )
-        )
+    test_path = os.path.join(
+        os.path.dirname(__file__),
+        "test_configs",
+        "override_column_intent_pipeline.json",
     )
+
+    proc = Preprocessor(from_json=json.load(open((test_path), "r")))
 
     assert "crim" in proc._intent_map.keys()
     print(proc._intent_map)
@@ -188,20 +186,18 @@ def test_preprocessor_init_json_pipeline_map():
     """
 
     import json
+    import os
+
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.utils import PipelineStep
 
-    proc = Preprocessor(
-        from_json=json.load(
-            open(
-                (
-                    "./foreshadow/tests/test_configs/"
-                    "override_column_intent_pipeline.json"
-                ),
-                "r",
-            )
-        )
+    test_path = os.path.join(
+        os.path.dirname(__file__),
+        "test_configs",
+        "override_column_intent_pipeline.json",
     )
+
+    proc = Preprocessor(from_json=json.load(open((test_path), "r")))
 
     assert "crim" in proc._pipeline_map.keys()
     assert type(proc._pipeline_map["crim"]).__name__ == "Pipeline"
@@ -223,17 +219,18 @@ def test_preprocessor_init_json_multi_pipeline():
     """
 
     import json
+    import os
+
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.utils import PipelineStep
 
-    proc = Preprocessor(
-        from_json=json.load(
-            open(
-                "./foreshadow/tests/test_configs/override_multi_pipeline.json",
-                "r",
-            )
-        )
+    test_path = os.path.join(
+        os.path.dirname(__file__),
+        "test_configs",
+        "override_multi_pipeline.json",
     )
+
+    proc = Preprocessor(from_json=json.load(open(test_path, "r")))
 
     assert len(proc._multi_column_map) == 1
 
@@ -262,20 +259,18 @@ def test_preprocessor_init_json_intent_override_multi():
     """
 
     import json
+    import os
+
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.utils import PipelineStep
 
-    proc = Preprocessor(
-        from_json=json.load(
-            open(
-                (
-                    "./foreshadow/tests/test_configs/"
-                    "override_intent_pipeline_multi.json"
-                ),
-                "r",
-            )
-        )
+    test_path = os.path.join(
+        os.path.dirname(__file__),
+        "test_configs",
+        "override_intent_pipeline_multi.json",
     )
+
+    proc = Preprocessor(from_json=json.load(open((test_path), "r")))
 
     assert "TestNumericIntent" in proc._intent_pipelines.keys()
 
@@ -305,20 +300,18 @@ def test_preprocessor_init_json_intent_override_single():
     """
 
     import json
+    import os
+
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.utils import PipelineStep
 
-    proc = Preprocessor(
-        from_json=json.load(
-            open(
-                (
-                    "./foreshadow/tests/test_configs/"
-                    "override_intent_pipeline_single.json"
-                ),
-                "r",
-            )
-        )
+    test_path = os.path.join(
+        os.path.dirname(__file__),
+        "test_configs",
+        "override_intent_pipeline_single.json",
     )
+
+    proc = Preprocessor(from_json=json.load(open((test_path), "r")))
 
     assert "TestNumericIntent" in proc._intent_pipelines.keys()
 
@@ -347,10 +340,16 @@ def test_preprocessor_fit_map_intents_default():
     intent maps override auto-detect
     """
 
+    import os
+
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    boston_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing.csv"
+    )
+
+    df = pd.read_csv(boston_path)
 
     proc_default = Preprocessor()
 
@@ -366,22 +365,23 @@ def test_preprocessor_fit_map_intents_override():
     """
 
     import json
+    import os
+
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
-
-    proc_override = Preprocessor(
-        from_json=json.load(
-            open(
-                (
-                    "./foreshadow/tests/test_configs/"
-                    "override_column_intent_pipeline.json"
-                ),
-                "r",
-            )
-        )
+    boston_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing.csv"
     )
+    test_path = os.path.join(
+        os.path.dirname(__file__),
+        "test_configs",
+        "override_column_intent_pipeline.json",
+    )
+
+    df = pd.read_csv(boston_path)
+
+    proc_override = Preprocessor(from_json=json.load(open((test_path), "r")))
 
     proc_override.fit(df.copy(deep=True))
 
@@ -394,11 +394,16 @@ def test_preprocessor_fit_create_single_pipeline_default():
     and ensures pipeline maps are overridden
     """
 
+    import os
+
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.intents.registry import registry_eval
 
-    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    boston_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing.csv"
+    )
+    df = pd.read_csv(boston_path)
     cols = list(df)
 
     proc_default = Preprocessor()
@@ -421,24 +426,25 @@ def test_preprocessor_fit_create_single_pipeline_override_column():
     """
 
     import json
+    import os
+
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.utils import PipelineStep
 
-    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    boston_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing.csv"
+    )
+    test_path = os.path.join(
+        os.path.dirname(__file__),
+        "test_configs",
+        "override_column_intent_pipeline.json",
+    )
+
+    df = pd.read_csv(boston_path)
     cols = list(df)
 
-    proc_column = Preprocessor(
-        from_json=json.load(
-            open(
-                (
-                    "./foreshadow/tests/test_configs/"
-                    "override_column_intent_pipeline.json"
-                ),
-                "r",
-            )
-        )
-    )
+    proc_column = Preprocessor(from_json=json.load(open((test_path), "r")))
     proc_column.fit(df.copy(deep=True))
 
     for c in cols:
@@ -457,24 +463,25 @@ def test_preprocessor_fit_create_single_pipeline_override_intent():
     """
 
     import json
+    import os
+
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.utils import PipelineStep
 
-    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    boston_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing.csv"
+    )
+    test_path = os.path.join(
+        os.path.dirname(__file__),
+        "test_configs",
+        "override_intent_pipeline_single.json",
+    )
+
+    df = pd.read_csv(boston_path)
     cols = list(df)
 
-    proc_intent = Preprocessor(
-        from_json=json.load(
-            open(
-                (
-                    "./foreshadow/tests/test_configs/"
-                    "override_intent_pipeline_single.json"
-                ),
-                "r",
-            )
-        )
-    )
+    proc_intent = Preprocessor(from_json=json.load(open((test_path), "r")))
 
     proc_intent.fit(df.copy(deep=True))
 
@@ -490,19 +497,22 @@ def test_preprocessor_fit_create_single_pipeline_override_intent():
 
 def test_preprocessor_make_empty_pipeline():
     import json
+    import os
+
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    boston_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing.csv"
+    )
+    test_path = os.path.join(
+        os.path.dirname(__file__), "test_configs", "empty_pipeline_test.json"
+    )
+
+    df = pd.read_csv(boston_path)
     orig = df.copy(deep=True)
 
-    proc = Preprocessor(
-        from_json=json.load(
-            open(
-                "./foreshadow/tests/test_configs/empty_pipeline_test.json", "r"
-            )
-        )
-    )
+    proc = Preprocessor(from_json=json.load(open(test_path, "r")))
     proc.fit(df)
     out = proc.transform(df)
 
@@ -518,21 +528,25 @@ def test_preprocessor_make_pipeline():
     """
 
     import json
+    import os
+
     import pandas as pd
     from collections import Counter
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.intents.registry import registry_eval
     from foreshadow.utils import PipelineStep
 
-    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
-    proc = Preprocessor(
-        from_json=json.load(
-            open(
-                "./foreshadow/tests/test_configs/complete_pipeline_test.json",
-                "r",
-            )
-        )
+    boston_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing.csv"
     )
+    test_path = os.path.join(
+        os.path.dirname(__file__),
+        "test_configs",
+        "complete_pipeline_test.json",
+    )
+
+    df = pd.read_csv(boston_path)
+    proc = Preprocessor(from_json=json.load(open(test_path, "r")))
 
     proc.fit(df)
 
@@ -630,23 +644,27 @@ def test_preprocessor_make_pipeline():
 
 def test_preprocessor_fit_transform():
     import json
+    import os
+
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    boston_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing.csv"
+    )
+    boston_preprocessed_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing_processed.csv"
+    )
+    test_path = os.path.join(
+        os.path.dirname(__file__),
+        "test_configs",
+        "complete_pipeline_test.json",
+    )
 
-    truth = pd.read_csv(
-        "./foreshadow/tests/test_data/boston_housing_processed.csv",
-        index_col=0,
-    )
-    proc = Preprocessor(
-        from_json=json.load(
-            open(
-                "./foreshadow/tests/test_configs/complete_pipeline_test.json",
-                "r",
-            )
-        )
-    )
+    df = pd.read_csv(boston_path)
+
+    truth = pd.read_csv(boston_preprocessed_path, index_col=0)
+    proc = Preprocessor(from_json=json.load(open(test_path, "r")))
     proc.fit(df)
     out = proc.transform(df)
 
@@ -656,11 +674,17 @@ def test_preprocessor_fit_transform():
 
 
 def test_preprocessor_inverse_transform():
+    import os
+
     import numpy as np
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    boston_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing.csv"
+    )
+
+    df = pd.read_csv(boston_path)
     js = {
         "columns": {
             "medv": {
@@ -698,10 +722,16 @@ def test_preprocessor_inverse_transform_unfit():
 
 
 def test_preprocessor_inverse_transform_multicol():
+    import os
+
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    boston_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing.csv"
+    )
+
+    df = pd.read_csv(boston_path)
     js = {
         "columns": {
             "medv": {
@@ -731,22 +761,27 @@ def test_preprocessor_inverse_transform_multicol():
 
 def test_preprocessor_get_params():
     import json
+    import os
     import pickle
+
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
-    truth = pickle.load(
-        open("./foreshadow/tests/test_configs/tests_params.pkl", "rb")
+    boston_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing.csv"
     )
-    proc = Preprocessor(
-        from_json=json.load(
-            open(
-                "./foreshadow/tests/test_configs/complete_pipeline_test.json",
-                "r",
-            )
-        )
+    test_path = os.path.join(
+        os.path.dirname(__file__), "test_configs", "test_params.pkl"
     )
+    test_path2 = os.path.join(
+        os.path.dirname(__file__),
+        "test_configs",
+        "complete_pipeline_test.json",
+    )
+
+    df = pd.read_csv(boston_path)
+    truth = pickle.load(open(test_path, "rb"))
+    proc = Preprocessor(from_json=json.load(open(test_path2, "r")))
     proc.fit(df)
 
     assert proc.get_params().keys() == truth.keys()
@@ -754,22 +789,27 @@ def test_preprocessor_get_params():
 
 def test_preprocessor_set_params():
     import json
+    import os
     import pickle
+
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
-    params = pickle.load(
-        open("./foreshadow/tests/test_configs/tests_params.pkl", "rb")
+    boston_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing.csv"
     )
-    proc = Preprocessor(
-        from_json=json.load(
-            open(
-                "./foreshadow/tests/test_configs/complete_pipeline_test.json",
-                "r",
-            )
-        )
+    test_path = os.path.join(
+        os.path.dirname(__file__), "test_configs", "tests_params.pkl"
     )
+    test_path2 = os.path.join(
+        os.path.dirname(__file__),
+        "test_configs",
+        "complete_pipeline_test.json",
+    )
+
+    df = pd.read_csv(boston_path)
+    params = pickle.load(open(test_path, "rb"))
+    proc = Preprocessor(from_json=json.load(open(test_path2, "r")))
 
     proc.fit(df)
     proc.set_params(**params)
@@ -779,60 +819,52 @@ def test_preprocessor_set_params():
 
 def test_preprocessor_malformed_json_transformer():
     import json
+    import os
+
     from foreshadow.preprocessor import Preprocessor
 
+    test_path = os.path.join(
+        os.path.dirname(__file__), "test_configs", "malformed_transformer.json"
+    )
+
     with pytest.raises(ValueError) as e:
-        Preprocessor(
-            from_json=json.load(
-                open(
-                    (
-                        "./foreshadow/tests/test_configs/"
-                        "malformed_transformer.json"
-                    ),
-                    "r",
-                )
-            )
-        )
+        Preprocessor(from_json=json.load(open((test_path), "r")))
 
     assert "Malformed transformer" in str(e.value)
 
 
 def test_preprocessor_invalid_json_transformer_class():
     import json
+    import os
+
     from foreshadow.preprocessor import Preprocessor
 
+    test_path = os.path.join(
+        os.path.dirname(__file__),
+        "test_configs",
+        "invalid_transformer_class.json",
+    )
+
     with pytest.raises(ValueError) as e:
-        Preprocessor(
-            from_json=json.load(
-                open(
-                    (
-                        "./foreshadow/tests/test_configs/"
-                        "invalid_transformer_class.json"
-                    ),
-                    "r",
-                )
-            )
-        )
+        Preprocessor(from_json=json.load(open((test_path), "r")))
 
     assert str(e.value).startswith("Could not import defined transformer")
 
 
 def test_preprocessor_invalid_json_transformer_params():
     import json
+    import os
+
     from foreshadow.preprocessor import Preprocessor
 
+    test_path = os.path.join(
+        os.path.dirname(__file__),
+        "test_configs",
+        "invalid_transformer_params.json",
+    )
+
     with pytest.raises(ValueError) as e:
-        Preprocessor(
-            from_json=json.load(
-                open(
-                    (
-                        "./foreshadow/tests/test_configs/"
-                        "invalid_transformer_params.json"
-                    ),
-                    "r",
-                )
-            )
-        )
+        Preprocessor(from_json=json.load(open((test_path), "r")))
 
     print(str(e.value))
     assert str(e.value).startswith(
@@ -861,11 +893,17 @@ def test_preprocessor_set_param_no_pipeline():
 
 
 def test_preprocessor_transform_no_pipeline():
+    import os
+
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
+    boston_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing.csv"
+    )
+
     proc = Preprocessor()
-    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    df = pd.read_csv(boston_path)
     with pytest.raises(ValueError) as e:
         proc.transform(df)
 
@@ -874,22 +912,27 @@ def test_preprocessor_transform_no_pipeline():
 
 def test_preprocessor_serialize():
     import json
+    import os
+
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    boston_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing.csv"
+    )
+    test_path = os.path.join(
+        os.path.dirname(__file__), "test_configs", "test_serialize.json"
+    )
+    test_path2 = os.path.join(
+        os.path.dirname(__file__),
+        "test_configs",
+        "complete_pipeline_test.json",
+    )
 
-    truth = json.load(
-        open("./foreshadow/tests/test_configs/test_serialize.json", "r")
-    )
-    proc = Preprocessor(
-        from_json=json.load(
-            open(
-                "./foreshadow/tests/test_configs/complete_pipeline_test.json",
-                "r",
-            )
-        )
-    )
+    df = pd.read_csv(boston_path)
+
+    truth = json.load(open(test_path, "r"))
+    proc = Preprocessor(from_json=json.load(open(test_path2, "r")))
     proc.fit(df)
     out = proc.serialize()
 
@@ -897,10 +940,16 @@ def test_preprocessor_serialize():
 
 
 def test_preprocessor_continuity():
+    import os
+
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    boston_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing.csv"
+    )
+
+    df = pd.read_csv(boston_path)
 
     proc = Preprocessor()
     proc.fit(df)
@@ -911,10 +960,16 @@ def test_preprocessor_continuity():
 
 
 def test_preprocessor_y_var_filtering():
+    import os
+
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
+    boston_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing.csv"
+    )
+
+    df = pd.read_csv(boston_path)
     y_df = df[["medv"]]
 
     proc = Preprocessor(y_var=True)
@@ -926,18 +981,22 @@ def test_preprocessor_y_var_filtering():
 
 def test_preprocessor_summarize():
     import json
+    import os
+
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    df = pd.read_csv("./foreshadow/tests/test_data/boston_housing.csv")
-    proc = Preprocessor(
-        from_json=json.load(
-            open(
-                "./foreshadow/tests/test_configs/complete_pipeline_test.json",
-                "r",
-            )
-        )
+    boston_path = os.path.join(
+        os.path.dirname(__file__), "test_data", "boston_housing.csv"
     )
+    test_path = os.path.join(
+        os.path.dirname(__file__),
+        "test_configs",
+        "complete_pipeline_test.json",
+    )
+
+    df = pd.read_csv(boston_path)
+    proc = Preprocessor(from_json=json.load(open(test_path, "r")))
     proc.fit(df)
 
     expected = {
