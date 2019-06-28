@@ -25,7 +25,7 @@ stages:
   # Build
   # Linux
   # TODO: Turn off Linux Testing until https://github.com/sdispater/poetry/issues/1197 is resolved
-  # - job: install_linux
+  # - job: test_linux
   #   dependsOn: lint
   #   pool:
   #     vmImage: 'ubuntu-16.04'
@@ -43,7 +43,7 @@ stages:
   #   - template: ci/tests.yml
 
   #MacOS
-  - job: install_macos
+  - job: test_macos
     dependsOn: lint
     pool:
       vmImage: 'macOS-10.13'
@@ -60,30 +60,30 @@ stages:
     - template: ci/tests.yml
 
 # TODO: switch to linux box release when the above is fixed
-- stage: Release
-  condition: contains(variables['Build.SourceBranch'], 'tags')
-  jobs:
-  - job: release
-    pool:
-      vmImage: 'macOS-10.13'
-    steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.6'
-      displayName: Select Python version
-    - script: |
-        brew install swig
-        brew install gcc@5
-      displayName: Install Brew packages
-    - template: ci/install.yml
-    - script: $HOME/.poetry/bin/poetry build
-        $HOME/.poetry/bin/poetry publish -u $(pypi_username) -p $(pypi_password)
-      displayName: Release to pypi
-    - task: GitHubRelease@0
-      inputs:
-        gitHubConnection: georgianpartners
-        repositoryName: georgianpartners/foreshadow
-        tagSource: 'auto'
-        assets:
-          dist/*
-      displayName: Add release to GitHub
+# - stage: Release
+#   condition: contains(variables['Build.SourceBranch'], 'tags')
+#   jobs:
+#   - job: release
+#     pool:
+#       vmImage: 'macOS-10.13'
+#     steps:
+#     - task: UsePythonVersion@0
+#       inputs:
+#         versionSpec: '3.6'
+#       displayName: Select Python version
+#     - script: |
+#         brew install swig
+#         brew install gcc@5
+#       displayName: Install Brew packages
+#     - template: ci/install.yml
+#     - script: $HOME/.poetry/bin/poetry build
+#         $HOME/.poetry/bin/poetry publish -u $(pypi_username) -p $(pypi_password)
+#       displayName: Release to pypi
+#     - task: GitHubRelease@0
+#       inputs:
+#         gitHubConnection: georgianpartners
+#         repositoryName: georgianpartners/foreshadow
+#         tagSource: 'auto'
+#         assets:
+#           dist/*
+#       displayName: Add release to GitHub
