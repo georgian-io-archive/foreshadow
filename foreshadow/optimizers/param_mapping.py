@@ -24,7 +24,7 @@ def _param_mapping(pipeline, X_df, y_df):
         X_df: (:obj:`pandas.DataFrame`): Input X dataframe
         y_df: (:obj:`pandas.DataFrame`): Input y dataframe
 
-    Returns
+    Returns:
         list: List of dict for which keys are parameters and the value is a \
             list representing the search space
 
@@ -151,8 +151,8 @@ def _set_path(key, value, original):
         value: The value to be set
         original (dict): The dict for which the value is set
 
-    Returns:
-        dict: Modified dictionary
+    Raises:
+        ValueError: Raises when when given an invalid key path
 
     """
     path = key.split(".")

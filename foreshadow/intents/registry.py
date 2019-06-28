@@ -12,7 +12,15 @@ _registry = {}
 
 
 def _register_intent(cls_target):
-    """Register an intent with foreshadow."""
+    """Register an intent with foreshadow.
+
+    Args:
+        cls_target: intent class target
+
+    Raises:
+          TypeError: intent already registered
+
+    """
     global _registry
     if cls_target.__name__ in _registry:
         raise TypeError(
@@ -22,7 +30,15 @@ def _register_intent(cls_target):
 
 
 def _unregister_intent(cls_target):
-    """Remove intent from registry."""
+    """Remove intent from registry.
+
+    Args:
+        cls_target: intent class target
+
+    Raises:
+        ValueError: intent not found
+
+    """
     global _registry
 
     def validate_input(clsname):
@@ -42,7 +58,17 @@ def _unregister_intent(cls_target):
         raise ValueError("Input must be either a string or a list of strings")
 
 
-def _process_templates(cls_target):
+def _process_templates(cls_target):  # noqa: D202
+    """Process template.
+
+    Args:
+        cls_target: intent class target
+
+    Raises:
+        ValueError: error encountered
+
+    """
+
     def _resolve_template(template):
         if not all(
             isinstance(s, base.PipelineTemplateEntry)
@@ -107,6 +133,16 @@ def _process_templates(cls_target):
         return x_pipeline, y_pipeline
 
     def _process_template(cls_target, template_name):
+        """Process template.
+
+        Args:
+            cls_target: intent class target
+            template_name: name of template
+
+        Returns:
+            template
+
+        """
         t = getattr(cls_target, template_name)
         attr_base = template_name.replace("_template", "")
         if len(t) == 0:
@@ -137,7 +173,7 @@ def registry_eval(cls_target):
     Args:
         cls_target(str): String name of Intent
 
-    Return:
+    Returns:
         :class:`BaseIntent <foreshadow.intents.base.BaseIntent>`: Intent class
             object
 

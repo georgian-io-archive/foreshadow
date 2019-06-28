@@ -12,6 +12,13 @@ def get_tpot_config(type_, include_preprocessors=False):
     Args:
         include_preprocessors (bool, optional): whether or not to include
             feature engineering steps.
+        type_: type of classifier
+
+    Returns:
+        default config from TPOT
+
+    Raises:
+        ValueError: type_ not a valid type_
 
     """
     configs = {
@@ -28,7 +35,9 @@ def get_tpot_config(type_, include_preprocessors=False):
         "cluster",
     ]
     if type_ not in configs.keys():
-        raise ValueError("type_ must be either classification or regression")
+        raise ValueError(
+            "type_: '{0}' not in : '{1}'".format(type_, configs.keys())
+        )
     return (
         {
             k: v

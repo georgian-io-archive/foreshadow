@@ -81,12 +81,22 @@ class GenericIntent(BaseIntent):
 
     @classmethod
     def is_intent(cls, df):
-        """Return true by default such that a column must match this."""
+        """Return true by default such that a column must match this.
+
+        .. # noqa: I101
+        .. # noqa: I201
+
+        """
         return True
 
     @classmethod
     def column_summary(cls, df):
-        """No statistics can be computed for a general column."""
+        """No statistics can be computed for a general column.
+
+        .. # noqa: I101
+        .. # noqa: I201
+
+        """
         return {}
 
 
@@ -112,7 +122,12 @@ class NumericIntent(GenericIntent):
 
     @classmethod
     def is_intent(cls, df):
-        """Return true if data is numeric according to pandas."""
+        """Return true if data is numeric according to pandas.
+
+        .. # noqa: I101
+        .. # noqa: I201
+
+        """
         return (
             not pd.to_numeric(df.iloc[:, 0], errors="coerce")
             .isnull()
@@ -125,19 +140,23 @@ class NumericIntent(GenericIntent):
         """Return computed statistics for a NumericIntent column.
 
         The following are computed:
-            nan: count of nans pass into dataset
-            invalid: number of invalid values after converting to numeric
-            mean: -
-            std: -
-            min: -
-            25th: 25th percentile
-            median: -
-            75th: 75th percentile
-            max: -
-            mode: mode or np.nan if data is mostly unique
-            top10: top 10 most frequent values or empty array if mostly
-                unique [(value, count),...,]
-            10outliers: largest 10 outliers
+
+        | nan: count of nans pass into dataset
+        | invalid: number of invalid values after converting to numeric
+        | mean: -
+        | std: -
+        | min: -
+        | 25th: 25th percentile
+        | median: -
+        | 75th: 75th percentile
+        | max: -
+        | mode: mode or np.nan if data is mostly unique
+        | top10: top 10 most frequent values or empty array if mostly \
+            unique [(value, count),...,]
+        | 10outliers: largest 10 outliers
+
+        .. # noqa: I101
+        .. # noqa: I201
 
         """
         data = df.iloc[:, 0]
@@ -188,7 +207,12 @@ class CategoricalIntent(GenericIntent):
 
     @classmethod
     def is_intent(cls, df):
-        """Return true if the majority of data is categorical by uniqueness."""
+        """Return true if the majority of data is categorical by uniqueness.
+
+        .. # noqa: I101
+        .. # noqa: I201
+
+        """
         data = df.iloc[:, 0]
         if not is_numeric_dtype(data.dtype):
             return True
@@ -199,11 +223,15 @@ class CategoricalIntent(GenericIntent):
     def column_summary(cls, df):
         """Compute statistics for a CategoricalIntent column.
 
-        The following are computed:
-            nan: count of nans pass into dataset
-            mode: mode or np.nan if data is mostly unique
-            top10: top 10 most frequent values or empty array if mostly
-                unique [(value, count),...,]
+        The following are statistics are computed:
+
+        | nan: count of nans pass into dataset
+        | mode: mode or np.nan if data is mostly unique
+        | top10: top 10 most frequent values or empty array if mostly unique
+            ``[(value, count),...,]``
+
+        .. # noqa: I101
+        .. # noqa: I201
 
         """
         return _standard_col_summary(df)
@@ -229,7 +257,12 @@ class TextIntent(GenericIntent):
 
     @classmethod
     def is_intent(cls, df):
-        """Every column can be interpreted as a text."""
+        """Every column can be interpreted as a text.
+
+        .. # noqa: I101
+        .. # noqa: I201
+
+        """
         data = df.iloc[:, 0]
         if is_string_dtype(data.dtype):
             return True
@@ -241,10 +274,14 @@ class TextIntent(GenericIntent):
         """Return standard computed statistics for a TextIntent column.
 
         The following are computed:
-            nan: count of nans pass into dataset
-            mode: mode or np.nan if data is mostly unique
-            top10: top 10 most frequent values or empty array if mostly
-                unique [(value, count),...,]
+
+        | nan: count of nans pass into dataset
+        | mode: mode or np.nan if data is mostly unique
+        | top10: top 10 most frequent values or empty array if mostly \
+            unique [(value, count),...,]
+
+        .. # noqa: I101
+        .. # noqa: I201
 
         """
         return _standard_col_summary(df)

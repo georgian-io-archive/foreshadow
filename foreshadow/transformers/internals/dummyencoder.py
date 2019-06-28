@@ -18,6 +18,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
 
         Args:
             X (:obj:`numpy.ndarray`): Fit data
+            y: input labels
 
         Returns:
             self
@@ -39,6 +40,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
 
         Args:
             X (:obj:`numpy.ndarray`): X data
+            y: input labels
 
         Returns:
             :obj:`numpy.ndarray`: Transformed data
@@ -60,7 +62,18 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
 
 
 def _separate(cat, delim, other, other_name):  # noqa: D202
-    """Get wrapped separate categories helper function."""
+    """Get wrapped separate categories helper function.
+
+    Args:
+        cat: TODO(Adithya)
+        delim: TODO(Adithya)
+        other: TODO(Adithya)
+        other_name: TODO(Adithya)
+
+    Returns:
+        TODO(Adithya)
+
+    """
 
     def sep(X):
         if cat == other_name:

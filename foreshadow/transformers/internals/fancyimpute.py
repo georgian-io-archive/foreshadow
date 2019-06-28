@@ -47,8 +47,8 @@ class FancyImputer(BaseEstimator, TransformerMixin):
 
         Valid parameter keys can be listed with :meth:`get_params()`.
 
-        Returns:
-            self
+        Args:
+            **params: params to set
 
         Raises:
             ValueError: If method is invalid
@@ -75,6 +75,13 @@ class FancyImputer(BaseEstimator, TransformerMixin):
         """Empty function.
 
         No fit necessary for these.
+
+        Args:
+            X: input observations
+            y: input labels
+
+        Returns:
+            self
 
         """
         return self

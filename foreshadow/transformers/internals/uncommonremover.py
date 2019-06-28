@@ -27,6 +27,7 @@ class UncommonRemover(BaseEstimator, TransformerMixin):
 
         Args:
             X (:obj:`pandas.DataFrame`): input dataframe
+            y: input labels
 
         Returns:
             self
@@ -47,6 +48,7 @@ class UncommonRemover(BaseEstimator, TransformerMixin):
 
         Args:
             X (:obj:`pandas.DataFrame`): input DataFrame
+            y: input labels
 
         Returns:
             :obj:`pandas.DataFrame`: transformed dataframe

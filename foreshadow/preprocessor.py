@@ -562,7 +562,16 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
 
 def _ser_params(trans):
-    """Serialize transformer parameters."""
+    """Serialize transformer parameters.
+
+    Args:
+        trans: a specific sklearn compatible transformer that extends
+            :obj:`BaseEstimator <sklearn.base.BaseEstimator>`
+
+    Returns:
+        dict: the transformer's parameters
+
+    """
     from foreshadow.transformers.externals import no_serialize_params
 
     bad_params = ["name", *no_serialize_params.get(type(trans).__name__, [])]
@@ -581,6 +590,8 @@ def _serialize_pipeline(pipeline, include_smart=False):
     Args:
         pipeline (:obj:`Pipeline <sklearn.pipeline.Pipeline>`): Pipeline object
             to serialize
+        include_smart (bool, optional): whether or not to include smart
+            transformers or to resolve to concrete transformers
 
     Returns:
         list(dict): JSON serializable object of form \

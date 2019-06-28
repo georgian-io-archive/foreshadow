@@ -45,11 +45,24 @@ class AutoEstimator(BaseEstimator):
         """Type of machine learning problem.
 
         Either `regression` or `classification`.
+
+        Returns:
+            self._problem_type
+
         """
         return self._problem_type
 
     @problem_type.setter
     def problem_type(self, pt):
+        """Set the problem type.
+
+        Args:
+            pt: problem type
+
+        Raises:
+            ValueError: pt not valid problem type
+
+        """
         pt_options = ["classification", "regression"]
         if pt is not None and pt not in pt_options:
             raise ValueError("problem type must be in {}".format(pt_options))
@@ -60,11 +73,24 @@ class AutoEstimator(BaseEstimator):
         """Type of automl package.
 
         Either `tpot` or `autosklearn`.
+
+        Returns:
+            self._auto, the type of automl package
+
         """
         return self._auto
 
     @auto.setter
     def auto(self, ae):
+        """Set type of automl package.
+
+        Args:
+            ae: automl packaage
+
+        Raises:
+            ValueError: ae not a valid ae
+
+        """
         ae_options = ["tpot", "autosklearn"]
         if ae is not None and ae not in ae_options:
             raise ValueError("auto must be in {}".format(ae_options))
@@ -72,11 +98,25 @@ class AutoEstimator(BaseEstimator):
 
     @property
     def estimator_kwargs(self):
-        """Get dictionary of kwargs to pass to AutoML package."""
+        """Get dictionary of kwargs to pass to AutoML package.
+
+        Returns:
+            estimator kwargs
+
+        """
         return self._estimator_kwargs
 
     @estimator_kwargs.setter
     def estimator_kwargs(self, ek):
+        """Set estimator kwargs.
+
+        Args:
+            ek: kwargs
+
+        Raises:
+            ValueError: ek not a valid kwargs dict.
+
+        """
         if ek is not None and ek is not {}:
             if not isinstance(ek, dict) or not all(
                 isinstance(k, str) for k in ek.keys()
@@ -93,6 +133,10 @@ class AutoEstimator(BaseEstimator):
         """Pick the optimal estimator class.
 
         Defaults to a working estimator if autosklearn is not installed.
+
+        Returns:
+            optimal estimator class.
+
         """
         auto_ = self._pick_estimator() if self.auto is None else self.auto
 
@@ -135,13 +179,22 @@ class AutoEstimator(BaseEstimator):
             )
 
     def _pick_estimator(self):
-        """Pick auto estimator based on benchmarked results."""
+        """Pick auto estimator based on benchmarked results.
+
+        Returns:
+            estimator
+
+        """
         return "tpot" if self.problem_type == "regression" else "autosklearn"
 
     def _pre_configure_estimator_kwargs(self):
         """Configure auto estimators to perform similarly (time scale).
 
         Also remove preprocessors if necessary.
+
+        Returns:
+            estimator kwargs
+
         """
         if self.auto == "tpot" and "config_dict" not in self.estimator_kwargs:
             self.estimator_kwargs["config_dict"] = get_tpot_config(
@@ -172,7 +225,15 @@ class AutoEstimator(BaseEstimator):
         return self.estimator_kwargs
 
     def _setup_estimator(self, y):
-        """Construct and return the auto estimator instance."""
+        """Construct and return the auto estimator instance.
+
+        Args:
+            y: input labels
+
+        Returns:
+            autoestimator instance
+
+        """
         self.problem_type = (
             determine_problem_type(y)
             if self.problem_type is None
@@ -190,9 +251,9 @@ class AutoEstimator(BaseEstimator):
         Uses the selected AutoML estimator.
 
         Args:
-            data_df (pandas.DataFrame or numpy.ndarray or list): The input
+            X (pandas.DataFrame or numpy.ndarray or list): The input
                 feature(s)
-            y_df (pandas.DataFrame or numpy.ndarray or list): The response
+            y (pandas.DataFrame or numpy.ndarray or list): The response
                 feature(s)
 
         Returns:
@@ -210,7 +271,7 @@ class AutoEstimator(BaseEstimator):
         """Use the trained estimator to predict the response.
 
         Args:
-            data_df (pandas.DataFrame or numpy.ndarray or list): The input
+            X (pandas.DataFrame or numpy.ndarray or list): The input
                 feature(s)
 
         Returns:
@@ -224,7 +285,7 @@ class AutoEstimator(BaseEstimator):
         """Use the trained estimator to predict the responses probabilities.
 
         Args:
-            data_df (pandas.DataFrame or numpy.ndarray or list): The input
+            X (pandas.DataFrame or numpy.ndarray or list): The input
                 feature(s)
 
         Returns:
@@ -244,6 +305,7 @@ class AutoEstimator(BaseEstimator):
             X (pandas.DataFrame or numpy.ndarray or list): The input feature(s)
             y (pandas.DataFrame or numpy.ndarray or list): The response
                 feature(s)
+            sample_weight: sample weighting. Not implemented.
 
         Returns:
             float: A computed prediction fitness score
@@ -255,7 +317,15 @@ class AutoEstimator(BaseEstimator):
 
 
 def determine_problem_type(y):
-    """Determine modeling problem type."""
+    """Determine modeling problem type.
+
+    Args:
+        y: input labels
+
+    Returns:
+        problem type inferred from y.
+
+    """
     return (
         "classification"
         if np.unique(y.values.ravel()).size == 2
