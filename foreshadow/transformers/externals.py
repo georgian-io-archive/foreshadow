@@ -16,6 +16,7 @@ from sklearn.preprocessing import (
     RobustScaler,
     StandardScaler,
 )
+from sklearn.feature_extraction.text import TfidfTransformer
 
 from foreshadow.transformers.transformers import _get_modules
 

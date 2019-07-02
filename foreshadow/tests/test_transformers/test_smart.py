@@ -136,7 +136,6 @@ def test_smart_impute_simple_mean():
     truth = pd.read_csv(
         "./foreshadow/tests/test_data/heart-h_impute_mean.csv", index_col=0
     )
-
     assert out.equals(truth)
 
 
@@ -156,7 +155,6 @@ def test_smart_impute_simple_median():
     truth = pd.read_csv(
         "./foreshadow/tests/test_data/heart-h_impute_median.csv", index_col=0
     )
-
     assert out.equals(truth)
 
 

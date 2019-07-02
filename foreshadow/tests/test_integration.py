@@ -7,6 +7,8 @@ datasets
 
 import pytest
 
+import os
+os.environ['FORESHADOW_TESTS'] = 'ALL'
 
 def check_slow():
     import os
