@@ -49,10 +49,8 @@ def check_df(input_data, ignore_none=False, single_column=False):
         ret_df = pd.DataFrame(input_data)
     else:
         raise ValueError(
-            "Invalid input type: {} is not pd.DataFrame, "
-            "pd.Series, "
-            "np.ndarray, "
-            "nor list".format(type(input_data))
+            "Invalid input type, neither pd.DataFrame, pd.Series, np.ndarray, "
+            "nor list"
         )
 
     if single_column and len(ret_df.columns) != 1:

@@ -12,12 +12,12 @@ def test_transformer_wrapper_init():
 
 def test_transformer_wrapper_no_init():
     from sklearn.base import BaseEstimator, TransformerMixin
-    from foreshadow.transformers.transformers import make_pandas_transformer
+    from foreshadow.transformers.transformers import wrap_transformer
 
     class NewTransformer(BaseEstimator, TransformerMixin):
         pass
 
-    trans = make_pandas_transformer(NewTransformer)
+    trans = wrap_transformer(NewTransformer)
     _ = trans()
 
     assert hasattr(trans.__init__, "__defaults__")
@@ -60,7 +60,6 @@ def test_transformer_wrapper_empty_input():
     )
 
     df = pd.DataFrame({"A": np.array([])})
-    print(df.empty)
 
     with pytest.raises(ValueError) as e:
         StandardScaler().fit(df)
@@ -85,7 +84,7 @@ def test_transformer_keep_cols():
     custom = CustomScaler(keep_columns=True)
     custom_tf = custom.fit_transform(df[["crim"]])
 
-    assert custom_tf.shape[1] == 2
+    assert len(list(custom_tf)) == 2
 
 
 def test_transformer_naming_override():

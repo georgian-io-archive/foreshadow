@@ -1,17 +1,13 @@
 """Transformer wrapping utility classes and functions."""
 
 import inspect
-import warnings
-from functools import wraps, partial
+from functools import wraps
 
 import numpy as np
 import pandas as pd
 import scipy
-from copy import deepcopy
-from abc import ABCMeta
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_extraction.text import VectorizerMixin
-from sklearn.utils.fixes import signature
 
 from foreshadow.utils import check_df
 
@@ -67,274 +63,142 @@ def make_pandas_transformer(transformer):
         A wrapped form of transformer
 
     """
+    declared_on = ['fit_transform']
+    exists_on = ['fit', 'transform', 'inverse_transform']
+    wrap_candidates = []
+    for m in transformer.__dict__.values():
+        if inspect.isfunction(m) and any(n == m.__name__ for n in declared_on):
+            wrap_candidates.append(m)
 
-    # use the same base
-    # metaclass as the transformer, otherwise we will get MRO metaclass
-    # issues in DFTransformer if we try to choose the base class for our
-    # metaclass that is not the same one for the transformer we are also
-    # extending.
-    class DFTransformerMeta(type(transformer)):
-        """Metaclass for DFTransformer to appear as parent Transformer"""
-        def __new__(mcs, *args, **kwargs):
-            class_ = super(DFTransformerMeta, mcs).__new__(mcs,
-                                                           *args,
-                                                           **kwargs)
-            class_.__name__ = transformer.__name__
-            class_.__doc__ = transformer.__doc__
-            class_.__module__ = transformer.__module__
-            return class_
+    # normally, fit_transform will only be implemented in TransformerMixin
+    # and will not need to be wrapped. Only if it is on the transformer
+    # itself do we wrap it.
+    members = [m[1]
+               for m in inspect.getmembers(transformer,
+                                           predicate=inspect.isfunction)]
+    for m in members:
+        if any(name == m.__name__ for name in exists_on):
+            wrap_candidates.append(m)
 
-    class DFTransformer(transformer, metaclass=DFTransformerMeta):
-        """Wrapper to Enable parent transformer to handle DataFrames"""
-        def __init__(self, *args, keep_columns=False, name=None, **kwargs):
-            """Intiializes parent Transformer.
+    for w in wrap_candidates:
+        # Wrap public function calls
+        method = pandas_partial(w)
+        method.__doc__ = w.__doc__
+        setattr(transformer, w.__name__, method)
 
-            Args:
-                *args: args to the parent constructor (shadowed transformer)
-                keep_columns: True to keep the original columns, False to not
-                name: name for new/created columns
-                **kwargs: kwargs to the parent constructor
-            """
-            self.keep_columns = keep_columns
-            self.name = name
-            super(DFTransformer, self).__init__(*args, **kwargs)
+    # Wrap constructor
+    if "__defaults__" in dir(transformer.__init__):
+        setattr(
+            transformer,
+            "__init__",
+            Sigcopy(transformer.__init__)(init_partial(transformer.__init__)),
+        )
+    else:
+        setattr(transformer, "__init__", init_replace)
 
-        def get_params(self, deep=True):
-            """ Override standard get_params to handle nonstandard init
-
-            BaseEstimator for sklearn gets and sets parameters based on the
-            init statement for that class. Since this class is used to wrap
-            a parent transformer (by OOP), we use the parent's init
-            statement and then this DFTransformer's additional arguments.
-            We must override of BaseEstimator will complain about our
-            nonstandard usage.
-
-            Args:
-                deep (bool): If True, will return the parameters for this
-                estimator and contained subobjects that are estimators.
-
-            Returns:
-                Parameter names mapped to their values for parent +
-                DFTransformer wrapper.
-
-            """
-            parent_params = BaseEstimator.get_params(transformer, deep=deep)
-            # will contain any init arguments that are not variable keyword
-            # arguments. By default, this means that any new transformer
-            # cannot have variable keyword arguments in its init less the
-            # transformer designer is okay with it not getting picked up here.
-            # The transformer class passed will not contain the current values,
-            # so we set them with the values on the object instance, below.
-            self_params = dict()  # the output
-            init = getattr(self.__init__, 'deprecated_original', self.__init__)
-            if init is object.__init__:
-                return self_params
-            # explicit constructor to introspect
-            # introspect the constructor arguments to find the model
-            # parameters to represent
-            init_signature = signature(init)
-            # Consider the constructor parameters excluding 'self'
-            self_sig = [p for p in init_signature.parameters.values()
-                          if p.name != 'self' and p.kind != p.VAR_KEYWORD
-                          and p.kind != p.VAR_POSITIONAL]
-            self_sig = sorted([p.name for p in self_sig])
-            for key in self_sig + list(parent_params.keys()):
-                warnings.simplefilter("always", DeprecationWarning)
-                try:
-                    with warnings.catch_warnings(record=True) as w:
-                        value = getattr(self, key, None)
-                    if len(w) and w[0].category == DeprecationWarning:
-                        # if the parameter is deprecated, don't show it
-                        continue
-                finally:
-                    warnings.filters.pop(0)
-
-                # XXX: should we rather test if instance of estimator?
-                if deep and hasattr(value, 'get_params'):
-                    deep_items = value.get_params().items()
-                    self_params.update((key + '__' + k, val) for k, val in
-                                       deep_items)
-                self_params[key] = value
-            return self_params
-
-        def fit(self, X, *args, **kwargs):
-            """Fit the estimtor or transformer, pandas enabled.
+    return transformer
 
 
+class Sigcopy(object):
+    """Copy the argspec between two functions.
 
-            Args:
-                X:
-                *args:
-                **kwargs:
+    Used to copy the argspec from a partial function.
 
-            Returns:
+    """
 
-            """
-            df = check_df(X)
+    def __init__(self, src_func):
+        """Save necessary info to copy over."""
+        self.argspec = inspect.getfullargspec(src_func)
+        self.src_doc = src_func.__doc__
+        self.src_defaults = src_func.__defaults__
 
-            func = super(DFTransformer, self).fit
-            if df.empty and not isinstance(self, _Empty):
-                # this situation may happen when a transformer comes after the
-                # Empty transformer in a pipeline. Sklearn transformers will
-                # break on empty input and so we reroute to _Empty.
-                func = partial(_Empty.fit, self)
-            try:
-                out = func(df, *args, **kwargs)
-            except (TypeError, AttributeError, ValueError):  # TODO(adithya),
-                # TODO(adithya) add your change for tfidf vectorizer
-                from sklearn.utils import check_array
-                dat = check_array(
-                    df, accept_sparse=True, dtype=None,
-                    force_all_finite=False
-                ).flatten()
-                out = func(dat, *args)
-            return out
+    def __call__(self, tgt_func):
+        """Run when Sigcopy object is called. Returns new function."""
+        tgt_argspec = inspect.getfullargspec(tgt_func)
 
-        def transform(self, X, y=None, *args, **kwargs):
-            df = check_df(X)
+        name = tgt_func.__name__
 
-            init_cols = [str(col) for col in df]
-            func = super(DFTransformer, self).transform
-            if df.empty and not isinstance(self, _Empty):
-                # this situation may happen when a transformer comes after the
-                # Empty transformer in a pipeline. Sklearn transformers will
-                # break on empty input and so we reroute to _Empty.
-                func = partial(_Empty.transform, self)
-            try:
-                out = func(df, *args, **kwargs)
-            except (TypeError, AttributeError, ValueError):  # TODO(adithya),
-                # TODO(adithya) add your change for tfidf vectorizer
-                from sklearn.utils import check_array
-                dat = check_array(
-                    df, accept_sparse=True, dtype=None,
-                    force_all_finite=False
-                ).flatten()
-                out = func(dat, *args)
+        # Filters out defaults that are metaclasses
+        argspec = self.argspec
+        argspec = (
+            argspec[0:3]
+            + (
+                tuple(
+                    [
+                        s if type(s).__name__ != "type" else None
+                        for s in (argspec[3] if argspec[3] is not None else [])
+                    ]
+                ),
+            )
+            + argspec[4:]
+        )
 
-            # determine name of new columns
-            name = self.name if self.name else type(self).__name__
-            out_is_transformer = hasattr(out, '__class__') and \
-                                 is_transformer(
-                                     out.__class__)  # check if the output
-            # returned by the sklearn public function is a transformer or not.
-            # It will be a transformer in fit calls.
+        # Copies keyword arguments and defaults
+        newargspec = (
+            (argspec[0] + tgt_argspec[0][1:],)
+            + argspec[1:4]
+            + (tgt_argspec[4], tgt_argspec[5])
+            + argspec[6:]
+        )
 
-            if not (out_is_transformer):
-                # if the output is a transformer, we do nothing.
-                if isinstance(out,
-                              pd.DataFrame):  # custom handling based on the
-                    # type returned by the sklearn transformer function call
-                    out = _df_post_process(out, init_cols, name)
-                elif isinstance(out, np.ndarray):
-                    out = _ndarray_post_process(out, df.index, init_cols, name)
-                elif scipy.sparse.issparse(out):
-                    out = out.toarray()
-                    out = _ndarray_post_process(out, df, init_cols, name)
-                elif isinstance(out, pd.Series):
-                    pass  # just return the series
-                else:
-                    raise ValueError('undefined input {0}'.format(type(out)))
+        # Write new function
+        sigcall = inspect.formatargspec(
+            formatvalue=lambda val: "", *newargspec
+        )[1:-1]
+        signature = inspect.formatargspec(*newargspec)[1:-1]
 
-                if self.keep_columns:
-                    out = _keep_columns_process(out, df, name)
-            return out
+        signature = signature.replace("*,", "")
+        sigcall = sigcall.replace("*,", "")
 
-        def inverse_transform(self, X, *args, **kwargs):
-            df = check_df(X)
+        new_func = (
+            "def _wrapper_(%(signature)s):\n"
+            "    return %(tgt_func)s(%(sigcall)s)"
+            % {
+                "signature": signature,
+                "tgt_func": "tgt_func",
+                "sigcall": sigcall,
+            }
+        )
 
-            init_cols = [str(col) for col in df]
-            func = super(DFTransformer, self).inverse_transform
-            if df.empty and not isinstance(self, _Empty):
-                # this situation may happen when a transformer comes after the
-                # Empty transformer in a pipeline. Sklearn transformers will
-                # break on empty input and so we reroute to _Empty.
-                func = partial(_Empty.inverse_transform, self)
-            try:
-                out = func(df, *args, **kwargs)
-            except (TypeError, AttributeError, ValueError):  # TODO(adithya),
-                # TODO(adithya) add your change for tfidf vectorizer
-                from sklearn.utils import check_array
-                dat = check_array(
-                    df, accept_sparse=True, dtype=None,
-                    force_all_finite=False
-                ).flatten()
-                out = func(dat, *args)
+        # Set new metadata
+        evaldict = {"tgt_func": tgt_func}
+        exec(new_func, evaldict)
+        wrapped = evaldict["_wrapper_"]
+        wrapped.__name__ = name
+        wrapped.__doc__ = self.src_doc
+        wrapped.__module__ = tgt_func.__module__
+        wrapped.__dict__ = tgt_func.__dict__
+        return wrapped
 
-            # determine name of new columns
-            name = self.name if self.name else type(self).__name__
-            out_is_transformer = hasattr(out, '__class__') and \
-                                 is_transformer(
-                                     out.__class__)  # check if the output
-            # returned by the sklearn public function is a transformer or not.
-            # It will be a transformer in fit calls.
 
-            if not (out_is_transformer):
-                # if the output is a transformer, we do nothing.
-                if isinstance(out,
-                              pd.DataFrame):  # custom handling based on the
-                    # type returned by the sklearn transformer function call
-                    out = _df_post_process(out, init_cols, name)
-                elif isinstance(out, np.ndarray):
-                    out = _ndarray_post_process(out, df.index, init_cols, name)
-                elif scipy.sparse.issparse(out):
-                    out = out.toarray()
-                    out = _ndarray_post_process(out, df, init_cols, name)
-                elif isinstance(out, pd.Series):
-                    pass  # just return the series
-                else:
-                    raise ValueError('undefined input {0}'.format(type(out)))
+def init_partial(func):  # noqa: D202
+    """Partial function for injecting custom args into transformers."""
 
-                if self.keep_columns:
-                    out = _keep_columns_process(out, df, name)
-            return out
+    def transform_constructor(
+        self, *args, keep_columns=False, name=None, **kwargs
+    ):
 
-        def fit_transform(self, X, *args, **kwargs):
-            df = check_df(X)
-            kwargs.pop('full_df', None)
-            init_cols = [str(col) for col in df]
-            func = super(DFTransformer, self).fit_transform
-            try:
-                out = func(df, *args, **kwargs)
-            except (TypeError, AttributeError, ValueError):  # TODO(adithya),
-                # TODO(adithya) add your change for tfidf vectorizer
-                from sklearn.utils import check_array
-                dat = check_array(
-                    df, accept_sparse=True, dtype=None,
-                    force_all_finite=False
-                ).flatten()
-                out = func(dat, *args)
+        self.name = args[-1]
+        self.keep_columns = args[-2]
+        func(self, *args[:-2], **kwargs)
 
-            # determine name of new columns
-            name = self.name if self.name else type(self).__name__
-            out_is_transformer = hasattr(out, '__class__') and \
-                                 is_transformer(
-                                     out.__class__)  # check if the output
-            # returned by the sklearn public function is a transformer or not. It will
-            # be a transformer in fit calls.
+    return transform_constructor
 
-            if not (out_is_transformer) and not isinstance(out, pd.DataFrame):
-                # out_is_transformer: if the output is a transformer,
-                # we do nothing.
-                # pd.DataFrame: fit_transform will likely be
-                # passed to the TransformerMixin fit_transform, which just
-                # calls .fit and .transform. Processing will be handled
-                # there
-                if isinstance(out, np.ndarray):  #output was not yet
-                    # transformed to DataFrame
-                    out = _ndarray_post_process(out, df.index, init_cols,
-                                                name)
-                elif scipy.sparse.issparse(out):
-                    out = out.toarray()
-                    out = _ndarray_post_process(out, df, init_cols, name)
-                elif isinstance(out, pd.Series):
-                    pass  # just return the series
-                else:
-                    raise ValueError(
-                        'undefined input {0}'.format(type(out)))
-                if self.keep_columns:
-                    out = _keep_columns_process(out, df, name)
-            return out
-    return DFTransformer
+
+def pandas_partial(func):  # noqa: D202
+    """Partial function for the pandas transformer wrapper."""
+
+    @wraps(func)
+    def pandas_func(self, *args, **kwargs):
+        return pandas_wrapper(self, func, *args, **kwargs)
+
+    return pandas_func
+
+
+def init_replace(self, keep_columns=False, name=None):
+    """Set the default values of custom transformer attributes."""
+    self.keep_columns = keep_columns
+    self.name = name
 
 
 class _Empty(BaseEstimator, TransformerMixin):
@@ -438,3 +302,71 @@ def _df_post_process(dataframe, init_cols, prefix):
         for c in dataframe.columns
     ]
     return dataframe
+
+
+def pandas_wrapper(self, func, df, *args, **kwargs):
+    """Replace public transformer functions using wrapper.
+
+    Selects columns from df and executes inner function only on columns.
+
+    This expects that public functions within the sklearn transformer follow
+    the sklearn standard. This includes the format
+    ``func(X, y=None, *args, **kwargs)`` and either a return self or return X
+
+    Adds ability of transformer to handle DataFrame input and output with
+    persistent column names.
+
+    Args:
+        self: The sklearn transformer object
+        func: The original public function to be wrapped
+        df: Pandas dataframe as input
+
+    Returns:
+        Same as return type of func
+
+    """
+    df = check_df(df)
+
+    init_cols = [str(col) for col in df]
+    if df.empty and not isinstance(self, _Empty):
+        # this situation may happen when a transformer comes after the Empty
+        # transformer in a pipeline. Sklearn transformers will break on empty
+        # input and so we reroute to _Empty.
+        func = getattr(_Empty, func.__name__)
+    try:
+        out = func(self, df, *args, **kwargs)
+    except (TypeError, AttributeError):
+        try:
+            out = func(self, df, *args)
+        except (AttributeError, ValueError):
+            from sklearn.utils import check_array
+            dat = check_array(
+                df, accept_sparse=True, dtype=None, force_all_finite=False
+            ).flatten()
+            out = func(self, dat, *args)
+
+    # determine name of new columns
+    name = self.name if self.name else type(self).__name__
+    out_is_transformer = hasattr(out, '__class__') and \
+                         is_transformer(out.__class__)  # check if the output
+    # returned by the sklearn public function is a transformer or not. It will
+    # be a transformer in fit calls.
+
+    if not (out_is_transformer):  #
+        # if the output is a transformer, we do nothing.
+        if isinstance(out, pd.DataFrame):  # custom handling based on the
+            # type returned by the sklearn transformer function call
+            out = _df_post_process(out, init_cols, name)
+        elif isinstance(out, np.ndarray):
+            out = _ndarray_post_process(out, df.index, init_cols, name)
+        elif scipy.sparse.issparse(out):
+            out = out.toarray()
+            out = _ndarray_post_process(out, df, init_cols, name)
+        elif isinstance(out, pd.Series):
+            pass  # just return the series
+        else:
+            raise ValueError('undefined input {0}'.format(type(out)))
+
+        if self.keep_columns:
+            out = _keep_columns_process(out, df, name)
+    return out
