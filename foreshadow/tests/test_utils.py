@@ -39,14 +39,13 @@ def test_check_df_convert_series_to_df():
 
 def test_check_df_raises_on_invalid():
     from foreshadow.utils import check_df
+    import re
 
     input_df = None
     with pytest.raises(ValueError) as e:
         input_df = check_df(input_df)
-    assert str(e.value) == (
-        "Invalid input type, neither pd.DataFrame, pd.Series, np.ndarray, nor"
-        " list"
-    )
+    assert re.match('Invalid input type: (.+) is not pd\.DataFrame, '
+                    'pd.Series, np.ndarray, nor list', str(e.value))
 
 
 def test_check_df_passthrough_none():

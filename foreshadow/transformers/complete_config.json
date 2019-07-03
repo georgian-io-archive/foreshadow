@@ -1,0 +1,36 @@
+{
+  "columns":{
+    "crim":{
+	    "intent": "GenericIntent",
+            "pipeline":[
+	    {"transformer": "StandardScaler",
+	       "name": "Scaler",
+	       "parameters": {"with_mean":false}
+	    }]},
+    "indus":{"intent": "GenericIntent"}
+  },
+
+  "postprocess":[
+	  {"name": "pca",
+     "columns": ["age"],
+     "pipeline": [
+	     {"transformer": "PCA", "name": "PCA", "parameters": {"n_components":2}}
+    ]}
+  ],
+
+  "intents":{
+    "NumericIntent":{
+      "single":[
+	      {"transformer": "Imputer", "name": "impute", "parameters": {"strategy":"mean", "name":  "impute"}}
+      ],
+      "multi":[
+	      {"transformer": "PCA", "name": "pca", "parameters": {"n_components":5}}
+      ]
+    }
+  },
+
+  "experiments": {
+    "intents.NumericIntent.single.impute": "range(1,20)"
+  },
+  "y_var": false
+}
