@@ -81,7 +81,6 @@ def make_pandas_transformer(transformer):
                                                            **kwargs)
             class_.__name__ = transformer.__name__
             class_.__doc__ = transformer.__doc__
-            class_.__module__ = transformer.__module__
             return class_
 
     class DFTransformer(transformer, metaclass=DFTransformerMeta):

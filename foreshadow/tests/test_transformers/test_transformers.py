@@ -499,3 +499,176 @@ def test_sparse_matrix_conversion():
 
     # This tf generates sparse output by default
     tfidf.fit_transform(corpus)
+
+
+@pytest.mark.parametrize(
+    'transformer,input_csv',
+    [
+        ('StandardScaler',
+         "./foreshadow/tests/test_data/boston_housing.csv"),
+        ('OneHotEncoder',
+         "./foreshadow/tests/test_data/boston_housing.csv"),
+        ('TfidfTransformer',
+         "./foreshadow/tests/test_data/boston_housing.csv")
+    ]
+)
+def test_make_pandas_transformer_fit(transformer, input_csv):
+    """Test make_pandas_transformer has initial transformer fit functionality.
+
+        Args:
+            transformer: wrapped transformer
+            input_csv: dataset to test on
+
+    """
+    from importlib import import_module
+    import pandas as pd
+    mod = import_module('foreshadow.transformers.externals')
+    transformer = getattr(mod, transformer)()
+    df = pd.read_csv(input_csv)
+    assert transformer.fit(df) == transformer
+
+
+@pytest.mark.parametrize(
+    'transformer,expected_path',
+    [
+        ('StandardScaler',
+         'sklearn.preprocessing'),
+        ('OneHotEncoder',
+         'category_encoders'),
+        ('TfidfTransformer',
+         'sklearn.feature_extraction.text')
+    ]
+)
+def test_make_pandas_transformer_meta(transformer, expected_path):
+    """Test that the wrapped transformer has proper metadata.
+
+    Args:
+        transformer: wrapped transformer
+        expected_path: path to the initial transformer
+
+    Returns:
+
+    """
+    from importlib import import_module
+    mod = import_module(expected_path)
+    expected = getattr(mod, transformer)
+    mod = import_module('foreshadow.transformers.externals')
+    transformer = getattr(mod, transformer)()
+    assert isinstance(transformer, expected)  # should remain a subclass
+    assert type(transformer).__name__ == expected.__name__
+    assert transformer.__doc__ == expected.__doc__
+
+
+@pytest.mark.parametrize(
+    'transformer,kwargs,sk_path,input_csv',
+    [
+        ('StandardScaler',
+         {},
+         'sklearn.preprocessing',
+         "./foreshadow/tests/test_data/boston_housing.csv"),
+        ('OneHotEncoder',
+         {},
+         'category_encoders',
+         "./foreshadow/tests/test_data/boston_housing.csv"),
+        ('TfidfTransformer',
+         {},
+         'sklearn.feature_extraction.text',
+         "./foreshadow/tests/test_data/boston_housing.csv")
+    ]
+)
+def test_make_pandas_transformer_transform(transformer, kwargs, sk_path,
+    input_csv):
+    """Test wrapped transformer has the initial transform functionality.
+
+        Args:
+            transformer: wrapped transformer
+            kwargs: key word arguments for transformer initialization
+            sk_path: path to the module containing the wrapped sklearn
+                transformer
+            input_csv: dataset to test on
+
+    """
+    from importlib import import_module
+    import pandas as pd
+    import numpy as np
+    from scipy.sparse import issparse
+    sk_mod = import_module(sk_path)
+    sk_transformer = getattr(sk_mod, transformer)(**kwargs)
+    mod = import_module('foreshadow.transformers.externals')
+    transformer = getattr(mod, transformer)(**kwargs)
+    df = pd.read_csv(input_csv)
+    crim_df = df[['crim']]
+    transformer.fit(crim_df)
+    sk_transformer.fit(crim_df)
+    sk_out = sk_transformer.transform(crim_df)
+    if issparse(sk_out):
+        sk_out = sk_out.toarray()
+    assert np.array_equal(transformer.transform(crim_df).values,
+                          sk_out)
+
+
+@pytest.mark.parametrize(
+    'transformer,sk_path,input_csv',
+    [
+        ('StandardScaler',
+         'sklearn.preprocessing',
+         "./foreshadow/tests/test_data/boston_housing.csv"),
+        ('TfidfTransformer',
+         'sklearn.feature_extraction.text',
+         "./foreshadow/tests/test_data/boston_housing.csv")
+    ]
+)
+def test_make_pandas_transformer_fit_transform(transformer, sk_path,
+    input_csv):
+    """Test wrapped transformer has initial fit_transform functionality.
+
+        Args:
+            transformer: wrapped transformer
+            sk_path: path to the module containing the wrapped sklearn
+                transformer
+            input_csv: dataset to test on
+
+    """
+    from importlib import import_module
+    import pandas as pd
+    import numpy as np
+    from scipy.sparse import issparse
+    sk_mod = import_module(sk_path)
+    sk_transformer = getattr(sk_mod, transformer)()
+    mod = import_module('foreshadow.transformers.externals')
+    transformer = getattr(mod, transformer)()
+    df = pd.read_csv(input_csv)
+    crim_df = df[['crim']]
+    sk_out = sk_transformer.fit_transform(crim_df)
+    if issparse(sk_out):
+        sk_out = sk_out.toarray()
+    assert np.array_equal(transformer.fit_transform(crim_df).values,
+                          sk_out)
+
+
+@pytest.mark.parametrize(
+    'transformer,sk_path',
+    [
+        ('StandardScaler',
+         'sklearn.preprocessing'),
+        ('TfidfTransformer',
+         'sklearn.feature_extraction.text')
+    ]
+)
+def test_make_pandas_transformer_init(transformer, sk_path):
+    """Test make_pandas_transformer has initial transformer init functionality.
+
+    Should be able to accept any parameters from the sklearn transformer and
+    initialize on the wrapped instance.
+
+        Args:
+            transformer: wrapped transformer
+            sk_path: path to the module containing the wrapped sklearn
+                transformer
+    """
+    from importlib import import_module
+    sk_mod = import_module(sk_path)
+    sk_transformer = getattr(sk_mod, transformer)()
+    params = sk_transformer.get_params()
+    mod = import_module('foreshadow.transformers.externals')
+    getattr(mod, transformer)(**params)

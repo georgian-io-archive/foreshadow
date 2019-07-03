@@ -82,9 +82,15 @@ def test_metric_last_call(metric_fn, arg, kwargs):
     ]
 )
 def test_metric_print(fn, regex):
+    """Test metric prints correct/useful information about itself.
+
+    Args:
+        fn: function of metric that returns a string
+        regex: useful information to check
+
+    """
     from foreshadow.metrics import Metric
     metric_fn = Metric(lambda x: 1)
-    print(getattr(metric_fn, fn)())
     assert re.search(regex, getattr(metric_fn, fn)())
 
 
@@ -95,6 +101,13 @@ def test_metric_print(fn, regex):
     ]
 )
 def test_unique_count(column, ret):
+    """Test the unique_count metric.
+
+    Args:
+        column (pandas.DataFrame): the input column
+        ret: expected unique_count value
+
+    """
     from foreshadow.metrics import unique_count
     assert unique_count(column) == ret
 
@@ -106,17 +119,13 @@ def test_unique_count(column, ret):
     ]
 )
 def test_unique_count_bias(column, ret):
-    from foreshadow.metrics import unique_count
-    assert unique_count(column) == ret
+    """ Test the unique_count_bias metric.
 
+    Args:
+        column (pandas.DataFrame): the input column
+        ret: expected unique_count value
 
-@pytest.mark.parametrize(
-    'column,ret',
-    [
-        (simple_dataframe, 0)
-    ]
-)
-def test_unique_count_bias(column, ret):
+    """
     from foreshadow.metrics import unique_count_bias
     assert unique_count_bias(column) == ret
 
@@ -128,5 +137,12 @@ def test_unique_count_bias(column, ret):
     ]
 )
 def test_unique_count_weight(column, ret):
+    """ Test the unique_count_weight metric.
+
+        Args:
+            column (pandas.DataFrame): the input column
+            ret: expected unique_count value
+
+        """
     from foreshadow.metrics import unique_count_weight
     assert unique_count_weight(column) == ret
