@@ -92,12 +92,13 @@ def test_transformer_fancy_impute_set_params():
 
 def test_transformer_fancy_impute_get_params():
     from foreshadow.transformers.internals import FancyImputer
+
     impute_kwargs = {"fill_method": "median"}
     impute = FancyImputer(method="SimpleFill", impute_kwargs=impute_kwargs)
 
     impute_kwargs = impute.get_params().get("impute_kwargs", None)
     assert impute_kwargs is not None
-    assert impute_kwargs.get('fill_method', None) == "median"
+    assert impute_kwargs.get("fill_method", None) == "median"
 
 
 def test_transformer_fancy_impute_invalid_init():
@@ -116,8 +117,9 @@ def test_transformer_fancy_impute_invalid_params():
     from foreshadow.transformers.internals import FancyImputer
 
     with pytest.raises(ValueError) as e:
-        impute = FancyImputer(method="SimpleFill",
-                              impute_kwargs={'fill_method': "mean"})
+        impute = FancyImputer(
+            method="SimpleFill", impute_kwargs={"fill_method": "mean"}
+        )
         impute.set_params(**{"method": "INVALID"})
 
     assert str(e.value) == (

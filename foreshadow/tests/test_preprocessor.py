@@ -704,9 +704,7 @@ def test_preprocessor_inverse_transform():
     proc.fit(col)
 
     assert proc.is_linear
-    assert np.allclose(
-        proc.inverse_transform(proc.transform(col)), col.values
-    )
+    assert np.allclose(proc.inverse_transform(proc.transform(col)), col.values)
 
 
 def test_preprocessor_inverse_transform_unfit():

@@ -183,11 +183,13 @@ class SimpleImputer(SmartTransformer):
         )
 
         if z_bool:
-            return FancyImputer("SimpleFill",
-                                impute_kwargs={'fill_method': "median"})
+            return FancyImputer(
+                "SimpleFill", impute_kwargs={"fill_method": "median"}
+            )
         else:
-            return FancyImputer("SimpleFill",
-                                impute_kwargs={'fill_method': "mean"})
+            return FancyImputer(
+                "SimpleFill", impute_kwargs={"fill_method": "mean"}
+            )
 
     def _get_transformer(self, X, y=None, **fit_params):
         s = X.iloc[:, 0]
@@ -214,7 +216,7 @@ class MultiImputer(SmartTransformer):
         # performance
 
         # Impute using KNN
-        return FancyImputer("KNN", impute_kwargs={'k': 3})
+        return FancyImputer("KNN", impute_kwargs={"k": 3})
 
     def _get_transformer(self, X, y=None, **fit_params):
         if X.isnull().values.any():

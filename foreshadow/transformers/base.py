@@ -517,9 +517,10 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
             or pipe
             or parallel
         ):
-            print("tf: {}, fittf: {}, fit: {}, nm: {}, keep: {}, pipe: {},"
-                  "parallel: {}".format(tf, fittf, fit, nm, keep, pipe,
-                                        parallel))
+            print(
+                "tf: {}, fittf: {}, fit: {}, nm: {}, keep: {}, pipe: {},"
+                "parallel: {}".format(tf, fittf, fit, nm, keep, pipe, parallel)
+            )
             raise AttributeError(
                 "Invalid WrappedTransformer. Get transformer returns invalid "
                 "object"
@@ -563,7 +564,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
             self._set_to_empty = True
         else:
             self._verify_transformer(X, y, refit=True, **self.kwargs)
-        self._transformer.full_df = kwargs.pop('full_df', None)
+        self._transformer.full_df = kwargs.pop("full_df", None)
         # inject = _inject_df(self._transformer, kwargs.pop("full_df", None))
 
         return self._transformer.fit(X, y, **kwargs)

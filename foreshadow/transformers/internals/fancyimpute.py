@@ -54,7 +54,7 @@ class FancyImputer(BaseEstimator, TransformerMixin):
             ValueError: If method is invalid
 
         """
-        impute_kwargs = params.pop('impute_kwargs', {})
+        impute_kwargs = params.pop("impute_kwargs", {})
         method = params.pop("method", self.method)
 
         self.kwargs = params
