@@ -1,8 +1,11 @@
 .. _changelog:
 
-Changelog
-=========
+.. towncrier release notes start
 
-v0.1
-^^^^
-- Initial Release
+Foreshadow 0.1.0 (2019-06-28)
+=============================
+
+Features
+--------
+
+- Initial release. (#71)

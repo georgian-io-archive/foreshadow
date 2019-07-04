@@ -21,7 +21,7 @@ def test_auto_config_invalid_input():
     with pytest.raises(ValueError) as e:
         _ = get_tpot_config("test")
 
-    assert str(e.value) == "type_ must be either classification or regression"
+    assert "type_:" in str(e.value)
 
 
 def test_invalid_problem_type():

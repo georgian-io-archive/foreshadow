@@ -18,6 +18,9 @@ from foreshadow.utils import check_df
 class Foreshadow(BaseEstimator):
     """An end-to-end pipeline to preprocess and tune a machine learning model.
 
+    Example:
+        >>> shadow = Foreshadow()
+
     Args:
         X_preprocessor \
             (:obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`, \
@@ -67,6 +70,7 @@ class Foreshadow(BaseEstimator):
 
         :type: :obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`
 
+        .. # noqa: I201
         """
         return self._X_preprocessor
 
@@ -93,6 +97,7 @@ class Foreshadow(BaseEstimator):
 
         :type: :obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`
 
+        .. # noqa: I201
         """
         return self._y_preprocessor
 
@@ -120,6 +125,7 @@ class Foreshadow(BaseEstimator):
 
         :type: :obj:`sklearn.base.BaseEstimator`
 
+        .. # noqa: I201
         """
         return self._estimator
 
@@ -148,6 +154,7 @@ class Foreshadow(BaseEstimator):
 
         :setter: Verifies Optimizer class, defaults to None
 
+        .. # noqa: I201
         """
         return self._optimizer
 

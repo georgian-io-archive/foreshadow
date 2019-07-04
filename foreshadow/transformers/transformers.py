@@ -33,6 +33,11 @@ def _get_modules(classes, globals_, mname, wrap=True):
     functions to support pandas dataframes, and exposes them as
     foreshadow.transformers.[name]
 
+    Args:
+        classes: A list of classes
+        globals_: The globals in the callee's context
+        mname: The module name
+
     Returns:
         The list of wrapped transformers.
 
@@ -60,11 +65,12 @@ def make_pandas_transformer(transformer):
     """Wrap an sklearn transformer to support dataframes.
 
     Args:
-        transformer: sklearn transformer implementing BaseEstimator and
-        TransformerMixin
+        transformer: sklearn transformer implementing
+            `BaseEstimator <sklearn.base.BaseEstimator> and
+            `TransformerMixin <sklearn.base.TransformerMixin>`
 
     Returns:
-        A wrapped form of transformer
+        The wrapped form of a transformer
 
     """
 
@@ -177,16 +183,7 @@ def make_pandas_transformer(transformer):
                 # Empty transformer in a pipeline. Sklearn transformers will
                 # break on empty input and so we reroute to _Empty.
                 func = partial(_Empty.fit, self)
-            try:
-                out = func(df, *args, **kwargs)
-            except (TypeError, AttributeError, ValueError):  # TODO(adithya),
-                # TODO(adithya) add your change for tfidf vectorizer
-                from sklearn.utils import check_array
-                dat = check_array(
-                    df, accept_sparse=True, dtype=None,
-                    force_all_finite=False
-                ).flatten()
-                out = func(dat, *args)
+            out = func(df, *args, **kwargs)
             return out
 
         def transform(self, X, y=None, *args, **kwargs):
@@ -199,16 +196,8 @@ def make_pandas_transformer(transformer):
                 # Empty transformer in a pipeline. Sklearn transformers will
                 # break on empty input and so we reroute to _Empty.
                 func = partial(_Empty.transform, self)
-            try:
-                out = func(df, *args, **kwargs)
-            except (TypeError, AttributeError, ValueError):  # TODO(adithya),
-                # TODO(adithya) add your change for tfidf vectorizer
-                from sklearn.utils import check_array
-                dat = check_array(
-                    df, accept_sparse=True, dtype=None,
-                    force_all_finite=False
-                ).flatten()
-                out = func(dat, *args)
+
+            out = func(df, *args, **kwargs)
 
             # determine name of new columns
             name = self.name if self.name else type(self).__name__
@@ -248,16 +237,8 @@ def make_pandas_transformer(transformer):
                 # Empty transformer in a pipeline. Sklearn transformers will
                 # break on empty input and so we reroute to _Empty.
                 func = partial(_Empty.inverse_transform, self)
-            try:
-                out = func(df, *args, **kwargs)
-            except (TypeError, AttributeError, ValueError):  # TODO(adithya),
-                # TODO(adithya) add your change for tfidf vectorizer
-                from sklearn.utils import check_array
-                dat = check_array(
-                    df, accept_sparse=True, dtype=None,
-                    force_all_finite=False
-                ).flatten()
-                out = func(dat, *args)
+
+            out = func(df, *args, **kwargs)
 
             # determine name of new columns
             name = self.name if self.name else type(self).__name__
@@ -292,16 +273,7 @@ def make_pandas_transformer(transformer):
             kwargs.pop('full_df', None)
             init_cols = [str(col) for col in df]
             func = super(DFTransformer, self).fit_transform
-            try:
-                out = func(df, *args, **kwargs)
-            except (TypeError, AttributeError, ValueError):  # TODO(adithya),
-                # TODO(adithya) add your change for tfidf vectorizer
-                from sklearn.utils import check_array
-                dat = check_array(
-                    df, accept_sparse=True, dtype=None,
-                    force_all_finite=False
-                ).flatten()
-                out = func(dat, *args)
+            out = func(df, *args, **kwargs)
 
             # determine name of new columns
             name = self.name if self.name else type(self).__name__
@@ -343,7 +315,8 @@ class _Empty(BaseEstimator, TransformerMixin):
         """Empty fit function.
 
         Args:
-            X (:obj:`numpy.ndarray`): Fit data
+            X (:obj:`numpy.ndarray`): input data to fit, observations
+            y: labels
 
         Returns:
             self
@@ -356,6 +329,7 @@ class _Empty(BaseEstimator, TransformerMixin):
 
         Args:
             X (:obj:`numpy.ndarray`): X data
+            y: labels
 
         Returns:
             :obj:`numpy.ndarray`: Empty numpy array

@@ -1,4 +1,5 @@
 import json
+import os
 
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
@@ -9,8 +10,8 @@ import foreshadow as fs
 
 
 RANDOM_SEED = 42
-
-adult = pd.read_csv("adult.csv").iloc[:1000]
+adult_path = os.path.join(os.path.dirname(__file__), "adult.csv")
+adult = pd.read_csv(adult_path).iloc[:1000]
 
 print(adult.head())
 features = adult.drop(columns="class")

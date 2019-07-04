@@ -20,7 +20,6 @@ from foreshadow.transformers.externals import (
     OneHotEncoder,
     RobustScaler,
     StandardScaler,
-    TfidfVectorizer,
 )
 from foreshadow.transformers.internals import (
     BoxCox,
@@ -28,6 +27,7 @@ from foreshadow.transformers.internals import (
     DummyEncoder,
     FancyImputer,
     FixedLabelEncoder as LabelEncoder,
+    FixedTfidfVectorizer as TfidfVectorizer,
     HTMLRemover,
     PrepareFinancial,
     ToString,
@@ -80,10 +80,10 @@ class Encoder(SmartTransformer):
     delimmeter exceed delim_cuttoff then a DummyEncoder is used (set cutoff to
     -1 to force). If used in a y_var context, LabelEncoder is used.
 
-        Args:
-            unique_num_cutoff (float): number of allowable unique categories
-            merge_thresh (float): threshold passed into UncommonRemover if
-                selected
+    Args:
+        unique_num_cutoff (float): number of allowable unique categories
+        merge_thresh (float): threshold passed into UncommonRemover if
+            selected
 
     """
 
@@ -97,7 +97,13 @@ class Encoder(SmartTransformer):
 
         Uses current settings.
 
-            Returns: (tuple) bool and category counts
+        Args:
+            X: input observations column
+            temp_ur: transformer
+
+        Returns:
+            (tuple) bool and category counts
+
         """
         X = check_df(X, single_column=True).iloc[:, 0].values
         out = temp_ur.fit_transform(X).values.ravel()

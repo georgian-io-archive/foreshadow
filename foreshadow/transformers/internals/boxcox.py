@@ -19,6 +19,7 @@ class BoxCox(BaseEstimator, TransformerMixin):
 
         Args:
             X (:obj:`numpy.ndarray`): Fit data
+            y: input labels
 
         Returns:
             self

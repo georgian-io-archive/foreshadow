@@ -24,6 +24,7 @@ IS_HTML_REGEX = re.compile(
 class HTMLRemover(BaseEstimator, TransformerMixin):
     """Removes html tags from text data."""
 
+    @staticmethod
     def is_html(input_str):
         """Determine whether an input string contains HTML tags.
 
@@ -37,11 +38,29 @@ class HTMLRemover(BaseEstimator, TransformerMixin):
         return IS_HTML_REGEX.match(input_str) is not None
 
     def fit(self, X, y=None):
-        """Empty fit."""
+        """Empty fit.
+
+        Args:
+            X: input observations
+            y: input labels
+
+        Returns:
+            self
+
+        """
         return self
 
     def transform(self, X, y=None):
-        """Remove HTML tags from passed in strings."""
+        """Remove HTML tags from passed in strings.
+
+        Args:
+            X: input observations
+            y: input labels
+
+        Returns:
+            transformed X
+
+        """
         X = check_df(X, single_column=True).iloc[:, 0]
         X = X.str.replace(HTML_REGEX, "")
 

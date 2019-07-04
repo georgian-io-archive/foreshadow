@@ -25,7 +25,12 @@ no_serialize_params = {"OneHotEncoder": ["cols"], "HashingEncoder": ["cols"]}
 
 
 def _get_classes():
-    """Return a list of classes found in transforms directory."""
+    """Return a list of classes found in transforms directory.
+
+    Returns:
+        list of classes found in transforms directory.
+
+    """
     return [c for c in globals().values() if inspect.isclass(c)]
 
 
