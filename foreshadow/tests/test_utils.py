@@ -44,8 +44,11 @@ def test_check_df_raises_on_invalid():
     input_df = None
     with pytest.raises(ValueError) as e:
         input_df = check_df(input_df)
-    assert re.match('Invalid input type: (.+) is not pd\.DataFrame, '
-                    'pd.Series, np.ndarray, nor list', str(e.value))
+    assert re.match(
+        "Invalid input type: (.+) is not pd.DataFrame, "
+        "pd.Series, np.ndarray, nor list",
+        str(e.value),
+    )
 
 
 def test_check_df_passthrough_none():

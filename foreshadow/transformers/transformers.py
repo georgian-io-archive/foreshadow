@@ -1,14 +1,11 @@
 """Transformer wrapping utility classes and functions."""
 
-import inspect
 import warnings
-from functools import wraps, partial
+from functools import partial
 
 import numpy as np
 import pandas as pd
 import scipy
-from copy import deepcopy
-from abc import ABCMeta
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_extraction.text import VectorizerMixin
 from sklearn.utils.fixes import signature
@@ -17,9 +14,17 @@ from foreshadow.utils import check_df
 
 
 def is_transformer(cls):
+    """Check if the class is a transformer class.
+
+    Args:
+        cls: class
+
+    Returns:
+        True if transformer, False if not.
+
+    """
     if issubclass(cls, BaseEstimator) and (
-            issubclass(cls, TransformerMixin) or
-            issubclass(cls, VectorizerMixin)
+        issubclass(cls, TransformerMixin) or issubclass(cls, VectorizerMixin)
     ):
         return True
     return False
@@ -37,11 +42,26 @@ def _get_modules(classes, globals_, mname, wrap=True):
         classes: A list of classes
         globals_: The globals in the callee's context
         mname: The module name
+        wrap: True to wrap modules, False to not (manual decorator
+            make_panads_transformer) will need to be applied.
 
     Returns:
         The list of wrapped transformers.
 
     """
+
+    def no_wrap(f):
+        """Don't wrap function f. Return unwrapped function pointer.
+
+        Args:
+            f: function point f.
+
+        Returns:
+            function pointer, f
+
+        """
+        return f
+
     transformers = []
 
     for cls in classes:
@@ -51,7 +71,7 @@ def _get_modules(classes, globals_, mname, wrap=True):
     if wrap:  # wrap the transformer with the
         transformer_wrapper = make_pandas_transformer
     else:
-        transformer_wrapper = lambda x: x
+        transformer_wrapper = no_wrap
 
     for t in transformers:
         copied_t = type(t.__name__, (t, *t.__bases__), dict(t.__dict__))
@@ -72,25 +92,28 @@ def make_pandas_transformer(transformer):
     Returns:
         The wrapped form of a transformer
 
-    """
+    ..#noqa: I401
 
+    """
     # use the same base
     # metaclass as the transformer, otherwise we will get MRO metaclass
     # issues in DFTransformer if we try to choose the base class for our
     # metaclass that is not the same one for the transformer we are also
     # extending.
     class DFTransformerMeta(type(transformer)):
-        """Metaclass for DFTransformer to appear as parent Transformer"""
+        """Metaclass for DFTransformer to appear as parent Transformer."""
+
         def __new__(mcs, *args, **kwargs):
-            class_ = super(DFTransformerMeta, mcs).__new__(mcs,
-                                                           *args,
-                                                           **kwargs)
+            class_ = super(DFTransformerMeta, mcs).__new__(
+                mcs, *args, **kwargs
+            )
             class_.__name__ = transformer.__name__
             class_.__doc__ = transformer.__doc__
             return class_
 
     class DFTransformer(transformer, metaclass=DFTransformerMeta):
-        """Wrapper to Enable parent transformer to handle DataFrames"""
+        """Wrapper to Enable parent transformer to handle DataFrames."""
+
         def __init__(self, *args, keep_columns=False, name=None, **kwargs):
             """Intiializes parent Transformer.
 
@@ -99,13 +122,16 @@ def make_pandas_transformer(transformer):
                 keep_columns: True to keep the original columns, False to not
                 name: name for new/created columns
                 **kwargs: kwargs to the parent constructor
+
+            ..#noqa: I102
+
             """
             self.keep_columns = keep_columns
             self.name = name
             super(DFTransformer, self).__init__(*args, **kwargs)
 
         def get_params(self, deep=True):
-            """ Override standard get_params to handle nonstandard init
+            """Override standard get_params to handle nonstandard init.
 
             BaseEstimator for sklearn gets and sets parameters based on the
             init statement for that class. Since this class is used to wrap
@@ -116,7 +142,7 @@ def make_pandas_transformer(transformer):
 
             Args:
                 deep (bool): If True, will return the parameters for this
-                estimator and contained subobjects that are estimators.
+                    estimator and contained subobjects that are estimators.
 
             Returns:
                 Parameter names mapped to their values for parent +
@@ -131,7 +157,7 @@ def make_pandas_transformer(transformer):
             # The transformer class passed will not contain the current values,
             # so we set them with the values on the object instance, below.
             self_params = dict()  # the output
-            init = getattr(self.__init__, 'deprecated_original', self.__init__)
+            init = getattr(self.__init__, "deprecated_original", self.__init__)
             if init is object.__init__:
                 return self_params
             # explicit constructor to introspect
@@ -139,9 +165,13 @@ def make_pandas_transformer(transformer):
             # parameters to represent
             init_signature = signature(init)
             # Consider the constructor parameters excluding 'self'
-            self_sig = [p for p in init_signature.parameters.values()
-                          if p.name != 'self' and p.kind != p.VAR_KEYWORD
-                          and p.kind != p.VAR_POSITIONAL]
+            self_sig = [
+                p
+                for p in init_signature.parameters.values()
+                if p.name != "self"
+                and p.kind != p.VAR_KEYWORD
+                and p.kind != p.VAR_POSITIONAL
+            ]
             self_sig = sorted([p.name for p in self_sig])
             for key in self_sig + list(parent_params.keys()):
                 warnings.simplefilter("always", DeprecationWarning)
@@ -155,24 +185,26 @@ def make_pandas_transformer(transformer):
                     warnings.filters.pop(0)
 
                 # XXX: should we rather test if instance of estimator?
-                if deep and hasattr(value, 'get_params'):
+                if deep and hasattr(value, "get_params"):
                     deep_items = value.get_params().items()
-                    self_params.update((key + '__' + k, val) for k, val in
-                                       deep_items)
+                    self_params.update(
+                        (key + "__" + k, val) for k, val in deep_items
+                    )
                 self_params[key] = value
             return self_params
 
         def fit(self, X, *args, **kwargs):
             """Fit the estimtor or transformer, pandas enabled.
 
-
+            See transformer.
 
             Args:
-                X:
-                *args:
-                **kwargs:
+                X: inputs
+                *args: arguments to transformer
+                **kwargs: keyword arguments to transformer
 
             Returns:
+                self
 
             """
             df = check_df(X)
@@ -187,6 +219,23 @@ def make_pandas_transformer(transformer):
             return out
 
         def transform(self, X, y=None, *args, **kwargs):
+            """Transform inputs using fitted transformer. Pandas enabled.
+
+            See transformer
+
+            Args:
+                X: inputs
+                y: labels
+                *args: arguments to transformer
+                **kwargs: keyword arguments to transformer
+
+            Returns:
+                transformed inputs
+
+            Raises:
+                ValueError: if not a valid output type from transformer
+
+            """
             df = check_df(X)
 
             init_cols = [str(col) for col in df]
@@ -201,16 +250,18 @@ def make_pandas_transformer(transformer):
 
             # determine name of new columns
             name = self.name if self.name else type(self).__name__
-            out_is_transformer = hasattr(out, '__class__') and \
-                                 is_transformer(
-                                     out.__class__)  # check if the output
-            # returned by the sklearn public function is a transformer or not.
-            # It will be a transformer in fit calls.
+            out_is_transformer = hasattr(out, "__class__") and is_transformer(
+                out.__class__
+            )  # noqa: E127
+            # check if the
+            # output returned by the sklearn public function is a
+            # transformer or not. It will be a transformer in fit calls.
 
             if not (out_is_transformer):
                 # if the output is a transformer, we do nothing.
-                if isinstance(out,
-                              pd.DataFrame):  # custom handling based on the
+                if isinstance(
+                    out, pd.DataFrame
+                ):  # custom handling based on the
                     # type returned by the sklearn transformer function call
                     out = _df_post_process(out, init_cols, name)
                 elif isinstance(out, np.ndarray):
@@ -221,13 +272,29 @@ def make_pandas_transformer(transformer):
                 elif isinstance(out, pd.Series):
                     pass  # just return the series
                 else:
-                    raise ValueError('undefined input {0}'.format(type(out)))
+                    raise ValueError("undefined output {0}".format(type(out)))
 
                 if self.keep_columns:
                     out = _keep_columns_process(out, df, name)
             return out
 
         def inverse_transform(self, X, *args, **kwargs):
+            """Give original inputs using fitted transformer. Pandas enabled.
+
+            See transformer
+
+            Args:
+                X: transformed inputs
+                *args: arguments to transformer
+                **kwargs: keyword arguments to transformer
+
+            Returns:
+                original inputs
+
+            Raises:
+                ValueError: if not a valid output type from transformer
+
+            """
             df = check_df(X)
 
             init_cols = [str(col) for col in df]
@@ -242,16 +309,18 @@ def make_pandas_transformer(transformer):
 
             # determine name of new columns
             name = self.name if self.name else type(self).__name__
-            out_is_transformer = hasattr(out, '__class__') and \
-                                 is_transformer(
-                                     out.__class__)  # check if the output
+            out_is_transformer = hasattr(out, "__class__") and is_transformer(
+                out.__class__
+            )  # noqa: E127
+            # check if the output
             # returned by the sklearn public function is a transformer or not.
             # It will be a transformer in fit calls.
 
             if not (out_is_transformer):
                 # if the output is a transformer, we do nothing.
-                if isinstance(out,
-                              pd.DataFrame):  # custom handling based on the
+                if isinstance(
+                    out, pd.DataFrame
+                ):  # custom handling based on the
                     # type returned by the sklearn transformer function call
                     out = _df_post_process(out, init_cols, name)
                 elif isinstance(out, np.ndarray):
@@ -262,7 +331,7 @@ def make_pandas_transformer(transformer):
                 elif isinstance(out, pd.Series):
                     pass  # just return the series
                 else:
-                    raise ValueError('undefined input {0}'.format(type(out)))
+                    raise ValueError("undefined input {0}".format(type(out)))
 
                 if self.keep_columns:
                     out = _keep_columns_process(out, df, name)
@@ -270,18 +339,18 @@ def make_pandas_transformer(transformer):
 
         def fit_transform(self, X, *args, **kwargs):
             df = check_df(X)
-            kwargs.pop('full_df', None)
+            kwargs.pop("full_df", None)
             init_cols = [str(col) for col in df]
             func = super(DFTransformer, self).fit_transform
             out = func(df, *args, **kwargs)
 
             # determine name of new columns
             name = self.name if self.name else type(self).__name__
-            out_is_transformer = hasattr(out, '__class__') and \
-                                 is_transformer(
-                                     out.__class__)  # check if the output
-            # returned by the sklearn public function is a transformer or not. It will
-            # be a transformer in fit calls.
+            out_is_transformer = hasattr(out, "__class__") and is_transformer(
+                out.__class__
+            )  # noqa: E127
+            # check if the output returned by the sklearn public function is
+            # a transformer or not. It will be a transformer in fit calls.
 
             if not (out_is_transformer) and not isinstance(out, pd.DataFrame):
                 # out_is_transformer: if the output is a transformer,
@@ -290,21 +359,20 @@ def make_pandas_transformer(transformer):
                 # passed to the TransformerMixin fit_transform, which just
                 # calls .fit and .transform. Processing will be handled
                 # there
-                if isinstance(out, np.ndarray):  #output was not yet
+                if isinstance(out, np.ndarray):  # output was not yet
                     # transformed to DataFrame
-                    out = _ndarray_post_process(out, df.index, init_cols,
-                                                name)
+                    out = _ndarray_post_process(out, df.index, init_cols, name)
                 elif scipy.sparse.issparse(out):
                     out = out.toarray()
                     out = _ndarray_post_process(out, df, init_cols, name)
                 elif isinstance(out, pd.Series):
                     pass  # just return the series
                 else:
-                    raise ValueError(
-                        'undefined input {0}'.format(type(out)))
+                    raise ValueError("undefined input {0}".format(type(out)))
                 if self.keep_columns:
                     out = _keep_columns_process(out, df, name)
             return out
+
     return DFTransformer
 
 
@@ -374,6 +442,7 @@ def _ndarray_post_process(ndarray, index, init_cols, prefix):
 
     Args:
         ndarray: the output ndarray from the sklearn public function
+        index: pandas.DataFrame.index
         init_cols: the initial columns before public function call
         prefix: prefix for each column (unique name)
 
@@ -388,8 +457,8 @@ def _ndarray_post_process(ndarray, index, init_cols, prefix):
     kw = {}
     for i, col in enumerate(ndarray.transpose().tolist()):
         kw["{}_{}_{}".format("_".join(init_cols), prefix, i)] = pd.Series(
-                col, index=index
-            )
+            col, index=index  # noqa: E126
+        )  # noqa: E121
 
     return pd.DataFrame(kw)
 

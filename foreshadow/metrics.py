@@ -29,7 +29,7 @@ class Metric(object):  # Metric wrapper
 
         """
         if encoder is not None:  # explicit since encoder is common kwarg.
-            kwargs['encoder'] = encoder
+            kwargs["encoder"] = encoder
         self._last_call = self.fn(feature, **kwargs)
         return self._last_call
 
@@ -59,9 +59,7 @@ class Metric(object):  # Metric wrapper
 
         """
         return "{0} with function '{1}' object at {2}>".format(
-            str(self.__class__)[:-1],
-            self.fn.__name__,
-            id(self)
+            str(self.__class__)[:-1], self.fn.__name__, id(self)
         )
 
 
@@ -93,16 +91,6 @@ def unique_count(feature):
     return len(feature.value_counts())
 
 
-# @metric
-# def delim_diff(feature, delims=(",", ";", "\t")):
-#     delim_counts = [len(list(feature.astype(str).str.get_dummies(sep=d)))
-#                     for d in delims]
-#     diff = min(delim_counts) - len(list(pd.get_dummies(feature)))
-#     delim_index = delim_counts.index(min(delim_counts))
-#     return diff, delims[delim_index]
-
-
-
 @metric
 def unique_count_bias(feature):
     """Difference of count of unique values relative to the length of feature.
@@ -129,6 +117,7 @@ def unique_count_weight(feature):
 
     """
     return len(feature.value_counts()) / len(feature)
+
 
 # ------------------------- Example below
 # class SmartTransformer(self)

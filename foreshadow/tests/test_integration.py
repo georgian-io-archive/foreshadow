@@ -5,10 +5,13 @@ Slow-running tests that verify the performance of the framework on simple
 datasets
 """
 
+import os
+
 import pytest
 
-import os
-os.environ['FORESHADOW_TESTS'] = 'ALL'
+
+os.environ["FORESHADOW_TESTS"] = "ALL"
+
 
 def check_slow():
     import os
