@@ -1,24 +1,34 @@
-"""Cache utility for foreshadow pipeline workflow to share data"""
-from collections import defaultdict
-from collections import MutableMapping
+"""Cache utility for foreshadow pipeline workflow to share data."""
+from collections import MutableMapping, defaultdict
 
 
 class ColumnSharer(MutableMapping):
-    """main cache-class to be used as single-instance to share data"""
+    """main cache-class to be used as single-instance to share data."""
 
     def __init__(self, *args, **kwargs):
         super(ColumnSharer, self).__init__(*args, **kwargs)
         self.store = defaultdict(lambda: {})  # will have a nested dict for
         # every key, which holds {column: key-column info}
-        acceptable_keys = {'intent': True,
-                           'domain': True,
-                           'metastat': True}
+        acceptable_keys = {"intent": True, "domain": True, "metastat": True}
         for key in acceptable_keys:
             self.store[key] = {}
         self.__acceptable_keys = defaultdict(lambda: False, acceptable_keys)
         self.__registered_keys = defaultdict(lambda: False)
 
     def __getitem__(self, key_list):
+        """Override getitem to support multi key accessing simultaneously.
+
+        Args:
+            key_list: list of keys passed
+
+        Returns:
+            [key] or [key][column] from internal dict.
+
+        Raises:
+              e: exception raised by dict on invalid access. Likely
+                  a KeyError.
+
+        """
         # first, get the item from the dict
         key, column = self._convert_key(key_list)
         self.check_key(key)
@@ -31,9 +41,16 @@ class ColumnSharer(MutableMapping):
         return key_dict  # otherwise return all the columns
 
     def __setitem__(self, key_list, value):
+        """Enable multi key setting simultaneously.
+
+        Args:
+            key_list: list of keys passed
+            value: value to set, dict if just the key and value if key, column
+
+        """
         key, column = self._convert_key(key_list)
         self.check_key(key)
-        if column is not None:  # setting the value for the entire key
+        if column is None:  # setting the value for the entire key
             self.store[key] = value
         else:  # setting a particular column's value for a given key.
             self.store[key][column] = value
@@ -49,16 +66,20 @@ class ColumnSharer(MutableMapping):
 
         """
         if not self.__acceptable_keys[key] and not self.__registered_keys[key]:
-            raise KeyError("key {} is not a valid key. Please register it "
-                           "first".format(key))
+            raise KeyError(
+                "key {} is not a valid key. Please register it "
+                "first".format(key)
+            )
         if self.__registered_keys[key]:
-            print("WARNING: the key {} is not an accepted key and relying on "
-                  "information here to exist at runtime could be "
-                  "dangerous".format(key))  # TODO replace with logging
+            print(
+                "WARNING: the key {} is not an accepted key and relying on "
+                "information here to exist at runtime could be "
+                "dangerous".format(key)
+            )  # TODO replace with logging
 
     @staticmethod
     def _convert_key(key):
-        """Internal method to handle the different key input structures.
+        """Convert input key to internal structure; internal method.
 
         The supported key accessing methods are:
             (str), where it is the type of data
@@ -81,15 +102,27 @@ class ColumnSharer(MutableMapping):
         elif isinstance(key, (list, tuple)):
             if len(key) == 2:
                 return key[0], key[1]
-        raise KeyError("input format of: {} is not a supported "
-                       "format.".format(key))
+        raise KeyError(
+            "input format of: {} is not a supported " "format.".format(key)
+        )
 
     def __delitem__(self, key_list):
+        """Enable deletion by column or by key.
+
+        Args:
+            key_list: key, or key and column
+
+        Raises:
+            KeyError: Trying to delete an entire key of data at once.
+
+        """
         key, column = self._convert_key(key_list)
         self.check_key(key)
         if column is None:
-            raise KeyError('You cannot delete an entire key of data. Please '
-                           'pass a key and a column.')
+            raise KeyError(
+                "You cannot delete an entire key of data. Please "
+                "pass a key and a column."
+            )
         del self.store[key][column]
 
     def __iter__(self):
@@ -99,6 +132,8 @@ class ColumnSharer(MutableMapping):
         usage which will ignore it.
 
         Returns:
+            iterator for internal nested dict structure. Will be ordered by
+            key and then column.
 
         """
         # handle nested
@@ -109,10 +144,15 @@ class ColumnSharer(MutableMapping):
                 iterator.extend([(key, None)])
             else:
                 iterator.extend([(key, x) for x in key_iter])
-        return iterator
+        return iter(iterator)
 
     def __len__(self):
-        # handle nested
+        """Length of internal dict as the number of columns across keys.
+
+        Returns:
+            Number of columns, duplicates counted.
+
+        """
         length = 0
         for key in self.store:
             length += len(self.store[key])
