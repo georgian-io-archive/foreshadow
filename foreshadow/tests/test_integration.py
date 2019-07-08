@@ -4,13 +4,7 @@ Integration Tests
 Slow-running tests that verify the performance of the framework on simple
 datasets
 """
-
-import os
-
 import pytest
-
-
-os.environ["FORESHADOW_TESTS"] = "ALL"
 
 
 def check_slow():

@@ -17,8 +17,8 @@ def test_metric_decorate(metric_fn):
         metric_fn: arbitrary metric function
 
     """
-    from foreshadow.metrics import metric
-    from foreshadow.metrics import Metric
+    from foreshadow.metrics.metrics import metric
+    from foreshadow.metrics.metrics import Metric
 
     metric_fn = metric(metric_fn)  # applying decorator
     assert isinstance(metric_fn, Metric)
@@ -41,7 +41,7 @@ def test_metric_call(metric_fn, arg, kwargs):
         kwargs: any kwargs to metric call
 
     """
-    from foreshadow.metrics import metric
+    from foreshadow.metrics.metrics import metric
 
     metric_fn = metric(metric_fn)
     assert metric_fn(arg, **kwargs) == 1
@@ -64,7 +64,7 @@ def test_metric_last_call(metric_fn, arg, kwargs):
         kwargs: any kwargs to metric call
 
     """
-    from foreshadow.metrics import metric
+    from foreshadow.metrics.metrics import metric
 
     metric_fn = metric(metric_fn)
     _ = metric_fn(arg, **kwargs)
@@ -89,7 +89,7 @@ def test_metric_print(fn, regex):
         regex: useful information to check
 
     """
-    from foreshadow.metrics import Metric
+    from foreshadow.metrics.metrics import Metric
 
     metric_fn = Metric(lambda x: 1)
     assert re.search(regex, getattr(metric_fn, fn)())
@@ -106,7 +106,7 @@ def test_unique_count(column, ret):
         ret: expected unique_count value
 
     """
-    from foreshadow.metrics import unique_count
+    from foreshadow.metrics.internals import unique_count
 
     assert unique_count(column) == ret
 
@@ -120,7 +120,7 @@ def test_unique_count_bias(column, ret):
         ret: expected unique_count value
 
     """
-    from foreshadow.metrics import unique_count_bias
+    from foreshadow.metrics.internals import unique_count_bias
 
     assert unique_count_bias(column) == ret
 
@@ -134,6 +134,6 @@ def test_unique_count_weight(column, ret):
             ret: expected unique_count value
 
         """
-    from foreshadow.metrics import unique_count_weight
+    from foreshadow.metrics.internals import unique_count_weight
 
     assert unique_count_weight(column) == ret

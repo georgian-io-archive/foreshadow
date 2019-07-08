@@ -1,5 +1,7 @@
 import pytest
 
+from foreshadow.tests.utils import get_file_path
+
 
 def test_transformer_wrapper_init():
     from foreshadow.transformers.externals import StandardScaler
@@ -24,8 +26,6 @@ def test_transformer_wrapper_no_init():
 
 
 def test_transformer_wrapper_function():
-    import os
-
     import numpy as np
     import pandas as pd
     from sklearn.preprocessing import StandardScaler as StandardScaler
@@ -33,9 +33,7 @@ def test_transformer_wrapper_function():
         StandardScaler as CustomScaler,
     )
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -66,7 +64,6 @@ def test_transformer_wrapper_empty_input():
     )
 
     df = pd.DataFrame({"A": np.array([])})
-    print(df.empty)
 
     with pytest.raises(ValueError) as e:
         StandardScaler().fit(df)
@@ -81,16 +78,12 @@ def test_transformer_wrapper_empty_input():
 
 
 def test_transformer_keep_cols():
-    import os
-
     import pandas as pd
     from foreshadow.transformers.externals import (
         StandardScaler as CustomScaler,
     )
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -101,14 +94,10 @@ def test_transformer_keep_cols():
 
 
 def test_transformer_naming_override():
-    import os
-
     from foreshadow.transformers.externals import StandardScaler
     import pandas as pd
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -119,14 +108,10 @@ def test_transformer_naming_override():
 
 
 def test_transformer_naming_default():
-    import os
-
     from foreshadow.transformers.externals import StandardScaler
     import pandas as pd
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -155,14 +140,10 @@ def test_transformer_parallel_invalid():
 
 
 def test_transformer_parallel_empty():
-    import os
-
     import pandas as pd
     from foreshadow.transformers.base import ParallelProcessor
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -187,16 +168,12 @@ def test_transformer_parallel_empty():
 
 
 def test_transformer_parallel():
-    import os
-
     import pandas as pd
 
     from foreshadow.transformers.base import ParallelProcessor
     from foreshadow.transformers.externals import StandardScaler
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -233,8 +210,6 @@ def test_transformer_parallel():
 
 
 def test_transformer_pipeline():
-    import os
-
     import pandas as pd
     import numpy as np
 
@@ -251,9 +226,7 @@ def test_transformer_pipeline():
     from sklearn.pipeline import Pipeline
     from sklearn.linear_model import LinearRegression
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -293,15 +266,11 @@ def test_transformer_pipeline():
 
 
 def test_smarttransformer_notimplemented():
-    import os
-
     import pandas as pd
 
     from foreshadow.transformers.base import SmartTransformer
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -320,15 +289,11 @@ def test_smarttransformer_notimplemented():
 
 
 def test_smarttransformer_attributeerror():
-    import os
-
     import pandas as pd
 
     from foreshadow.transformers.base import SmartTransformer
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -348,15 +313,11 @@ def test_smarttransformer_attributeerror():
 
 
 def test_smarttransformer_invalidtransformer():
-    import os
-
     import pandas as pd
 
     from foreshadow.transformers.base import SmartTransformer
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -379,16 +340,12 @@ def test_smarttransformer_invalidtransformer():
 
 
 def test_smarttransformer_function():
-    import os
-
     import pandas as pd
 
     from foreshadow.transformers.base import SmartTransformer
     from foreshadow.transformers.externals import StandardScaler
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -414,16 +371,12 @@ def test_smarttransformer_function():
 
 
 def test_smarttransformer_function_override():
-    import os
-
     import pandas as pd
 
     from foreshadow.transformers.base import SmartTransformer
     from foreshadow.transformers.externals import Imputer
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -576,12 +529,9 @@ def test_sparse_matrix_conversion():
 @pytest.mark.parametrize(
     "transformer,input_csv",
     [
-        ("StandardScaler", "./foreshadow/tests/test_data/boston_housing.csv"),
-        ("OneHotEncoder", "./foreshadow/tests/test_data/boston_housing.csv"),
-        (
-            "TfidfTransformer",
-            "./foreshadow/tests/test_data/boston_housing.csv",
-        ),
+        ("StandardScaler", get_file_path("test_data", "boston_housing.csv")),
+        ("OneHotEncoder", get_file_path("test_data", "boston_housing.csv")),
+        ("TfidfTransformer", get_file_path("test_data", "boston_housing.csv")),
     ],
 )
 def test_make_pandas_transformer_fit(transformer, input_csv):
@@ -637,19 +587,19 @@ def test_make_pandas_transformer_meta(transformer, expected_path):
             "StandardScaler",
             {},
             "sklearn.preprocessing",
-            "./foreshadow/tests/test_data/boston_housing.csv",
+            get_file_path("test_data", "boston_housing.csv"),
         ),
         (
             "OneHotEncoder",
             {},
             "category_encoders",
-            "./foreshadow/tests/test_data/boston_housing.csv",
+            get_file_path("test_data", "boston_housing.csv"),
         ),
         (
             "TfidfTransformer",
             {},
             "sklearn.feature_extraction.text",
-            "./foreshadow/tests/test_data/boston_housing.csv",
+            get_file_path("test_data", "boston_housing.csv"),
         ),
     ],
 )
@@ -691,12 +641,12 @@ def test_make_pandas_transformer_transform(
         (
             "StandardScaler",
             "sklearn.preprocessing",
-            "./foreshadow/tests/test_data/boston_housing.csv",
+            get_file_path("test_data", "boston_housing.csv"),
         ),
         (
             "TfidfTransformer",
             "sklearn.feature_extraction.text",
-            "./foreshadow/tests/test_data/boston_housing.csv",
+            get_file_path("test_data", "boston_housing.csv"),
         ),
     ],
 )
