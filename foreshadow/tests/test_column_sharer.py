@@ -11,10 +11,11 @@ simple_dataframe = pd.Series([i for i in range(10)])
 
 @pytest.mark.parametrize("args,kwargs", [([], {})])
 def test_column_sharer_create(args, kwargs):
-    """Test arbitrary function can be converted to Metric using metric.
+    """Test creation of a ColumnSharer object.
 
     Args:
-        metric_fn: arbitrary metric function
+        args: args to ColumnSharer init
+        kwargs: kwargs to ColumnSharer init
 
     """
     from collections import MutableMapping
@@ -23,57 +24,6 @@ def test_column_sharer_create(args, kwargs):
     assert isinstance(cs, MutableMapping)
 
 
-@pytest.mark.parametrize(
-    "key,expected_error1,expected_error2,expected_str1,expected_str2",
-    [
-        ("testing", None, KeyError, None, ".+already a registered key.+"),
-        (
-            "domain",
-            KeyError,
-            KeyError,
-            ".+ already a predefined key.+",
-            ".+ already a predefined key.+",
-        ),
-    ],
-)
-def test_column_sharer_register(
-    key, expected_error1, expected_error2, expected_str1, expected_str2
-):
-    """Test registering key, ensuring key is on dict and error is raised.
-
-    Runs the register_key function twice as some errors only occur on the
-    second attempt.
-
-    Args:
-        key: key to register into ColumnSharer
-        expected_error1: None if no error on first try, otherwise the expected
-            error.
-        expected_error2: None if no error on the second try, otherwise the
-            expected error
-        expected_str1: expected string for the error on first attempt
-            expected
-        expected_str2: expected string for the error on second attempt
-            expected
-
-    """
-    cs = ColumnSharer()
-    if expected_error1 is not None:
-        with pytest.raises(expected_error1) as e1:
-            cs.register_key(key)
-    else:
-        cs.register_key(key)
-    if expected_error2 is not None:
-        with pytest.raises(expected_error2) as e2:
-            cs.register_key(key)
-    else:
-        cs.register_key(key)
-    if expected_error1 is not None:
-        if expected_str1 is not None:
-            assert re.match(expected_str1, str(e1.value))
-    if expected_error2 is not None:
-        if expected_str2 is not None:
-            assert re.match(expected_str2, str(e2.value))
-    assert cs.store.get(key, None) is not None
 
 
 @pytest.mark.parametrize(
@@ -152,37 +102,29 @@ def test_column_sharer_getitem(key, item_to_set, expected):
 
 
 @pytest.mark.parametrize(
-    "key,key_to_register,expected",
+    "key,expected",
     [
-        ("domain", None, None),
-        ("test", "test", None),
-        ("test", None, KeyError)  # can't get column info if
+        ("domain", None),
+        ("test", "WARNING")  # can't get column info if
         # there is no column info
     ],
 )
-def test_column_sharer_checkkey(key, key_to_register, expected):
-    """Test that getitem works for all valid key combinations or error raised.
+def test_column_sharer_checkkey(capsys, key, expected):
+    """Test that getitem works for all valid key combinations.
 
     Args:
+        capsys: captures stdout and stderr. Pytest fixture.
         key (list): key to access on ColumnSharer
-        key_to_register: key to register as starting info
         expected: the expected result or error
 
     """
     cs = ColumnSharer()
-    if key_to_register is not None:
-        cs.register_key(key_to_register)
-    try:
-        expected_is_exception = issubclass(expected, BaseException)  # this
-        # will fail if expected is not an Exception
-    except TypeError:
-        expected_is_exception = False
-    if expected_is_exception:
-        with pytest.raises(expected) as e:
-            cs.check_key(key)
-        assert issubclass(e.type, expected)
+    cs.check_key(key)
+    out, err = capsys.readouterr()
+    if expected is not None:
+        assert out.find(expected) != -1
     else:
-        cs.check_key(key)
+        assert len(out) == 0  # nothing in out.
 
 
 @pytest.mark.parametrize(
@@ -238,11 +180,6 @@ def test_column_sharer_iter(store):
 
     """
     cs = ColumnSharer()
-    for key in store:
-        try:
-            cs.register_key(key)
-        except KeyError:
-            pass
     cs.store = store
     expected = {}  # we try to recreate the internal dict using the keys
     for key in iter(cs):
@@ -256,52 +193,44 @@ def test_column_sharer_iter(store):
 
 
 @pytest.mark.parametrize(
-    "key,item_to_set,expected",
+    "key,item_to_set,expected,warning",
     [
-        (["domain"], {}, {}),
-        (["domain", "column"], [1, 2, 3], [1, 2, 3]),
-        (["random_column", "column"], None, KeyError),  # can't get column
-        # info if there is no column info
-        (["domain", None], {}, {}),
-        (["random_column"], None, KeyError),  # can't get column
-        # info if there is no column info
+        (["domain"], {}, {}, False),
+        (["domain", "column"], [1, 2, 3], [1, 2, 3], False),
+        (["random_column", "column"], None, None, True),  # return None and
+        # print warning
+        (["domain", None], {}, {}, False),
+        (["random_column"], None, None, True),  # return None and
+        # print warning
     ],
 )
-def test_column_sharer_setitem(key, item_to_set, expected):
+def test_column_sharer_setitem(capsys, key, item_to_set, expected, warning):
     """Test that getitem works for all valid key combinations or error raised.
 
     Args:
+        capsys: captures stdout and stderr. Pytest fixture.
         key (list): key to access on ColumnSharer
         item_to_set: the item to set on the key as starting data. Dependent
             on the length of the key.
         expected: the expected result or error
+        warning: True to check if should raise warning. False to not.
 
     """
     cs = ColumnSharer()
     if len(key) == 1:
-        try:  # assume expected is an error
-            if issubclass(
-                expected, BaseException
-            ):  # this will fail if it isn't
-                with pytest.raises(expected) as e:
-                    cs[key[0]] = item_to_set
-                assert issubclass(e.type, expected)
-        except TypeError:  # then expected will be the true result returned
-            cs[key[0]] = item_to_set
-            assert cs[key[0]] == expected
+        cs[key[0]] = item_to_set
+        assert cs[key[0]] == expected
+        if warning:
+            out, err = capsys.readouterr()
+            assert out.find('WARNING') != -1
 
     elif len(key) == 2:
-        try:  # assume expected is an error
-            if issubclass(
-                expected, BaseException
-            ):  # this will fail if it isn't
-                with pytest.raises(expected) as e:
-                    cs[key[0], key[1]] = item_to_set
-                assert issubclass(e.type, expected)
-        except TypeError:  # then expected will be the true result returned
-            cs[key[0], key[1]] = item_to_set
-            print(cs.store)
-            assert cs[key[0], key[1]] == expected
+        cs[key[0], key[1]] = item_to_set
+        print(cs.store)
+        assert cs[key[0], key[1]] == expected
+        if warning:
+            out, err = capsys.readouterr()
+            assert out.find('WARNING') != -1
 
     else:
         raise NotImplementedError("test case not implemented")
@@ -320,7 +249,7 @@ def test_column_sharer_setitem(key, item_to_set, expected):
                 "registered_key": {},
                 "another_registered": {"column1": [1, 2, 3], "column2": True},
             },
-            3,
+            5,
         ),
     ],
 )
@@ -333,9 +262,4 @@ def test_column_sharer_len(store, expected):
     """
     cs = ColumnSharer()
     cs.store = store
-    for key in store:
-        try:
-            cs.register_key(key)
-        except KeyError:
-            pass
     assert len(cs) == expected

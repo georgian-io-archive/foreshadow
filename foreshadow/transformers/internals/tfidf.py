@@ -55,7 +55,7 @@ class FixedTfidfVectorizer(BaseEstimator, VectorizerMixin):
             y: labels
 
         Returns:
-            (array-like) Transformed samples
+            array-like: Transformed samples
 
         """
         X = check_array(

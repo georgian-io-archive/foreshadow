@@ -1,0 +1,1538 @@
+{
+    "X_Model": {
+        "columns": {
+            "CRIM": {
+                "intent": "NumericIntent",
+                "pipeline": [
+                    {
+                        "transformer": "DropFeature",
+                        "name": "dropper",
+                        "parameters": {
+                            "keep_columns": false,
+                            "raise_on_inverse": false,
+                            "threshold": 0.3
+                        }
+                    },
+                    {
+                        "transformer": "BoxCox",
+                        "name": "box_cox",
+                        "parameters": {
+                            "keep_columns": false
+                        }
+                    },
+                    {
+                        "transformer": "RobustScaler",
+                        "name": "robust_scaler",
+                        "parameters": {
+                            "keep_columns": false,
+                            "copy": true,
+                            "quantile_range": [
+                                25.0,
+                                75.0
+                            ],
+                            "with_centering": true,
+                            "with_scaling": true
+                        }
+                    }
+                ],
+                "all_matched_intents": [
+                    "GenericIntent",
+                    "NumericIntent"
+                ]
+            },
+            "ZN": {
+                "intent": "CategoricalIntent",
+                "pipeline": [
+                    {
+                        "transformer": "DropFeature",
+                        "name": "dropper",
+                        "parameters": {
+                            "keep_columns": false,
+                            "raise_on_inverse": false,
+                            "threshold": 0.3
+                        }
+                    },
+                    {
+                        "transformer": "OneHotEncoder",
+                        "name": "impute_encode",
+                        "parameters": {
+                            "keep_columns": false,
+                            "drop_invariant": false,
+                            "handle_unknown": "ignore",
+                            "impute_missing": true,
+                            "return_df": true,
+                            "use_cat_names": true,
+                            "verbose": 0
+                        }
+                    }
+                ],
+                "all_matched_intents": [
+                    "GenericIntent",
+                    "NumericIntent",
+                    "CategoricalIntent"
+                ]
+            },
+            "INDUS": {
+                "intent": "CategoricalIntent",
+                "pipeline": [
+                    {
+                        "transformer": "DropFeature",
+                        "name": "dropper",
+                        "parameters": {
+                            "keep_columns": false,
+                            "raise_on_inverse": false,
+                            "threshold": 0.3
+                        }
+                    },
+                    {
+                        "transformer": "UncommonRemover",
+                        "name": "ur",
+                        "parameters": {
+                            "keep_columns": false,
+                            "replacement": "UncommonRemover_Other",
+                            "threshold": 0.01
+                        }
+                    },
+                    {
+                        "transformer": "OneHotEncoder",
+                        "name": "ohe",
+                        "parameters": {
+                            "keep_columns": false,
+                            "drop_invariant": false,
+                            "handle_unknown": "ignore",
+                            "impute_missing": true,
+                            "return_df": true,
+                            "use_cat_names": true,
+                            "verbose": 0
+                        }
+                    }
+                ],
+                "all_matched_intents": [
+                    "GenericIntent",
+                    "NumericIntent",
+                    "CategoricalIntent"
+                ]
+            },
+            "CHAS": {
+                "intent": "CategoricalIntent",
+                "pipeline": [
+                    {
+                        "transformer": "DropFeature",
+                        "name": "dropper",
+                        "parameters": {
+                            "keep_columns": false,
+                            "raise_on_inverse": false,
+                            "threshold": 0.3
+                        }
+                    },
+                    {
+                        "transformer": "OneHotEncoder",
+                        "name": "impute_encode",
+                        "parameters": {
+                            "keep_columns": false,
+                            "drop_invariant": false,
+                            "handle_unknown": "ignore",
+                            "impute_missing": true,
+                            "return_df": true,
+                            "use_cat_names": true,
+                            "verbose": 0
+                        }
+                    }
+                ],
+                "all_matched_intents": [
+                    "GenericIntent",
+                    "NumericIntent",
+                    "CategoricalIntent"
+                ]
+            },
+            "NOX": {
+                "intent": "CategoricalIntent",
+                "pipeline": [
+                    {
+                        "transformer": "DropFeature",
+                        "name": "dropper",
+                        "parameters": {
+                            "keep_columns": false,
+                            "raise_on_inverse": false,
+                            "threshold": 0.3
+                        }
+                    },
+                    {
+                        "transformer": "HashingEncoder",
+                        "name": "impute_encode",
+                        "parameters": {
+                            "keep_columns": false,
+                            "drop_invariant": false,
+                            "hash_method": "md5",
+                            "n_components": 30,
+                            "return_df": true,
+                            "verbose": 0
+                        }
+                    }
+                ],
+                "all_matched_intents": [
+                    "GenericIntent",
+                    "NumericIntent",
+                    "CategoricalIntent"
+                ]
+            },
+            "RM": {
+                "intent": "NumericIntent",
+                "pipeline": [
+                    {
+                        "transformer": "DropFeature",
+                        "name": "dropper",
+                        "parameters": {
+                            "keep_columns": false,
+                            "raise_on_inverse": false,
+                            "threshold": 0.3
+                        }
+                    },
+                    {
+                        "transformer": "BoxCox",
+                        "name": "box_cox",
+                        "parameters": {
+                            "keep_columns": false
+                        }
+                    },
+                    {
+                        "transformer": "RobustScaler",
+                        "name": "robust_scaler",
+                        "parameters": {
+                            "keep_columns": false,
+                            "copy": true,
+                            "quantile_range": [
+                                25.0,
+                                75.0
+                            ],
+                            "with_centering": true,
+                            "with_scaling": true
+                        }
+                    }
+                ],
+                "all_matched_intents": [
+                    "GenericIntent",
+                    "NumericIntent"
+                ]
+            },
+            "AGE": {
+                "intent": "NumericIntent",
+                "pipeline": [
+                    {
+                        "transformer": "DropFeature",
+                        "name": "dropper",
+                        "parameters": {
+                            "keep_columns": false,
+                            "raise_on_inverse": false,
+                            "threshold": 0.3
+                        }
+                    },
+                    {
+                        "transformer": "BoxCox",
+                        "name": "box_cox",
+                        "parameters": {
+                            "keep_columns": false
+                        }
+                    },
+                    {
+                        "transformer": "RobustScaler",
+                        "name": "robust_scaler",
+                        "parameters": {
+                            "keep_columns": false,
+                            "copy": true,
+                            "quantile_range": [
+                                25.0,
+                                75.0
+                            ],
+                            "with_centering": true,
+                            "with_scaling": true
+                        }
+                    }
+                ],
+                "all_matched_intents": [
+                    "GenericIntent",
+                    "NumericIntent"
+                ]
+            },
+            "DIS": {
+                "intent": "NumericIntent",
+                "pipeline": [
+                    {
+                        "transformer": "DropFeature",
+                        "name": "dropper",
+                        "parameters": {
+                            "keep_columns": false,
+                            "raise_on_inverse": false,
+                            "threshold": 0.3
+                        }
+                    },
+                    {
+                        "transformer": "BoxCox",
+                        "name": "box_cox",
+                        "parameters": {
+                            "keep_columns": false
+                        }
+                    },
+                    {
+                        "transformer": "RobustScaler",
+                        "name": "robust_scaler",
+                        "parameters": {
+                            "keep_columns": false,
+                            "copy": true,
+                            "quantile_range": [
+                                25.0,
+                                75.0
+                            ],
+                            "with_centering": true,
+                            "with_scaling": true
+                        }
+                    }
+                ],
+                "all_matched_intents": [
+                    "GenericIntent",
+                    "NumericIntent"
+                ]
+            },
+            "RAD": {
+                "intent": "CategoricalIntent",
+                "pipeline": [
+                    {
+                        "transformer": "DropFeature",
+                        "name": "dropper",
+                        "parameters": {
+                            "keep_columns": false,
+                            "raise_on_inverse": false,
+                            "threshold": 0.3
+                        }
+                    },
+                    {
+                        "transformer": "OneHotEncoder",
+                        "name": "impute_encode",
+                        "parameters": {
+                            "keep_columns": false,
+                            "drop_invariant": false,
+                            "handle_unknown": "ignore",
+                            "impute_missing": true,
+                            "return_df": true,
+                            "use_cat_names": true,
+                            "verbose": 0
+                        }
+                    }
+                ],
+                "all_matched_intents": [
+                    "GenericIntent",
+                    "NumericIntent",
+                    "CategoricalIntent"
+                ]
+            },
+            "TAX": {
+                "intent": "CategoricalIntent",
+                "pipeline": [
+                    {
+                        "transformer": "DropFeature",
+                        "name": "dropper",
+                        "parameters": {
+                            "keep_columns": false,
+                            "raise_on_inverse": false,
+                            "threshold": 0.3
+                        }
+                    },
+                    {
+                        "transformer": "UncommonRemover",
+                        "name": "ur",
+                        "parameters": {
+                            "keep_columns": false,
+                            "replacement": "UncommonRemover_Other",
+                            "threshold": 0.01
+                        }
+                    },
+                    {
+                        "transformer": "OneHotEncoder",
+                        "name": "ohe",
+                        "parameters": {
+                            "keep_columns": false,
+                            "drop_invariant": false,
+                            "handle_unknown": "ignore",
+                            "impute_missing": true,
+                            "return_df": true,
+                            "use_cat_names": true,
+                            "verbose": 0
+                        }
+                    }
+                ],
+                "all_matched_intents": [
+                    "GenericIntent",
+                    "NumericIntent",
+                    "CategoricalIntent"
+                ]
+            },
+            "PTRATIO": {
+                "intent": "CategoricalIntent",
+                "pipeline": [
+                    {
+                        "transformer": "DropFeature",
+                        "name": "dropper",
+                        "parameters": {
+                            "keep_columns": false,
+                            "raise_on_inverse": false,
+                            "threshold": 0.3
+                        }
+                    },
+                    {
+                        "transformer": "UncommonRemover",
+                        "name": "ur",
+                        "parameters": {
+                            "keep_columns": false,
+                            "replacement": "UncommonRemover_Other",
+                            "threshold": 0.01
+                        }
+                    },
+                    {
+                        "transformer": "OneHotEncoder",
+                        "name": "ohe",
+                        "parameters": {
+                            "keep_columns": false,
+                            "drop_invariant": false,
+                            "handle_unknown": "ignore",
+                            "impute_missing": true,
+                            "return_df": true,
+                            "use_cat_names": true,
+                            "verbose": 0
+                        }
+                    }
+                ],
+                "all_matched_intents": [
+                    "GenericIntent",
+                    "NumericIntent",
+                    "CategoricalIntent"
+                ]
+            },
+            "B": {
+                "intent": "NumericIntent",
+                "pipeline": [
+                    {
+                        "transformer": "DropFeature",
+                        "name": "dropper",
+                        "parameters": {
+                            "keep_columns": false,
+                            "raise_on_inverse": false,
+                            "threshold": 0.3
+                        }
+                    },
+                    {
+                        "transformer": "BoxCox",
+                        "name": "box_cox",
+                        "parameters": {
+                            "keep_columns": false
+                        }
+                    },
+                    {
+                        "transformer": "RobustScaler",
+                        "name": "robust_scaler",
+                        "parameters": {
+                            "keep_columns": false,
+                            "copy": true,
+                            "quantile_range": [
+                                25.0,
+                                75.0
+                            ],
+                            "with_centering": true,
+                            "with_scaling": true
+                        }
+                    }
+                ],
+                "all_matched_intents": [
+                    "GenericIntent",
+                    "NumericIntent"
+                ]
+            },
+            "LSTAT": {
+                "intent": "NumericIntent",
+                "pipeline": [
+                    {
+                        "transformer": "DropFeature",
+                        "name": "dropper",
+                        "parameters": {
+                            "keep_columns": false,
+                            "raise_on_inverse": false,
+                            "threshold": 0.3
+                        }
+                    },
+                    {
+                        "transformer": "BoxCox",
+                        "name": "box_cox",
+                        "parameters": {
+                            "keep_columns": false
+                        }
+                    },
+                    {
+                        "transformer": "RobustScaler",
+                        "name": "robust_scaler",
+                        "parameters": {
+                            "keep_columns": false,
+                            "copy": true,
+                            "quantile_range": [
+                                25.0,
+                                75.0
+                            ],
+                            "with_centering": true,
+                            "with_scaling": true
+                        }
+                    }
+                ],
+                "all_matched_intents": [
+                    "GenericIntent",
+                    "NumericIntent"
+                ]
+            }
+        },
+        "postprocess": [],
+        "intents": {
+            "GenericIntent": {
+                "multi": [
+                    {
+                        "transformer": "MultiImputer",
+                        "name": "multi_impute",
+                        "parameters": {
+                            "y_var": false,
+                            "override": null,
+                            "keep_columns": false
+                        }
+                    }
+                ],
+                "single": []
+            },
+            "NumericIntent": {
+                "multi": [],
+                "single": [
+                    {
+                        "transformer": "DropFeature",
+                        "name": "dropper",
+                        "parameters": {
+                            "keep_columns": false,
+                            "raise_on_inverse": false,
+                            "threshold": 0.3
+                        }
+                    },
+                    {
+                        "transformer": "SimpleImputer",
+                        "name": "simple_imputer",
+                        "parameters": {
+                            "y_var": false,
+                            "override": null,
+                            "keep_columns": false
+                        }
+                    },
+                    {
+                        "transformer": "Scaler",
+                        "name": "scaler",
+                        "parameters": {
+                            "y_var": false,
+                            "override": null,
+                            "keep_columns": false
+                        }
+                    }
+                ]
+            },
+            "CategoricalIntent": {
+                "multi": [],
+                "single": [
+                    {
+                        "transformer": "DropFeature",
+                        "name": "dropper",
+                        "parameters": {
+                            "keep_columns": false,
+                            "raise_on_inverse": false,
+                            "threshold": 0.3
+                        }
+                    },
+                    {
+                        "transformer": "Encoder",
+                        "name": "impute_encode",
+                        "parameters": {
+                            "y_var": false,
+                            "override": null,
+                            "keep_columns": false
+                        }
+                    }
+                ]
+            }
+        },
+        "y_var": false
+    },
+    "X_Summary": {
+        "CRIM": {
+            "intent": "NumericIntent",
+            "data": {
+                "nan": 0,
+                "invalid": 0,
+                "mean": 3.6401711633663365,
+                "std": 9.037366505487237,
+                "min": 0.00632,
+                "25th": 0.0823825,
+                "median": 0.25277499999999997,
+                "75th": 3.5949275,
+                "max": 88.9762,
+                "mode": [
+                    14.3337
+                ],
+                "top10": [
+                    [
+                        14.3337,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        0.08265,
+                        1.0,
+                        0.0024752475247524753
+                    ],
+                    [
+                        0.11027,
+                        1.0,
+                        0.0024752475247524753
+                    ],
+                    [
+                        0.537,
+                        1.0,
+                        0.0024752475247524753
+                    ],
+                    [
+                        2.73397,
+                        1.0,
+                        0.0024752475247524753
+                    ],
+                    [
+                        51.1358,
+                        1.0,
+                        0.0024752475247524753
+                    ],
+                    [
+                        9.32909,
+                        1.0,
+                        0.0024752475247524753
+                    ],
+                    [
+                        0.12269,
+                        1.0,
+                        0.0024752475247524753
+                    ],
+                    [
+                        0.07165,
+                        1.0,
+                        0.0024752475247524753
+                    ],
+                    [
+                        0.25356,
+                        1.0,
+                        0.0024752475247524753
+                    ]
+                ],
+                "10outliers": [
+                    88.9762,
+                    73.5341,
+                    67.9208,
+                    51.1358,
+                    45.7461,
+                    41.5292,
+                    37.6619
+                ]
+            }
+        },
+        "ZN": {
+            "intent": "CategoricalIntent",
+            "data": {
+                "nan": 0,
+                "mode": [
+                    0.0
+                ],
+                "top10": [
+                    [
+                        0.0,
+                        293.0,
+                        0.7252475247524752
+                    ],
+                    [
+                        20.0,
+                        17.0,
+                        0.04207920792079208
+                    ],
+                    [
+                        25.0,
+                        10.0,
+                        0.024752475247524754
+                    ],
+                    [
+                        80.0,
+                        10.0,
+                        0.024752475247524754
+                    ],
+                    [
+                        12.5,
+                        9.0,
+                        0.022277227722772276
+                    ],
+                    [
+                        40.0,
+                        7.0,
+                        0.017326732673267328
+                    ],
+                    [
+                        30.0,
+                        6.0,
+                        0.01485148514851485
+                    ],
+                    [
+                        45.0,
+                        6.0,
+                        0.01485148514851485
+                    ],
+                    [
+                        90.0,
+                        5.0,
+                        0.012376237623762377
+                    ],
+                    [
+                        22.0,
+                        5.0,
+                        0.012376237623762377
+                    ]
+                ]
+            }
+        },
+        "INDUS": {
+            "intent": "CategoricalIntent",
+            "data": {
+                "nan": 0,
+                "mode": [
+                    18.1
+                ],
+                "top10": [
+                    [
+                        18.1,
+                        105.0,
+                        0.2599009900990099
+                    ],
+                    [
+                        19.58,
+                        25.0,
+                        0.06188118811881188
+                    ],
+                    [
+                        8.14,
+                        18.0,
+                        0.04455445544554455
+                    ],
+                    [
+                        6.2,
+                        16.0,
+                        0.039603960396039604
+                    ],
+                    [
+                        21.89,
+                        11.0,
+                        0.027227722772277228
+                    ],
+                    [
+                        8.56,
+                        10.0,
+                        0.024752475247524754
+                    ],
+                    [
+                        10.59,
+                        8.0,
+                        0.019801980198019802
+                    ],
+                    [
+                        9.69,
+                        8.0,
+                        0.019801980198019802
+                    ],
+                    [
+                        9.9,
+                        8.0,
+                        0.019801980198019802
+                    ],
+                    [
+                        3.97,
+                        8.0,
+                        0.019801980198019802
+                    ]
+                ]
+            }
+        },
+        "CHAS": {
+            "intent": "CategoricalIntent",
+            "data": {
+                "nan": 0,
+                "mode": [
+                    0.0
+                ],
+                "top10": [
+                    [
+                        0.0,
+                        376.0,
+                        0.9306930693069307
+                    ],
+                    [
+                        1.0,
+                        28.0,
+                        0.06930693069306931
+                    ]
+                ]
+            }
+        },
+        "NOX": {
+            "intent": "CategoricalIntent",
+            "data": {
+                "nan": 0,
+                "mode": [
+                    0.538
+                ],
+                "top10": [
+                    [
+                        0.538,
+                        19.0,
+                        0.04702970297029703
+                    ],
+                    [
+                        0.871,
+                        14.0,
+                        0.034653465346534656
+                    ],
+                    [
+                        0.437,
+                        13.0,
+                        0.03217821782178218
+                    ],
+                    [
+                        0.713,
+                        13.0,
+                        0.03217821782178218
+                    ],
+                    [
+                        0.605,
+                        11.0,
+                        0.027227722772277228
+                    ],
+                    [
+                        0.624,
+                        11.0,
+                        0.027227722772277228
+                    ],
+                    [
+                        0.693,
+                        11.0,
+                        0.027227722772277228
+                    ],
+                    [
+                        0.52,
+                        10.0,
+                        0.024752475247524754
+                    ],
+                    [
+                        0.489,
+                        9.0,
+                        0.022277227722772276
+                    ],
+                    [
+                        0.74,
+                        8.0,
+                        0.019801980198019802
+                    ]
+                ]
+            }
+        },
+        "RM": {
+            "intent": "NumericIntent",
+            "data": {
+                "nan": 0,
+                "invalid": 0,
+                "mean": 6.282165841584158,
+                "std": 0.7189420678984357,
+                "min": 3.561,
+                "25th": 5.8905,
+                "median": 6.194,
+                "75th": 6.6259999999999994,
+                "max": 8.78,
+                "mode": [
+                    6.127,
+                    6.229
+                ],
+                "top10": [
+                    [
+                        6.127,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        6.229,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        5.875,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        5.936,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        6.211,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        6.209,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        5.813,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        6.98,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        5.856,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        5.713,
+                        2.0,
+                        0.0049504950495049506
+                    ]
+                ],
+                "10outliers": [
+                    8.78,
+                    8.725,
+                    8.704,
+                    3.863,
+                    3.561
+                ]
+            }
+        },
+        "AGE": {
+            "intent": "NumericIntent",
+            "data": {
+                "nan": 0,
+                "invalid": 0,
+                "mean": 68.16336633663366,
+                "std": 28.295080977057108,
+                "min": 2.9,
+                "25th": 43.25,
+                "median": 77.5,
+                "75th": 93.92500000000001,
+                "max": 100.0,
+                "mode": [
+                    100.0
+                ],
+                "top10": [
+                    [
+                        100.0,
+                        32.0,
+                        0.07920792079207921
+                    ],
+                    [
+                        98.8,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        97.3,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        98.9,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        32.2,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        97.4,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        96.0,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        98.2,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        97.9,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        94.1,
+                        3.0,
+                        0.007425742574257425
+                    ]
+                ],
+                "10outliers": []
+            }
+        },
+        "DIS": {
+            "intent": "NumericIntent",
+            "data": {
+                "nan": 0,
+                "invalid": 0,
+                "mean": 3.7873514851485153,
+                "std": 2.112512060469843,
+                "min": 1.1296,
+                "25th": 2.087875,
+                "median": 3.2074499999999997,
+                "75th": 5.212575,
+                "max": 12.1265,
+                "mode": [
+                    3.4952,
+                    5.2873,
+                    5.4007,
+                    5.7209
+                ],
+                "top10": [
+                    [
+                        5.4007,
+                        4.0,
+                        0.009900990099009901
+                    ],
+                    [
+                        5.7209,
+                        4.0,
+                        0.009900990099009901
+                    ],
+                    [
+                        3.4952,
+                        4.0,
+                        0.009900990099009901
+                    ],
+                    [
+                        5.2873,
+                        4.0,
+                        0.009900990099009901
+                    ],
+                    [
+                        6.498,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        6.4798,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        7.309,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        7.3172,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        6.3361,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        5.4917,
+                        3.0,
+                        0.007425742574257425
+                    ]
+                ],
+                "10outliers": [
+                    12.1265,
+                    10.7103,
+                    10.5857,
+                    10.5857
+                ]
+            }
+        },
+        "RAD": {
+            "intent": "CategoricalIntent",
+            "data": {
+                "nan": 0,
+                "mode": [
+                    24.0
+                ],
+                "top10": [
+                    [
+                        24.0,
+                        105.0,
+                        0.2599009900990099
+                    ],
+                    [
+                        5.0,
+                        95.0,
+                        0.23514851485148514
+                    ],
+                    [
+                        4.0,
+                        84.0,
+                        0.2079207920792079
+                    ],
+                    [
+                        3.0,
+                        29.0,
+                        0.07178217821782178
+                    ],
+                    [
+                        6.0,
+                        24.0,
+                        0.0594059405940594
+                    ],
+                    [
+                        8.0,
+                        22.0,
+                        0.054455445544554455
+                    ],
+                    [
+                        2.0,
+                        17.0,
+                        0.04207920792079208
+                    ],
+                    [
+                        1.0,
+                        16.0,
+                        0.039603960396039604
+                    ],
+                    [
+                        7.0,
+                        12.0,
+                        0.0297029702970297
+                    ]
+                ]
+            }
+        },
+        "TAX": {
+            "intent": "CategoricalIntent",
+            "data": {
+                "nan": 0,
+                "mode": [
+                    666.0
+                ],
+                "top10": [
+                    [
+                        666.0,
+                        105.0,
+                        0.2599009900990099
+                    ],
+                    [
+                        307.0,
+                        34.0,
+                        0.08415841584158416
+                    ],
+                    [
+                        403.0,
+                        25.0,
+                        0.06188118811881188
+                    ],
+                    [
+                        437.0,
+                        11.0,
+                        0.027227722772277228
+                    ],
+                    [
+                        398.0,
+                        10.0,
+                        0.024752475247524754
+                    ],
+                    [
+                        384.0,
+                        10.0,
+                        0.024752475247524754
+                    ],
+                    [
+                        304.0,
+                        10.0,
+                        0.024752475247524754
+                    ],
+                    [
+                        264.0,
+                        8.0,
+                        0.019801980198019802
+                    ],
+                    [
+                        296.0,
+                        8.0,
+                        0.019801980198019802
+                    ],
+                    [
+                        224.0,
+                        8.0,
+                        0.019801980198019802
+                    ]
+                ]
+            }
+        },
+        "PTRATIO": {
+            "intent": "CategoricalIntent",
+            "data": {
+                "nan": 0,
+                "mode": [
+                    20.2
+                ],
+                "top10": [
+                    [
+                        20.2,
+                        111.0,
+                        0.2747524752475248
+                    ],
+                    [
+                        14.7,
+                        27.0,
+                        0.06683168316831684
+                    ],
+                    [
+                        21.0,
+                        22.0,
+                        0.054455445544554455
+                    ],
+                    [
+                        17.4,
+                        16.0,
+                        0.039603960396039604
+                    ],
+                    [
+                        16.6,
+                        16.0,
+                        0.039603960396039604
+                    ],
+                    [
+                        19.2,
+                        15.0,
+                        0.03712871287128713
+                    ],
+                    [
+                        17.8,
+                        14.0,
+                        0.034653465346534656
+                    ],
+                    [
+                        18.6,
+                        14.0,
+                        0.034653465346534656
+                    ],
+                    [
+                        15.2,
+                        12.0,
+                        0.0297029702970297
+                    ],
+                    [
+                        18.4,
+                        12.0,
+                        0.0297029702970297
+                    ]
+                ]
+            }
+        },
+        "B": {
+            "intent": "NumericIntent",
+            "data": {
+                "nan": 0,
+                "invalid": 0,
+                "mean": 354.19782178217815,
+                "std": 93.70747403506657,
+                "min": 2.52,
+                "25th": 372.7875,
+                "median": 390.98,
+                "75th": 395.755,
+                "max": 396.9,
+                "mode": [
+                    396.9
+                ],
+                "top10": [
+                    [
+                        396.9,
+                        91.0,
+                        0.22524752475247525
+                    ],
+                    [
+                        395.24,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        395.6,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        393.37,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        394.12,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        395.11,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        395.58,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        396.21,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        374.71,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        392.78,
+                        2.0,
+                        0.0049504950495049506
+                    ]
+                ],
+                "10outliers": [
+                    70.8,
+                    68.95,
+                    60.72,
+                    50.92,
+                    48.45,
+                    43.06,
+                    35.05,
+                    28.79,
+                    27.49,
+                    24.65
+                ]
+            }
+        },
+        "LSTAT": {
+            "intent": "NumericIntent",
+            "data": {
+                "nan": 0,
+                "invalid": 0,
+                "mean": 12.618737623762376,
+                "std": 7.190513956476488,
+                "min": 1.73,
+                "25th": 6.890000000000001,
+                "median": 11.235,
+                "75th": 16.945,
+                "max": 37.97,
+                "mode": [
+                    6.36,
+                    8.05,
+                    14.1,
+                    18.13
+                ],
+                "top10": [
+                    [
+                        8.05,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        14.1,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        18.13,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        6.36,
+                        3.0,
+                        0.007425742574257425
+                    ],
+                    [
+                        21.32,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        3.76,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        6.58,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        8.1,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        4.45,
+                        2.0,
+                        0.0049504950495049506
+                    ],
+                    [
+                        23.98,
+                        2.0,
+                        0.0049504950495049506
+                    ]
+                ],
+                "10outliers": [
+                    37.97,
+                    36.98,
+                    34.77,
+                    34.41,
+                    34.37
+                ]
+            }
+        }
+    },
+    "y_Model": {
+        "columns": {
+            "target": {
+                "intent": "NumericIntent",
+                "pipeline": [
+                    {
+                        "transformer": "BoxCox",
+                        "name": "box_cox",
+                        "parameters": {
+                            "keep_columns": false
+                        }
+                    },
+                    {
+                        "transformer": "RobustScaler",
+                        "name": "robust_scaler",
+                        "parameters": {
+                            "keep_columns": false,
+                            "copy": true,
+                            "quantile_range": [
+                                25.0,
+                                75.0
+                            ],
+                            "with_centering": true,
+                            "with_scaling": true
+                        }
+                    }
+                ],
+                "all_matched_intents": [
+                    "GenericIntent",
+                    "NumericIntent"
+                ]
+            }
+        },
+        "postprocess": [],
+        "intents": {
+            "GenericIntent": {
+                "multi": [],
+                "single": []
+            },
+            "NumericIntent": {
+                "multi": [],
+                "single": [
+                    {
+                        "transformer": "Scaler",
+                        "name": "scaler",
+                        "parameters": {
+                            "y_var": true,
+                            "override": null,
+                            "keep_columns": false
+                        }
+                    }
+                ]
+            }
+        },
+        "y_var": true
+    },
+    "y_summary": {
+        "target": {
+            "intent": "NumericIntent",
+            "data": {
+                "nan": 0,
+                "invalid": 0,
+                "mean": 22.716336633663367,
+                "std": 9.329474116522489,
+                "min": 5.0,
+                "25th": 16.95,
+                "median": 21.4,
+                "75th": 25.224999999999998,
+                "max": 50.0,
+                "mode": [
+                    50.0
+                ],
+                "top10": [
+                    [
+                        50.0,
+                        13.0,
+                        0.03217821782178218
+                    ],
+                    [
+                        25.0,
+                        7.0,
+                        0.017326732673267328
+                    ],
+                    [
+                        21.7,
+                        7.0,
+                        0.017326732673267328
+                    ],
+                    [
+                        23.1,
+                        6.0,
+                        0.01485148514851485
+                    ],
+                    [
+                        13.8,
+                        5.0,
+                        0.012376237623762377
+                    ],
+                    [
+                        21.2,
+                        5.0,
+                        0.012376237623762377
+                    ],
+                    [
+                        19.6,
+                        5.0,
+                        0.012376237623762377
+                    ],
+                    [
+                        23.9,
+                        5.0,
+                        0.012376237623762377
+                    ],
+                    [
+                        19.4,
+                        5.0,
+                        0.012376237623762377
+                    ],
+                    [
+                        23.2,
+                        4.0,
+                        0.009900990099009901
+                    ]
+                ],
+                "10outliers": []
+            }
+        }
+    }
+}

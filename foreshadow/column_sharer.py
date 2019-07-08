@@ -3,20 +3,37 @@ from collections import MutableMapping, defaultdict
 
 
 class ColumnSharer(MutableMapping):
-    """main cache-class to be used as single-instance to share data."""
+    """Main cache-class to be used as single-instance to share data."""
 
     def __init__(self, *args, **kwargs):
-        super(ColumnSharer, self).__init__(*args, **kwargs)
-        self.store = defaultdict(lambda: {})  # will have a nested dict for
-        # every key, which holds {column: key-column info}
+        super().__init__(*args, **kwargs)
+        self.store = defaultdict(lambda: defaultdict(lambda: None))  # will
+        # have a nested defaultdict for every key, which holds {column:
+        # key-column info} and gives None by default. It is the users
+        # responsibility to make sure returned values are useful.
         acceptable_keys = {"intent": True, "domain": True, "metastat": True}
         for key in acceptable_keys:
             self.store[key] = {}
         self.__acceptable_keys = defaultdict(lambda: False, acceptable_keys)
-        self.__registered_keys = defaultdict(lambda: False)
 
     def __getitem__(self, key_list):
         """Override getitem to support multi key accessing simultaneously.
+
+        You can access this data structure in two ways. The first is with
+        the knowledge that the internal implementation uses nested dicts:
+
+        >>> cs = ColumnSharer()
+        >>> cs['domain']['not_a_column']
+        None
+
+        which will give you None by default with no previous value.
+        You may also multi-access, treating it as a matrix:
+
+        >>> cs = ColumnSharer()
+        >>> cs['domain', 'not_a_column']
+        None
+
+        See __setitem__ for more details.
 
         Args:
             key_list: list of keys passed
@@ -43,6 +60,23 @@ class ColumnSharer(MutableMapping):
     def __setitem__(self, key_list, value):
         """Enable multi key setting simultaneously.
 
+        You can set items on this data structure in two ways. The first is
+        with  the knowledge that the internal implementation uses nested dicts:
+        >>> cs = ColumnSharer()
+        >>> cs['domain']['not_a_column'] = 1
+        >>> cs['domain']['not_a_column']
+        1
+
+        which will give you None by default with no previous value.
+        You may also multi-access, treating it as a matrix:
+
+        >>> cs = ColumnSharer()
+        >>> cs['domain', 'not_a_column'] = 1
+        >>> cs['domain']['not_a_column']
+        1
+
+        See __getcoitem__ for more details.
+
         Args:
             key_list: list of keys passed
             value: value to set, dict if just the key and value if key, column
@@ -65,12 +99,7 @@ class ColumnSharer(MutableMapping):
             KeyError: if not a valid key (predefined or registered)
 
         """
-        if not self.__acceptable_keys[key] and not self.__registered_keys[key]:
-            raise KeyError(
-                "key {} is not a valid key. Please register it "
-                "first".format(key)
-            )
-        if self.__registered_keys[key]:
+        if not self.__acceptable_keys[key]:
             print(
                 "WARNING: the key {} is not an accepted key and relying on "
                 "information here to exist at runtime could be "
@@ -149,31 +178,11 @@ class ColumnSharer(MutableMapping):
     def __len__(self):
         """Length of internal dict as the number of columns across keys.
 
+        None unique. Aka, with 3 keys each with 5 columns, will return 15,
+        even if the columns are the same.
+
         Returns:
             Number of columns, duplicates counted.
 
         """
-        length = 0
-        for key in self.store:
-            length += len(self.store[key])
-        return length
-
-    def register_key(self, key):
-        """Register a non pre-defined key as acceptable.
-
-        Must be called before using a key unless it is in the list of
-        predefined acceptable keys (self.__acceptable_keys).
-
-        Args:
-            key: key to register
-
-        Raises:
-            KeyError: if key already set as predefined or registered
-
-        """
-        if self.__acceptable_keys[key]:
-            raise KeyError("key: '{}' is already a predefined key".format(key))
-        if self.__registered_keys[key]:
-            raise KeyError("key: '{}' is already a registered key".format(key))
-        self.store[key] = {}
-        self.__registered_keys[key] = True
+        return sum([len(self.store[key]) for key in self.store])
