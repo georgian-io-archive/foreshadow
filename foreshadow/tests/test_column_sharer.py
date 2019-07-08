@@ -1,5 +1,3 @@
-import re
-
 import pandas as pd
 import pytest
 
@@ -22,8 +20,6 @@ def test_column_sharer_create(args, kwargs):
 
     cs = ColumnSharer(*args, **kwargs)
     assert isinstance(cs, MutableMapping)
-
-
 
 
 @pytest.mark.parametrize(
@@ -222,7 +218,7 @@ def test_column_sharer_setitem(capsys, key, item_to_set, expected, warning):
         assert cs[key[0]] == expected
         if warning:
             out, err = capsys.readouterr()
-            assert out.find('WARNING') != -1
+            assert out.find("WARNING") != -1
 
     elif len(key) == 2:
         cs[key[0], key[1]] = item_to_set
@@ -230,7 +226,7 @@ def test_column_sharer_setitem(capsys, key, item_to_set, expected, warning):
         assert cs[key[0], key[1]] == expected
         if warning:
             out, err = capsys.readouterr()
-            assert out.find('WARNING') != -1
+            assert out.find("WARNING") != -1
 
     else:
         raise NotImplementedError("test case not implemented")

@@ -12,8 +12,6 @@ class ColumnSharer(MutableMapping):
         # key-column info} and gives None by default. It is the users
         # responsibility to make sure returned values are useful.
         acceptable_keys = {"intent": True, "domain": True, "metastat": True}
-        for key in acceptable_keys:
-            self.store[key] = {}
         self.__acceptable_keys = defaultdict(lambda: False, acceptable_keys)
 
     def __getitem__(self, key_list):
@@ -41,20 +39,13 @@ class ColumnSharer(MutableMapping):
         Returns:
             [key] or [key][column] from internal dict.
 
-        Raises:
-              e: exception raised by dict on invalid access. Likely
-                  a KeyError.
-
         """
         # first, get the item from the dict
         key, column = self._convert_key(key_list)
         self.check_key(key)
         key_dict = self.store[key]
         if column is not None:  # then get the column if requested
-            try:
-                return key_dict[column]
-            except Exception as e:
-                raise e
+            return key_dict[column]
         return key_dict  # otherwise return all the columns
 
     def __setitem__(self, key_list, value):
@@ -94,9 +85,6 @@ class ColumnSharer(MutableMapping):
 
         Args:
             key: the key passed to this object.
-
-        Raises:
-            KeyError: if not a valid key (predefined or registered)
 
         """
         if not self.__acceptable_keys[key]:
