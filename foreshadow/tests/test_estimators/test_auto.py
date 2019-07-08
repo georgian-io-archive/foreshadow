@@ -169,9 +169,6 @@ def test_auto_default_to_autosklearn():
     )
     expected_score = 1.0
 
-    print(ae_predict.tolist())
-    print(ae_predict_proba.tolist())
-
     raise Exception()
 
     assert np.allclose(ae_predict, expected_predict)
