@@ -560,7 +560,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
             self._set_to_empty = True
         else:
             self._verify_transformer(X, y, refit=True, **self.kwargs)
-        self._transformer.full_df = kwargs.pop("full_df", None)
+        self._transformer.full_df = kwargs.pop("full_df", None) . # this was removed and will be expected to be implemented in ColumnSharer
 
         return self._transformer.fit(X, y, **kwargs)
 
