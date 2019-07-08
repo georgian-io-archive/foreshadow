@@ -1,6 +1,6 @@
 import pytest
 
-from foreshadow.tests.utils import get_file_path
+from foreshadow.tests.utils import get_file_path, import_init_transformer
 
 
 def test_transformer_wrapper_init():
@@ -542,11 +542,9 @@ def test_make_pandas_transformer_fit(transformer, input_csv):
             input_csv: dataset to test on
 
     """
-    from importlib import import_module
     import pandas as pd
 
-    mod = import_module("foreshadow.transformers.externals")
-    transformer = getattr(mod, transformer)()
+    transformer = import_init_transformer(transformer)
     df = pd.read_csv(input_csv)
     assert transformer.fit(df) == transformer
 
@@ -569,15 +567,14 @@ def test_make_pandas_transformer_meta(transformer, expected_path):
     Returns:
 
     """
-    from importlib import import_module
+    expected_class = import_init_transformer(
+        transformer, path=expected_path, instantiate=False
+    )
+    transformer = import_init_transformer(transformer)
 
-    mod = import_module(expected_path)
-    expected = getattr(mod, transformer)
-    mod = import_module("foreshadow.transformers.externals")
-    transformer = getattr(mod, transformer)()
-    assert isinstance(transformer, expected)  # should remain a subclass
-    assert type(transformer).__name__ == expected.__name__
-    assert transformer.__doc__ == expected.__doc__
+    assert isinstance(transformer, expected_class)  # should remain a subclass
+    assert type(transformer).__name__ == expected_class.__name__
+    assert transformer.__doc__ == expected_class.__doc__
 
 
 @pytest.mark.parametrize(
@@ -616,15 +613,15 @@ def test_make_pandas_transformer_transform(
             input_csv: dataset to test on
 
     """
-    from importlib import import_module
     import pandas as pd
     import numpy as np
     from scipy.sparse import issparse
 
-    sk_mod = import_module(sk_path)
-    sk_transformer = getattr(sk_mod, transformer)(**kwargs)
-    mod = import_module("foreshadow.transformers.externals")
-    transformer = getattr(mod, transformer)(**kwargs)
+    sk_transformer = import_init_transformer(
+        transformer, path=sk_path, params=kwargs
+    )
+    transformer = import_init_transformer(transformer, params=kwargs)
+
     df = pd.read_csv(input_csv)
     crim_df = df[["crim"]]
     transformer.fit(crim_df)
@@ -662,15 +659,13 @@ def test_make_pandas_transformer_fit_transform(
             input_csv: dataset to test on
 
     """
-    from importlib import import_module
     import pandas as pd
     import numpy as np
     from scipy.sparse import issparse
 
-    sk_mod = import_module(sk_path)
-    sk_transformer = getattr(sk_mod, transformer)()
-    mod = import_module("foreshadow.transformers.externals")
-    transformer = getattr(mod, transformer)()
+    sk_transformer = import_init_transformer(transformer, path=sk_path)
+    transformer = import_init_transformer(transformer)
+
     df = pd.read_csv(input_csv)
     crim_df = df[["crim"]]
     sk_out = sk_transformer.fit_transform(crim_df)
@@ -697,10 +692,6 @@ def test_make_pandas_transformer_init(transformer, sk_path):
             sk_path: path to the module containing the wrapped sklearn
                 transformer
     """
-    from importlib import import_module
-
-    sk_mod = import_module(sk_path)
-    sk_transformer = getattr(sk_mod, transformer)()
+    sk_transformer = import_init_transformer(transformer, path=sk_path)
     params = sk_transformer.get_params()
-    mod = import_module("foreshadow.transformers.externals")
-    getattr(mod, transformer)(**params)
+    transformer = import_init_transformer(transformer, params=params)

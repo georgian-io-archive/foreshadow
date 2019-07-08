@@ -38,3 +38,34 @@ def get_file_path(file_type, file_name):
     """
     test_path = _get_test_folder()
     return os.path.join(test_path, file_type, file_name)
+
+
+def import_init_transformer(
+    transformer_class,
+    path="foreshadow.transformers.externals",
+    instantiate=True,
+    params=None,
+):
+    """Import and init a transformer from a specified path
+
+    Args:
+        transformer_class (str): The transformer class to import
+        path (str): The import path to import from, default is
+            `foreshadow.transformers.externals`
+        params (dict): A param dictionary
+
+    Returns:
+        object: an initialized version of the transformer
+
+    """
+    from importlib import import_module
+
+    mod = import_module(path)
+
+    if instantiate:
+        if params is not None:
+            return getattr(mod, transformer_class)(**params)
+        else:
+            return getattr(mod, transformer_class)()
+    else:
+        return getattr(mod, transformer_class)
