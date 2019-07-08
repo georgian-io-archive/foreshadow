@@ -1,5 +1,7 @@
 import pytest
 
+from foreshadow.tests.utils import get_file_path, import_init_transformer
+
 
 def test_transformer_wrapper_init():
     from foreshadow.transformers.externals import StandardScaler
@@ -12,20 +14,18 @@ def test_transformer_wrapper_init():
 
 def test_transformer_wrapper_no_init():
     from sklearn.base import BaseEstimator, TransformerMixin
-    from foreshadow.transformers.transformers import wrap_transformer
+    from foreshadow.transformers.transformers import make_pandas_transformer
 
     class NewTransformer(BaseEstimator, TransformerMixin):
         pass
 
-    trans = wrap_transformer(NewTransformer)
+    trans = make_pandas_transformer(NewTransformer)
     _ = trans()
 
     assert hasattr(trans.__init__, "__defaults__")
 
 
 def test_transformer_wrapper_function():
-    import os
-
     import numpy as np
     import pandas as pd
     from sklearn.preprocessing import StandardScaler as StandardScaler
@@ -33,9 +33,7 @@ def test_transformer_wrapper_function():
         StandardScaler as CustomScaler,
     )
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -80,34 +78,26 @@ def test_transformer_wrapper_empty_input():
 
 
 def test_transformer_keep_cols():
-    import os
-
     import pandas as pd
     from foreshadow.transformers.externals import (
         StandardScaler as CustomScaler,
     )
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
     custom = CustomScaler(keep_columns=True)
     custom_tf = custom.fit_transform(df[["crim"]])
 
-    assert len(list(custom_tf)) == 2
+    assert custom_tf.shape[1] == 2
 
 
 def test_transformer_naming_override():
-    import os
-
     from foreshadow.transformers.externals import StandardScaler
     import pandas as pd
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -118,14 +108,10 @@ def test_transformer_naming_override():
 
 
 def test_transformer_naming_default():
-    import os
-
     from foreshadow.transformers.externals import StandardScaler
     import pandas as pd
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -154,14 +140,10 @@ def test_transformer_parallel_invalid():
 
 
 def test_transformer_parallel_empty():
-    import os
-
     import pandas as pd
     from foreshadow.transformers.base import ParallelProcessor
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -186,16 +168,12 @@ def test_transformer_parallel_empty():
 
 
 def test_transformer_parallel():
-    import os
-
     import pandas as pd
 
     from foreshadow.transformers.base import ParallelProcessor
     from foreshadow.transformers.externals import StandardScaler
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -232,8 +210,6 @@ def test_transformer_parallel():
 
 
 def test_transformer_pipeline():
-    import os
-
     import pandas as pd
     import numpy as np
 
@@ -250,9 +226,7 @@ def test_transformer_pipeline():
     from sklearn.pipeline import Pipeline
     from sklearn.linear_model import LinearRegression
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -292,15 +266,11 @@ def test_transformer_pipeline():
 
 
 def test_smarttransformer_notimplemented():
-    import os
-
     import pandas as pd
 
     from foreshadow.transformers.base import SmartTransformer
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -313,21 +283,17 @@ def test_smarttransformer_notimplemented():
         transformer.fit(df[["crim"]])
 
     assert (
-        str(e.value)
-        == "WrappedTransformer _get_transformer was not implimented."
+        str(e.value) == "WrappedTransformer _get_transformer was not "
+        "implimented."
     )
 
 
 def test_smarttransformer_attributeerror():
-    import os
-
     import pandas as pd
 
     from foreshadow.transformers.base import SmartTransformer
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -341,21 +307,17 @@ def test_smarttransformer_attributeerror():
         transformer.fit(df[["crim"]])
 
     assert (
-        str(e.value)
-        == "Invalid WrappedTransformer. Get transformer returns invalid object"
+        str(e.value) == "Invalid WrappedTransformer. Get transformer "
+        "returns invalid object"
     )
 
 
 def test_smarttransformer_invalidtransformer():
-    import os
-
     import pandas as pd
 
     from foreshadow.transformers.base import SmartTransformer
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -372,22 +334,18 @@ def test_smarttransformer_invalidtransformer():
         transformer.fit(df[["crim"]])
 
     assert (
-        str(e.value)
-        == "Invalid WrappedTransformer. Get transformer returns invalid object"
+        str(e.value) == "Invalid WrappedTransformer. Get transformer "
+        "returns invalid object"
     )
 
 
 def test_smarttransformer_function():
-    import os
-
     import pandas as pd
 
     from foreshadow.transformers.base import SmartTransformer
     from foreshadow.transformers.externals import StandardScaler
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -413,16 +371,12 @@ def test_smarttransformer_function():
 
 
 def test_smarttransformer_function_override():
-    import os
-
     import pandas as pd
 
     from foreshadow.transformers.base import SmartTransformer
     from foreshadow.transformers.externals import Imputer
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -476,7 +430,6 @@ def test_smarttransformer_set_params_override():
 
 
 def test_smarttransformer_set_params_empty():
-
     from foreshadow.transformers.base import SmartTransformer
 
     class TestSmartTransformer(SmartTransformer):
@@ -571,3 +524,174 @@ def test_sparse_matrix_conversion():
     # This tf generates sparse output by default and if not handled will
     # break pandas wrapper
     tfidf.fit_transform(corpus)
+
+
+@pytest.mark.parametrize(
+    "transformer,input_csv",
+    [
+        ("StandardScaler", get_file_path("test_data", "boston_housing.csv")),
+        ("OneHotEncoder", get_file_path("test_data", "boston_housing.csv")),
+        ("TfidfTransformer", get_file_path("test_data", "boston_housing.csv")),
+    ],
+)
+def test_make_pandas_transformer_fit(transformer, input_csv):
+    """Test make_pandas_transformer has initial transformer fit functionality.
+
+        Args:
+            transformer: wrapped transformer
+            input_csv: dataset to test on
+
+    """
+    import pandas as pd
+
+    transformer = import_init_transformer(transformer)
+    df = pd.read_csv(input_csv)
+    assert transformer.fit(df) == transformer
+
+
+@pytest.mark.parametrize(
+    "transformer,expected_path",
+    [
+        ("StandardScaler", "sklearn.preprocessing"),
+        ("OneHotEncoder", "category_encoders"),
+        ("TfidfTransformer", "sklearn.feature_extraction.text"),
+    ],
+)
+def test_make_pandas_transformer_meta(transformer, expected_path):
+    """Test that the wrapped transformer has proper metadata.
+
+    Args:
+        transformer: wrapped transformer
+        expected_path: path to the initial transformer
+
+    Returns:
+
+    """
+    expected_class = import_init_transformer(
+        transformer, path=expected_path, instantiate=False
+    )
+    transformer = import_init_transformer(transformer)
+
+    assert isinstance(transformer, expected_class)  # should remain a subclass
+    assert type(transformer).__name__ == expected_class.__name__
+    assert transformer.__doc__ == expected_class.__doc__
+
+
+@pytest.mark.parametrize(
+    "transformer,kwargs,sk_path,input_csv",
+    [
+        (
+            "StandardScaler",
+            {},
+            "sklearn.preprocessing",
+            get_file_path("test_data", "boston_housing.csv"),
+        ),
+        (
+            "OneHotEncoder",
+            {},
+            "category_encoders",
+            get_file_path("test_data", "boston_housing.csv"),
+        ),
+        (
+            "TfidfTransformer",
+            {},
+            "sklearn.feature_extraction.text",
+            get_file_path("test_data", "boston_housing.csv"),
+        ),
+    ],
+)
+def test_make_pandas_transformer_transform(
+    transformer, kwargs, sk_path, input_csv
+):
+    """Test wrapped transformer has the initial transform functionality.
+
+        Args:
+            transformer: wrapped transformer
+            kwargs: key word arguments for transformer initialization
+            sk_path: path to the module containing the wrapped sklearn
+                transformer
+            input_csv: dataset to test on
+
+    """
+    import pandas as pd
+    import numpy as np
+    from scipy.sparse import issparse
+
+    sk_transformer = import_init_transformer(
+        transformer, path=sk_path, params=kwargs
+    )
+    transformer = import_init_transformer(transformer, params=kwargs)
+
+    df = pd.read_csv(input_csv)
+    crim_df = df[["crim"]]
+    transformer.fit(crim_df)
+    sk_transformer.fit(crim_df)
+    sk_out = sk_transformer.transform(crim_df)
+    if issparse(sk_out):
+        sk_out = sk_out.toarray()
+    assert np.array_equal(transformer.transform(crim_df).values, sk_out)
+
+
+@pytest.mark.parametrize(
+    "transformer,sk_path,input_csv",
+    [
+        (
+            "StandardScaler",
+            "sklearn.preprocessing",
+            get_file_path("test_data", "boston_housing.csv"),
+        ),
+        (
+            "TfidfTransformer",
+            "sklearn.feature_extraction.text",
+            get_file_path("test_data", "boston_housing.csv"),
+        ),
+    ],
+)
+def test_make_pandas_transformer_fit_transform(
+    transformer, sk_path, input_csv
+):
+    """Test wrapped transformer has initial fit_transform functionality.
+
+        Args:
+            transformer: wrapped transformer
+            sk_path: path to the module containing the wrapped sklearn
+                transformer
+            input_csv: dataset to test on
+
+    """
+    import pandas as pd
+    import numpy as np
+    from scipy.sparse import issparse
+
+    sk_transformer = import_init_transformer(transformer, path=sk_path)
+    transformer = import_init_transformer(transformer)
+
+    df = pd.read_csv(input_csv)
+    crim_df = df[["crim"]]
+    sk_out = sk_transformer.fit_transform(crim_df)
+    if issparse(sk_out):
+        sk_out = sk_out.toarray()
+    assert np.array_equal(transformer.fit_transform(crim_df).values, sk_out)
+
+
+@pytest.mark.parametrize(
+    "transformer,sk_path",
+    [
+        ("StandardScaler", "sklearn.preprocessing"),
+        ("TfidfTransformer", "sklearn.feature_extraction.text"),
+    ],
+)
+def test_make_pandas_transformer_init(transformer, sk_path):
+    """Test make_pandas_transformer has initial transformer init functionality.
+
+    Should be able to accept any parameters from the sklearn transformer and
+    initialize on the wrapped instance.
+
+        Args:
+            transformer: wrapped transformer
+            sk_path: path to the module containing the wrapped sklearn
+                transformer
+    """
+    sk_transformer = import_init_transformer(transformer, path=sk_path)
+    params = sk_transformer.get_params()
+    transformer = import_init_transformer(transformer, params=params)

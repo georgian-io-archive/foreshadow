@@ -15,8 +15,8 @@ class FancyImputer(BaseEstimator, TransformerMixin):
 
     """
 
-    def __init__(self, method="SimpleFill", **kwargs):
-        self.kwargs = kwargs
+    def __init__(self, method="SimpleFill", impute_kwargs={}):
+        self.impute_kwargs = impute_kwargs
         self.method = method
         try:
             module = __import__("fancyimpute", [method], 1)
@@ -27,7 +27,7 @@ class FancyImputer(BaseEstimator, TransformerMixin):
                 "NuclearNormMinimization and SoftImpute"
             )
 
-        self.imputer = self.cls(**kwargs)
+        self.imputer = self.cls(**impute_kwargs)
 
     def get_params(self, deep=True):
         """Get parameters for this estimator.
@@ -54,6 +54,7 @@ class FancyImputer(BaseEstimator, TransformerMixin):
             ValueError: If method is invalid
 
         """
+        impute_kwargs = params.pop("impute_kwargs", {})
         method = params.pop("method", self.method)
 
         self.kwargs = params
@@ -69,7 +70,7 @@ class FancyImputer(BaseEstimator, TransformerMixin):
                 "NuclearNormMinimization and SoftImpute"
             )
 
-        self.imputer = self.cls(**params)
+        self.imputer = self.cls(**impute_kwargs)
 
     def fit(self, X, y=None):
         """Empty function.

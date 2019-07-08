@@ -1,5 +1,6 @@
 """FixedTfidfVectorizer."""
 
+import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.feature_extraction.text import (
     TfidfVectorizer as SklearnTfidfVectorizer,
@@ -51,9 +52,10 @@ class FixedTfidfVectorizer(BaseEstimator, VectorizerMixin):
 
         Args:
             X: iterable
+            y: labels
 
         Returns:
-            array-like: Transformed samples
+            (array-like) Transformed samples
 
         """
         X = check_array(
@@ -71,4 +73,4 @@ class FixedTfidfVectorizer(BaseEstimator, VectorizerMixin):
             iterable: Inverted transformed samples
 
         """
-        return [list(i) for i in self.encoder.inverse_transform(X)]
+        return np.array([list(i) for i in self.encoder.inverse_transform(X)])

@@ -560,9 +560,9 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
             self._set_to_empty = True
         else:
             self._verify_transformer(X, y, refit=True, **self.kwargs)
-        inject = _inject_df(self._transformer, kwargs.pop("full_df", None))
+        self._transformer.full_df = kwargs.pop("full_df", None)
 
-        return self._transformer.fit(X, y, **{**kwargs, **inject})
+        return self._transformer.fit(X, y, **kwargs)
 
     def inverse_transform(self, X):
         """Invert transform if possible.
