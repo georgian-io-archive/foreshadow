@@ -1,5 +1,7 @@
 """Base classes for transformers."""
 
+from abc import ABCMeta, abstractmethod
+
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.externals.joblib import Parallel, delayed
@@ -316,7 +318,7 @@ class ParallelProcessor(FeatureUnion):
         return Xs
 
 
-class SmartTransformer(BaseEstimator, TransformerMixin):
+class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
     """Abstract transformer class for meta transformer selection decisions.
 
     This class contains the logic necessary to determine a single transformer
@@ -349,6 +351,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         self.keep_columns = keep_columns
         self.override = override
         self.y_var = y_var
+        self._skip_fit = False
         self._transformer = None
         self._set_to_empty = False
 
@@ -361,9 +364,34 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
 
         """
         if self._transformer is None:
-            raise ValueError("Smart Transformer not Fit")
+            raise ValueError("SmartTransformer not Fit")
         else:
             return self._transformer
+
+    @property
+    def skip_fit(self):
+        """Get the skip_fit attribute.
+
+        Returns:
+            bool: Whether fit will be skipped
+
+        """
+        return self._skip_fit
+
+    @skip_fit.setter
+    def skip_fit(self, value):
+        """Set the skip_fit attribute.
+
+        Args:
+            value (bool): Whether or not to skip fitting.
+
+        Raises:
+            ValueError: if smart transformer is not fit.
+
+        """
+        if self._transformer is None:
+            raise ValueError("SmartTransformer")
+        self._skip_fit = value
 
     def get_params(self, deep=True):
         """Get parameters for this estimator.
@@ -416,8 +444,9 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
             }
             self._transformer.set_params(**valid_params)
 
-    def _get_transformer(self, X, y=None, **fit_params):
-        """Get the transformer object for implementations.
+    @abstractmethod
+    def pick_transformer(self, X, y=None, **fit_params):
+        """Pick the correct transformer object for implementations.
 
         Args:
             X (:obj:`pandas.DataFrame`): Input X data
@@ -425,13 +454,8 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
             **fit_params (dict): Parameters to apply to transformers when
                 fitting
 
-        Raises:
-            NotImplementedError: need to override
-
         """
-        raise NotImplementedError(
-            "WrappedTransformer _get_transformer was not implimented."
-        )
+        pass
 
     def _verify_transformer(self, X, y=None, refit=False, **fit_params):
         """Verify transformers have the necessary methods and attributes.
@@ -457,9 +481,9 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         # If overriding, resolve the override and create the object
         if self.override is not None:
             self._transformer = get_transformer(self.override)(**self.kwargs)
-        # If not use _get_transformer to get the object
+        # If not use pick_transformer to get the object
         else:
-            self._transformer = self._get_transformer(X, y, **fit_params)
+            self._transformer = self.pick_transformer(X, y, **fit_params)
 
         # Check attributes
         tf = getattr(self._transformer, "transform", None)
