@@ -2,6 +2,7 @@
 
 import warnings
 from functools import partial
+from importlib import import_module
 
 import numpy as np
 import pandas as pd
@@ -30,7 +31,8 @@ def is_transformer(cls):
     return False
 
 
-def _get_modules(classes, globals_, mname, wrap=True):
+def _get_modules(classes, globals_, mname):  # TODO auto import all sklearn
+    # TODO transformers and test each one genericly.
     """Import sklearn transformers from transformers directory.
 
     Searches transformers directory for classes implementing BaseEstimator and
@@ -42,43 +44,50 @@ def _get_modules(classes, globals_, mname, wrap=True):
         classes: A list of classes
         globals_: The globals in the callee's context
         mname: The module name
-        wrap: True to wrap modules, False to not (manual decorator
-            make_panads_transformer) will need to be applied.
 
     Returns:
         The list of wrapped transformers.
 
     """
-
-    def no_wrap(f):
-        """Don't wrap function f. Return unwrapped function pointer.
-
-        Args:
-            f: function point f.
-
-        Returns:
-            function pointer, f
-
-        """
-        return f
-
-    transformers = []
-
-    for cls in classes:
-        if is_transformer(cls):
-            transformers.append(cls)
-
-    if wrap:  # wrap the transformer with the
-        transformer_wrapper = make_pandas_transformer
-    else:
-        transformer_wrapper = no_wrap
+    transformers = [cls for cls in classes if is_transformer(cls)]
 
     for t in transformers:
+        t = _check_override_with_internal(t)
         copied_t = type(t.__name__, (t, *t.__bases__), dict(t.__dict__))
         copied_t.__module__ = mname
-        globals_[copied_t.__name__] = transformer_wrapper(copied_t)
+        globals_[copied_t.__name__] = make_pandas_transformer(copied_t)
 
     return [t.__name__ for t in transformers]
+
+
+def _check_override_with_internal(transformer):  # TODO write test for this
+    """Check if sklearn transformer should be overridden with an internal one.
+
+    Some sklearn transformers break their own convention and/or may require
+    specific wrapping that we do not want to exist in the generic
+    pandas_wrapper. To handle these cases, we wrap them specifically to a
+    form that pandas_wrapper can handle. We do this wrapping in internals,
+    and override the external import from sklearn with our internal
+    implementation.
+
+    Args:
+        transformer: transformer in the process of being wrapped.
+
+    Returns:
+        Correct transformer to use. Itself if no matching internal that it
+        should be overriden with.
+
+    """
+    internal_conversions = {
+        "TfidfVectorizer": ("tfidf", "FixedTfidfVectorizer")
+    }  # TODO add TfidfTransformer
+    conversion = internal_conversions.get(transformer.__name__, None)
+    if conversion is not None:
+        mod = import_module(
+            "foreshadow.transformers.internals.%s" % conversion[0]
+        )
+        transformer = getattr(mod, conversion[1])
+    return transformer
 
 
 def make_pandas_transformer(transformer):
@@ -252,7 +261,7 @@ def make_pandas_transformer(transformer):
             name = self.name if self.name else type(self).__name__
             out_is_transformer = hasattr(out, "__class__") and is_transformer(
                 out.__class__
-            )  # noqa: E127
+            )
             # check if the
             # output returned by the sklearn public function is a
             # transformer or not. It will be a transformer in fit calls.
@@ -335,7 +344,8 @@ def make_pandas_transformer(transformer):
 
                 if self.keep_columns:
                     out = _keep_columns_process(out, df, name)
-            return out
+            return out  # TODO output is a DataFrame, make it detect based
+            # TODO on what is passed to fit and give that output.
 
         def fit_transform(self, X, *args, **kwargs):
             df = check_df(X)

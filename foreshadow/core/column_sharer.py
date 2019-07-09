@@ -3,7 +3,14 @@ from collections import MutableMapping, defaultdict
 
 
 class ColumnSharer(MutableMapping):
-    """Main cache-class to be used as single-instance to share data."""
+    """Main cache-class to be used as single-instance to share data.
+
+    .. automethod:: __getitem__
+    .. automethod:: __setitem__
+    .. automethod:: __delitem__
+    .. automethod:: __iter__
+    .. automethod:: __len__
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -19,6 +26,7 @@ class ColumnSharer(MutableMapping):
 
         You can access this data structure in two ways. The first is with
         the knowledge that the internal implementation uses nested dicts:
+        ::
 
         >>> cs = ColumnSharer()
         >>> cs['domain']['not_a_column']
