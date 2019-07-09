@@ -1,4 +1,4 @@
-from foreshadow.tests.utils import get_file_path
+from foreshadow.utils.testing import get_file_path
 
 
 def test_smart_emtpy_input():

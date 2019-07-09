@@ -11,7 +11,7 @@ from sklearn.pipeline import (
 )
 
 from foreshadow.transformers.transformers import _Empty
-from foreshadow.utils import check_df
+from foreshadow.utils import check_df, get_transformer
 
 
 class ParallelProcessor(FeatureUnion):
@@ -391,42 +391,6 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
             ),
         }
 
-    def _resolve(self, clsname):
-        """Resolve a transformer class name to a transformer object.
-
-        Note: transformer must exist in internals or externals to properly
-            resolve
-
-        Args:
-            clsname (str): Class name to resolve
-
-        Returns:
-            Transformer or SmartTransformer Object
-
-        Raises:
-            ValueError: if class could not be imported
-
-        """
-        try:
-            module_internals = __import__(
-                "internals", globals(), locals(), ["object"], 1
-            )
-            module_externals = __import__(
-                "externals", globals(), locals(), ["object"], 1
-            )
-            cls = getattr(
-                module_internals
-                if hasattr(module_internals, clsname)
-                else module_externals,
-                clsname,
-            )
-        except Exception:
-            raise ValueError(
-                "Could not import defined transformer {}".format(clsname)
-            )
-
-        return cls
-
     def set_params(self, **params):
         """Set the parameters of this estimator.
 
@@ -442,7 +406,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
 
         self.override = params.pop("override", self.override)
         if self.override is not None:
-            self._transformer = self._resolve(self.override)(**self.kwargs)
+            self._transformer = get_transformer(self.override)(**self.kwargs)
 
         if self._transformer is not None:
             valid_params = {
@@ -492,7 +456,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
 
         # If overriding, resolve the override and create the object
         if self.override is not None:
-            self._transformer = self._resolve(self.override)(**self.kwargs)
+            self._transformer = get_transformer(self.override)(**self.kwargs)
         # If not use _get_transformer to get the object
         else:
             self._transformer = self._get_transformer(X, y, **fit_params)

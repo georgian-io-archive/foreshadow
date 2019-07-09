@@ -1,6 +1,7 @@
 import pytest
 
-from foreshadow.tests.utils import get_file_path, import_init_transformer
+from foreshadow.utils import get_transformer
+from foreshadow.utils.testing import get_file_path
 
 
 def test_transformer_wrapper_init():
@@ -413,7 +414,7 @@ def test_smarttransformer_function_override_invalid():
     with pytest.raises(ValueError) as e:
         smart.fit([1, 2, 3])
 
-    assert str(e.value) == "Could not import defined transformer BAD"
+    assert "Could not find transformer BAD in neither" in str(e.value)
 
 
 def test_smarttransformer_set_params_override():
@@ -538,13 +539,13 @@ def test_make_pandas_transformer_fit(transformer, input_csv):
     """Test make_pandas_transformer has initial transformer fit functionality.
 
         Args:
-            transformer: wrapped transformer
+            transformer: wrapped transformer class name
             input_csv: dataset to test on
 
     """
     import pandas as pd
 
-    transformer = import_init_transformer(transformer)
+    transformer = get_transformer(transformer)()
     df = pd.read_csv(input_csv)
     assert transformer.fit(df) == transformer
 
@@ -561,16 +562,14 @@ def test_make_pandas_transformer_meta(transformer, expected_path):
     """Test that the wrapped transformer has proper metadata.
 
     Args:
-        transformer: wrapped transformer
+        transformer: wrapped transformer class name
         expected_path: path to the initial transformer
 
     Returns:
 
     """
-    expected_class = import_init_transformer(
-        transformer, path=expected_path, instantiate=False
-    )
-    transformer = import_init_transformer(transformer)
+    expected_class = get_transformer(transformer, source_lib=expected_path)
+    transformer = get_transformer(transformer)()
 
     assert isinstance(transformer, expected_class)  # should remain a subclass
     assert type(transformer).__name__ == expected_class.__name__
@@ -606,7 +605,7 @@ def test_make_pandas_transformer_transform(
     """Test wrapped transformer has the initial transform functionality.
 
         Args:
-            transformer: wrapped transformer
+            transformer: wrapped transformer class name
             kwargs: key word arguments for transformer initialization
             sk_path: path to the module containing the wrapped sklearn
                 transformer
@@ -617,10 +616,8 @@ def test_make_pandas_transformer_transform(
     import numpy as np
     from scipy.sparse import issparse
 
-    sk_transformer = import_init_transformer(
-        transformer, path=sk_path, params=kwargs
-    )
-    transformer = import_init_transformer(transformer, params=kwargs)
+    sk_transformer = get_transformer(transformer, source_lib=sk_path)(**kwargs)
+    transformer = get_transformer(transformer)(**kwargs)
 
     df = pd.read_csv(input_csv)
     crim_df = df[["crim"]]
@@ -663,8 +660,8 @@ def test_make_pandas_transformer_fit_transform(
     import numpy as np
     from scipy.sparse import issparse
 
-    sk_transformer = import_init_transformer(transformer, path=sk_path)
-    transformer = import_init_transformer(transformer)
+    sk_transformer = get_transformer(transformer, source_lib=sk_path)()
+    transformer = get_transformer(transformer)()
 
     df = pd.read_csv(input_csv)
     crim_df = df[["crim"]]
@@ -692,6 +689,6 @@ def test_make_pandas_transformer_init(transformer, sk_path):
             sk_path: path to the module containing the wrapped sklearn
                 transformer
     """
-    sk_transformer = import_init_transformer(transformer, path=sk_path)
+    sk_transformer = get_transformer(transformer, source_lib=sk_path)()
     params = sk_transformer.get_params()
-    transformer = import_init_transformer(transformer, params=params)
+    transformer = get_transformer(transformer)(**params)

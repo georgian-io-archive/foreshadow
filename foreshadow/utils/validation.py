@@ -1,13 +1,16 @@
 """Common module utilities."""
 
-import sys
 import warnings
+from importlib import import_module
 
 import numpy as np
 import pandas as pd
 
 
 PipelineStep = {"NAME": 0, "CLASS": 1, "COLS": 2}
+
+INTERNALS_SOURCE = "foreshadow.transformers.internals"
+EXTERNALS_SOURCE = "foreshadow.transformers.externals"
 
 
 def check_df(input_data, ignore_none=False, single_column=False):
@@ -72,8 +75,10 @@ def check_module_installed(name):
         bool: Whether the module can be imported
 
     """
+    from importlib import import_module
+
     try:
-        __import__(name)
+        import_module(name)
     except ImportError:
         return False
     else:
@@ -109,22 +114,42 @@ def check_transformer_imports(printout=True):
     return inter.classes, exter.classes
 
 
-def debug():  # pragma: no cover # noqa: D202
-    """Add pdb debugger on import.
+def get_transformer(class_name, source_lib=None):
+    """Get the transformer class from its name.
 
-    Utility to add pdb debugging to an entire file so that on error, the pdb
-    utility is opened.
+    Note:
+        In case of name conflict, internal transformer is preferred over
+        external transformer import.
+
+    Args:
+        class_name (str): The transformer class name
+        source_lib (str): The string import path if known
+
+    Returns:
+        Imported class
+
+    Raises:
+        ValueError: If class_name could not be found in internal or external
+            transformer library pathways.
+
     """
+    if source_lib is not None:
+        module = import_module(source_lib)
+    else:
+        internals = import_module(INTERNALS_SOURCE)
+        externals = import_module(EXTERNALS_SOURCE)
 
-    def _info(type, value, tb):
-        # Source: https://stackoverflow.com/questions/242485/starting-python-debugger-automatically-on-error # noqa
-        if hasattr(sys, "ps1") or not sys.stderr.isatty():
-            sys.__excepthook__(type, value, tb)
+        if hasattr(internals, class_name):
+            module = internals
+        elif hasattr(externals, class_name):
+            module = externals
         else:
-            import traceback
-            import pdb
+            raise ValueError(
+                (
+                    "Could not find transformer {} in neither "
+                    "foreshadow.transformers.internals nor "
+                    "foreshadow.transformers.externals"
+                ).format(class_name)
+            )
 
-            traceback.print_exception(type, value, tb)
-            pdb.post_mortem(tb)
-
-    sys.excepthook = _info
+    return getattr(module, class_name)
