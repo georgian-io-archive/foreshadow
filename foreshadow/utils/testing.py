@@ -22,7 +22,6 @@ def _get_test_folder():
     """
     path = os.path.abspath(os.path.dirname(__file__))
     while len(path) > 1:
-        print("stuck")
         find_test_dir = [
             d
             for d in os.listdir(path)

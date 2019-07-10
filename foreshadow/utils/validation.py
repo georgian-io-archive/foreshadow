@@ -5,6 +5,8 @@ from importlib import import_module
 
 import numpy as np
 import pandas as pd
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.feature_extraction.text import VectorizerMixin
 
 
 PipelineStep = {"NAME": 0, "CLASS": 1, "COLS": 2}
@@ -153,3 +155,34 @@ def get_transformer(class_name, source_lib=None):
             )
 
     return getattr(module, class_name)
+
+
+def is_transformer(value, method="isinstance"):
+    """Check if the class is a transformer class.
+
+    Args:
+        value: Class or instance
+        method (str): Method of checking. Options are `'issubclass'` or
+            `'isinstance'`
+
+    Returns:
+        True if transformer, False if not.
+
+    Raises:
+        ValueError: if method is neither issubclass or isinstance
+
+    """
+    choices = {"issubclass": issubclass, "isinstance": isinstance}
+    try:
+        validation = choices.get(method)
+    except KeyError:
+        raise ValueError(
+            "Could not find {}, options are {}".format(method, choices.keys())
+        )
+
+    if validation(value, BaseEstimator) and (
+        validation(value, TransformerMixin)
+        or validation(value, VectorizerMixin)
+    ):
+        return True
+    return False

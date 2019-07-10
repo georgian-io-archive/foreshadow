@@ -8,27 +8,10 @@ import numpy as np
 import pandas as pd
 import scipy
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.feature_extraction.text import VectorizerMixin
 from sklearn.utils.fixes import signature
 
-from foreshadow.utils import check_df
-
-
-def is_transformer(cls):
-    """Check if the class is a transformer class.
-
-    Args:
-        cls: class
-
-    Returns:
-        True if transformer, False if not.
-
-    """
-    if issubclass(cls, BaseEstimator) and (
-        issubclass(cls, TransformerMixin) or issubclass(cls, VectorizerMixin)
-    ):
-        return True
-    return False
+from foreshadow.exceptions import InverseUnavailable
+from foreshadow.utils import check_df, is_transformer
 
 
 def _get_modules(classes, globals_, mname):  # TODO auto import all sklearn
@@ -49,7 +32,9 @@ def _get_modules(classes, globals_, mname):  # TODO auto import all sklearn
         The list of wrapped transformers.
 
     """
-    transformers = [cls for cls in classes if is_transformer(cls)]
+    transformers = [
+        cls for cls in classes if is_transformer(cls, method="issubclass")
+    ]
 
     for t in transformers:
         t = _check_override_with_internal(t)
@@ -75,7 +60,7 @@ def _check_override_with_internal(transformer):  # TODO write test for this
 
     Returns:
         Correct transformer to use. Itself if no matching internal that it
-        should be overriden with.
+        should be overridden with.
 
     """
     internal_conversions = {
@@ -84,17 +69,17 @@ def _check_override_with_internal(transformer):  # TODO write test for this
     conversion = internal_conversions.get(transformer.__name__, None)
     if conversion is not None:
         mod = import_module(
-            "foreshadow.transformers.internals.%s" % conversion[0]
+            "foreshadow.transformers.internals.{}".format(conversion[0])
         )
         transformer = getattr(mod, conversion[1])
     return transformer
 
 
 def make_pandas_transformer(transformer):
-    """Wrap an sklearn transformer to support dataframes.
+    """Wrap a scikit-learn transformer to support pandas DataFrames.
 
     Args:
-        transformer: sklearn transformer implementing
+        transformer: scikit-learn transformer implementing
             `BaseEstimator <sklearn.base.BaseEstimator> and
             `TransformerMixin <sklearn.base.TransformerMixin>`
 
@@ -104,11 +89,10 @@ def make_pandas_transformer(transformer):
     ..#noqa: I401
 
     """
-    # use the same base
-    # metaclass as the transformer, otherwise we will get MRO metaclass
-    # issues in DFTransformer if we try to choose the base class for our
-    # metaclass that is not the same one for the transformer we are also
-    # extending.
+    # use the same base metaclass as the transformer, otherwise we will get
+    # MRO metaclass issues in DFTransformer if we try to choose the base class
+    # for our metaclass that is not the same one for the transformer we are
+    # also extending.
     class DFTransformerMeta(type(transformer)):
         """Metaclass for DFTransformer to appear as parent Transformer."""
 
@@ -124,7 +108,7 @@ def make_pandas_transformer(transformer):
         """Wrapper to Enable parent transformer to handle DataFrames."""
 
         def __init__(self, *args, keep_columns=False, name=None, **kwargs):
-            """Intiializes parent Transformer.
+            """Initialize parent Transformer.
 
             Args:
                 *args: args to the parent constructor (shadowed transformer)
@@ -139,6 +123,9 @@ def make_pandas_transformer(transformer):
             self.name = name
             super(DFTransformer, self).__init__(*args, **kwargs)
 
+            # TODO: remove this when _Empty is removed
+            self.__empty_fit = False
+
         def get_params(self, deep=True):
             """Override standard get_params to handle nonstandard init.
 
@@ -151,7 +138,7 @@ def make_pandas_transformer(transformer):
 
             Args:
                 deep (bool): If True, will return the parameters for this
-                    estimator and contained subobjects that are estimators.
+                    estimator and contained sub-objects that are estimators.
 
             Returns:
                 Parameter names mapped to their values for parent +
@@ -165,41 +152,49 @@ def make_pandas_transformer(transformer):
             # transformer designer is okay with it not getting picked up here.
             # The transformer class passed will not contain the current values,
             # so we set them with the values on the object instance, below.
-            self_params = dict()  # the output
-            init = getattr(self.__init__, "deprecated_original", self.__init__)
-            if init is object.__init__:
-                return self_params
-            # explicit constructor to introspect
-            # introspect the constructor arguments to find the model
-            # parameters to represent
-            init_signature = signature(init)
-            # Consider the constructor parameters excluding 'self'
-            self_sig = [
-                p
-                for p in init_signature.parameters.values()
-                if p.name != "self"
-                and p.kind != p.VAR_KEYWORD
-                and p.kind != p.VAR_POSITIONAL
-            ]
-            self_sig = sorted([p.name for p in self_sig])
-            for key in self_sig + list(parent_params.keys()):
-                warnings.simplefilter("always", DeprecationWarning)
-                try:
-                    with warnings.catch_warnings(record=True) as w:
-                        value = getattr(self, key, None)
-                    if len(w) and w[0].category == DeprecationWarning:
-                        # if the parameter is deprecated, don't show it
-                        continue
-                finally:
-                    warnings.filters.pop(0)
+            try:
+                self_params = super().get_params(deep=deep)
+            except RuntimeError:
+                # TODO, Chris explain why we copy scikit-learn's internal
+                # get_params.
+                self_params = dict()  # the output
+                init = getattr(
+                    self.__init__, "deprecated_original", self.__init__
+                )
+                if init is object.__init__:
+                    return self_params
+                # explicit constructor to introspect
+                # introspect the constructor arguments to find the model
+                # parameters to represent
+                init_signature = signature(init)
+                # Consider the constructor parameters excluding 'self'
+                self_sig = [
+                    p
+                    for p in init_signature.parameters.values()
+                    if p.name != "self"
+                    and p.kind != p.VAR_KEYWORD
+                    and p.kind != p.VAR_POSITIONAL
+                ]
+                self_sig = sorted([p.name for p in self_sig])
+                for key in self_sig + list(parent_params.keys()):
+                    warnings.simplefilter("always", DeprecationWarning)
+                    try:
+                        with warnings.catch_warnings(record=True) as w:
+                            value = getattr(self, key, None)
+                        if len(w) and w[0].category == DeprecationWarning:
+                            # if the parameter is deprecated, don't show it
+                            continue
+                    finally:
+                        warnings.filters.pop(0)
 
-                # XXX: should we rather test if instance of estimator?
-                if deep and hasattr(value, "get_params"):
-                    deep_items = value.get_params().items()
-                    self_params.update(
-                        (key + "__" + k, val) for k, val in deep_items
-                    )
-                self_params[key] = value
+                    # XXX: should we rather test if instance of estimator?
+                    if deep and hasattr(value, "get_params"):
+                        deep_items = value.get_params().items()
+                        self_params.update(
+                            (key + "__" + k, val) for k, val in deep_items
+                        )
+                    self_params[key] = value
+
             return self_params
 
         def fit(self, X, *args, **kwargs):
@@ -219,11 +214,13 @@ def make_pandas_transformer(transformer):
             df = check_df(X)
 
             func = super(DFTransformer, self).fit
-            if df.empty and not isinstance(self, _Empty):
+            # TODO: Remove this once DataCleaner is implemented
+            if df.empty:
                 # this situation may happen when a transformer comes after the
-                # Empty transformer in a pipeline. Sklearn transformers will
-                # break on empty input and so we reroute to _Empty.
+                # Empty transformer in a pipeline. Scikit-learn transformers
+                # will break on empty input and so we reroute to _Empty.
                 func = partial(_Empty.fit, self)
+                self.__empty_fit = True
             out = func(df, *args, **kwargs)
             return out
 
@@ -249,10 +246,10 @@ def make_pandas_transformer(transformer):
 
             init_cols = [str(col) for col in df]
             func = super(DFTransformer, self).transform
-            if df.empty and not isinstance(self, _Empty):
+            if df.empty:
                 # this situation may happen when a transformer comes after the
-                # Empty transformer in a pipeline. Sklearn transformers will
-                # break on empty input and so we reroute to _Empty.
+                # Empty transformer in a pipeline. Scikit-learn transformers
+                # will break on empty input and so we reroute to _Empty.
                 func = partial(_Empty.transform, self)
 
             out = func(df, *args, **kwargs)
@@ -301,17 +298,25 @@ def make_pandas_transformer(transformer):
                 original inputs
 
             Raises:
-                ValueError: if not a valid output type from transformer
+                InverseUnavailable: If transformer was fit with empty data.
+                ValueError: If not a valid output type from transformer.
 
             """
             df = check_df(X)
 
             init_cols = [str(col) for col in df]
             func = super(DFTransformer, self).inverse_transform
-            if df.empty and not isinstance(self, _Empty):
+            if self.__empty_fit:
+                raise InverseUnavailable(
+                    "{} was fit with empty data, thus, "
+                    "inverse_transform is unavailable.".format(
+                        self.__class__.__name__
+                    )
+                )
+            elif df.empty:
                 # this situation may happen when a transformer comes after the
-                # Empty transformer in a pipeline. Sklearn transformers will
-                # break on empty input and so we reroute to _Empty.
+                # Empty transformer in a pipeline. Scikit-learn transformers
+                # will break on empty input and so we reroute to _Empty.
                 func = partial(_Empty.inverse_transform, self)
 
             out = func(df, *args, **kwargs)
@@ -319,11 +324,11 @@ def make_pandas_transformer(transformer):
             # determine name of new columns
             name = self.name if self.name else type(self).__name__
             out_is_transformer = hasattr(out, "__class__") and is_transformer(
-                out.__class__
+                out.__class__, method="issubclass"
             )  # noqa: E127
             # check if the output
-            # returned by the sklearn public function is a transformer or not.
-            # It will be a transformer in fit calls.
+            # returned by the scikit-learn public function is a transformer or
+            # not. It will be a transformer in fit calls.
 
             if not (out_is_transformer):
                 # if the output is a transformer, we do nothing.
@@ -357,10 +362,10 @@ def make_pandas_transformer(transformer):
             # determine name of new columns
             name = self.name if self.name else type(self).__name__
             out_is_transformer = hasattr(out, "__class__") and is_transformer(
-                out.__class__
+                out.__class__, method="issubclass"
             )  # noqa: E127
-            # check if the output returned by the sklearn public function is
-            # a transformer or not. It will be a transformer in fit calls.
+            # check if the output returned by the scikit-learn public function
+            # is a transformer or not. It will be a transformer in fit calls.
 
             if not (out_is_transformer) and not isinstance(out, pd.DataFrame):
                 # out_is_transformer: if the output is a transformer,

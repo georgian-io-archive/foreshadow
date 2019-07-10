@@ -293,13 +293,13 @@ def test_smarttransformer_attributeerror():
 
     transformer = TestSmartTransformer()
 
-    with pytest.raises(AttributeError) as e:
+    with pytest.raises(ValueError) as e:
         transformer.fit(df[["crim"]])
 
     assert (
-        str(e.value) == "Invalid WrappedTransformer. Get transformer "
-        "returns invalid object"
-    )
+        "is neither an sklearn Pipeline, FeatureUnion, a "
+        "wrapped foreshadow transformer, nor None."
+    ) in str(e.value)
 
 
 def test_smarttransformer_invalidtransformer():
@@ -321,13 +321,13 @@ def test_smarttransformer_invalidtransformer():
 
     transformer = TestSmartTransformer()
 
-    with pytest.raises(AttributeError) as e:
+    with pytest.raises(ValueError) as e:
         transformer.fit(df[["crim"]])
 
     assert (
-        str(e.value) == "Invalid WrappedTransformer. Get transformer "
-        "returns invalid object"
-    )
+        "is neither an sklearn Pipeline, FeatureUnion, a "
+        "wrapped foreshadow transformer, nor None."
+    ) in str(e.value)
 
 
 @pytest.fixture()
@@ -355,6 +355,7 @@ def test_smarttransformer_function(smart_child):
         smart_child: A subclass of SmartTransformer.
 
     """
+    import numpy as np
     import pandas as pd
 
     from foreshadow.transformers.externals import StandardScaler
@@ -377,7 +378,9 @@ def test_smarttransformer_function(smart_child):
     std.fit(df[["crim"]])
     std_data = std.transform(df[["crim"]])
 
-    assert smart_data.equals(std_data)
+    # TODO, remove when SmartTransformer is no longer wrapped
+    # Column names will be different, thus np.allclose() is used
+    assert np.allclose(smart_data, std_data)
 
 
 def test_smarttransformer_function_override(smart_child):
@@ -387,6 +390,7 @@ def test_smarttransformer_function_override(smart_child):
         smart_child: A subclass of SmartTransformer.
 
     """
+    import numpy as np
     import pandas as pd
 
     from foreshadow.transformers.externals import Imputer
@@ -410,7 +414,9 @@ def test_smarttransformer_function_override(smart_child):
     std.fit(df[["crim"]])
     std_data = std.transform(df[["crim"]])
 
-    assert smart_data.equals(std_data)
+    # TODO, remove when SmartTransformer is no longer wrapped
+    # Column names will be different, thus np.allclose() is used
+    assert np.allclose(smart_data, std_data)
 
 
 def test_smarttransformer_function_override_invalid(smart_child):
@@ -454,21 +460,6 @@ def test_smarttransformer_set_params_empty(smart_child):
     smart.set_params()
 
     assert smart._transformer is None
-
-
-def test_smarttransformer_null_transformer(smart_child):
-    """Test invalid SmartTransformer override transformer class.
-
-    Args:
-        smart_child: A subclass of SmartTransformer.
-
-    """
-    smart = smart_child()
-
-    with pytest.raises(ValueError) as e:
-        smart.transformer
-
-    assert str(e.value) == "SmartTransformer not Fit"
 
 
 def test_smarttransformer_set_params_default(smart_child):
@@ -520,10 +511,17 @@ def test_smarttransformer_empty_inverse(smart_child):
         smart_child: A subclass of SmartTransformer.
 
     """
+    from foreshadow.exceptions import InverseUnavailable
+
     smart = smart_child()
     smart.fit([])
 
-    assert smart.inverse_transform([1, 2, 10]).size == 0
+    with pytest.raises(InverseUnavailable) as e:
+        smart.inverse_transform([1, 2, 10])
+
+    assert (
+        "was fit with empty data, thus, inverse_transform is unavailable."
+    ) in str(e)
 
 
 def test_sparse_matrix_conversion():

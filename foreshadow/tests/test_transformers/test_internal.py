@@ -66,6 +66,7 @@ def test_box_cox():
 
 
 def test_transformer_fancy_impute_set_params():
+    import numpy as np
     import pandas as pd
     from foreshadow.transformers.internals import FancyImputer
 
@@ -83,7 +84,7 @@ def test_transformer_fancy_impute_set_params():
     out = impute.transform(data)
     truth = pd.read_csv(heart_impute_path, index_col=0)
 
-    assert out.equals(truth)
+    assert np.array_equal(out, truth)
 
 
 def test_transformer_fancy_impute_get_params():

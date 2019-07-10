@@ -5,12 +5,11 @@ def test_smart_emtpy_input():
     import numpy as np
 
     from foreshadow.transformers.smart import Scaler
-    from foreshadow.transformers.transformers import _Empty
 
     normal_data = np.array([])
     smart_scaler = Scaler()
-    assert isinstance(smart_scaler.fit(normal_data), _Empty)
-    assert smart_scaler.transform(normal_data).values.size == 0
+
+    assert smart_scaler.fit_transform(normal_data).values.size == 0
 
 
 def test_smart_scaler_normal():
@@ -111,6 +110,7 @@ def test_smart_encoder_y_var():
 
 
 def test_smart_impute_simple_none():
+    import numpy as np
     import pandas as pd
     from foreshadow.transformers.smart import SimpleImputer
 
@@ -124,10 +124,11 @@ def test_smart_impute_simple_none():
     impute.fit(data)
     out = impute.transform(data)
 
-    assert data.equals(out)
+    assert np.allclose(data, out, equal_nan=True)
 
 
 def test_smart_impute_simple_mean():
+    import numpy as np
     import pandas as pd
     from foreshadow.transformers.smart import SimpleImputer
 
@@ -143,7 +144,7 @@ def test_smart_impute_simple_mean():
     out = impute.transform(data)
     truth = pd.read_csv(heart_impute_path, index_col=0)
 
-    assert out.equals(truth)
+    assert np.array_equal(out, truth)
 
 
 def test_smart_impute_simple_median():
@@ -164,7 +165,7 @@ def test_smart_impute_simple_median():
     out = impute.transform(data)
     truth = pd.read_csv(heart_impute_path, index_col=0)
 
-    assert out.equals(truth)
+    assert np.array_equal(out, truth)
 
 
 def test_smart_impute_multiple():

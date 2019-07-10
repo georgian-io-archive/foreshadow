@@ -40,7 +40,7 @@ class FancyImputer(BaseEstimator, TransformerMixin):
             dict: Parameter names mapped to their values.
 
         """
-        return {"method": self.method, **self.kwargs}
+        return {"method": self.method, "impute_kwargs": self.impute_kwargs}
 
     def set_params(self, **params):
         """Set the parameters of this estimator.
@@ -62,7 +62,9 @@ class FancyImputer(BaseEstimator, TransformerMixin):
 
         # Auto import and initialize fancyimpute class defined by method
         try:
-            module = __import__("fancyimpute", [method], 1)
+            from importlib import import_module
+
+            module = import_module("fancyimpute")
             self.cls = getattr(module, method)
         except Exception:
             raise ValueError(

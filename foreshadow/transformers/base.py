@@ -7,13 +7,14 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.externals.joblib import Parallel, delayed
 from sklearn.pipeline import (
     FeatureUnion,
+    Pipeline,
     _fit_one_transformer,
     _fit_transform_one,
     _transform_one,
 )
 
-from foreshadow.transformers.transformers import _Empty
-from foreshadow.utils import check_df, get_transformer
+from foreshadow.transformers.transformers import make_pandas_transformer
+from foreshadow.utils import check_df, get_transformer, is_transformer
 
 
 class ParallelProcessor(FeatureUnion):
@@ -318,6 +319,8 @@ class ParallelProcessor(FeatureUnion):
         return Xs
 
 
+# TODO: Remove once _Empty is removed when DataCleaner is implemented
+@make_pandas_transformer
 class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
     """Abstract transformer class for meta transformer selection decisions.
 
@@ -338,35 +341,62 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
     """
 
-    def __init__(
-        self,
-        y_var=False,
-        override=None,
-        name=None,
-        keep_columns=False,
-        **kwargs
-    ):
+    def __init__(self, y_var=False, override=None, **kwargs):
         self.kwargs = kwargs
-        self.name = name
-        self.keep_columns = keep_columns
         self.override = override
         self.y_var = y_var
         self._skip_fit = False
         self._transformer = None
+        # TODO: Remove once DataCleaner is done
         self._set_to_empty = False
 
     @property
     def transformer(self):
         """Get the selected transformer from the SmartTransformer.
 
-        Raises:
-            ValueError: if smart transformer is not yet fit.
+        Returns:
+            object: An instance of a concrete transformer.
 
         """
-        if self._transformer is None:
-            raise ValueError("SmartTransformer not Fit")
-        else:
-            return self._transformer
+        return self._transformer
+
+    @transformer.setter
+    def transformer(self, value):
+        """Validate transformer initialization.
+
+        Args:
+            value (object): The selected transformer that SmartTransformer
+                should use.
+
+        Raises:
+            ValueError: If input is neither a valid foreshadow wrapped
+                transformer, scikit-learn Pipeline, scikit-learn FeatureUnion,
+                nor None.
+
+        """
+        # Check transformer type
+        valid_tranformer = (
+            is_transformer(value)
+            and hasattr(value, "name")  # check wrapping
+            and hasattr(value, "keep_columns")
+        )
+        valid_pipeline = isinstance(value, Pipeline)
+        valid_parallel = isinstance(value, FeatureUnion)
+        set_none = value is None
+
+        # Check the transformer inheritance status
+        if (
+            not valid_tranformer
+            and not valid_pipeline
+            and not valid_parallel
+            and not set_none
+        ):
+            raise ValueError(
+                "{} is neither an sklearn Pipeline, FeatureUnion, a "
+                "wrapped foreshadow transformer, nor None.".format(value)
+            )
+
+        self._transformer = value
 
     @property
     def skip_fit(self):
@@ -396,9 +426,12 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
     def get_params(self, deep=True):
         """Get parameters for this estimator.
 
+        Note: self.name and self.keep_columns are provided by the wrapping
+            method
+
         Args:
             deep (bool): If True, will return the parameters for this estimator
-                and contained subobjects that are estimators.
+                and contained sub-objects that are estimators.
 
         Returns:
             Parameter names mapped to their values.
@@ -410,10 +443,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             "name": self.name,
             "keep_columns": self.keep_columns,
             **(
-                {
-                    k: v
-                    for k, v in self._transformer.get_params(deep=deep).items()
-                }
+                self.transformer.get_params(deep=deep)
                 if self._transformer is not None and deep
                 else {}
             ),
@@ -434,7 +464,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
         self.override = params.pop("override", self.override)
         if self.override is not None:
-            self._transformer = get_transformer(self.override)(**self.kwargs)
+            self.transformer = get_transformer(self.override)(**self.kwargs)
 
         if self._transformer is not None:
             valid_params = {
@@ -442,7 +472,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
                 for k, v in params.items()
                 if k.split("__")[0] == "transformer"
             }
-            self._transformer.set_params(**valid_params)
+            self.transformer.set_params(**valid_params)
 
     @abstractmethod
     def pick_transformer(self, X, y=None, **fit_params):
@@ -466,53 +496,25 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             refit: ignore if previous fit was completed and refit
             **fit_params: params to fit
 
-        Raises:
-            AttributeError: if invalid wrapped transformer
-
         """
         # If refit transformer needs to be re-resolved
         if refit:
-            self._transformer = None
+            self.transformer = None
 
         # If nothing needs to be done go ahead and return
-        if self._transformer is not None:
+        if self.transformer is not None:
             return
 
         # If overriding, resolve the override and create the object
         if self.override is not None:
-            self._transformer = get_transformer(self.override)(**self.kwargs)
+            # Propagate name and keep_columns attributes to the smart
+            # transformer instance
+            self.transformer = get_transformer(self.override)(
+                name=self.name, keep_columns=self.keep_columns, **self.kwargs
+            )
         # If not use pick_transformer to get the object
         else:
-            self._transformer = self.pick_transformer(X, y, **fit_params)
-
-        # Check attributes
-        tf = getattr(self._transformer, "transform", None)
-        fittf = getattr(self._transformer, "fit_transform", None)
-        fit = getattr(self._transformer, "fit", None)
-
-        nm = hasattr(self._transformer, "name")
-        keep = hasattr(self._transformer, "keep_columns")
-
-        pipe = hasattr(self._transformer, "steps")
-        parallel = hasattr(self._transformer, "transformer_list")
-
-        # Check callable status of methods
-        if not (
-            callable(tf)
-            and callable(fittf)
-            and callable(fit)
-            and (nm and keep)
-            or pipe
-            or parallel
-        ):
-            raise AttributeError(
-                "Invalid WrappedTransformer. Get transformer returns invalid "
-                "object"
-            )
-
-        # Propagate name and keep_columns attributes to transformer
-        self._transformer.name = self.name
-        self._transformer.keep_columns = self.keep_columns
+            self.transformer = self.pick_transformer(X, y, **fit_params)
 
     def transform(self, X):
         """See base class.
@@ -527,7 +529,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         X = check_df(X)
         if not self._set_to_empty:
             self._verify_transformer(X)
-        return self._transformer.transform(X)
+        return self.transformer.transform(X)
 
     def fit(self, X, y=None, **kwargs):
         """See base class.
@@ -544,13 +546,12 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         X = check_df(X)
         y = check_df(y, ignore_none=True)
         if X.empty:
-            self._transformer = _Empty()
             self._set_to_empty = True
         else:
             self._verify_transformer(X, y, refit=True, **self.kwargs)
-        self._transformer.full_df = kwargs.pop("full_df", None)
+        self.transformer.full_df = kwargs.pop("full_df", None)
 
-        return self._transformer.fit(X, y, **kwargs)
+        return self.transformer.fit(X, y, **kwargs)
 
     def inverse_transform(self, X):
         """Invert transform if possible.
@@ -565,7 +566,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         X = check_df(X)
         if not self._set_to_empty:
             self._verify_transformer(X)
-        return self._transformer.inverse_transform(X)
+        return self.transformer.inverse_transform(X)
 
 
 def _slice_cols(X, cols, drop_level=True):
