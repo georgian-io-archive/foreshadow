@@ -1,6 +1,7 @@
 """Common module utilities."""
 
 import warnings
+from collections import OrderedDict
 from importlib import import_module
 
 import numpy as np
@@ -10,9 +11,6 @@ from sklearn.feature_extraction.text import VectorizerMixin
 
 
 PipelineStep = {"NAME": 0, "CLASS": 1, "COLS": 2}
-
-INTERNALS_SOURCE = "foreshadow.transformers.internals"
-EXTERNALS_SOURCE = "foreshadow.transformers.externals"
 
 
 def check_df(input_data, ignore_none=False, single_column=False):
@@ -138,20 +136,24 @@ def get_transformer(class_name, source_lib=None):
     if source_lib is not None:
         module = import_module(source_lib)
     else:
-        internals = import_module(INTERNALS_SOURCE)
-        externals = import_module(EXTERNALS_SOURCE)
+        sources = OrderedDict(
+            (source, import_module(source))
+            for source in [
+                "foreshadow.transformers.internals",
+                "foreshadow.transformers.externals",
+                "foreshadow.transformers.smart",
+            ]
+        )
 
-        if hasattr(internals, class_name):
-            module = internals
-        elif hasattr(externals, class_name):
-            module = externals
+        for v in sources.values():
+            if hasattr(v, class_name):
+                module = v
+                break
         else:
             raise ValueError(
-                (
-                    "Could not find transformer {} in neither "
-                    "foreshadow.transformers.internals nor "
-                    "foreshadow.transformers.externals"
-                ).format(class_name)
+                "Could not find transformer {} in {}".format(
+                    class_name, ", ".join(sources.keys())
+                )
             )
 
     return getattr(module, class_name)

@@ -431,7 +431,7 @@ def test_smarttransformer_function_override_invalid(smart_child):
     with pytest.raises(ValueError) as e:
         smart_child(override="BAD")
 
-    assert "Could not find transformer BAD in neither" in str(e.value)
+    assert "Could not find transformer BAD in" in str(e.value)
 
 
 def test_smarttransformer_set_params_override(smart_child):
