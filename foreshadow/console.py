@@ -24,6 +24,9 @@ def generate_model(args):
         tuple: A tuple of `fs, X_train, y_train, X_test, y_test` which \
             represents the foreshadow model along with the split data.
 
+    Raises:
+        ValueError: if invalid file or invalid y.
+
     """
     parser = argparse.ArgumentParser(
         description="Peer into the future of a data science project"
@@ -234,6 +237,12 @@ def get_method(arg, y_train):
         y_train (:obj:`DataFrame <pandas.DataFrame>`): The response variable
             data.
 
+    Returns:
+        Estimator
+
+    Raises:
+        ValueError: if invalid method is chosen
+
     """
     if arg is not None:
         try:
@@ -262,6 +271,9 @@ def search_intents(X_train, y_var=False):
         X_train (:obj:`DataFrame <pandas.DataFrame>`): The X train data.
         y_var (bool, optional): specifies whether the
             :obj:`Preprocessor <foreshadow.Preprocessor>` is of a y variable.
+
+    Returns:
+        Preprocessor
 
     """
     proc = Preprocessor(y_var=y_var)

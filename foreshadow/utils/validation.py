@@ -1,10 +1,13 @@
 """Common module utilities."""
 
-import sys
 import warnings
+from collections import OrderedDict
+from importlib import import_module
 
 import numpy as np
 import pandas as pd
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.feature_extraction.text import VectorizerMixin
 
 
 PipelineStep = {"NAME": 0, "CLASS": 1, "COLS": 2}
@@ -50,8 +53,10 @@ def check_df(input_data, ignore_none=False, single_column=False):
         ret_df = pd.DataFrame(input_data)
     else:
         raise ValueError(
-            "Invalid input type, neither pd.DataFrame, pd.Series, np.ndarray, "
-            "nor list"
+            "Invalid input type: {} is not pd.DataFrame, "
+            "pd.Series, "
+            "np.ndarray, "
+            "nor list".format(type(input_data))
         )
 
     if single_column and len(ret_df.columns) != 1:
@@ -70,8 +75,10 @@ def check_module_installed(name):
         bool: Whether the module can be imported
 
     """
+    from importlib import import_module
+
     try:
-        __import__(name)
+        import_module(name)
     except ImportError:
         return False
     else:
@@ -107,22 +114,77 @@ def check_transformer_imports(printout=True):
     return inter.classes, exter.classes
 
 
-def debug():  # pragma: no cover # noqa: D202
-    """Add pdb debugger on import.
+def get_transformer(class_name, source_lib=None):
+    """Get the transformer class from its name.
 
-    Utility to add pdb debugging to an entire file so that on error, the pdb
-    utility is opened.
+    Note:
+        In case of name conflict, internal transformer is preferred over
+        external transformer import.
+
+    Args:
+        class_name (str): The transformer class name
+        source_lib (str): The string import path if known
+
+    Returns:
+        Imported class
+
+    Raises:
+        ValueError: If class_name could not be found in internal or external
+            transformer library pathways.
+
     """
+    if source_lib is not None:
+        module = import_module(source_lib)
+    else:
+        sources = OrderedDict(
+            (source, import_module(source))
+            for source in [
+                "foreshadow.transformers.internals",
+                "foreshadow.transformers.externals",
+                "foreshadow.transformers.smart",
+            ]
+        )
 
-    def _info(type, value, tb):
-        # Source: https://stackoverflow.com/questions/242485/starting-python-debugger-automatically-on-error # noqa
-        if hasattr(sys, "ps1") or not sys.stderr.isatty():
-            sys.__excepthook__(type, value, tb)
+        for v in sources.values():
+            if hasattr(v, class_name):
+                module = v
+                break
         else:
-            import traceback
-            import pdb
+            raise ValueError(
+                "Could not find transformer {} in {}".format(
+                    class_name, ", ".join(sources.keys())
+                )
+            )
 
-            traceback.print_exception(type, value, tb)
-            pdb.post_mortem(tb)
+    return getattr(module, class_name)
 
-    sys.excepthook = _info
+
+def is_transformer(value, method="isinstance"):
+    """Check if the class is a transformer class.
+
+    Args:
+        value: Class or instance
+        method (str): Method of checking. Options are `'issubclass'` or
+            `'isinstance'`
+
+    Returns:
+        True if transformer, False if not.
+
+    Raises:
+        ValueError: if method is neither issubclass or isinstance
+
+    """
+    choices = {"issubclass": issubclass, "isinstance": isinstance}
+    try:
+        validation = choices.get(method)
+    except KeyError:
+        raise ValueError(
+            "Could not find {}, options are {}".format(method, choices.keys())
+        )
+
+    if validation(value, BaseEstimator) and (
+        validation(value, TransformerMixin)
+        or validation(value, VectorizerMixin)
+    ):
+        return True
+    return False

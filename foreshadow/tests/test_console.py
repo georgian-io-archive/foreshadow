@@ -1,17 +1,14 @@
 import pytest
 
+from foreshadow.utils.testing import get_file_path
+
 
 def test_console_generate_ignore_method():
     from foreshadow.console import generate_model
 
-    args = [
-        "./foreshadow/tests/test_data/boston_housing.csv",
-        "medv",
-        "--level",
-        "3",
-        "--method",
-        "method",
-    ]
+    data_path = get_file_path("test_data", "boston_housing.csv")
+
+    args = [data_path, "medv", "--level", "3", "--method", "method"]
 
     with pytest.warns(UserWarning, match="Method will be ignored"):
         generate_model(args)
@@ -20,14 +17,9 @@ def test_console_generate_ignore_method():
 def test_console_generate_ignore_time():
     from foreshadow.console import generate_model
 
-    args = [
-        "./foreshadow/tests/test_data/boston_housing.csv",
-        "medv",
-        "--level",
-        "2",
-        "--time",
-        "20",
-    ]
+    data_path = get_file_path("test_data", "boston_housing.csv")
+
+    args = [data_path, "medv", "--level", "2", "--time", "20"]
 
     with pytest.warns(UserWarning, match="Time parameter not applicable"):
         generate_model(args)
@@ -47,7 +39,9 @@ def test_console_generate_invalid_file():
 def test_console_generate_invalid_target():
     from foreshadow.console import generate_model
 
-    args = ["./foreshadow/tests/test_data/boston_housing.csv", "badtarget"]
+    data_path = get_file_path("test_data", "boston_housing.csv")
+
+    args = [data_path, "badtarget"]
 
     with pytest.raises(ValueError) as e:
         generate_model(args)
@@ -59,7 +53,9 @@ def test_console_generate_default():
     from foreshadow.console import generate_model
     from sklearn.linear_model import LinearRegression
 
-    args = ["./foreshadow/tests/test_data/boston_housing.csv", "medv"]
+    data_path = get_file_path("test_data", "boston_housing.csv")
+
+    args = [data_path, "medv"]
 
     model = generate_model(args)
 
@@ -69,12 +65,9 @@ def test_console_generate_default():
 def test_console_generate_invalid():
     from foreshadow.console import generate_model
 
-    args = [
-        "./foreshadow/tests/test_data/boston_housing.csv",
-        "medv",
-        "--level",
-        "5",
-    ]
+    data_path = get_file_path("test_data", "boston_housing.csv")
+
+    args = [data_path, "medv", "--level", "5"]
 
     with pytest.raises(ValueError) as e:
         generate_model(args)
@@ -86,12 +79,9 @@ def test_console_generate_level2():
     from foreshadow.console import generate_model
     from sklearn.linear_model import LinearRegression
 
-    args = [
-        "./foreshadow/tests/test_data/boston_housing.csv",
-        "medv",
-        "--level",
-        "2",
-    ]
+    data_path = get_file_path("test_data", "boston_housing.csv")
+
+    args = [data_path, "medv", "--level", "2"]
 
     model = generate_model(args)
 
@@ -103,43 +93,42 @@ def test_console_generate_config():
 
     from foreshadow.console import generate_model
 
+    data_path = get_file_path("test_data", "boston_housing.csv")
+    config = get_file_path("test_configs", "override_multi_pipeline.json")
+
     args = [
-        "./foreshadow/tests/test_data/boston_housing.csv",
+        data_path,
         "medv",
         "--level",
         "2",
         "--x_config",
-        "./foreshadow/tests/test_configs/override_multi_pipeline.json",
+        config,
         "--y_config",
-        "./foreshadow/tests/test_configs/override_multi_pipeline.json",
+        config,
     ]
 
     model = generate_model(args)
 
-    assert model[0].X_preprocessor.from_json == json.load(
-        open(
-            "./foreshadow/tests/test_configs/override_multi_pipeline.json", "r"
-        )
-    )
-    assert model[0].y_preprocessor.from_json == json.load(
-        open(
-            "./foreshadow/tests/test_configs/override_multi_pipeline.json", "r"
-        )
-    )
+    assert model[0].X_preprocessor.from_json == json.load(open(config, "r"))
+    assert model[0].y_preprocessor.from_json == json.load(open(config, "r"))
 
 
 def test_console_invalid_x_config():
     from foreshadow.console import generate_model
 
+    data_path = get_file_path("test_data", "boston_housing.csv")
+    x_config = get_file_path("test_configs", "invalid.json")
+    y_config = get_file_path("test_configs", "override_multi_pipeline.json")
+
     args = [
-        "./foreshadow/tests/test_data/boston_housing.csv",
+        data_path,
         "medv",
         "--level",
         "2",
         "--x_config",
-        "./foreshadow/tests/test_configs/invalid.json",
+        x_config,
         "--y_config",
-        "./foreshadow/tests/test_configs/override_multi_pipeline.json",
+        y_config,
     ]
 
     with pytest.raises(ValueError) as e:
@@ -151,15 +140,19 @@ def test_console_invalid_x_config():
 def test_console_invalid_y_config():
     from foreshadow.console import generate_model
 
+    data_path = get_file_path("test_data", "boston_housing.csv")
+    x_config = get_file_path("test_configs", "override_multi_pipeline.json")
+    y_config = get_file_path("test_configs", "invalid.json")
+
     args = [
-        "./foreshadow/tests/test_data/boston_housing.csv",
+        data_path,
         "medv",
         "--level",
         "2",
         "--x_config",
-        "./foreshadow/tests/test_configs/override_multi_pipeline.json",
+        x_config,
         "--y_config",
-        "./foreshadow/tests/test_configs/invalid.json",
+        y_config,
     ]
 
     with pytest.raises(ValueError) as e:
@@ -172,12 +165,9 @@ def test_console_generate_level3():
     from foreshadow.estimators import AutoEstimator
     from foreshadow.console import generate_model
 
-    args = [
-        "./foreshadow/tests/test_data/boston_housing.csv",
-        "medv",
-        "--level",
-        "3",
-    ]
+    data_path = get_file_path("test_data", "boston_housing.csv")
+
+    args = [data_path, "medv", "--level", "3"]
 
     model = generate_model(args)
 

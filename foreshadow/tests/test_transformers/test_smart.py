@@ -1,13 +1,15 @@
+from foreshadow.utils.testing import get_file_path
+
+
 def test_smart_emtpy_input():
     import numpy as np
 
     from foreshadow.transformers.smart import Scaler
-    from foreshadow.transformers.transformers import _Empty
 
     normal_data = np.array([])
     smart_scaler = Scaler()
-    assert isinstance(smart_scaler.fit(normal_data), _Empty)
-    assert smart_scaler.transform(normal_data).values.size == 0
+
+    assert smart_scaler.fit_transform(normal_data).values.size == 0
 
 
 def test_smart_scaler_normal():
@@ -108,14 +110,11 @@ def test_smart_encoder_y_var():
 
 
 def test_smart_impute_simple_none():
-    import os
-
+    import numpy as np
     import pandas as pd
     from foreshadow.transformers.smart import SimpleImputer
 
-    heart_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "heart-h.csv"
-    )
+    heart_path = get_file_path("test_data", "heart-h.csv")
 
     impute = SimpleImputer(threshold=0.05)
     df = pd.read_csv(heart_path)
@@ -125,21 +124,16 @@ def test_smart_impute_simple_none():
     impute.fit(data)
     out = impute.transform(data)
 
-    assert data.equals(out)
+    assert np.allclose(data, out, equal_nan=True)
 
 
 def test_smart_impute_simple_mean():
-    import os
-
+    import numpy as np
     import pandas as pd
     from foreshadow.transformers.smart import SimpleImputer
 
-    heart_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "heart-h.csv"
-    )
-    heart_impute_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "heart-h_impute_mean.csv"
-    )
+    heart_path = get_file_path("test_data", "heart-h.csv")
+    heart_impute_path = get_file_path("test_data", "heart-h_impute_mean.csv")
 
     impute = SimpleImputer()
     df = pd.read_csv(heart_path)
@@ -150,25 +144,16 @@ def test_smart_impute_simple_mean():
     out = impute.transform(data)
     truth = pd.read_csv(heart_impute_path, index_col=0)
 
-    assert out.equals(truth)
+    assert np.array_equal(out, truth)
 
 
 def test_smart_impute_simple_median():
-    import os
-
     import pandas as pd
     import numpy as np
     from foreshadow.transformers.smart import SimpleImputer
 
-    heart_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "heart-h.csv"
-    )
-    heart_impute_path = os.path.join(
-        os.path.dirname(__file__),
-        "..",
-        "test_data",
-        "heart-h_impute_median.csv",
-    )
+    heart_path = get_file_path("test_data", "heart-h.csv")
+    heart_impute_path = get_file_path("test_data", "heart-h_impute_median.csv")
 
     impute = SimpleImputer()
     df = pd.read_csv(heart_path)
@@ -180,25 +165,16 @@ def test_smart_impute_simple_median():
     out = impute.transform(data)
     truth = pd.read_csv(heart_impute_path, index_col=0)
 
-    assert out.equals(truth)
+    assert np.array_equal(out, truth)
 
 
 def test_smart_impute_multiple():
-    import os
-
     import numpy as np
     import pandas as pd
     from foreshadow.transformers.smart import MultiImputer
 
-    heart_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "heart-h.csv"
-    )
-    heart_impute_path = os.path.join(
-        os.path.dirname(__file__),
-        "..",
-        "test_data",
-        "heart-h_impute_multi.csv",
-    )
+    heart_path = get_file_path("test_data", "heart-h.csv")
+    heart_impute_path = get_file_path("test_data", "heart-h_impute_multi.csv")
 
     impute = MultiImputer()
     df = pd.read_csv(heart_path)
@@ -213,16 +189,12 @@ def test_smart_impute_multiple():
 
 
 def test_smart_impute_multiple_none():
-    import os
-
     import pandas as pd
     from sklearn.pipeline import Pipeline
     from foreshadow.transformers.smart import MultiImputer
     from foreshadow.utils import PipelineStep
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     impute = MultiImputer()
     df = pd.read_csv(boston_path)

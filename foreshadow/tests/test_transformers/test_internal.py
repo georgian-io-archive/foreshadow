@@ -1,5 +1,7 @@
 import pytest
 
+from foreshadow.utils.testing import get_file_path
+
 
 def test_dummy_encoder():
     import pandas as pd
@@ -64,20 +66,15 @@ def test_box_cox():
 
 
 def test_transformer_fancy_impute_set_params():
-    import os
-
+    import numpy as np
     import pandas as pd
     from foreshadow.transformers.internals import FancyImputer
 
-    heart_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "heart-h.csv"
-    )
-    heart_impute_path = os.path.join(
-        os.path.dirname(__file__), "..", "test_data", "heart-h_impute_mean.csv"
-    )
+    impute_kwargs = {"fill_method": "mean"}
 
-    impute = FancyImputer(method="SimpleFill", fill_method="median")
-    impute.set_params(**{"fill_method": "mean"})
+    impute = FancyImputer(method="SimpleFill", impute_kwargs=impute_kwargs)
+    heart_path = get_file_path("test_data", "heart-h.csv")
+    heart_impute_path = get_file_path("test_data", "heart-h_impute_mean.csv")
 
     df = pd.read_csv(heart_path)
 
@@ -87,15 +84,18 @@ def test_transformer_fancy_impute_set_params():
     out = impute.transform(data)
     truth = pd.read_csv(heart_impute_path, index_col=0)
 
-    assert out.equals(truth)
+    assert np.array_equal(out, truth)
 
 
 def test_transformer_fancy_impute_get_params():
     from foreshadow.transformers.internals import FancyImputer
 
-    impute = FancyImputer(method="SimpleFill", fill_method="median")
+    impute_kwargs = {"fill_method": "median"}
+    impute = FancyImputer(method="SimpleFill", impute_kwargs=impute_kwargs)
 
-    assert impute.get_params().get("fill_method", None) == "median"
+    impute_kwargs = impute.get_params().get("impute_kwargs", None)
+    assert impute_kwargs is not None
+    assert impute_kwargs.get("fill_method", None) == "median"
 
 
 def test_transformer_fancy_impute_invalid_init():
@@ -114,7 +114,9 @@ def test_transformer_fancy_impute_invalid_params():
     from foreshadow.transformers.internals import FancyImputer
 
     with pytest.raises(ValueError) as e:
-        impute = FancyImputer(method="SimpleFill", fill_method="mean")
+        impute = FancyImputer(
+            method="SimpleFill", impute_kwargs={"fill_method": "mean"}
+        )
         impute.set_params(**{"method": "INVALID"})
 
     assert str(e.value) == (
@@ -412,4 +414,7 @@ def test_tfidf_and_sparse_processing_core():
 
     assert np.allclose(rslt1, exp)
     assert np.allclose(rslt2, exp)
-    assert tfidf.inverse_transform(rslt1) == exp2
+    rslt1_inverse = tfidf.inverse_transform(rslt1).values  # TODO move to
+    # TODO non DataFrame output
+    rslt1_inverse = [x[0] for x in rslt1_inverse]
+    assert np.array_equal(rslt1_inverse, exp2)

@@ -2,6 +2,8 @@ from unittest.mock import PropertyMock, patch
 
 import pytest
 
+from foreshadow.utils.testing import get_file_path
+
 
 def test_foreshadow_defaults():
     from foreshadow import Foreshadow
@@ -337,17 +339,13 @@ def test_foreshadow_predict_diff_cols():
 
 @patch("foreshadow.preprocessor.Preprocessor")
 def test_foreshadow_param_optimize_fit(mock_p):
-    import os
-
     import pandas as pd
     from sklearn.base import BaseEstimator, TransformerMixin
     from sklearn.model_selection._search import BaseSearchCV
 
     from foreshadow import Foreshadow
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
     data = pd.read_csv(boston_path)
 
     class DummyRegressor(BaseEstimator, TransformerMixin):
@@ -386,7 +384,6 @@ def test_foreshadow_param_optimize_fit(mock_p):
 
 
 def test_foreshadow_param_optimize():  # TODO: Make this test faster
-    import os
     import pickle
     import json
 
@@ -400,15 +397,9 @@ def test_foreshadow_param_optimize():  # TODO: Make this test faster
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.optimizers.param_mapping import _param_mapping
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "test_data", "boston_housing.csv"
-    )
-    test_json_path = os.path.join(
-        os.path.dirname(__file__), "test_configs", "optimizer_test.json"
-    )
-    truth_path = os.path.join(
-        os.path.dirname(__file__), "test_configs", "search_space_optimize.pkl"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
+    test_json_path = get_file_path("test_configs", "optimizer_test.json")
+    truth_path = get_file_path("test_configs", "search_space_optimize.pkl")
 
     data = pd.read_csv(boston_path)
     js = json.load(open(test_json_path, "r"))
@@ -433,7 +424,6 @@ def test_foreshadow_param_optimize():  # TODO: Make this test faster
 
 
 def test_foreshadow_param_optimize_no_config():
-    import os
     import pickle
 
     import pandas as pd
@@ -446,12 +436,8 @@ def test_foreshadow_param_optimize_no_config():
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.optimizers.param_mapping import _param_mapping
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "test_data", "boston_housing.csv"
-    )
-    test_path = os.path.join(
-        os.path.dirname(__file__), "test_configs", "search_space_no_cfg.pkl"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
+    test_path = get_file_path("test_configs", "search_space_no_cfg.pkl")
 
     data = pd.read_csv(boston_path)
 
@@ -474,7 +460,6 @@ def test_foreshadow_param_optimize_no_config():
 
 
 def test_foreshadow_param_optimize_no_combinations():
-    import os
     import pickle
 
     import pandas as pd
@@ -487,12 +472,8 @@ def test_foreshadow_param_optimize_no_combinations():
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.optimizers.param_mapping import _param_mapping
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "test_data", "boston_housing.csv"
-    )
-    test_path = os.path.join(
-        os.path.dirname(__file__), "test_configs", "search_space_no_combo.pkl"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
+    test_path = get_file_path("test_configs", "search_space_no_combo.pkl")
 
     data = pd.read_csv(boston_path)
 
@@ -517,7 +498,6 @@ def test_foreshadow_param_optimize_no_combinations():
 
 def test_foreshadow_param_optimize_invalid_array_idx():
     import json
-    import os
 
     import pandas as pd
 
@@ -530,14 +510,8 @@ def test_foreshadow_param_optimize_invalid_array_idx():
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.optimizers.param_mapping import _param_mapping
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "test_data", "boston_housing.csv"
-    )
-    test_path = os.path.join(
-        os.path.dirname(__file__),
-        "test_configs",
-        "invalid_optimizer_config.json",
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
+    test_path = get_file_path("test_configs", "invalid_optimizer_config.json")
 
     data = pd.read_csv(boston_path)
     cfg = json.load(open(test_path, "r"))
@@ -562,8 +536,6 @@ def test_foreshadow_param_optimize_invalid_array_idx():
 
 
 def test_foreshadow_param_optimize_invalid_dict_key():
-    import os
-
     import pandas as pd
     from sklearn.linear_model import LinearRegression
     from sklearn.model_selection import train_test_split
@@ -574,9 +546,7 @@ def test_foreshadow_param_optimize_invalid_dict_key():
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.optimizers.param_mapping import _param_mapping
 
-    boston_path = os.path.join(
-        os.path.dirname(__file__), "test_data", "boston_housing.csv"
-    )
+    boston_path = get_file_path("test_data", "boston_housing.csv")
 
     data = pd.read_csv(boston_path)
 

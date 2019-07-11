@@ -9,7 +9,7 @@ import inspect
 
 from category_encoders import HashingEncoder, OneHotEncoder
 from sklearn.decomposition import PCA
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer, TfidfVectorizer
 from sklearn.preprocessing import (
     Imputer,
     MinMaxScaler,
