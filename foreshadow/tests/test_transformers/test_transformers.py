@@ -401,6 +401,7 @@ def test_smarttransformer_function_override(smart_child):
     smart = smart_child(override="Imputer", name="impute")
     smart_data = smart.fit_transform(df[["crim"]])
 
+    assert isinstance(smart.transformer, Imputer)
     assert smart.transformer.name == "impute"
 
     std = Imputer(name="impute")
@@ -426,10 +427,9 @@ def test_smarttransformer_function_override_invalid(smart_child):
         smart_child: A subclass of SmartTransformer.
 
     """
-    smart = smart_child(override="BAD")
 
     with pytest.raises(ValueError) as e:
-        smart.fit([1, 2, 3])
+        smart_child(override="BAD")
 
     assert "Could not find transformer BAD in neither" in str(e.value)
 
