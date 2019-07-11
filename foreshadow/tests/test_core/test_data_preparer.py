@@ -1,0 +1,51 @@
+"""Test the data_preparer.py file."""
+import pytest
+
+
+@pytest.mark.parametrize(
+    "cleaner_kwargs,expected_error",
+    [
+        ({}, None),
+        (None, None),
+        ({"random_kwarg": "random_value"}, None),  # replace with real kwargs
+        ([], ValueError),
+    ],
+)
+def test_data_preparer_init(cleaner_kwargs, expected_error):
+    """Test creation of DataPreparer with kwargs.
+
+    Args:
+          cleaner_kwargs: kwargs to DataCleaner step
+          expected_error: expected error from initialization. None if no
+            expected error.
+
+    """
+    from foreshadow.core.data_preparer import DataPreparer
+
+    if expected_error is not None:
+        with pytest.raises(expected_error) as e:
+            DataPreparer(cleaner_kwargs=cleaner_kwargs)
+        assert issubclass(e.type, expected_error)
+    else:
+        DataPreparer(cleaner_kwargs=cleaner_kwargs)
+
+
+@pytest.mark.parametrize(
+    "cleaner_kwargs",
+    [
+        ({}),
+        (None),
+        ({"random_kwarg": "random_value"}),  # replace with real kwargs
+    ],
+)
+def test_data_preparer_fit(cleaner_kwargs):
+    """Test fitting of DataPreparer after creation with kwargs.
+
+    Args:
+          cleaner_kwargs: kwargs to DataCleaner step
+
+    """
+    from foreshadow.core.data_preparer import DataPreparer
+
+    dp = DataPreparer(cleaner_kwargs=cleaner_kwargs)
+    dp.fit([])
