@@ -540,7 +540,7 @@ def test_smarttransformer_should_resolve(smart_child, mocker):
     """
     import pandas as pd
 
-    from foreshadow.transformers.externals import StandardScaler, MinMaxScaler
+    from foreshadow.transformers.concrete import StandardScaler, MinMaxScaler
 
     def pick_transformer(X, y=None, **fit_params):
         data = X.iloc[:, 0]

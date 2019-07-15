@@ -14,7 +14,7 @@ from sklearn.pipeline import (
 )
 
 from foreshadow.core import get_transformer
-from foreshadow.transformers.core import make_pandas_transformer
+from foreshadow.transformers.core.wrapper import make_pandas_transformer
 from foreshadow.utils import check_df, is_transformer, is_wrapped
 
 
