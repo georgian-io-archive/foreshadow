@@ -15,7 +15,7 @@ from sklearn.pipeline import (
 
 from foreshadow.core import get_transformer
 from foreshadow.transformers.core import make_pandas_transformer
-from foreshadow.utils import check_df, is_transformer
+from foreshadow.utils import check_df, is_transformer, is_wrapped
 
 
 class ParallelProcessor(FeatureUnion):
@@ -332,13 +332,13 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
     to different data sets.
 
     Contains a function _get_tranformer that must be overridden by an
-    implementing class that returns an scikit-learn transformer object to be
+    implementing class that returns a scikit-learn transformer object to be
     used.
 
     Used and implements itself identically to a transformer.
 
     Attributes:
-        override: An scikit-learn transformer that can be optionally provided
+        override: A scikit-learn transformer that can be optionally provided
             to override internals logic. This takes top priority of all the
             setting.
         should_resolve: Whether or not the SmartTransformer will resolve
@@ -393,11 +393,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
         """
         # Check transformer type
-        valid_tranformer = (
-            is_transformer(value)
-            and hasattr(value, "name")  # check wrapping
-            and hasattr(value, "keep_columns")
-        )
+        valid_tranformer = is_transformer(value) and is_wrapped(value)
         valid_pipeline = isinstance(value, Pipeline)
         valid_parallel = isinstance(value, FeatureUnion)
         set_none = value is None
@@ -410,7 +406,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             and not set_none
         ):
             raise ValueError(
-                "{} is neither an sklearn Pipeline, FeatureUnion, a "
+                "{} is neither a scikit-learn Pipeline, FeatureUnion, a "
                 "wrapped foreshadow transformer, nor None.".format(value)
             )
 
@@ -506,7 +502,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
                 fitting
 
         """
-        pass
+        pass  # pragma: no cover
 
     def resolve(self, X, y=None, **fit_params):
         """Verify transformers have the necessary methods and attributes.
@@ -524,16 +520,15 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         # If force_reresolve is set, always re-resolve
         if self.force_reresolve:
             self.should_resolve = True
-            self.transformer = None
-        elif self.should_resolve:
-            self.should_resolve = False  # Toggle switch
-            self.transformer = None
 
         # Only resolve if transformer is not set or re-resolve is requested.
-        if (self.should_resolve) or (self.transformer is None):
+        if self.should_resolve:
             self.transformer = self.pick_transformer(X, y, **fit_params)
             self.transformer.name = self.name
             self.transformer.keep_columns = self.keep_columns
+
+        # reset should_resolve
+        self.should_resolve = False
 
     def transform(self, X):
         """See base class.

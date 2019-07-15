@@ -135,3 +135,16 @@ def is_transformer(value, method="isinstance"):
     ):
         return True
     return False
+
+
+def is_wrapped(transformer):
+    """Check if a transformer is wrapped.
+
+    Args:
+        transformer: A transformer instance
+
+    Returns:
+        bool: Whether or not the transformer is wrapped.
+
+    """
+    return hasattr(transformer, "is_wrapped")

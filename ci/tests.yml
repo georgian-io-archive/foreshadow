@@ -1,5 +1,5 @@
 steps: 
-  - script: $HOME/.poetry/bin/poetry run pytest
+  - script: $HOME/.poetry/bin/poetry run pytest --junitxml=junit/test-results.xml --cov-report=xml
     env:
       FORESHADOW_TESTS: ALL
     displayName: Run pytest
@@ -9,3 +9,13 @@ steps:
     env:
       COVERALLS_REPO_TOKEN: $(coveralls_token)
     displayName: Submit coveralls report
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFiles: 'junit/test-results.xml'
+      testRunTitle: '$(Agent.OS) - $(Build.BuildNumber)[$(Agent.JobName)] - Python $(python.version)'
+    condition: succeededOrFailed()
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
+      reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'

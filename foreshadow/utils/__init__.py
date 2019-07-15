@@ -7,6 +7,7 @@ from foreshadow.utils.validation import (
     check_module_installed,
     check_transformer_imports,
     is_transformer,
+    is_wrapped,
 )
 
 
@@ -16,7 +17,7 @@ __all__ = [
     "check_module_installed",
     "check_transformer_imports",
     "is_transformer",
-    "get_transformer",
     "get_config_path",
     "get_cache_path",
+    "is_wrapped",
 ]

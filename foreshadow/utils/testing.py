@@ -55,7 +55,7 @@ def get_file_path(file_type, file_name):
     return os.path.join(test_path, file_type, file_name)
 
 
-def debug():  # noqa: D202
+def debug():  # noqa: D202  # pragma: no cover
     """Add pdb debugger on import.
 
     Utility to add pdb debugging to an entire file so that on error, the pdb
