@@ -200,4 +200,4 @@ def is_wrapped(transformer):
         bool: Whether or not the transformer is wrapped.
 
     """
-    return "make_pandas_transformer" in repr(transformer.__class__)
+    return hasattr(transformer, "is_wrapped")

@@ -126,6 +126,8 @@ def make_pandas_transformer(transformer):
             # TODO: remove this when _Empty is removed
             self.__empty_fit = False
 
+            self.is_wrapped = True
+
         def get_params(self, deep=True):
             """Override standard get_params to handle nonstandard init.
 
