@@ -1,11 +1,10 @@
 import pytest
 
-from foreshadow.utils import get_transformer
-from foreshadow.utils.testing import get_file_path
+from foreshadow.utils.testing import get_file_path, get_transformer
 
 
 def test_transformer_wrapper_init():
-    from foreshadow.transformers.externals import StandardScaler
+    from foreshadow.transformers.concrete import StandardScaler
 
     scaler = StandardScaler(name="test-scaler", keep_columns=True)
 
@@ -15,7 +14,7 @@ def test_transformer_wrapper_init():
 
 def test_transformer_wrapper_no_init():
     from sklearn.base import BaseEstimator, TransformerMixin
-    from foreshadow.transformers.transformers import make_pandas_transformer
+    from foreshadow.transformers.core import make_pandas_transformer
 
     class NewTransformer(BaseEstimator, TransformerMixin):
         pass
@@ -30,9 +29,7 @@ def test_transformer_wrapper_function():
     import numpy as np
     import pandas as pd
     from sklearn.preprocessing import StandardScaler as StandardScaler
-    from foreshadow.transformers.externals import (
-        StandardScaler as CustomScaler,
-    )
+    from foreshadow.transformers.concrete import StandardScaler as CustomScaler
 
     boston_path = get_file_path("test_data", "boston_housing.csv")
 
@@ -60,9 +57,7 @@ def test_transformer_wrapper_empty_input():
     import pandas as pd
 
     from sklearn.preprocessing import StandardScaler as StandardScaler
-    from foreshadow.transformers.externals import (
-        StandardScaler as CustomScaler,
-    )
+    from foreshadow.transformers.concrete import StandardScaler as CustomScaler
 
     df = pd.DataFrame({"A": np.array([])})
 
@@ -80,9 +75,7 @@ def test_transformer_wrapper_empty_input():
 
 def test_transformer_keep_cols():
     import pandas as pd
-    from foreshadow.transformers.externals import (
-        StandardScaler as CustomScaler,
-    )
+    from foreshadow.transformers.concrete import StandardScaler as CustomScaler
 
     boston_path = get_file_path("test_data", "boston_housing.csv")
 
@@ -95,7 +88,7 @@ def test_transformer_keep_cols():
 
 
 def test_transformer_naming_override():
-    from foreshadow.transformers.externals import StandardScaler
+    from foreshadow.transformers.concrete import StandardScaler
     import pandas as pd
 
     boston_path = get_file_path("test_data", "boston_housing.csv")
@@ -109,7 +102,7 @@ def test_transformer_naming_override():
 
 
 def test_transformer_naming_default():
-    from foreshadow.transformers.externals import StandardScaler
+    from foreshadow.transformers.concrete import StandardScaler
     import pandas as pd
 
     boston_path = get_file_path("test_data", "boston_housing.csv")
@@ -123,7 +116,7 @@ def test_transformer_naming_default():
 
 
 def test_transformer_parallel_invalid():
-    from foreshadow.transformers.base import ParallelProcessor
+    from foreshadow.transformers.core import ParallelProcessor
 
     class InvalidTransformer:
         pass
@@ -142,7 +135,7 @@ def test_transformer_parallel_invalid():
 
 def test_transformer_parallel_empty():
     import pandas as pd
-    from foreshadow.transformers.base import ParallelProcessor
+    from foreshadow.transformers.core import ParallelProcessor
 
     boston_path = get_file_path("test_data", "boston_housing.csv")
 
@@ -171,8 +164,8 @@ def test_transformer_parallel_empty():
 def test_transformer_parallel():
     import pandas as pd
 
-    from foreshadow.transformers.base import ParallelProcessor
-    from foreshadow.transformers.externals import StandardScaler
+    from foreshadow.transformers.core import ParallelProcessor
+    from foreshadow.transformers.concrete import StandardScaler
 
     boston_path = get_file_path("test_data", "boston_housing.csv")
 
@@ -216,10 +209,8 @@ def test_transformer_pipeline():
 
     np.random.seed(1337)
 
-    from foreshadow.transformers.externals import (
-        StandardScaler as CustomScaler,
-    )
-    from foreshadow.transformers.base import ParallelProcessor
+    from foreshadow.transformers.concrete import StandardScaler as CustomScaler
+    from foreshadow.transformers.core import ParallelProcessor
 
     from sklearn.preprocessing import StandardScaler
     from sklearn.pipeline import FeatureUnion
@@ -267,7 +258,7 @@ def test_transformer_pipeline():
 
 
 def test_smarttransformer_notimplemented():
-    from foreshadow.transformers.base import SmartTransformer
+    from foreshadow.transformers.core import SmartTransformer
 
     class TestSmartTransformer(SmartTransformer):
         pass
@@ -281,7 +272,7 @@ def test_smarttransformer_notimplemented():
 def test_smarttransformer_attributeerror():
     import pandas as pd
 
-    from foreshadow.transformers.base import SmartTransformer
+    from foreshadow.transformers.core import SmartTransformer
 
     boston_path = get_file_path("test_data", "boston_housing.csv")
 
@@ -306,7 +297,7 @@ def test_smarttransformer_invalidtransformer():
     """Test SmartTransformer initialization """
     import pandas as pd
 
-    from foreshadow.transformers.base import SmartTransformer
+    from foreshadow.transformers.core import SmartTransformer
 
     boston_path = get_file_path("test_data", "boston_housing.csv")
 
@@ -338,8 +329,8 @@ def smart_child():
         Always returns StandardScaler.
 
     """
-    from foreshadow.transformers.base import SmartTransformer
-    from foreshadow.transformers.externals import StandardScaler
+    from foreshadow.transformers.core import SmartTransformer
+    from foreshadow.transformers.concrete import StandardScaler
 
     class TestSmartTransformer(SmartTransformer):
         def pick_transformer(self, X, y=None, **fit_params):
@@ -358,7 +349,7 @@ def test_smarttransformer_function(smart_child):
     import numpy as np
     import pandas as pd
 
-    from foreshadow.transformers.externals import StandardScaler
+    from foreshadow.transformers.concrete import StandardScaler
 
     boston_path = get_file_path("test_data", "boston_housing.csv")
 
@@ -393,7 +384,7 @@ def test_smarttransformer_function_override(smart_child):
     import numpy as np
     import pandas as pd
 
-    from foreshadow.transformers.externals import Imputer
+    from foreshadow.transformers.concrete import Imputer
 
     boston_path = get_file_path("test_data", "boston_housing.csv")
     df = pd.read_csv(boston_path)
@@ -427,11 +418,12 @@ def test_smarttransformer_function_override_invalid(smart_child):
         smart_child: A subclass of SmartTransformer.
 
     """
+    from foreshadow.exceptions import TransformerNotFound
 
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(TransformerNotFound) as e:
         smart_child(override="BAD")
 
-    assert "Could not find transformer BAD in" in str(e.value)
+    assert "was not pandas wrapped, this is" in str(e.value)
 
 
 def test_smarttransformer_set_params_override(smart_child):
@@ -441,7 +433,7 @@ def test_smarttransformer_set_params_override(smart_child):
         smart_child: A subclass of SmartTransformer.
 
     """
-    from foreshadow.transformers.externals import StandardScaler
+    from foreshadow.transformers.concrete import StandardScaler
 
     smart = smart_child(override="Imputer")
     smart.set_params(**{"override": "StandardScaler"})
@@ -525,7 +517,7 @@ def test_smarttransformer_empty_inverse(smart_child):
 
 
 def test_sparse_matrix_conversion():
-    from foreshadow.transformers.internals import FixedTfidfVectorizer
+    from foreshadow.transformers.concrete import FixedTfidfVectorizer
 
     corpus = [
         "Hello world!",

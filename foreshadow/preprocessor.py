@@ -6,9 +6,10 @@ from copy import deepcopy
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 
+from foreshadow.core import get_transformer
 from foreshadow.intents import GenericIntent
 from foreshadow.intents.registry import registry_eval
-from foreshadow.transformers.base import ParallelProcessor, SmartTransformer
+from foreshadow.transformers.core import ParallelProcessor, SmartTransformer
 from foreshadow.utils import PipelineStep, check_df
 
 
@@ -572,7 +573,7 @@ def _ser_params(trans):
         dict: the transformer's parameters
 
     """
-    from foreshadow.transformers.externals import no_serialize_params
+    from foreshadow.transformers.concrete import no_serialize_params
 
     bad_params = ["name", *no_serialize_params.get(type(trans).__name__, [])]
     return {
@@ -653,16 +654,6 @@ def _resolve_pipeline(pipeline_json):
     """
     pipe = []
 
-    module_internals = __import__(
-        "transformers.internals", globals(), locals(), ["object"], 1
-    )
-    module_externals = __import__(
-        "transformers.externals", globals(), locals(), ["object"], 1
-    )
-    module_smart = __import__(
-        "transformers.smart", globals(), locals(), ["object"], 1
-    )
-
     for trans in pipeline_json:
 
         try:
@@ -678,17 +669,7 @@ def _resolve_pipeline(pipeline_json):
             )
 
         try:
-            search_module = (
-                module_internals
-                if hasattr(module_internals, clsname)
-                else (
-                    module_externals
-                    if hasattr(module_externals, clsname)
-                    else module_smart
-                )
-            )
-
-            cls = getattr(search_module, clsname)
+            cls = get_transformer(clsname)
 
         except Exception:
             raise ValueError(

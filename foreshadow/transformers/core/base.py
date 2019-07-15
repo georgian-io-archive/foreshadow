@@ -13,8 +13,9 @@ from sklearn.pipeline import (
     _transform_one,
 )
 
-from foreshadow.transformers.transformers import make_pandas_transformer
-from foreshadow.utils import check_df, get_transformer, is_transformer
+from foreshadow.core import get_transformer
+from foreshadow.transformers.core import make_pandas_transformer
+from foreshadow.utils import check_df, is_transformer
 
 
 class ParallelProcessor(FeatureUnion):

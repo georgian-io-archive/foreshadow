@@ -85,12 +85,11 @@ def test_module_installed():
 def test_check_transformer_imports(capsys):
     from foreshadow.utils import check_transformer_imports
 
-    inter_trans, exter_trans = check_transformer_imports()
+    conc = check_transformer_imports()
     out, err = capsys.readouterr()
 
     assert out.startswith("Loaded")
-    assert len(inter_trans) > 0
-    assert len(exter_trans) > 0
+    assert len(conc) > 0
 
 
 def test_check_transformer_imports_no_output(capsys):

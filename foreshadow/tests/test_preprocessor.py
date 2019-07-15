@@ -13,7 +13,7 @@ def patch_intents(mocker):
         TransformerEntry,
     )
     from foreshadow.intents import registry
-    from foreshadow.transformers.externals import Imputer, PCA
+    from foreshadow.transformers.concrete import Imputer, PCA
 
     _saved_registry = deepcopy(registry._registry)
     registry._registry = {}
@@ -697,9 +697,10 @@ def test_preprocessor_get_params():
     test_path2 = get_file_path("test_configs", "complete_pipeline_test.json")
 
     df = pd.read_csv(boston_path)
-    truth = pickle.load(open(test_path, "rb"))
     proc = Preprocessor(from_json=json.load(open(test_path2, "r")))
     proc.fit(df)
+
+    truth = pickle.load(open(test_path, "rb"))
 
     assert proc.get_params().keys() == truth.keys()
 
@@ -712,7 +713,7 @@ def test_preprocessor_set_params():
     from foreshadow.preprocessor import Preprocessor
 
     boston_path = get_file_path("test_data", "boston_housing.csv")
-    test_path = get_file_path("test_configs", "tests_params.pkl")
+    test_path = get_file_path("test_configs", "test_params.pkl")
     test_path2 = get_file_path("test_configs", "complete_pipeline_test.json")
 
     df = pd.read_csv(boston_path)

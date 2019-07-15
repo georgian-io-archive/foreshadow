@@ -13,26 +13,24 @@ import pandas as pd
 import scipy.stats as ss
 from sklearn.pipeline import Pipeline
 
-from foreshadow.transformers.base import SmartTransformer
-from foreshadow.transformers.externals import (
-    HashingEncoder,
-    MinMaxScaler,
-    OneHotEncoder,
-    RobustScaler,
-    StandardScaler,
-)
-from foreshadow.transformers.internals import (
+from foreshadow.transformers.concrete import (
     BoxCox,
     ConvertFinancial,
     DummyEncoder,
     FancyImputer,
     FixedLabelEncoder as LabelEncoder,
     FixedTfidfVectorizer as TfidfVectorizer,
+    HashingEncoder,
     HTMLRemover,
+    MinMaxScaler,
+    OneHotEncoder,
     PrepareFinancial,
+    RobustScaler,
+    StandardScaler,
     ToString,
     UncommonRemover,
 )
+from foreshadow.transformers.core import SmartTransformer
 from foreshadow.utils import check_df
 
 
