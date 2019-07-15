@@ -110,8 +110,12 @@ venv.bak/
 # Poetry build wheels
 pip-wheel-metadata/
 
+# Unit Test xml
+junit/*
+
 # Other
 .DS_Store
 *.sublime-project
 *.sublime-workspace
 *.svg
+
