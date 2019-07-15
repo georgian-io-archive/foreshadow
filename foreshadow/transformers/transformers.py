@@ -388,15 +388,6 @@ def make_pandas_transformer(transformer):
                     out = _keep_columns_process(out, df, name)
             return out
 
-        def is_wrapped(self):
-            """Check if a standard transformer is wrapped.
-
-            Returns:
-                bool: True
-
-            """
-            return True
-
     return DFTransformer
 
 

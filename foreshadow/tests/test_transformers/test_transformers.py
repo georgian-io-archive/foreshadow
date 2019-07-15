@@ -764,5 +764,3 @@ def test_make_pandas_transformer_init(transformer, sk_path):
     sk_transformer = get_transformer(transformer, source_lib=sk_path)()
     params = sk_transformer.get_params()
     transformer = get_transformer(transformer)(**params)
-
-    assert transformer.is_wrapped()

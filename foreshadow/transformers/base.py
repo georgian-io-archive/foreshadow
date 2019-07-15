@@ -14,7 +14,12 @@ from sklearn.pipeline import (
 )
 
 from foreshadow.transformers.transformers import make_pandas_transformer
-from foreshadow.utils import check_df, get_transformer, is_transformer
+from foreshadow.utils import (
+    check_df,
+    get_transformer,
+    is_transformer,
+    is_wrapped,
+)
 
 
 class ParallelProcessor(FeatureUnion):
@@ -392,7 +397,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
         """
         # Check transformer type
-        valid_tranformer = is_transformer(value) and value.is_wrapped()
+        valid_tranformer = is_transformer(value) and is_wrapped(value)
         valid_pipeline = isinstance(value, Pipeline)
         valid_parallel = isinstance(value, FeatureUnion)
         set_none = value is None
