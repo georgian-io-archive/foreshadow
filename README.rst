@@ -14,8 +14,8 @@ data scientists to spend more time on data science and less time on code.
   :target: https://foreshadow.readthedocs.io/en/latest/?badge=latest
   :alt: Documentation Status
 
-.. |Coverage| image:: https://coveralls.io/repos/github/georgianpartners/foreshadow/badge.svg?branch=development
-  :target: https://coveralls.io/github/georgianpartners/foreshadow
+.. |Coverage| image:: https://img.shields.io/azure-devops/coverage/georgianpartners/foreshadow/1.svg
+  :target: https://dev.azure.com/georgianpartners/foreshadow/_build/latest?definitionId=1&branchName=master
   :alt: Coverage
 
 .. |CodeStyle| image:: https://img.shields.io/badge/code%20style-black-000000.svg
