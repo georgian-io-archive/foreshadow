@@ -39,7 +39,7 @@ class ParallelProcessor(FeatureUnion):
         n_jobs (int): See base class
         transformer_weights (:obj:`numpy.ndarray`): See base class
         transformer_list (list): List of transformer objects in form
-            [(name, [cols], TransformerObject), ...]
+            [(name, TransformerObject, [cols]), ...]
 
     """
 
@@ -496,7 +496,6 @@ class SmartTransformer(BaseEstimator, TransformerMixin):
         # If not use _get_transformer to get the object
         else:
             self._transformer = self._get_transformer(X, y, **fit_params)
-
         # Check attributes
         tf = getattr(self._transformer, "transform", None)
         fittf = getattr(self._transformer, "fit_transform", None)
