@@ -206,8 +206,8 @@ def execute_model(fs, X_train, y_train, X_test, y_test):
         "y_summary": fs.y_preprocessor.summarize(y_train),
     }
 
-    with open("model.json", "w") as outfile:
-        json.dump(all_results, outfile, indent=4)
+    # with open("model.json", "w") as outfile:
+    #     json.dump(all_results, outfile, indent=4)
 
     print(
         "Results of model fiting have been saved to model.json."
