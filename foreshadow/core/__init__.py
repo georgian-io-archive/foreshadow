@@ -1,5 +1,6 @@
-"""Core foreshadow components."""
+"""Core components to foreshadow."""
 
+from foreshadow.core.column_sharer import ColumnSharer
 from foreshadow.core.serialization import (
     SerializerMixin,
     _registry,
@@ -17,4 +18,5 @@ __all__ = [
     "from_disk",
     "get_transformer",
     "register_transformer",
+    "ColumnSharer",
 ]
