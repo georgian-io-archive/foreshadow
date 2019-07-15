@@ -3,7 +3,6 @@
 API Reference
 =============
 
-
 Foreshadow
 ----------
 .. automodule:: foreshadow.foreshadow
@@ -45,19 +44,26 @@ Transformer Bases
    :undoc-members:
 
 Estimators
-------------
+----------
 .. automodule:: foreshadow.estimators
    :members:
    :undoc-members:
 
 Optimizers
-------------
+----------
 .. automodule:: foreshadow.optimizers
    :members:
    :undoc-members:
 
 Utils
-------------
+-----
 .. automodule:: foreshadow.utils
    :members:
    :undoc-members:
+
+Core
+----
+.. automodule:: foreshadow.core
+   :members:
+   :undoc-members:
+
