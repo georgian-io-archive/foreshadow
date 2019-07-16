@@ -4,13 +4,14 @@ from sklearn.pipeline import Pipeline
 from foreshadow.cleaners.data_cleaner import DataCleaner as _DataCleaner
 
 
-def _none_to_dict(**kwargs):
+def _none_to_dict(name, val):
     """Transform input kwarg to valid dict, handling sentinel value.
 
-    Accepts a single kwarg by default.
+    Accepts a single kwarg.
 
     Args:
-        **kwargs: the kwarg value to ensure is proper format for kwargs.
+        name: the kwarg name
+        val: the kwarg value to ensure is proper format for kwargs.
 
     Returns:
         kwarg set to default
@@ -20,15 +21,12 @@ def _none_to_dict(**kwargs):
             None). Also if > 1 kwargs passed.
 
     """
-    if len(kwargs) > 1:
-        raise ValueError("Pass only 1 kwarg at a time.")
-    for key, val in kwargs.items():
-        val = {} if val is None else val
-        if not isinstance(val, dict):
-            raise ValueError(
-                "value for kwarg: {} must be dict or " "None.".format(key)
-            )
-        return val
+    val = {} if val is None else val
+    if not isinstance(val, dict):
+        raise ValueError(
+            "value for kwarg: {} must be dict or " "None.".format(name)
+        )
+    return val
 
 
 class DataPreparer(Pipeline):
@@ -42,7 +40,7 @@ class DataPreparer(Pipeline):
         preprocessor_kwargs=None,
         reducer_kwargs=None,
     ):
-        cleaner_kwargs_ = _none_to_dict(cleaner_kwargs=cleaner_kwargs)
+        cleaner_kwargs_ = _none_to_dict("cleaner_kwargs", cleaner_kwargs)
         # intent_kwargs_ = _none_to_dict(intent_kwargs=intent_kwargs)
         # engineerer_kwargs_ = _none_to_dict(
         # engineerer_kwargs=engineerer_kwargs
