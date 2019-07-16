@@ -41,7 +41,6 @@ class DataPreparer(Pipeline):
         engineerer_kwargs=None,
         preprocessor_kwargs=None,
         reducer_kwargs=None,
-        modeler_kwargs=None,
     ):
         cleaner_kwargs_ = _none_to_dict(cleaner_kwargs=cleaner_kwargs)
         # intent_kwargs_ = _none_to_dict(intent_kwargs=intent_kwargs)
@@ -52,7 +51,6 @@ class DataPreparer(Pipeline):
         #     preprocessor_kwargs=preprocessor_kwargs
         # )
         # reducer_kwargs_ = _none_to_dict(reducer_kwargs=reducer_kwargs)
-        # modeler_kwargs_ = _none_to_dict(modeler_kwargs=modeler_kwargs)
 
         super().__init__(
             steps=[
@@ -61,6 +59,5 @@ class DataPreparer(Pipeline):
                 # ('feature_engineerer', engineerer_kwargs_),
                 # ('feature_preprocessor', preprocessor_kwargs_),
                 # ('feature_reducer', reducer_kwargs_,),
-                # ('model_selector', modeler_kwargs_)
             ]  # TODO add each of these components
         )
