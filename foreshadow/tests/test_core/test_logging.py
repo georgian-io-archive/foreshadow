@@ -3,26 +3,33 @@ from unittest import mock
 import pytest
 
 
-@pytest.mark.parametrize("n_gets", [1, 2, 100])
-def test_get_logger(n_gets):
+def test_get_logger_1():
     """Test the correct functionality of get_logger.
 
     Args:
         n_gets: number of times to try getting a logger.
 
     """
-    from foreshadow.core import fs_logging
     import logging as logging
 
-    logger = fs_logging.get_logger()
-    if n_gets == 1:
-        assert isinstance(logger, logging._loggerClass)
-    elif n_gets > 1:
-        for _ in range(n_gets - 1):
-            logger_ = fs_logging.get_logger()
-        assert logger == logger_
-    else:
-        raise ValueError("invalid value for n_gets")
+    logger = logging.get_logger()
+    assert isinstance(logger, logging._loggerClass)
+
+
+@pytest.mark.parametrize("n_gets", [2, 3, 100])
+def test_get_logger_greater1(n_gets):
+    """Test the correct functionality of get_logger.
+
+    Args:
+        n_gets: number of times to try getting a logger.
+
+    """
+    from foreshadow.core import logging
+
+    logger = logging.get_logger()
+    for _ in range(n_gets - 1):
+        logger_ = logging.get_logger()
+    assert logger == logger_
 
 
 @pytest.mark.parametrize(
@@ -36,12 +43,12 @@ def test_get_log_fn(caplog, level):
         level: the loggig level to test
 
     """
-    from foreshadow.core import fs_logging
+    from foreshadow.core import logging
 
-    logger = fs_logging.get_logger()
-    logger.setLevel(fs_logging.LEVELS[level])
+    logger = logging.get_logger()
+    logger.setLevel(logging.LEVELS[level])
     test_print = "testing"
-    log_fn = fs_logging._get_log_fn(level)
+    log_fn = logging._get_log_fn(level)
     log_fn(test_print)
     assert caplog.record_tuples[0][2] == test_print
 
@@ -70,14 +77,14 @@ def test_log_and_gui(mock_open, caplog, level, schema, outfile):
         outfile: outfile to write to.
 
     """
-    from foreshadow.core import fs_logging
+    from foreshadow.core import logging
     from foreshadow.tests.utils import dynamic_import
 
-    fs_logging.gui_fn.buffer_size = 1
-    fs_logging.gui_fn.first_write = True  # have to set as each parametrize
+    logging.gui_fn.buffer_size = 1
+    logging.gui_fn.first_write = True  # have to set as each parametrize
     # will use the previous call's gui_fn, meaning first_write will already
     # be set to False
-    fs_logging.gui_fn.outfile = outfile
+    logging.gui_fn.outfile = outfile
     path = "foreshadow.core.gui"
     schema = dynamic_import(schema, path)()
     schema_fields = schema.declared_fields
@@ -93,12 +100,11 @@ def test_log_and_gui(mock_open, caplog, level, schema, outfile):
                 "field type: %s is not valid" % field_type
             )
         details[name] = func(1)
-    fs_logging.set_level("debug")
+    logging.set_level("debug")
     msg = "test"
-    fs_logging.log_and_gui(level, msg, schema, details)
-    # msg = level.upper()+':'+'foreshadow:'+msg
+    logging.log_and_gui(level, msg, schema, details)
     assert caplog.record_tuples[0][2] == msg
-    mock_open.assert_called_with(fs_logging.gui_fn.outfile, "w")
+    mock_open.assert_called_with(logging.gui_fn.outfile, "w")
 
 
 @pytest.mark.parametrize(
@@ -111,10 +117,10 @@ def test_set_level(level):
         level: logging level to set.
 
     """
-    from foreshadow.core import fs_logging
+    from foreshadow.core import logging
 
-    fs_logging.set_level(level)
-    assert fs_logging.get_logger().level == fs_logging.LEVELS[level]
+    logging.set_level(level)
+    assert logging.get_logger().level == logging.LEVELS[level]
 
 
 @pytest.mark.parametrize(
@@ -129,7 +135,7 @@ def test_simple(caplog, level):
 
     """
     from foreshadow.tests.utils import dynamic_import
-    from foreshadow.core import fs_logging as logging
+    from foreshadow.core import logging as logging
 
     logging.set_level(level)
     log = dynamic_import(level, "foreshadow.core.fs_logging")
@@ -146,7 +152,7 @@ def test_wrap_func(name):
         name: name for func.
 
     """
-    from foreshadow.core import fs_logging as logging
+    from foreshadow.core import logging as logging
 
     fn = mock.Mock()
     fn.return_value = "test"
@@ -172,7 +178,7 @@ def test_sync_gui(mock_open, caplog, n_buffer_items, write_called_with):
     Returns:
 
     """
-    from foreshadow.core import fs_logging as logging
+    from foreshadow.core import logging as logging
 
     logging.gui_fn.first_write = True  # have to set as each parametrize
     # will use the previous call's gui_fn, meaning first_write will already
@@ -208,7 +214,7 @@ def test_buffer_setter(
         expected_log: expected logging statements
 
     """
-    from foreshadow.core import fs_logging as logging
+    from foreshadow.core import logging as logging
 
     logging.gui_fn.first_write = True  # have to set as each parametrize
     # will use the previous call's gui_fn, meaning first_write will already

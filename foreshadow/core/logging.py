@@ -1,22 +1,25 @@
 """Logging methods interfacing with a potential GUI system."""
-import atexit as _atexit
-import logging as _logging
-import sys as _sys
-import threading as _threading
+import atexit
+import logging
+import sys
+import threading
 
 
 _logger = None
-_logger_lock = _threading.Lock()
+_logger_lock = threading.Lock()
 
-_this_module = _sys.modules[__name__]
+_this_module = sys.modules[__name__]
 
 LEVELS = {
-    "debug": _logging.DEBUG,
-    "info": _logging.INFO,
-    "warning": _logging.WARNING,
-    "error": _logging.ERROR,
-    "critical": _logging.CRITICAL,
-}
+    "debug": logging.DEBUG,
+    "info": logging.INFO,
+    "warning": logging.WARNING,
+    "error": logging.ERROR,
+    "critical": logging.CRITICAL,
+}  # :py:attr:`foreshadow.core.logging.levels`
+
+HIGHEST_LEVEL = "critical"
+LOWEST_LEVEL = "debug"
 
 
 def get_logger():
@@ -42,28 +45,28 @@ def get_logger():
             return _logger
 
         # Get scoped Foreshadow logger.
-        _my_logger = _logging.getLogger("foreshadow")
+        my_logger = logging.getLogger("foreshadow")
 
-        _interactive = False
+        interactive = False
         try:
             # Only defined in interactive shells.
-            _interactive = True if _sys.ps1 else _interactive
+            interactive = True if sys.ps1 else interactive
         except AttributeError:
             # check python -i
-            _interactive = _sys.flags.interactive
+            interactive = sys.flags.interactive
 
-        if _interactive:
-            _my_logger.setLevel(LEVELS["info"])
+        if interactive:
+            my_logger.setLevel(LEVELS["info"])
         else:
-            _my_logger.setLevel(LEVELS["warning"])
-        _stream_target = _sys.stderr
+            my_logger.setLevel(LEVELS["warning"])
+        stream_target = sys.stderr
 
         # Add Stream Handler based on if interactive or not.
-        _handler = _logging.StreamHandler(_stream_target)
-        _handler.setFormatter(_logging.Formatter(_logging.BASIC_FORMAT, None))
-        _my_logger.addHandler(_handler)
+        handler = logging.StreamHandler(stream_target)
+        handler.setFormatter(logging.Formatter(logging.BASIC_FORMAT, None))
+        my_logger.addHandler(handler)
 
-        _logger = _my_logger
+        _logger = my_logger
         return _logger
 
     finally:
@@ -93,15 +96,17 @@ def _get_log_fn(level):
 
 
 class SyncWrite(object):
-    """Single-instance object to handle buffered writing to file."""
+    """Single-instance object to handle buffered writing to file.
+
+    Dummy class until we get to GUI.
+    """
 
     # TODO turn this into synchronous Queue based writing.
     def __init__(
         self, buffer_size=100, outfile="gui_data.txt", overwrite=True
     ):
-        super(SyncWrite, self).__init__()
         self.threads = []
-        self._buffer_size = buffer_size
+        self.buffer_size = buffer_size
         self.outfile = outfile
         self.first_write = overwrite
         self.buffer = []
@@ -159,7 +164,7 @@ class SyncWrite(object):
 
         """
         msg = str(schema.load(details).data)
-        # perform write operation to some nosql database or file
+        # TODO perform write operation to some nosql database or file
         if len(self.buffer) >= self.buffer_size - 1:  # -1 as append.
             self.buffer.append(msg)
             self.write()
@@ -203,7 +208,7 @@ def _log(level, msg, *args, **kwargs):
     log_fn(msg, *args, **kwargs)
 
 
-def _wrap_log(func, level):
+def _wrap_log(func, level):  # noqa: D202
     """Wrap func to be called with level parameter and appear as that level.
 
     func should be _log.
@@ -224,6 +229,13 @@ def _wrap_log(func, level):
     return wrapped_func
 
 
+"""
+This exposes logging.debug, logging.info, logging.warning, logging.error,
+logging.critical as methods of this module. They can be called as follows:
+import logging
+logging.debug(msg, *args, **kwargs)
+and exactly mimic that of python's logging module.
+"""
 for level in LEVELS:  # dynamicaally expose the logging methods for each level
     # as functions of this module.
     log = _wrap_log(_log, level)
@@ -251,7 +263,7 @@ def log_and_gui(level, msg, gui_details, gui_schema, *args, **kwargs):
     gui_fn(gui_details, gui_schema)
 
 
-@_atexit.register
+@atexit.register
 def sync_gui():
     """Write anything left in gui buffer to file.
 
