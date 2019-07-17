@@ -1,12 +1,12 @@
 """General base classes used across Foreshadow."""
 from abc import ABCMeta, abstractmethod
 
-from sklearn.pipeline import Pipeline as _Pipeline
+from sklearn.pipeline import Pipeline
 
 from foreshadow.transformers.base import ParallelProcessor
 
 
-class PreparerStep(_Pipeline, metaclass=ABCMeta):
+class PreparerStep(Pipeline, metaclass=ABCMeta):
     """Abstract Base class for any pipeline step of DataPreparer.
 
     This class automatically wraps the defined pipeline to make it
