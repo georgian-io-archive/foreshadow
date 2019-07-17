@@ -11,7 +11,6 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 import scipy.stats as ss
-from sklearn.pipeline import Pipeline
 
 from foreshadow.transformers.concrete import (
     BoxCox,
@@ -32,7 +31,9 @@ from foreshadow.transformers.concrete import (
 )
 from foreshadow.transformers.core import SmartTransformer
 from foreshadow.utils import check_df
+from foreshadow.transformers.core import SerializablePipeline
 
+# TODO: split this file up
 
 class Scaler(SmartTransformer):
     """Automatically scale numerical features.
@@ -75,7 +76,7 @@ class Scaler(SmartTransformer):
         best_dist = max(p_vals, key=p_vals.get)
         best_dist = best_dist if p_vals[best_dist] >= self.p_val else None
         if best_dist is None:
-            return Pipeline(
+            return SerializablePipeline(
                 [("box_cox", BoxCox()), ("robust_scaler", RobustScaler())]
             )
         else:
@@ -161,7 +162,7 @@ class Encoder(SmartTransformer):
         elif unique_count <= self.unique_num_cutoff:
             return ohe
         elif (reduce_count <= self.unique_num_cutoff) and will_reduce:
-            return Pipeline(
+            return SerializablePipeline(
                 [
                     ("ur", UncommonRemover(threshold=self.merge_thresh)),
                     ("ohe", ohe),
@@ -232,7 +233,7 @@ class SimpleImputer(SmartTransformer):
         if 0 < ratio <= self.threshold:
             return self._choose_simple(s.values)
         else:
-            return Pipeline([("null", None)])
+            return SerializablePipeline([("null", None)])
 
 
 class MultiImputer(SmartTransformer):
@@ -268,7 +269,7 @@ class MultiImputer(SmartTransformer):
         if X.isnull().values.any():
             return self._choose_multi(X)
         else:
-            return Pipeline([("null", None)])
+            return SerializablePipeline([("null", None)])
 
 
 class FinancialCleaner(SmartTransformer):
@@ -287,10 +288,10 @@ class FinancialCleaner(SmartTransformer):
             An initialized financial cleaning transformer
 
         """
-        us_pipeline = Pipeline(
+        us_pipeline = SerializablePipeline(
             [("prepare", PrepareFinancial()), ("convert", ConvertFinancial())]
         )
-        eu_pipeline = Pipeline(
+        eu_pipeline = SerializablePipeline(
             [
                 ("prepare", PrepareFinancial()),
                 ("convert", ConvertFinancial(is_euro=True)),
@@ -362,4 +363,4 @@ class SmartText(SmartTransformer):
         if len(steps) == 1:
             return tfidf
         else:
-            return Pipeline(steps)
+            return SerializablePipeline(steps)

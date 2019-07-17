@@ -1,6 +1,7 @@
 import pytest
 
-from foreshadow.utils.testing import get_file_path, get_transformer
+from foreshadow.utils.testing import get_file_path
+from foreshadow.utils import get_transformer
 
 
 def test_transformer_wrapper_init():
@@ -429,7 +430,7 @@ def test_smarttransformer_function_override_invalid(smart_child):
     with pytest.raises(TransformerNotFound) as e:
         smart_child(override="BAD")
 
-    assert "was not pandas wrapped, this is" in str(e.value)
+    assert "Could not find transformer BAD in" in str(e.value)
 
 
 def test_smarttransformer_set_params_override(smart_child):

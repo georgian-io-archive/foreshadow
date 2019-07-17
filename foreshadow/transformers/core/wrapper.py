@@ -9,7 +9,10 @@ import scipy
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.fixes import signature
 
-from foreshadow.core import SerializerMixin, register_transformer
+# from foreshadow.core import SerializerMixin, register_transformer
+from foreshadow.core.serialization import ConcreteSerializerMixin
+
+
 from foreshadow.exceptions import InverseUnavailable
 from foreshadow.utils import check_df, is_transformer
 
@@ -115,8 +118,8 @@ def make_pandas_transformer(transformer):
                 name_ = name
 
             # Only serialize if directly inheriting from SerializerMixin
-            if SerializerMixin in bases:
-                register_transformer(class_, name_)
+            # if SerializerMixin in bases:
+            #     register_transformer(class_, name_)
             # Unfortunately, polluting globals is the only way to
             # allow the pickling of wrapped transformers
             globals()[name_] = class_
@@ -125,7 +128,7 @@ def make_pandas_transformer(transformer):
             return class_
 
     class DFTransformer(
-        transformer, SerializerMixin, metaclass=DFTransformerMeta
+        transformer, ConcreteSerializerMixin, metaclass=DFTransformerMeta
     ):
         """Wrapper to Enable parent transformer to handle DataFrames."""
 

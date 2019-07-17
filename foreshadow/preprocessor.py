@@ -4,13 +4,14 @@ import inspect
 from copy import deepcopy
 
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.pipeline import Pipeline
 
-from foreshadow.core import get_transformer
+# from foreshadow.core import get_transformer
+from foreshadow.utils import get_transformer
 from foreshadow.intents import GenericIntent
 from foreshadow.intents.registry import registry_eval
 from foreshadow.transformers.core import ParallelProcessor, SmartTransformer
 from foreshadow.utils import PipelineStep, check_df
+from foreshadow.transformers.core import SerializablePipeline
 
 
 class Preprocessor(BaseEstimator, TransformerMixin):
@@ -164,7 +165,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         self._pipeline_map = {
             # Creates pipeline object from intent single_pipeline attribute
             **{
-                k: Pipeline(deepcopy(v.single_pipeline(self.y_var)))
+                k: SerializablePipeline(deepcopy(v.single_pipeline(self.y_var)))
                 for k, v in self._intent_map.items()
                 if v.__name__ not in self._intent_pipelines.keys()
                 and len(v.single_pipeline(self.y_var)) > 0
@@ -175,7 +176,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                 k: deepcopy(
                     self._intent_pipelines[v.__name__].get(
                         "single",
-                        Pipeline(
+                        SerializablePipeline(
                             v.single_pipeline(self.y_var)
                             if len(v.single_pipeline(self.y_var)) > 0
                             else [("null", None)]
@@ -197,12 +198,12 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             # Iterate intents to execute
             v.__name__: {
                 # Fetch multi pipeline from Intent class
-                "multi": Pipeline(
+                "multi": SerializablePipeline(
                     deepcopy(v.multi_pipeline(self.y_var))
                     if len(v.multi_pipeline(self.y_var)) > 0
                     else [("null", None)]
                 ),
-                "single": Pipeline(
+                "single": SerializablePipeline(
                     deepcopy(v.single_pipeline(self.y_var))
                     if len(v.single_pipeline(self.y_var)) > 0
                     else [("null", None)]
@@ -277,7 +278,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
         # Return pipeline with multi_pipeline transformers and postprocess
         # transformers
-        return Pipeline(processors + multi_processors)
+        return SerializablePipeline(processors + multi_processors)
 
     def _construct_linear_pipeline(self, X_df):
         """Get single pipeline from pipeline map.
@@ -290,7 +291,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
 
         """
         return self._pipeline_map.get(
-            X_df.columns[0], Pipeline([("null", None)])
+            X_df.columns[0], SerializablePipeline([("null", None)])
         )
 
     def _generate_pipeline(self, X_df):
@@ -340,7 +341,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                 )
             )
 
-            self.pipeline = Pipeline(pipe)
+            self.pipeline = SerializablePipeline(pipe)
 
     def _init_json(self):
         """Load and parse JSON config.
@@ -441,7 +442,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             k: {
                 "intent": self._intent_map[k].__name__,
                 "pipeline": _serialize_pipeline(
-                    self._pipeline_map.get(k, Pipeline([("null", None)]))
+                    self._pipeline_map.get(k, SerializablePipeline([("null", None)]))
                 ),
                 "all_matched_intents": [
                     c[1].__name__ for c in self._choice_map[k]
@@ -615,7 +616,7 @@ def _serialize_pipeline(pipeline, include_smart=False):
                     }
                 ]
                 if not isinstance(
-                    step[PipelineStep["CLASS"]].transformer, Pipeline
+                    step[PipelineStep["CLASS"]].transformer, SerializablePipeline
                 )
                 else _serialize_pipeline(
                     step[PipelineStep["CLASS"]].transformer
@@ -686,9 +687,9 @@ def _resolve_pipeline(pipeline_json):
             )
 
     if len(pipe) == 0:
-        return Pipeline([("null", None)])
+        return SerializablePipeline([("null", None)])
 
-    return Pipeline(pipe)
+    return SerializablePipeline(pipe)
 
 
 def _validate_pipeline(v):

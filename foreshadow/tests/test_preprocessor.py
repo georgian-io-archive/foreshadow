@@ -194,7 +194,7 @@ def test_preprocessor_init_json_pipeline_map():
     proc = Preprocessor(from_json=json.load(open((test_path), "r")))
 
     assert "crim" in proc._pipeline_map.keys()
-    assert type(proc._pipeline_map["crim"]).__name__ == "Pipeline"
+    assert type(proc._pipeline_map["crim"]).__name__ == "SerializablePipeline"
     assert len(proc._pipeline_map["crim"].steps) == 1
     assert (
         proc._pipeline_map["crim"].steps[0][PipelineStep["NAME"]] == "Scaler"
@@ -231,7 +231,7 @@ def test_preprocessor_init_json_multi_pipeline():
 
     obj = pipe[2]
 
-    assert type(obj).__name__ == "Pipeline"
+    assert type(obj).__name__ == "SerializablePipeline"
     assert len(obj.steps) == 1
     assert obj.steps[0][PipelineStep["NAME"]] == "PCA"
 
@@ -266,7 +266,7 @@ def test_preprocessor_init_json_intent_override_multi():
 
     multi = pipes["multi"]
 
-    assert type(multi).__name__ == "Pipeline"
+    assert type(multi).__name__ == "SerializablePipeline"
     assert len(multi.steps) == 1
 
     step = multi.steps[0]
@@ -304,7 +304,7 @@ def test_preprocessor_init_json_intent_override_single():
 
     single = pipes["single"]
 
-    assert type(single).__name__ == "Pipeline"
+    assert type(single).__name__ == "SerializablePipeline"
     assert len(single.steps) == 1
 
     step = single.steps[0]
@@ -379,7 +379,7 @@ def test_preprocessor_fit_create_single_pipeline_default():
 
     for c in cols:
         assert c in proc_default._pipeline_map
-        assert type(proc_default._pipeline_map[c]).__name__ == "Pipeline"
+        assert type(proc_default._pipeline_map[c]).__name__ == "SerializablePipeline"
 
     numeric = registry_eval("TestNumericIntent")
 
@@ -411,7 +411,7 @@ def test_preprocessor_fit_create_single_pipeline_override_column():
 
     for c in cols:
         assert c in proc_column._pipeline_map
-        assert type(proc_column._pipeline_map[c]).__name__ == "Pipeline"
+        assert type(proc_column._pipeline_map[c]).__name__ == "SerializablePipeline"
 
     assert (
         proc_column._pipeline_map["crim"].steps[0][PipelineStep["NAME"]]
@@ -443,7 +443,7 @@ def test_preprocessor_fit_create_single_pipeline_override_intent():
 
     for c in cols:
         assert c in proc_intent._pipeline_map
-        assert type(proc_intent._pipeline_map[c]).__name__ == "Pipeline"
+        assert type(proc_intent._pipeline_map[c]).__name__ == "SerializablePipeline"
 
     assert (
         proc_intent._pipeline_map["crim"].steps[0][PipelineStep["NAME"]]
@@ -505,7 +505,7 @@ def test_preprocessor_make_pipeline():
     )
     assert (
         type(proc.pipeline.steps[1][PipelineStep["CLASS"]]).__name__
-        == "Pipeline"
+        == "SerializablePipeline"
     )
     assert (
         type(proc.pipeline.steps[2][PipelineStep["CLASS"]]).__name__

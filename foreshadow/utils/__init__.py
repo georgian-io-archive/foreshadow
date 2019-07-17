@@ -1,6 +1,6 @@
 """Common Foreshadow utilities."""
 
-from foreshadow.utils.common import get_cache_path, get_config_path
+from foreshadow.utils.common import get_cache_path, get_config_path, get_transformer
 from foreshadow.utils.validation import (
     PipelineStep,
     check_df,
@@ -20,4 +20,5 @@ __all__ = [
     "get_config_path",
     "get_cache_path",
     "is_wrapped",
+    "get_transformer"
 ]

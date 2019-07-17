@@ -1,6 +1,10 @@
 """Common utility functions."""
 
 import os
+from collections import OrderedDict
+from importlib import import_module
+
+from foreshadow.exceptions import TransformerNotFound
 
 
 DATA_DIR = "~/.foreshadow"
@@ -39,3 +43,51 @@ def get_cache_path(path=None):
     os.makedirs(cache_path, exist_ok=True)
 
     return cache_path
+
+
+def get_transformer(class_name, source_lib=None):
+    """Get the transformer class from its name.
+
+    Note:
+        In case of name conflict, internal transformer is preferred over
+        external transformer import. This should only be using in internal
+        unit tests, get_transformer from serialization should be preferred in
+        all other cases. This was written to decouple registration from unit
+        testing.
+
+    Args:
+        class_name (str): The transformer class name
+        source_lib (str): The string import path if known
+
+    Returns:
+        Imported class
+
+    Raises:
+        ValueError: If class_name could not be found in internal or external
+            transformer library pathways.
+
+    """
+    if source_lib is not None:
+        module = import_module(source_lib)
+    else:
+        sources = OrderedDict(
+            (source, import_module(source))
+            for source in [
+                "foreshadow.transformers.concrete",
+                "foreshadow.transformers.smart",
+                "foreshadow.transformers.core"
+            ]
+        )
+
+        for v in sources.values():
+            if hasattr(v, class_name):
+                module = v
+                break
+        else:
+            raise TransformerNotFound(
+                "Could not find transformer {} in {}".format(
+                    class_name, ", ".join(sources.keys())
+                )
+            )
+
+    return getattr(module, class_name)
