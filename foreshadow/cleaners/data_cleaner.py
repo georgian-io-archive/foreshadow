@@ -48,7 +48,7 @@ class DataCleaner(PreparerStep):
 
 
 class SmartCleaner(SmartTransformer):
-    """Stub."""
+    """Intelligently decide which cleaning function should be applied."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
