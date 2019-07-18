@@ -1,12 +1,14 @@
 """General base classes used across Foreshadow."""
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
+from copy import deepcopy
 
 from sklearn.pipeline import Pipeline
 
-from foreshadow.transformers.base import ParallelProcessor
+from foreshadow.transformers.base import ParallelProcessor, SmartTransformer
+from foreshadow.utils import check_df
 
 
-class PreparerStep(Pipeline, metaclass=ABCMeta):
+class PreparerStep(Pipeline):
     """Abstract Base class for any pipeline step of DataPreparer.
 
     This class automatically wraps the defined pipeline to make it
@@ -138,4 +140,46 @@ class PreparerStep(Pipeline, metaclass=ABCMeta):
 
         """
         self.parallelize_smart_steps(X)
-        return super()._fit(X, *args, **kwargs)
+        return super()._fit(X, *args, **kwargs)  # internally will iterate
+        # over steps in _fit.
+
+
+class SinglePreparerStep(PreparerStep):
+    def __init__(self, smart_transformer):
+        smart_transformer = [smart_transformer]
+        super().__init__(smart_transformer)
+        self.transformer = deepcopy(self._steps[0])
+        del self._steps
+
+    def _fit(self, *args, **kwargs):
+        self.steps = (self.transformer.__name__, self.transformer)
+        super().fit(*args, **kwargs)
+        del self.steps
+
+    def get_transformer_list(self, transformer, X):
+        """Return transformer mapping to columns.
+
+        Args:
+            transformer: SmartTransformer to use
+            X: input DataSet
+
+        Returns:
+            transformer: col for each column mapping.
+
+        """
+        return self.one_smart_all_cols(transformer, X)[0]  # create a
+        # separate SmartCleaner for each column
+
+    def get_transformer_weights(self, transformer, X):
+        """Return no transformer_weights.
+
+        Args:
+            transformer: SmartTransformer to use
+            X: input DataSet
+
+        Returns:
+            None
+
+        """
+        return self.one_smart_all_cols(transformer, X)[1]  # don't use any
+        # weighting.

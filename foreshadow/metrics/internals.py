@@ -43,3 +43,38 @@ def unique_count_weight(feature):
 
     """
     return len(feature.value_counts()) / len(feature)
+
+
+@metric
+def regex_rows(feature, transformations):
+    import re
+
+    def perform_regexes(row, transformations):
+        row_regex = str(row)
+        for transformation in transformations:
+            search_result, row_regex = transformation(row_regex)
+            if search_result is None:
+                return False
+        return True
+
+    return sum(
+        [1 for row in feature if perform_regexes(row, transformations)]
+    ) / len(feature)
+
+
+@metric
+def avg_col_regex(feature, transformations, mode=min):
+    def perform_regexes(row, search_repl):
+        row_regex = str(row)
+        search_results = []
+        for transformation in search_repl:
+            search_result, row_regex = transformation(row_regex)
+            if search_result is None:
+                return 0
+            search_results.append(search_result.endpos - search_result.pos)
+        mode_result = mode(search_results)
+        return mode_result / len(str(row))
+
+    return sum(
+        [perform_regexes(row, transformations) for row in feature]
+    ) / len(feature)

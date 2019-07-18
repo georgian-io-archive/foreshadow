@@ -1,8 +1,6 @@
 """Data preparation and foreshadow pipeline."""
 
-from sklearn.pipeline import Pipeline as _Pipeline
-
-from foreshadow.cleaners.data_cleaner import DataCleaner as _DataCleaner
+from sklearn.pipeline import Pipeline
 
 
 def _none_to_dict(name, val):
@@ -30,7 +28,7 @@ def _none_to_dict(name, val):
     return val
 
 
-class DataPreparer(_Pipeline):
+class DataPreparer(Pipeline):
     """Predefined pipeline for the foreshadow workflow."""
 
     def __init__(
@@ -42,6 +40,9 @@ class DataPreparer(_Pipeline):
         reducer_kwargs=None,
         modeler_kwargs=None,
     ):
+        from foreshadow.cleaners.data_cleaner import DataCleaner
+
+        # TODO look at fixing structure so we don't have to import inside init.
         cleaner_kwargs_ = _none_to_dict("cleaner_kwargs", cleaner_kwargs)
         # intent_kwargs_ = _none_to_dict(intent_kwargs=intent_kwargs)
         # engineerer_kwargs_ = _none_to_dict(
@@ -55,7 +56,7 @@ class DataPreparer(_Pipeline):
 
         super().__init__(
             steps=[
-                ("data_cleaner", _DataCleaner(**cleaner_kwargs_)),
+                ("data_cleaner", DataCleaner(**cleaner_kwargs_)),
                 # ('intent', intent_kwargs_),
                 # ('feature_engineerer', engineerer_kwargs_),
                 # ('feature_preprocessor', preprocessor_kwargs_),
