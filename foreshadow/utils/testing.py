@@ -22,6 +22,7 @@ def _get_test_folder():
     """
     path = os.path.abspath(os.path.dirname(__file__))
     while len(path) > 1:
+        last_path = path
         find_test_dir = [
             d
             for d in os.listdir(path)
@@ -33,6 +34,8 @@ def _get_test_folder():
             raise RuntimeError("Found more than one tests directory")
         else:
             path = os.path.dirname(path)
+            if path == last_path:
+                break
     raise FileNotFoundError("Could not find tests directory in path")
 
 
@@ -72,3 +75,48 @@ def debug():  # noqa: D202  # pragma: no cover
             pdb.post_mortem(tb)
 
     sys.excepthook = _info
+
+
+def dynamic_import(attribute, module_path):
+    """Import attribute from module found at module_path at runtime.
+
+    Args:
+        attribute: the attribute of the module to import (class, function, ...)
+        module_path: the path to the module.
+
+    Returns:
+        attribute from module_path.
+
+    """
+    from importlib import import_module
+
+    mod = import_module(module_path)
+    return getattr(mod, attribute)
+
+
+def import_init_transformer(
+    transformer_class,
+    path="foreshadow.transformers.externals",
+    instantiate=True,
+    params=None,
+):
+    """Import and init a transformer from a specified path
+
+    Args:
+        transformer_class (str): The transformer class to import
+        path (str): The import path to import from, default is
+            `foreshadow.transformers.externals`
+        params (dict): A param dictionary
+
+    Returns:
+        object: an initialized version of the transformer
+
+    """
+
+    if instantiate:
+        if params is not None:
+            return dynamic_import(transformer_class, path)(**params)
+        else:
+            return dynamic_import(transformer_class, path)()
+    else:
+        return dynamic_import(transformer_class, path)
