@@ -10,10 +10,11 @@ def test_get_logger_1():
         n_gets: number of times to try getting a logger.
 
     """
-    import logging as logging
+    from foreshadow.core import logging
+    import logging as _logging
 
     logger = logging.get_logger()
-    assert isinstance(logger, logging._loggerClass)
+    assert isinstance(logger, _logging._loggerClass)
 
 
 @pytest.mark.parametrize("n_gets", [2, 3, 100])
@@ -138,7 +139,7 @@ def test_simple(caplog, level):
     from foreshadow.core import logging as logging
 
     logging.set_level(level)
-    log = dynamic_import(level, "foreshadow.core.fs_logging")
+    log = dynamic_import(level, "foreshadow.core.logging")
     msg = "test"
     log(msg)
     assert caplog.record_tuples[0][2] == msg
@@ -214,7 +215,9 @@ def test_buffer_setter(
         expected_log: expected logging statements
 
     """
-    from foreshadow.core import logging as logging
+    from foreshadow.core import logging
+
+    logging.set_level("debug")
 
     logging.gui_fn.first_write = True  # have to set as each parametrize
     # will use the previous call's gui_fn, meaning first_write will already
@@ -224,4 +227,5 @@ def test_buffer_setter(
         logging.gui_fn.buffer.append("test")
     logging.gui_fn.buffer_size = buffer_val
     mock_open.assert_called_with("gui_data.txt", "w")
+    print(caplog.record_tuples)
     assert caplog.record_tuples[0][2].find(expected_log) != -1

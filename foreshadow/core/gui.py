@@ -1,5 +1,5 @@
 """Gui Schema's to ensure proper serialized data is in expected form."""
-from datetime import datetime as _datetime
+from datetime import datetime
 
 from marshmallow import Schema, fields
 
@@ -11,8 +11,8 @@ class GuiEvent(Schema):
     """
 
     timestamp = fields.String(
-        default=_datetime.now().strftime("%Y%m%dT%H:%M:%S:%f"),
-        missing=_datetime.now().strftime("%Y%m%dT%H:%M:%S:%f"),
+        default=datetime.now().strftime("%Y%m%dT%H:%M:%S:%f"),
+        missing=datetime.now().strftime("%Y%m%dT%H:%M:%S:%f"),
     )
 
 

@@ -1,4 +1,12 @@
-"""Logging methods interfacing with a potential GUI system."""
+"""Logging methods interfacing with a potential GUI system.
+
+This module exposes logging.debug, logging.info, logging.warning,
+logging.error, logging.critical as methods of this module. They can be
+called as follows:
+import logging
+logging.debug(msg, *args, **kwargs)
+and exactly mimic that of python's logging module.
+"""
 import atexit
 import logging
 import sys
@@ -48,11 +56,10 @@ def get_logger():
         my_logger = logging.getLogger("foreshadow")
 
         interactive = False
-        try:
-            # Only defined in interactive shells.
-            interactive = True if sys.ps1 else interactive
-        except AttributeError:
+        if hasattr(sys, "ps1"):
+            interactive = True
             # check python -i
+        elif hasattr(sys.flags, "interactive"):
             interactive = sys.flags.interactive
 
         if interactive:
@@ -106,7 +113,7 @@ class SyncWrite(object):
         self, buffer_size=100, outfile="gui_data.txt", overwrite=True
     ):
         self.threads = []
-        self.buffer_size = buffer_size
+        self._buffer_size = buffer_size
         self.outfile = outfile
         self.first_write = overwrite
         self.buffer = []
@@ -229,13 +236,6 @@ def _wrap_log(func, level):  # noqa: D202
     return wrapped_func
 
 
-"""
-This exposes logging.debug, logging.info, logging.warning, logging.error,
-logging.critical as methods of this module. They can be called as follows:
-import logging
-logging.debug(msg, *args, **kwargs)
-and exactly mimic that of python's logging module.
-"""
 for level in LEVELS:  # dynamicaally expose the logging methods for each level
     # as functions of this module.
     log = _wrap_log(_log, level)
@@ -271,6 +271,7 @@ def sync_gui():
     gui_fn that don't result in buffer_size being reached still write to the
     file. As well, joins for threads can be called here.
     """
-    gui_fn.write()
+    if len(gui_fn.buffer) > 0:
+        gui_fn.write()
     log_fn = _get_log_fn("debug")
     log_fn("asynchronous gui thread finished.")
