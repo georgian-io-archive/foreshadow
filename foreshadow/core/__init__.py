@@ -1,7 +1,7 @@
 """Core components to foreshadow."""
 
 from foreshadow.core.column_sharer import ColumnSharer
-from foreshadow.core.serialization import (
+from foreshadow.core.serializers import (
     BaseTransformerSerializer,
     ConcreteSerializerMixin,
     PipelineSerializerMixin,
