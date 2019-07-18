@@ -4,9 +4,14 @@ from abc import ABCMeta, abstractmethod
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from foreshadow.transformers.core.wrapper import make_pandas_transformer
-from foreshadow.utils import check_df, is_transformer, is_wrapped, get_transformer
 from foreshadow.transformers.core.pipeline import SerializablePipeline
+from foreshadow.transformers.core.wrapper import make_pandas_transformer
+from foreshadow.utils import (
+    check_df,
+    get_transformer,
+    is_transformer,
+    is_wrapped,
+)
 
 
 # TODO: Remove once _Empty is removed when DataCleaner is implemented
@@ -87,11 +92,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         set_none = value is None
 
         # Check the transformer inheritance status
-        if (
-            not valid_tranformer
-            and not valid_pipeline
-            and not set_none
-        ):
+        if not valid_tranformer and not valid_pipeline and not set_none:
             raise ValueError(
                 "{} is neither a scikit-learn Pipeline, FeatureUnion, a "
                 "wrapped foreshadow transformer, nor None.".format(value)

@@ -5,13 +5,14 @@ from copy import deepcopy
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
-# from foreshadow.core import get_transformer
-from foreshadow.utils import get_transformer
 from foreshadow.intents import GenericIntent
 from foreshadow.intents.registry import registry_eval
-from foreshadow.transformers.core import ParallelProcessor, SmartTransformer
-from foreshadow.utils import PipelineStep, check_df
-from foreshadow.transformers.core import SerializablePipeline
+from foreshadow.transformers.core import (
+    ParallelProcessor,
+    SerializablePipeline,
+    SmartTransformer,
+)
+from foreshadow.utils import PipelineStep, check_df, get_transformer
 
 
 class Preprocessor(BaseEstimator, TransformerMixin):
@@ -165,7 +166,9 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         self._pipeline_map = {
             # Creates pipeline object from intent single_pipeline attribute
             **{
-                k: SerializablePipeline(deepcopy(v.single_pipeline(self.y_var)))
+                k: SerializablePipeline(
+                    deepcopy(v.single_pipeline(self.y_var))
+                )
                 for k, v in self._intent_map.items()
                 if v.__name__ not in self._intent_pipelines.keys()
                 and len(v.single_pipeline(self.y_var)) > 0
@@ -442,7 +445,9 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             k: {
                 "intent": self._intent_map[k].__name__,
                 "pipeline": _serialize_pipeline(
-                    self._pipeline_map.get(k, SerializablePipeline([("null", None)]))
+                    self._pipeline_map.get(
+                        k, SerializablePipeline([("null", None)])
+                    )
                 ),
                 "all_matched_intents": [
                     c[1].__name__ for c in self._choice_map[k]
@@ -616,7 +621,8 @@ def _serialize_pipeline(pipeline, include_smart=False):
                     }
                 ]
                 if not isinstance(
-                    step[PipelineStep["CLASS"]].transformer, SerializablePipeline
+                    step[PipelineStep["CLASS"]].transformer,
+                    SerializablePipeline,
                 )
                 else _serialize_pipeline(
                     step[PipelineStep["CLASS"]].transformer

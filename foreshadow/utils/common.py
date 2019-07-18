@@ -63,8 +63,8 @@ def get_transformer(class_name, source_lib=None):
         Imported class
 
     Raises:
-        ValueError: If class_name could not be found in internal or external
-            transformer library pathways.
+        TransformerNotFound: If class_name could not be found in internal or
+            external transformer library pathways.
 
     """
     if source_lib is not None:
@@ -75,7 +75,7 @@ def get_transformer(class_name, source_lib=None):
             for source in [
                 "foreshadow.transformers.concrete",
                 "foreshadow.transformers.smart",
-                "foreshadow.transformers.core"
+                "foreshadow.transformers.core",
             ]
         )
 

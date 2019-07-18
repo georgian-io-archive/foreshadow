@@ -1,7 +1,7 @@
 import pytest
 
-from foreshadow.utils.testing import get_file_path
 from foreshadow.utils import get_transformer
+from foreshadow.utils.testing import get_file_path
 
 
 def test_transformer_wrapper_init():

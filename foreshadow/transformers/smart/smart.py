@@ -29,11 +29,12 @@ from foreshadow.transformers.concrete import (
     ToString,
     UncommonRemover,
 )
-from foreshadow.transformers.core import SmartTransformer
+from foreshadow.transformers.core import SerializablePipeline, SmartTransformer
 from foreshadow.utils import check_df
-from foreshadow.transformers.core import SerializablePipeline
+
 
 # TODO: split this file up
+
 
 class Scaler(SmartTransformer):
     """Automatically scale numerical features.

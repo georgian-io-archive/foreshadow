@@ -11,8 +11,8 @@ from foreshadow.estimators.auto import AutoEstimator
 from foreshadow.estimators.meta import MetaEstimator
 from foreshadow.optimizers.param_mapping import _param_mapping
 from foreshadow.preprocessor import Preprocessor
-from foreshadow.utils import check_df
 from foreshadow.transformers.core import SerializablePipeline
+from foreshadow.utils import check_df
 
 
 class Foreshadow(BaseEstimator):
@@ -192,7 +192,9 @@ class Foreshadow(BaseEstimator):
                 ]
             )
         else:
-            self.pipeline = SerializablePipeline([("estimator", self.estimator)])
+            self.pipeline = SerializablePipeline(
+                [("estimator", self.estimator)]
+            )
 
         if self.optimizer is not None:
             # Calculate parameter search space

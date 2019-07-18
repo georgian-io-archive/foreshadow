@@ -379,7 +379,10 @@ def test_preprocessor_fit_create_single_pipeline_default():
 
     for c in cols:
         assert c in proc_default._pipeline_map
-        assert type(proc_default._pipeline_map[c]).__name__ == "SerializablePipeline"
+        assert (
+            type(proc_default._pipeline_map[c]).__name__
+            == "SerializablePipeline"
+        )
 
     numeric = registry_eval("TestNumericIntent")
 
@@ -411,7 +414,10 @@ def test_preprocessor_fit_create_single_pipeline_override_column():
 
     for c in cols:
         assert c in proc_column._pipeline_map
-        assert type(proc_column._pipeline_map[c]).__name__ == "SerializablePipeline"
+        assert (
+            type(proc_column._pipeline_map[c]).__name__
+            == "SerializablePipeline"
+        )
 
     assert (
         proc_column._pipeline_map["crim"].steps[0][PipelineStep["NAME"]]
@@ -443,7 +449,10 @@ def test_preprocessor_fit_create_single_pipeline_override_intent():
 
     for c in cols:
         assert c in proc_intent._pipeline_map
-        assert type(proc_intent._pipeline_map[c]).__name__ == "SerializablePipeline"
+        assert (
+            type(proc_intent._pipeline_map[c]).__name__
+            == "SerializablePipeline"
+        )
 
     assert (
         proc_intent._pipeline_map["crim"].steps[0][PipelineStep["NAME"]]
