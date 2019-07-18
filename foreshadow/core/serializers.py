@@ -37,14 +37,17 @@ class BaseTransformerSerializer:
 
     Defines the basic option routing for serialize and deserialize operations.
     In order to add a deserialization option, subclass from the class, add the
-    method's name to the `OPTIOSN` list, and implement two versions of the
+    method's name to the `OPTIONS` list, and implement two versions of the
     method, a method_serialize & a method_deserialize.
+
+    Use the `DEFAULT_OPTION` class attribute to set the default pathway method
+    for serialization and deserialization. Use the `DEFAULT_KWARGS` class
+    attribute to override the parent class's default.
 
     """
 
     OPTIONS = []
     DEFAULT_OPTION = None
-    DEFAULT_KWARGS = {}
 
     def serialize(self, method=None, **kwargs):
         """Specify the method routhing for a transformer serialization.
@@ -63,15 +66,6 @@ class BaseTransformerSerializer:
         """
         if method is None:
             method = self.DEFAULT_OPTION
-
-        default_kwargs = self.DEFAULT_KWARGS.get(method)
-        if default_kwargs is not None:
-            # Filter kwarg overrides and apply them to the kwargs before
-            # before calling the serialization method
-            kwargs = {
-                **{k: v for k, v in default_kwargs.items() if k not in kwargs},
-                **kwargs,
-            }
 
         if method in self.OPTIONS:
             method_func = getattr(self, method + "_serialize")
@@ -357,9 +351,7 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
 class PipelineSerializerMixin(ConcreteSerializerMixin):
     """An custom serialization method to allow pipelines serialization."""
 
-    DEFAULT_KWARGS = {"dict": {"deep": False}}
-
-    def dict_serialize(self, deep=True):
+    def dict_serialize(self, deep=False):
         """Serialize the init parameters (dictionary form) of a pipeline.
 
         Note:
