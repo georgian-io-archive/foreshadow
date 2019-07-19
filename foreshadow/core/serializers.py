@@ -1,35 +1,139 @@
 """Transformer serialization utilities."""
 
-import inspect
 import json
 import os
 import pickle
 import uuid
 
+import jsonpickle
+import jsonpickle.ext.numpy as jsonpickle_numpy
 import yaml
 
 from foreshadow.utils import get_cache_path, get_transformer
 
 
-def _retrieve_name(var):
-    """Get the name of defined var.
+jsonpickle_numpy.register_handlers()
+_pickler = jsonpickle.pickler.Pickler()
+_unpickler = jsonpickle.unpickler.Unpickler()
+
+
+def _make_serializable(data, serialize_args={}):
+    try:
+        json.dumps(data)
+        return data
+    except TypeError:
+        if isinstance(data, dict):
+            new_data = {}
+            for k, v in data.items():
+                new_data[k] = _make_serializable(
+                    v, serialize_args=serialize_args
+                )
+            return new_data
+        elif isinstance(data, (list, tuple)):
+            new_data = []
+            for v in data:
+                new_data.append(
+                    _make_serializable(v, serialize_args=serialize_args)
+                )
+            return new_data
+        else:
+            # If the data argument is able to be serialized, then simply
+            # serialize it using the same args that were passed into the top
+            # level serialize method
+            if hasattr(data, "serialize"):
+                return data.serialize(**serialize_args)
+            else:
+                return _pickler.flatten(data)
+
+
+def _make_deserializable(data):
+    if isinstance(data, dict):
+        if any("py/" in s for s in data.keys()):
+            return _unpickler.restore(data)
+        if any("method" in s for s in data.keys()):
+            return _obj_deserializer_helper(data)
+        else:
+            new_data = {}
+            for k, v in data.items():
+                new_data[k] = _make_deserializable(v)
+            return new_data
+    elif isinstance(data, (list, tuple)):
+        new_data = []
+        for v in data:
+            new_data.append(_make_deserializable(v))
+        return new_data
+    else:
+        return data
+
+
+def _pickle_cache_path(self, cache_path=None):
+    """Get the pickle cache path of a transformer.
+
+    Uses a generated UUID and the class name to come up with a unique
+    filename.
 
     Args:
-        var: python object
+        cache_path (str, optional): override the default cache_path which
+            is in the root of the user's directory.
 
     Returns:
-        str: Instance name
+        str: A string representation of the file path including the \
+            filename.
 
     """
-    # Source: https://stackoverflow.com/a/40536047
-    for fi in reversed(inspect.stack()):
-        names = [
-            var_name
-            for var_name, var_val in fi.frame.f_locals.items()
-            if var_val is var
-        ]
-        if len(names) > 0:
-            return names[0]
+    if cache_path is None:
+        cache_path = get_cache_path()
+
+    fname = self.__class__.__name__ + uuid.uuid4().hex
+    fpath = "{}.pkl".format(fname)
+    path = os.path.join(cache_path, fpath)
+
+    return path
+
+
+def _pickle_inline_repr(obj):
+    """Generate a string representation of a pickle of an object.
+
+    Args:
+        obj: Any object
+
+    Returns:
+        str: The string representation of the pickle
+
+    """
+    return pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL).hex()
+
+
+def _unpickle_inline_repr(pickle_str):
+    """Goes from a string representation of a pickle to the object.
+
+    Args:
+        pickle_str (str): A pickle string
+
+    Returns:
+        object: A deserialized object
+
+    """
+    return pickle.loads(bytearray.fromhex(pickle_str))
+
+
+def _obj_deserializer_helper(data):
+    """Handle the case when a custom object is pickled.
+
+    Args:
+        data: The dictionary form of the transformer.
+
+    Returns:
+        The constructed class.
+
+    """
+    pickle_class = data.get("pickle_class")
+    if pickle_class is not None:
+        transformer = _unpickle_inline_repr(pickle_class)
+    else:
+        transformer = get_transformer(data["class"])
+
+    return transformer
 
 
 class BaseTransformerSerializer:
@@ -69,7 +173,7 @@ class BaseTransformerSerializer:
 
         if method in self.OPTIONS:
             method_func = getattr(self, method + "_serialize")
-
+            self.serialize_params = {"method": method, **kwargs}
             payload = method_func(**kwargs)
         else:
             raise ValueError(
@@ -109,56 +213,6 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
     OPTIONS = ["dict", "inline", "disk"]
     DEFAULT_OPTION = "dict"
 
-    def _pickle_cache_path(self, cache_path=None):
-        """Get the pickle cache path of a transformer.
-
-        Uses a generated UUID and the class name to come up with a unique
-        filename.
-
-        Args:
-            cache_path (str, optional): override the default cache_path which
-                is in the root of the user's directory.
-
-        Returns:
-            str: A string representation of the file path including the \
-                filename.
-
-        """
-        if cache_path is None:
-            cache_path = get_cache_path()
-
-        fname = self.__class__.__name__ + uuid.uuid4().hex
-        fpath = "{}.pkl".format(fname)
-        path = os.path.join(cache_path, fpath)
-
-        return path
-
-    @staticmethod
-    def _pickle_inline_repr(obj):
-        """Generate a string representation of a pickle of an object.
-
-        Args:
-            obj: Any object
-
-        Returns:
-            str: The string representation of the pickle
-
-        """
-        return pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL).hex()
-
-    @staticmethod
-    def _unpickle_inline_repr(pickle_str):
-        """Goes from a string representation of a pickle to the object.
-
-        Args:
-            pickle_str (str): A pickle string
-
-        Returns:
-            object: A deserialized object
-
-        """
-        return pickle.loads(bytearray.fromhex(pickle_str))
-
     @classmethod
     def pickle_class_def(cls):
         """Pickle a class definition.
@@ -172,7 +226,7 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             "foreshadow" in getattr(cls, "__module__")
         )
         if not is_internal:
-            return {"pickle_class": cls._pickle_inline_repr(cls)}
+            return {"pickle_class": _pickle_inline_repr(cls)}
         else:
             return {}
 
@@ -187,7 +241,7 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             dict: The initialization parameters of the transformer.
 
         """
-        return {"data": self.get_params(deep)}
+        return {"data": _make_serializable(self.get_params(deep))}
 
     @classmethod
     def dict_deserialize(cls, data):
@@ -200,10 +254,10 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             object: A re-constructed transformer
 
         """
-        params = data["data"]
+        params = _make_deserializable(data["data"])
         pickle_class = data.get("pickle_class")
         if pickle_class is not None:
-            pickle_class = cls._unpickle_inline_repr(pickle_class)
+            pickle_class = _unpickle_inline_repr(pickle_class)
             return pickle_class(**params)
         else:
             # Cannot use set_params since steps is a required init arg
@@ -217,7 +271,7 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             A string representation of the pickle dump
 
         """
-        return {"data": self._pickle_inline_repr(self)}
+        return {"data": _pickle_inline_repr(self)}
 
     @classmethod
     def inline_deserialize(cls, data):
@@ -230,7 +284,7 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             object: The constructed transformer.
 
         """
-        return cls._unpickle_inline_repr(data["data"])
+        return _unpickle_inline_repr(data["data"])
 
     def disk_serialize(self, cache_path=None):
         """Convert transformer to pickle and save it disk in a cache directory.
@@ -243,7 +297,7 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             str: The path the data was saved to.
 
         """
-        fpath = self._pickle_cache_path(cache_path)
+        fpath = _pickle_cache_path(cache_path)
         with open(fpath, "wb+") as fopen:
             pickle.dump(self, fopen, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -289,13 +343,8 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
 
         """
         payload = super().serialize(method=method, **kwargs)
-        instance_name = _retrieve_name(self) if name is None else name
 
-        return {
-            "name": instance_name if instance_name != "var" else None,
-            **self.pickle_class_def(),
-            **payload,
-        }
+        return {**self.__class__.pickle_class_def(), **payload}
 
     def to_json(self, path, **kwargs):
         """Save a serialized form a transformer to disk in json form.
@@ -306,7 +355,8 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
 
         """
         with open(path, "w+") as fopen:
-            json.dump(self.serialize(**kwargs), fopen, indent=2)
+            test = self.serialize(**kwargs)
+            json.dump(test, fopen, indent=2)
 
     @classmethod
     def from_json(cls, path):
@@ -331,7 +381,7 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
 
         """
         with open(path, "w+") as fopen:
-            yaml.dump(self.serialize(**kwargs), fopen)
+            yaml.safe_dump(self.serialize(**kwargs), fopen)
 
     @classmethod
     def from_yaml(cls, path):
@@ -366,65 +416,7 @@ class PipelineSerializerMixin(ConcreteSerializerMixin):
             dict: The initialization parameters of the pipeline.
 
         """
-        data = self.get_params(deep)
-        steps = data.pop("steps")
-
-        steps = []
-        for name, transformer in self.steps:
-            steps.append(
-                transformer.serialize(method="dict", name=name, deep=False)
-            )
-
-        data["steps"] = steps
-
-        return {"data": data}
-
-    @classmethod
-    def dict_deserialize(cls, data):
-        """Deserialize the dictionary form of a pipeline.
-
-        Args:
-            data: The dictionary to parse as the pipeline is constructed.
-
-        Returns:
-            object: A re-constructed pipeline
-
-        """
-        ser_steps = data["data"]["steps"]
-
-        deser_steps = []
-        for step in ser_steps:
-            deser_steps.append(
-                (
-                    step["name"],
-                    _obj_deserializer_helper(step).deserialize(step),
-                )
-            )
-
-        data["data"]["steps"] = deser_steps
-
-        return super().dict_deserialize(data)
-
-
-def _obj_deserializer_helper(data):
-    """Handle the case when a custom object is pickled.
-
-    Args:
-        data: The dictionary form of the transformer.
-
-    Returns:
-        The constructed class.
-
-    """
-    pickle_class = data.get("pickle_class")
-    if pickle_class is not None:
-        transformer = ConcreteSerializerMixin._unpickle_inline_repr(
-            pickle_class
-        )
-    else:
-        transformer = get_transformer(data["class"])
-
-    return transformer
+        return super().dict_serialize(deep=deep)
 
 
 def deserialize(data):
@@ -437,4 +429,46 @@ def deserialize(data):
         object: The constructed transformer.
 
     """
+    # We manually call this deserialize method so we can route to the correct
+    # deserialize method (ie after knowing what the class is)
     return _obj_deserializer_helper(data).deserialize(data)
+
+
+# if __name__ == "__main__":
+#     import numpy as np
+#     from foreshadow.transformers.core import SerializablePipeline
+#     from foreshadow.transformers.concrete import StandardScaler
+#
+#     from sklearn.preprocessing import StandardScaler as sk_ss
+#
+#     class SKSS(sk_ss, ConcreteSerializerMixin):
+#         pass
+#
+#     test = np.arange(10).reshape((-1, 1))
+#
+#     #     skss = SKSS()
+#     #     skss.fit(test)
+#     #     ser = skss.serialize(method='disk')
+#     #     deser = deserialize(ser)
+#     #
+#     #     skss.to_json('test.yml')
+#     #     deser2 = SKSS.from_json('test.yml')
+#
+#     p = SerializablePipeline([("ss", StandardScaler())])
+#
+#     p.fit(test)
+#     ser = p.serialize()
+#     import pdb
+#
+#     pdb.set_trace()
+#     deser = deserialize(ser)
+#
+#     #    ss = StandardScaler()
+#     #
+#     #    ss.fit(test)
+#     #    ser = ss.serialize()
+#     #    deser = deserialize(ser)
+#
+#     import pdb
+#
+#     pdb.set_trace()
