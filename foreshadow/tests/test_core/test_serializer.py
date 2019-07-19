@@ -48,8 +48,8 @@ def test_base_transformer_option_routing(base_serializer_setup):
     ser = ts.serialize()
     ts_mock.assert_called_once()
 
-    assert "class" in ser
-    assert "method" in ser
+    assert "_class" in ser
+    assert "_method" in ser
 
     deser = ts.deserialize(ser)
     td_mock.assert_called_once()
@@ -72,7 +72,7 @@ def test_base_transformer_invalid_option(base_serializer_setup):
     assert "Serialization method must be one of" in str(e1)
 
     with pytest.raises(ValueError) as e2:
-        ts.deserialize({"method": "invalid"})
+        ts.deserialize({"_method": "invalid"})
 
     assert "Deserialization method must be one of" in str(e2)
 
@@ -187,7 +187,7 @@ def test_concrete_disk_ser(concrete_serializer, mocker):
     #     ob = pickle.load(fopen)
 
     m.assert_called_once()
-    assert ser["data"] == test_path
+    assert ser["_file_path"] == test_path
 
 
 def test_concrete_disk_deser(concrete_serializer, mocker):
@@ -216,7 +216,7 @@ def test_concrete_disk_deser(concrete_serializer, mocker):
     m = mocker.mock_open(read_data=pickle_str)
     mocker.patch("builtins.open", m, create=True)
     _ = concrete_serializer.deserialize(
-        {"data": "./test/path", "method": "disk"}
+        {"_file_path": "./test/path", "_method": "disk"}
     )
     m.assert_called_once()
 
@@ -291,7 +291,9 @@ def test_concrete_custom_class(concrete_serializer, mocker):
     mocker.patch(
         "foreshadow.core.serializers.ConcreteSerializerMixin.pickle_class_def",
         return_value={
-            "pickle_class": _pickle_inline_repr(concrete_serializer.__class__)
+            "_pickled_class": _pickle_inline_repr(
+                concrete_serializer.__class__
+            )
         },
     )
     ser = concrete_serializer.serialize()

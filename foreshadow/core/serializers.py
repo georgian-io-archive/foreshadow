@@ -38,19 +38,15 @@ def _make_serializable(data, serialize_args={}):
         return data
     except TypeError:
         if isinstance(data, dict):
-            new_data = {}
-            for k, v in data.items():
-                new_data[k] = _make_serializable(
-                    v, serialize_args=serialize_args
-                )
-            return new_data
-        elif isinstance(data, (list, tuple)):
-            new_data = []
-            for v in data:
-                new_data.append(
-                    _make_serializable(v, serialize_args=serialize_args)
-                )
-            return new_data
+            return {
+                k: _make_serializable(v, serialize_args=serialize_args)
+                for k, v in data.items()
+            }
+        elif hasattr(data, "__next__"):
+            return [
+                _make_serializable(v, serialize_args=serialize_args)
+                for v in data
+            ]
         else:
             # If the data argument is able to be serialized, then simply
             # serialize it using the same args that were passed into the top
@@ -152,11 +148,11 @@ def _obj_deserializer_helper(data):
         The constructed class.
 
     """
-    pickle_class = data.get("pickle_class")
+    pickle_class = data.get("_pickled_class")
     if pickle_class is not None:
         transformer = _unpickle_inline_repr(pickle_class)
     else:
-        transformer = get_transformer(data["class"])
+        transformer = get_transformer(data["_class"])
 
     return transformer
 
@@ -198,14 +194,17 @@ class BaseTransformerSerializer:
 
         if method in self.OPTIONS:
             method_func = getattr(self, method + "_serialize")
-            self.serialize_params = {"method": method, **kwargs}
+            self.serialize_params = {"_method": method, **kwargs}
             payload = method_func(**kwargs)
         else:
             raise ValueError(
                 "Serialization method must be one of {}".format(self.OPTIONS)
             )
 
-        return {"class": self.__class__.__name__, "method": method, **payload}
+        payload["_class"] = self.__class__.__name__
+        payload["_method"] = method
+
+        return payload
 
     @classmethod
     def deserialize(cls, data):
@@ -222,7 +221,8 @@ class BaseTransformerSerializer:
             ValueError: If the method is not in `OPTIONS`
 
         """
-        method = data["method"]  # TODO: add malformed serialization error
+        method = data.pop("_method")  # TODO: add malformed serialization error
+        _ = data.pop("_class", None)
         if method in cls.OPTIONS:
             method_func = getattr(cls, method + "_deserialize")
             return method_func(data)
@@ -246,12 +246,13 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             dict: With a `pickle_class` key and the pickled class definition.
 
         """
-        # Short circuit if statement if __module__ not in class
+        # Short circuit the below if statement, if __module__ is not in
+        # the class
         is_internal = hasattr(cls, "__module__") and (
             "foreshadow" in getattr(cls, "__module__")
         )
         if not is_internal:
-            return {"pickle_class": _pickle_inline_repr(cls)}
+            return {"_pickled_class": _pickle_inline_repr(cls)}
         else:
             return {}
 
@@ -266,11 +267,9 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             dict: The initialization parameters of the transformer.
 
         """
-        return {
-            "data": _make_serializable(
-                self.get_params(deep), serialize_args=self.serialize_params
-            )
-        }
+        return _make_serializable(
+            self.get_params(deep), serialize_args=self.serialize_params
+        )
 
     @classmethod
     def dict_deserialize(cls, data):
@@ -283,8 +282,8 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             object: A re-constructed transformer
 
         """
-        params = _make_deserializable(data["data"])
-        pickle_class = data.get("pickle_class")
+        params = _make_deserializable(data)
+        pickle_class = params.pop("_pickled_class", None)
         if pickle_class is not None:
             pickle_class = _unpickle_inline_repr(pickle_class)
             return pickle_class(**params)
@@ -300,7 +299,7 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             A string representation of the pickle dump
 
         """
-        return {"data": _pickle_inline_repr(self)}
+        return {"_pickled_obj": _pickle_inline_repr(self)}
 
     @classmethod
     def inline_deserialize(cls, data):
@@ -313,7 +312,7 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             object: The constructed transformer.
 
         """
-        return _unpickle_inline_repr(data["data"])
+        return _unpickle_inline_repr(data["_pickled_obj"])
 
     def disk_serialize(self, cache_path=None):
         """Convert transformer to pickle and save it disk in a cache directory.
@@ -330,7 +329,7 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
         with open(fpath, "wb+") as fopen:
             pickle.dump(self, fopen, protocol=pickle.HIGHEST_PROTOCOL)
 
-        return {"data": fpath}
+        return {"_file_path": fpath}
 
     @classmethod
     def disk_deserialize(cls, data):
@@ -343,7 +342,7 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             object: The constructed transformer.
 
         """
-        fpath = data["data"]
+        fpath = data["_file_path"]
         with open(fpath, "rb") as fopen:
             return pickle.load(fopen)
 
