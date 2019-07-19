@@ -18,6 +18,21 @@ _unpickler = jsonpickle.unpickler.Unpickler()
 
 
 def _make_serializable(data, serialize_args={}):
+    """Make sure that all arguments in a dictionary are "serializable".
+
+    This means that all of they keys and values can be written to JSON or
+    YAML form.
+
+    Args:
+        data (dict): A dictionary representation of a transformer.
+        serialize_args (dict, optional): The arguments that should be passed to
+            a serialize method if necessary.
+
+    Returns:
+        dict: A dictionary mirroring the input with any keys that need fixing
+            updating.
+
+    """
     try:
         json.dumps(data)
         return data
@@ -47,6 +62,16 @@ def _make_serializable(data, serialize_args={}):
 
 
 def _make_deserializable(data):
+    """Inverse of `_make_serializable` which reconstructs any complex objects.
+
+    Args:
+        data (dict): A dictionary with "flattened" or "serialized" elements
+
+
+    Returns:
+        dict: A dictionary with complex objects reconstructed as necessary.
+
+    """
     if isinstance(data, dict):
         if any("py/" in s for s in data.keys()):
             return _unpickler.restore(data)
@@ -241,7 +266,11 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             dict: The initialization parameters of the transformer.
 
         """
-        return {"data": _make_serializable(self.get_params(deep))}
+        return {
+            "data": _make_serializable(
+                self.get_params(deep), serialize_args=self.serialize_params
+            )
+        }
 
     @classmethod
     def dict_deserialize(cls, data):
@@ -432,43 +461,3 @@ def deserialize(data):
     # We manually call this deserialize method so we can route to the correct
     # deserialize method (ie after knowing what the class is)
     return _obj_deserializer_helper(data).deserialize(data)
-
-
-# if __name__ == "__main__":
-#     import numpy as np
-#     from foreshadow.transformers.core import SerializablePipeline
-#     from foreshadow.transformers.concrete import StandardScaler
-#
-#     from sklearn.preprocessing import StandardScaler as sk_ss
-#
-#     class SKSS(sk_ss, ConcreteSerializerMixin):
-#         pass
-#
-#     test = np.arange(10).reshape((-1, 1))
-#
-#     #     skss = SKSS()
-#     #     skss.fit(test)
-#     #     ser = skss.serialize(method='disk')
-#     #     deser = deserialize(ser)
-#     #
-#     #     skss.to_json('test.yml')
-#     #     deser2 = SKSS.from_json('test.yml')
-#
-#     p = SerializablePipeline([("ss", StandardScaler())])
-#
-#     p.fit(test)
-#     ser = p.serialize()
-#     import pdb
-#
-#     pdb.set_trace()
-#     deser = deserialize(ser)
-#
-#     #    ss = StandardScaler()
-#     #
-#     #    ss.fit(test)
-#     #    ser = ss.serialize()
-#     #    deser = deserialize(ser)
-#
-#     import pdb
-#
-#     pdb.set_trace()
