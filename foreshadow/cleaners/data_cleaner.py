@@ -1,12 +1,9 @@
 """Cleaner module for cleaning data as step in Foreshadow workflow."""
-import re
-from abc import ABCMeta, abstractmethod
-
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from foreshadow.core.base import SinglePreparerStep
+from foreshadow.exceptions import SmartResolveError
 from foreshadow.metrics.internals import avg_col_regex, regex_rows
-from foreshadow.transformers.externals import StandardScaler  # remove this
 from foreshadow.transformers.smart import SmartTransformer
 
 
@@ -45,8 +42,18 @@ class SmartCleaner(SmartTransformer):
         """
         from foreshadow.cleaners.internals import __all__ as cleaners
 
+        # cleaners =
+        best_score = 0
+        best_cleaner = None
         for cleaner in cleaners:
-            pass
+            score = cleaner.metric_score(X)
+            if score > best_score:
+                best_score = score
+                best_cleaner = cleaner
+
+        if best_cleaner is None:
+            raise SmartResolveError("best cleaner could not be determined.")
+        self.transformer = best_cleaner
 
 
 class BaseCleaner(BaseEstimator, TransformerMixin):
@@ -62,16 +69,24 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
             confidence_computation:
         """
         self.transformations = transformations
-        self.confidence_computation = (
-            {regex_rows: 0.8, avg_col_regex: 0.2}
-            if confidence_computation is None
-            else confidence_computation
-        )
+        self.confidence_computation = {regex_rows: 0.8, avg_col_regex: 0.2}
+        if confidence_computation is not None:
+            self.confidence_computation = confidence_computation
 
     def metric_score(self, X):
         return sum(
             [
-                fn(X, self.transformations, mode=self.mode) * weight
-                for fn, weight in self.confidence_computation.items()
+                metric_fn(X, encoder=self) * weight
+                for metric_fn, weight in self.confidence_computation.items()
             ]
         )
+
+    def __call__(self, row_of_feature):
+        search_results = []
+        for transform in self.transformations:
+            text = row_of_feature
+            text, search_result = transform(text, return_search=True)
+            if search_result is None:
+                return None, row_of_feature
+            search_results.append(search_result)
+        return text, search_results
