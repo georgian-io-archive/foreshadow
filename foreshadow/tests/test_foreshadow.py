@@ -399,6 +399,7 @@ def test_foreshadow_param_optimize():  # TODO: Make this test faster
 
     boston_path = get_file_path("test_data", "boston_housing.csv")
     test_json_path = get_file_path("test_configs", "optimizer_test.json")
+
     truth_path = get_file_path("test_configs", "search_space_optimize.pkl")
 
     data = pd.read_csv(boston_path)
@@ -418,6 +419,7 @@ def test_foreshadow_param_optimize():  # TODO: Make this test faster
     x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
 
     results = _param_mapping(fs.pipeline, x_train, y_train)
+
     truth = pickle.load(open(truth_path, "rb"))
 
     assert results[0].keys() == truth[0].keys()
@@ -491,6 +493,7 @@ def test_foreshadow_param_optimize_no_combinations():
     x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
 
     results = _param_mapping(fs.pipeline, x_train, y_train)
+
     truth = pickle.load(open(test_path, "rb"))
 
     assert results[0].keys() == truth[0].keys()

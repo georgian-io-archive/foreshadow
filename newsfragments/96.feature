@@ -1,0 +1,1 @@
+Add serializer mixin and resture package import locations.

@@ -10,3 +10,9 @@ class InverseUnavailable(Exception):
     """
 
     pass
+
+
+class TransformerNotFound(Exception):
+    """Raised when a transformer cannot be found in the registry."""
+
+    pass

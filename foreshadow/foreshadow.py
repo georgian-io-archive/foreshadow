@@ -6,12 +6,12 @@ from copy import deepcopy
 
 from sklearn.base import BaseEstimator
 from sklearn.model_selection._search import BaseSearchCV
-from sklearn.pipeline import Pipeline
 
 from foreshadow.estimators.auto import AutoEstimator
 from foreshadow.estimators.meta import MetaEstimator
 from foreshadow.optimizers.param_mapping import _param_mapping
 from foreshadow.preprocessor import Preprocessor
+from foreshadow.transformers.core import SerializablePipeline
 from foreshadow.utils import check_df
 
 
@@ -185,14 +185,16 @@ class Foreshadow(BaseEstimator):
             self.estimator = MetaEstimator(self.estimator, self.y_preprocessor)
 
         if self.X_preprocessor is not None:
-            self.pipeline = Pipeline(
+            self.pipeline = SerializablePipeline(
                 [
                     ("preprocessor", self.X_preprocessor),
                     ("estimator", self.estimator),
                 ]
             )
         else:
-            self.pipeline = Pipeline([("estimator", self.estimator)])
+            self.pipeline = SerializablePipeline(
+                [("estimator", self.estimator)]
+            )
 
         if self.optimizer is not None:
             # Calculate parameter search space
