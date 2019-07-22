@@ -19,3 +19,10 @@ steps:
       codeCoverageTool: Cobertura
       summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
       reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
+  - task: BuildQualityChecks@6
+    inputs:
+      checkCoverage: true
+      coverageFailOption: 'fixed'
+      coverageType: 'branches'
+      coverageThreshold: '90'
+      runTitle: 'Check coverage level'
