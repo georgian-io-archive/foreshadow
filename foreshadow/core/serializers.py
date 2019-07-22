@@ -434,7 +434,7 @@ class PipelineSerializerMixin(ConcreteSerializerMixin):
 
         Note:
             This recursively serializes the individual steps to facilitate a
-            human readabel form.
+            human readable form.
 
         Args:
             deep (bool): If True, will return the parameters for this estimator

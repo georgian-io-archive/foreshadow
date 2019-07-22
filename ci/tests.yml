@@ -25,4 +25,4 @@ steps:
       coverageFailOption: 'fixed'
       coverageType: 'branches'
       coverageThreshold: '90'
-      runTitle: 'Check coverage level'
+    displayName: 'Check build quality'

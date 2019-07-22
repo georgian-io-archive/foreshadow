@@ -8,11 +8,11 @@ from pandas.api.types import is_numeric_dtype, is_string_dtype
 from foreshadow.intents.base import BaseIntent, PipelineTemplateEntry
 from foreshadow.transformers.concrete import DropFeature
 from foreshadow.transformers.smart import (
-    Encoder,
+    CategoricalEncoder,
     MultiImputer,
     Scaler,
     SimpleImputer,
-    SmartText,
+    TextEncoder,
 )
 
 
@@ -198,7 +198,7 @@ class CategoricalIntent(GenericIntent):
 
     single_pipeline_template = [
         PipelineTemplateEntry("dropper", DropFeature, False),
-        PipelineTemplateEntry("impute_encode", Encoder, True),
+        PipelineTemplateEntry("impute_encode", CategoricalEncoder, True),
     ]
     """Encode the column automatically"""
 
@@ -248,7 +248,7 @@ class TextIntent(GenericIntent):
     """No children"""
 
     single_pipeline_template = [
-        PipelineTemplateEntry("text", SmartText, False)
+        PipelineTemplateEntry("text", TextEncoder, False)
     ]
     """Encodes the column automatically"""
 
