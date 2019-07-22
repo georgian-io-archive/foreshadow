@@ -1,6 +1,7 @@
 import pytest
 
-from foreshadow.tests.utils import get_file_path, import_init_transformer
+from foreshadow.utils import get_transformer
+from foreshadow.utils.testing import get_file_path
 
 
 def test_transformer_wrapper_init():
@@ -265,57 +266,73 @@ def test_transformer_pipeline():
     assert np.array_equal(custom.predict(test), sklearn.predict(test))
 
 
-def test_smarttransformer_notimplemented():
-    import pandas as pd
+@pytest.fixture()
+def smart_child():
+    """Get a defined SmartTransformer subclass, TestSmartTransformer.
 
+    Note:
+        Always returns StandardScaler.
+
+    """
+    from foreshadow.transformers.base import SmartTransformer
+    from foreshadow.transformers.externals import StandardScaler
+
+    class TestSmartTransformer(SmartTransformer):
+        def pick_transformer(self, X, y=None, **fit_params):
+            return StandardScaler()
+
+    yield TestSmartTransformer
+
+
+def test_smarttransformer_instantiate():
+    """Instantiating a SmartTransformer should fail"""
     from foreshadow.transformers.base import SmartTransformer
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    # Note: cannot use fixture since this is not a subclass of SmartTransformer
+    with pytest.raises(TypeError) as e:
+        SmartTransformer()
 
-    df = pd.read_csv(boston_path)
+    assert "Can't instantiate abstract class" in str(e.value)
 
+
+def test_smarttransformer_notsubclassed():
+    """SmartTransformer (get_transformer TypeError) not being implemented."""
+    from foreshadow.transformers.base import SmartTransformer
+
+    # Note: cannot use fixture since the metaclass implementation sets flags on
+    # class definition time.
     class TestSmartTransformer(SmartTransformer):
         pass
 
-    transformer = TestSmartTransformer()
+    with pytest.raises(TypeError) as e:
+        TestSmartTransformer()
 
-    with pytest.raises(NotImplementedError) as e:
-        transformer.fit(df[["crim"]])
-
-    assert (
-        str(e.value) == "WrappedTransformer _get_transformer was not "
-        "implimented."
-    )
+    assert "Can't instantiate abstract class" in str(e.value)
 
 
-def test_smarttransformer_attributeerror():
+def test_smarttransformer_attributeerror(smart_child, mocker):
     import pandas as pd
-
-    from foreshadow.transformers.base import SmartTransformer
 
     boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
-    class TestSmartTransformer(SmartTransformer):
-        def _get_transformer(self, X, y=None, **fit_params):
-            return "INVALID"
+    smart = smart_child()
+    smart.pick_transformer = mocker.Mock()
+    smart.pick_transformer.return_value = "INVALID"
 
-    transformer = TestSmartTransformer()
-
-    with pytest.raises(AttributeError) as e:
-        transformer.fit(df[["crim"]])
+    with pytest.raises(ValueError) as e:
+        smart.fit(df[["crim"]])
 
     assert (
-        str(e.value) == "Invalid WrappedTransformer. Get transformer "
-        "returns invalid object"
-    )
+        "is neither a scikit-learn Pipeline, FeatureUnion, a "
+        "wrapped foreshadow transformer, nor None."
+    ) in str(e.value)
 
 
-def test_smarttransformer_invalidtransformer():
+def test_smarttransformer_invalidtransformer(smart_child, mocker):
+    """Test SmartTransformer initialization """
     import pandas as pd
-
-    from foreshadow.transformers.base import SmartTransformer
 
     boston_path = get_file_path("test_data", "boston_housing.csv")
 
@@ -324,36 +341,36 @@ def test_smarttransformer_invalidtransformer():
     class InvalidClass:
         pass
 
-    class TestSmartTransformer(SmartTransformer):
-        def _get_transformer(self, X, y=None, **fit_params):
-            return InvalidClass()
+    smart = smart_child()
+    smart.pick_transformer = mocker.Mock()
+    smart.pick_transformer.return_value = InvalidClass()
 
-    transformer = TestSmartTransformer()
-
-    with pytest.raises(AttributeError) as e:
-        transformer.fit(df[["crim"]])
+    with pytest.raises(ValueError) as e:
+        smart.fit(df[["crim"]])
 
     assert (
-        str(e.value) == "Invalid WrappedTransformer. Get transformer "
-        "returns invalid object"
-    )
+        "is neither a scikit-learn Pipeline, FeatureUnion, a "
+        "wrapped foreshadow transformer, nor None."
+    ) in str(e.value)
 
 
-def test_smarttransformer_function():
+def test_smarttransformer_function(smart_child):
+    """Test overall SmartTransformer functionality
+
+    Args:
+        smart_child: A subclass of SmartTransformer.
+
+    """
+    import numpy as np
     import pandas as pd
 
-    from foreshadow.transformers.base import SmartTransformer
     from foreshadow.transformers.externals import StandardScaler
 
     boston_path = get_file_path("test_data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
-    class TestSmartTransformer(SmartTransformer):
-        def _get_transformer(self, X, y=None, **fit_params):
-            return StandardScaler()
-
-    smart = TestSmartTransformer()
+    smart = smart_child()
     smart_data = smart.fit_transform(df[["crim"]])
 
     std = StandardScaler()
@@ -367,25 +384,30 @@ def test_smarttransformer_function():
     std.fit(df[["crim"]])
     std_data = std.transform(df[["crim"]])
 
-    assert smart_data.equals(std_data)
+    # TODO, remove when SmartTransformer is no longer wrapped
+    # Column names will be different, thus np.allclose() is used
+    assert np.allclose(smart_data, std_data)
 
 
-def test_smarttransformer_function_override():
+def test_smarttransformer_function_override(smart_child):
+    """Test SmartTransformer override through parameter specification.
+
+    Args:
+        smart_child: A subclass of SmartTransformer.
+
+    """
+    import numpy as np
     import pandas as pd
 
-    from foreshadow.transformers.base import SmartTransformer
     from foreshadow.transformers.externals import Imputer
 
     boston_path = get_file_path("test_data", "boston_housing.csv")
-
     df = pd.read_csv(boston_path)
 
-    class TestSmartTransformer(SmartTransformer):
-        pass
-
-    smart = TestSmartTransformer(override="Imputer", name="impute")
+    smart = smart_child(override="Imputer", name="impute")
     smart_data = smart.fit_transform(df[["crim"]])
 
+    assert isinstance(smart.transformer, Imputer)
     assert smart.transformer.name == "impute"
 
     std = Imputer(name="impute")
@@ -399,71 +421,61 @@ def test_smarttransformer_function_override():
     std.fit(df[["crim"]])
     std_data = std.transform(df[["crim"]])
 
-    assert smart_data.equals(std_data)
+    # TODO, remove when SmartTransformer is no longer wrapped
+    # Column names will be different, thus np.allclose() is used
+    assert np.allclose(smart_data, std_data)
 
 
-def test_smarttransformer_function_override_invalid():
-    from foreshadow.transformers.base import SmartTransformer
+def test_smarttransformer_function_override_invalid(smart_child):
+    """Test invalid SmartTransformer override transformer class.
 
-    class TestSmartTransformer(SmartTransformer):
-        pass
+    Args:
+        smart_child: A subclass of SmartTransformer.
 
-    smart = TestSmartTransformer(override="BAD")
+    """
 
     with pytest.raises(ValueError) as e:
-        smart.fit([1, 2, 3])
+        smart_child(override="BAD")
 
-    assert str(e.value) == "Could not import defined transformer BAD"
+    assert "Could not find transformer BAD in" in str(e.value)
 
 
-def test_smarttransformer_set_params_override():
-    from foreshadow.transformers.base import SmartTransformer
+def test_smarttransformer_set_params_override(smart_child):
+    """Test invalid SmartTransformer override transformer class.
+
+    Args:
+        smart_child: A subclass of SmartTransformer.
+
+    """
     from foreshadow.transformers.externals import StandardScaler
 
-    class TestSmartTransformer(SmartTransformer):
-        pass
-
-    smart = TestSmartTransformer(override="Imputer")
+    smart = smart_child(override="Imputer")
     smart.set_params(**{"override": "StandardScaler"})
 
     assert isinstance(smart.transformer, StandardScaler)
 
 
-def test_smarttransformer_set_params_empty():
-    from foreshadow.transformers.base import SmartTransformer
+def test_smarttransformer_set_params_empty(smart_child):
+    """Test SmartTransformer empty set_params does not fail.
 
-    class TestSmartTransformer(SmartTransformer):
-        pass
+    Args:
+        smart_child: A subclass of SmartTransformer.
 
-    smart = TestSmartTransformer()
+    """
+    smart = smart_child()
     smart.set_params()
 
-    assert smart._transformer is None
+    assert smart.transformer is None
 
 
-def test_smarttransformer_null_transformer():
-    from foreshadow.transformers.base import SmartTransformer
+def test_smarttransformer_set_params_default(smart_child):
+    """Test SmartTransformer pass-through set_params on selected transformer.
 
-    class TestSmartTransformer(SmartTransformer):
-        pass
+    Args:
+        smart_child: A subclass of SmartTransformer.
 
-    smart = TestSmartTransformer()
-
-    with pytest.raises(ValueError) as e:
-        smart.transformer
-
-    assert str(e.value) == "Smart Transformer not Fit"
-
-
-def test_smarttransformer_set_params_default():
-    from foreshadow.transformers.base import SmartTransformer
-    from foreshadow.transformers.externals import StandardScaler
-
-    class TestSmartTransformer(SmartTransformer):
-        def _get_transformer(self, X, y=None, **fit_params):
-            return StandardScaler()
-
-    smart = TestSmartTransformer()
+    """
+    smart = smart_child()
     smart.fit([1, 2, 3])
 
     smart.set_params(**{"transformer__with_mean": False})
@@ -471,13 +483,14 @@ def test_smarttransformer_set_params_default():
     assert not smart.transformer.with_mean
 
 
-def test_smarttransformer_get_params():
-    from foreshadow.transformers.base import SmartTransformer
+def test_smarttransformer_get_params(smart_child):
+    """Test SmartTransformer override with init kwargs.
 
-    class TestSmartTransformer(SmartTransformer):
-        pass
+    Args:
+        smart_child: A subclass of SmartTransformer.
 
-    smart = TestSmartTransformer(
+    """
+    smart = smart_child(
         override="Imputer", missing_values="NaN", strategy="mean"
     )
     smart.fit([1, 2, 3])
@@ -497,17 +510,76 @@ def test_smarttransformer_get_params():
     }
 
 
-def test_smarttransformer_empty_inverse():
-    from foreshadow.transformers.base import SmartTransformer
+def test_smarttransformer_empty_inverse(smart_child):
+    """Test SmartTransformer inverse_transform.
 
-    class TestSmartTransformer(SmartTransformer):
-        def _get_transformer(self, X, y=None, **fit_params):
-            return None
+    Args:
+        smart_child: A subclass of SmartTransformer.
 
-    smart = TestSmartTransformer()
+    """
+    from foreshadow.exceptions import InverseUnavailable
+
+    smart = smart_child()
     smart.fit([])
 
-    assert smart.inverse_transform([1, 2, 10]).size == 0
+    with pytest.raises(InverseUnavailable) as e:
+        smart.inverse_transform([1, 2, 10])
+
+    assert (
+        "was fit with empty data, thus, inverse_transform is unavailable."
+    ) in str(e)
+
+
+def test_smarttransformer_should_resolve(smart_child, mocker):
+    """Test SmartTransformer should_resolve functionality.
+
+    First test if the initial behavior works, only resolves the transformer
+    once and does not update chosen transformer on new data.
+
+    Next, test if enabling should resolve allows the transformer choice to be
+    updated but only once.
+
+    Lastly, test if force_reresolve allows the transformer choice to be updated
+    on each fit.
+
+    Args:
+        smart_child: A subclass of SmartTransformer.
+
+    """
+    import pandas as pd
+
+    from foreshadow.transformers.externals import StandardScaler, MinMaxScaler
+
+    def pick_transformer(X, y=None, **fit_params):
+        data = X.iloc[:, 0]
+
+        if data[0] == 0:
+            return StandardScaler()
+        else:
+            return MinMaxScaler()
+
+    smart = smart_child()
+    smart.pick_transformer = pick_transformer
+
+    data1 = pd.DataFrame([0])
+    data2 = pd.DataFrame([1])
+
+    smart.fit(data1)
+    assert isinstance(smart.transformer, StandardScaler)
+    smart.fit(data2)
+    assert isinstance(smart.transformer, StandardScaler)
+
+    smart.should_resolve = True
+    smart.fit(data2)
+    assert isinstance(smart.transformer, MinMaxScaler)
+    smart.fit(data1)
+    assert isinstance(smart.transformer, MinMaxScaler)
+
+    smart.force_reresolve = True
+    smart.fit(data1)
+    assert isinstance(smart.transformer, StandardScaler)
+    smart.fit(data2)
+    assert isinstance(smart.transformer, MinMaxScaler)
 
 
 def test_sparse_matrix_conversion():
@@ -538,13 +610,13 @@ def test_make_pandas_transformer_fit(transformer, input_csv):
     """Test make_pandas_transformer has initial transformer fit functionality.
 
         Args:
-            transformer: wrapped transformer
+            transformer: wrapped transformer class name
             input_csv: dataset to test on
 
     """
     import pandas as pd
 
-    transformer = import_init_transformer(transformer)
+    transformer = get_transformer(transformer)()
     df = pd.read_csv(input_csv)
     assert transformer.fit(df) == transformer
 
@@ -561,16 +633,14 @@ def test_make_pandas_transformer_meta(transformer, expected_path):
     """Test that the wrapped transformer has proper metadata.
 
     Args:
-        transformer: wrapped transformer
+        transformer: wrapped transformer class name
         expected_path: path to the initial transformer
 
     Returns:
 
     """
-    expected_class = import_init_transformer(
-        transformer, path=expected_path, instantiate=False
-    )
-    transformer = import_init_transformer(transformer)
+    expected_class = get_transformer(transformer, source_lib=expected_path)
+    transformer = get_transformer(transformer)()
 
     assert isinstance(transformer, expected_class)  # should remain a subclass
     assert type(transformer).__name__ == expected_class.__name__
@@ -606,7 +676,7 @@ def test_make_pandas_transformer_transform(
     """Test wrapped transformer has the initial transform functionality.
 
         Args:
-            transformer: wrapped transformer
+            transformer: wrapped transformer class name
             kwargs: key word arguments for transformer initialization
             sk_path: path to the module containing the wrapped sklearn
                 transformer
@@ -617,10 +687,8 @@ def test_make_pandas_transformer_transform(
     import numpy as np
     from scipy.sparse import issparse
 
-    sk_transformer = import_init_transformer(
-        transformer, path=sk_path, params=kwargs
-    )
-    transformer = import_init_transformer(transformer, params=kwargs)
+    sk_transformer = get_transformer(transformer, source_lib=sk_path)(**kwargs)
+    transformer = get_transformer(transformer)(**kwargs)
 
     df = pd.read_csv(input_csv)
     crim_df = df[["crim"]]
@@ -663,8 +731,8 @@ def test_make_pandas_transformer_fit_transform(
     import numpy as np
     from scipy.sparse import issparse
 
-    sk_transformer = import_init_transformer(transformer, path=sk_path)
-    transformer = import_init_transformer(transformer)
+    sk_transformer = get_transformer(transformer, source_lib=sk_path)()
+    transformer = get_transformer(transformer)()
 
     df = pd.read_csv(input_csv)
     crim_df = df[["crim"]]
@@ -685,13 +753,14 @@ def test_make_pandas_transformer_init(transformer, sk_path):
     """Test make_pandas_transformer has initial transformer init functionality.
 
     Should be able to accept any parameters from the sklearn transformer and
-    initialize on the wrapped instance.
+    initialize on the wrapped instance. They should also posses the is_wrapped
+    method.
 
         Args:
             transformer: wrapped transformer
             sk_path: path to the module containing the wrapped sklearn
                 transformer
     """
-    sk_transformer = import_init_transformer(transformer, path=sk_path)
+    sk_transformer = get_transformer(transformer, source_lib=sk_path)()
     params = sk_transformer.get_params()
-    transformer = import_init_transformer(transformer, params=params)
+    transformer = get_transformer(transformer)(**params)

@@ -47,7 +47,7 @@ def unique_count_weight(feature):
 
 @metric
 def regex_rows(feature, encoder):
-    search_results = [encoder(row)[1] for row in feature]
+    search_results = [encoder(row).search_results for row in feature]
     return sum([1 for sr in search_results if sr[-1] is not None]) / len(
         feature
     )
@@ -55,7 +55,8 @@ def regex_rows(feature, encoder):
 
 @metric
 def avg_col_regex(feature, encoder, mode=min):
-    search_results = [(encoder(row)[1], len(row)) for row in feature]
+    search_results = [(encoder(row).search_results, len(row)) for row in
+                      feature]
     return sum([mode(sr) / row_len for sr, row_len in search_results]) / len(
         feature
     )

@@ -1,6 +1,6 @@
 import pytest
 
-from foreshadow.tests.utils import get_file_path
+from foreshadow.utils.testing import get_file_path
 
 
 @pytest.fixture(autouse=True)

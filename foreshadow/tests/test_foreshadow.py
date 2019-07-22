@@ -2,7 +2,7 @@ from unittest.mock import PropertyMock, patch
 
 import pytest
 
-from foreshadow.tests.utils import get_file_path
+from foreshadow.utils.testing import get_file_path
 
 
 def test_foreshadow_defaults():

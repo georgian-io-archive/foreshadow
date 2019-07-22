@@ -1,13 +1,20 @@
 """Cleaner module for cleaning data as step in Foreshadow workflow."""
+from collections import namedtuple
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from foreshadow.core.base import SinglePreparerStep
+from foreshadow.core.base import PreparerStep
 from foreshadow.exceptions import SmartResolveError
 from foreshadow.metrics.internals import avg_col_regex, regex_rows
 from foreshadow.transformers.smart import SmartTransformer
+from foreshadow.utils.testing import dynamic_import
+from foreshadow.transformers.transformers import make_pandas_transformer
 
 
-class DataCleaner(SinglePreparerStep):
+RegexReturn = namedtuple('RegexReturn', ['text', 'search_result'])
+
+
+@make_pandas_transformer
+class DataCleaner(PreparerStep):
     """Determine and perform best data cleaning step."""
 
     def __init__(self, *args, **kwargs):
@@ -18,8 +25,11 @@ class DataCleaner(SinglePreparerStep):
             **kwargs: kwargs to PreparerStep constructor.
 
         """
-        smart = SmartCleaner
-        super(DataCleaner, self).__init__(smart, *args, **kwargs)
+        super().__init__(*args, **kwargs)
+
+    def get_mapping(self, X):
+        print(self.separate_cols([(SmartCleaner(), col) for col in X]))
+        return self.separate_cols([(SmartCleaner(), col) for col in X])
 
 
 class SmartCleaner(SmartTransformer):
@@ -28,7 +38,7 @@ class SmartCleaner(SmartTransformer):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def _get_transformer(self, X, y=None, **fit_params):
+    def pick_transformer(self, X, y=None, **fit_params):
         """Get best transformer for a given column.
 
         Args:
@@ -42,10 +52,12 @@ class SmartCleaner(SmartTransformer):
         """
         from foreshadow.cleaners.internals import __all__ as cleaners
 
-        # cleaners =
+        cleaners = [dynamic_import(cleaner, 'foreshadow.cleaners.internals')
+                    for cleaner in cleaners]
         best_score = 0
         best_cleaner = None
         for cleaner in cleaners:
+            cleaner = cleaner()
             score = cleaner.metric_score(X)
             if score > best_score:
                 best_score = score
@@ -74,6 +86,14 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
             self.confidence_computation = confidence_computation
 
     def metric_score(self, X):
+        """Compute the score for this cleaner using
+
+        Args:
+            X:
+
+        Returns:
+
+        """
         return sum(
             [
                 metric_fn(X, encoder=self) * weight
@@ -82,6 +102,14 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         )
 
     def __call__(self, row_of_feature):
+        """
+
+        Args:
+            row_of_feature:
+
+        Returns:
+
+        """
         search_results = []
         for transform in self.transformations:
             text = row_of_feature
@@ -89,4 +117,4 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
             if search_result is None:
                 return None, row_of_feature
             search_results.append(search_result)
-        return text, search_results
+        return RegexReturn(text, search_results)

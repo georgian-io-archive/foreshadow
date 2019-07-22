@@ -27,7 +27,7 @@ def _get_classes():
         c[1]
         for m in modules
         for c in inspect.getmembers(m)
-        if inspect.isclass(c[1])
+        if inspect.isclass(c[1]) and c[1].__name__.find("Base") == -1
     ]
 
     return classes

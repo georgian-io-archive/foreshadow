@@ -7,7 +7,8 @@ import pytest
     [
         ({}, None),
         (None, None),
-        ({"random_kwarg": "random_value"}, None),  # replace with real kwargs
+        ({"random_kwarg": "random_value"}, TypeError),  # replace with real
+        # kwargs
         ([], ValueError),
     ],
 )
@@ -35,7 +36,6 @@ def test_data_preparer_init(cleaner_kwargs, expected_error):
     [
         ({}),
         (None),
-        ({"random_kwarg": "random_value"}),  # replace with real kwargs
     ],
 )
 def test_data_preparer_fit(cleaner_kwargs):

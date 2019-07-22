@@ -53,7 +53,19 @@ class Scaler(SmartTransformer):
         self.p_val = p_val
         super().__init__(**kwargs)
 
-    def _get_transformer(self, X, y=None, **fit_params):
+    def pick_transformer(self, X, y=None, **fit_params):
+        """Determine the appropriate scaling method for an input dataset.
+
+        Args:
+            X (:obj:`pandas.DataFrame`): Input X data
+            y (:obj: 'pandas.DataFrame'): labels Y for data
+            **fit_params (dict): Parameters to apply to transformers when
+                fitting
+
+        Returns:
+            An initialized scaling transformer
+
+        """
         data = X.iloc[:, 0]
         # statistically invalid but good enough measure of relative closeness
         # ks-test does not allow estimated parameters
@@ -115,7 +127,19 @@ class Encoder(SmartTransformer):
             pd.unique(out).size,
         )
 
-    def _get_transformer(self, X, y=None, **fit_params):
+    def pick_transformer(self, X, y=None, **fit_params):
+        """Determine the appropriate encoding method for an input dataset.
+
+        Args:
+            X (:obj:`pandas.DataFrame`): Input X data
+            y (:obj: 'pandas.DataFrame'): labels Y for data
+            **fit_params (dict): Parameters to apply to transformers when
+                fitting
+
+        Returns:
+            An initialized encoding transformer
+
+        """
         data = X.iloc[:, 0]
         unique_count = len(data.value_counts())
 
@@ -191,7 +215,19 @@ class SimpleImputer(SmartTransformer):
                 "SimpleFill", impute_kwargs={"fill_method": "mean"}
             )
 
-    def _get_transformer(self, X, y=None, **fit_params):
+    def pick_transformer(self, X, y=None, **fit_params):
+        """Determine the appropriate imputation method for an input dataset.
+
+        Args:
+            X (:obj:`pandas.DataFrame`): Input X data
+            y (:obj: 'pandas.DataFrame'): labels Y for data
+            **fit_params (dict): Parameters to apply to transformers when
+                fitting
+
+        Returns:
+            An initialized imputation transformer
+
+        """
         s = X.iloc[:, 0]
         ratio = s.isnull().sum() / s.count()
 
@@ -218,7 +254,19 @@ class MultiImputer(SmartTransformer):
         # Impute using KNN
         return FancyImputer("KNN", impute_kwargs={"k": 3})
 
-    def _get_transformer(self, X, y=None, **fit_params):
+    def pick_transformer(self, X, y=None, **fit_params):
+        """Determine the appropriate multiple imputation method.
+
+        Args:
+            X (:obj:`pandas.DataFrame`): Input X data
+            y (:obj: 'pandas.DataFrame'): labels Y for data
+            **fit_params (dict): Parameters to apply to transformers when
+                fitting
+
+        Returns:
+            An initialized multiple imputation transformer
+
+        """
         if X.isnull().values.any():
             return self._choose_multi(X)
         else:
@@ -228,7 +276,19 @@ class MultiImputer(SmartTransformer):
 class FinancialCleaner(SmartTransformer):
     """Automatically choose appropriate parameters for a financial column."""
 
-    def _get_transformer(self, X, y=None, **fit_params):
+    def pick_transformer(self, X, y=None, **fit_params):
+        """Determine the appropriate financial cleaning method.
+
+        Args:
+            X (:obj:`pandas.DataFrame`): Input X data
+            y (:obj: 'pandas.DataFrame'): labels Y for data
+            **fit_params (dict): Parameters to apply to transformers when
+                fitting
+
+        Returns:
+            An initialized financial cleaning transformer
+
+        """
         us_pipeline = Pipeline(
             [("prepare", PrepareFinancial()), ("convert", ConvertFinancial())]
         )
@@ -260,7 +320,19 @@ class SmartText(SmartTransformer):
 
         super().__init__(**kwargs)
 
-    def _get_transformer(self, X, y=None, **fit_params):
+    def pick_transformer(self, X, y=None, **fit_params):
+        """Determine the appropriate nlp method.
+
+        Args:
+            X (:obj:`pandas.DataFrame`): Input X data
+            y (:obj: 'pandas.DataFrame'): labels Y for data
+            **fit_params (dict): Parameters to apply to transformers when
+                fitting
+
+        Returns:
+            An initialized nlp transformer
+
+        """
         data = X.iloc[:, 0]
 
         steps = []
