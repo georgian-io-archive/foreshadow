@@ -46,17 +46,49 @@ def unique_count_weight(feature):
 
 
 @metric
-def regex_rows(feature, encoder):
-    search_results = [encoder(row).search_results for row in feature]
-    return sum([1 for sr in search_results if sr[-1] is not None]) / len(
+def regex_rows(feature, cleaner):
+    """Return percentage of rows matched by regex transformations.
+
+    cleaner(row) will return a RegexReturn namedtupled, which will have the
+    transformed text after all transformations (or the original text if it
+    failed) and then a list of all the number of characters matched by each
+    individual regex transform. Ergo, if any one of them is 0, then the
+    transformations failed.
+
+    Args:
+        feature: a column of the dataset
+        cleaner: callable that will perform all transformations to row of
+            feature
+
+    Returns:
+        Return percentage of rows matched by regex transformations.
+
+    """
+    matched_lens = [cleaner(row).match_lens for row in feature]
+    return sum([min(list_lens) for list_lens in matched_lens]) / len(
         feature
     )
 
 
 @metric
-def avg_col_regex(feature, encoder, mode=min):
-    search_results = [(encoder(row).search_results, len(row)) for row in
+def avg_col_regex(feature, cleaner, mode=min):
+    """Return average percentage of each row's text transformed by cleaner.
+
+    Cleaner will be a list of transformations, that will take the original
+    text and transform it to new text. The percentage of the original text
+    that is kept is averaged across all rows.
+
+    Args:
+        feature: feature of dataset
+        cleaner: callable that will perform all transformations to row of
+            feature
+        mode: callable operation to apply to list of characters matched for
+            each transformation. Defines how we want to average for each row.
+
+    Returns:
+
+    """
+    matched_lens = [(cleaner(row).match_lens, len(row)) for row in
                       feature]
-    return sum([mode(sr) / row_len for sr, row_len in search_results]) / len(
-        feature
-    )
+    return sum([mode(list_lens) / row_len for list_lens, row_len in
+                matched_lens]) / len(feature)

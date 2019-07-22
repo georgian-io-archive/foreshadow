@@ -1,9 +1,7 @@
-"""Financial transformers."""
+"""StandardDollarFinancial transformers."""
 
 import re
 
-import numpy as np
-import pandas as pd
 
 from foreshadow.cleaners.data_cleaner import BaseCleaner
 
@@ -30,7 +28,7 @@ def financial_transform(text, return_search=False):
     return text
 
 
-class Financial(BaseCleaner):
+class StandardDollarFinancial(BaseCleaner):
     """Clean financial data.
 
     Note: requires pandas input dataframes.
@@ -40,31 +38,3 @@ class Financial(BaseCleaner):
     def __init__(self):
         transformations = [financial_transform]
         super().__init__(transformations)
-
-    def fit(self, X, y=None):
-        """Empty fit.
-
-        Args:
-            X: input observations
-            y: input labels
-
-        Returns:
-            self
-
-        """
-        return self
-
-    def transform(self, X, y=None):
-        """Clean string columns to prepare for financial transformer.
-
-        Args:
-            X (:obj:`pandas.DataFrame`): X data
-            y: input labels
-
-        Returns:
-            :obj:`pandas.DataFrame`: Transformed data
-
-        """
-        X = X.copy()
-        for transform in self.transformations:
-            X = transform(X)

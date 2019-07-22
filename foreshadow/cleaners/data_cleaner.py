@@ -9,8 +9,10 @@ from foreshadow.transformers.smart import SmartTransformer
 from foreshadow.utils.testing import dynamic_import
 from foreshadow.transformers.transformers import make_pandas_transformer
 
+import pandas as pd
 
-RegexReturn = namedtuple('RegexReturn', ['text', 'search_result'])
+
+RegexReturn = namedtuple('RegexReturn', ['text', 'match_lens'])
 
 
 @make_pandas_transformer
@@ -102,19 +104,74 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         )
 
     def __call__(self, row_of_feature):
-        """
+        """Perform clean operations on text, that is a row of feature.
 
         Args:
-            row_of_feature:
+            row_of_feature: one row of one column
 
         Returns:
+            NamedTuple object with:
+            .text
+            the text in row_of_feature transformed by transformations. If
+            not possible, it will be None.
+            .match_lens
+            the number of characters from original text at each step that
+            was transformed.
 
         """
-        search_results = []
+        matched_lengths = []  # this does not play nice with creating new
+        # columns
         for transform in self.transformations:
             text = row_of_feature
             text, search_result = transform(text, return_search=True)
             if search_result is None:
-                return None, row_of_feature
-            search_results.append(search_result)
-        return RegexReturn(text, search_results)
+                return RegexReturn(row_of_feature, 0)
+            matched_lengths.append(search_result)
+        return RegexReturn(text, matched_lengths)
+
+    def fit(self, X, y=None):
+        """Empty fit.
+
+        Args:
+            X: input observations
+            y: input labels
+
+        Returns:
+            self
+
+        """
+        return self
+
+    def transform(self, X, y=None):
+        """Clean string columns to prepare for financial transformer.
+
+        Args:
+            X (:obj:`pandas.Series`): X data
+            y: input labels
+
+        Returns:
+            :obj:`pandas.DataFrame`: Transformed data
+
+        """
+        X = X.copy()
+        # for col in X:  # TODO make this better using .apply.
+        #     for transform in self.transformations:
+        #         x_col = X[col].apply(transform(X[col]), axis=1)
+        #     new_x.join()
+        # assume single column
+
+        # PRoblem:
+        # I can use .apply to perform all these transformations and that
+        # works beautifully, except when I want to define a funtion that
+        # will use the pandas.series.str.split operation. In which case,
+        # the .apply fails and I don't know why.
+
+        # I need each function to accept the row as an argument so that we
+        # can inspect how much of the text was matched (for determining if
+        # it should be used). however, doing this means I need to iterate
+        # over each row for a given column on my own, which requires me to
+        # leave
+
+        for index, row in X[X.columns[0]].iterrows():
+            df
+        X[X.columns[0]] = [self(row).text for row in X[X.columns[0]]]
