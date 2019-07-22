@@ -8,6 +8,92 @@ from foreshadow.core import logging
 from foreshadow.transformers.base import ParallelProcessor
 
 
+def _check_parallelizable_batch(column_mapping, group_number):
+    """See if the group of cols 'group_number' is parallelizable.
+
+    'group_number' in column_mapping is parallelizable if the cols across
+    all steps are static. Then we can guarantee this Pipeline can run
+    without needing any other step to finish first.
+
+    Args:
+        column_mapping: the column mapping from self.get_mapping()
+        group_number: the group number
+
+    Returns:
+        transformer_list if parallelizable, else None.
+
+    """
+    list_of_steps = column_mapping[group_number]
+    cols_across_steps = [mapping[1] for mapping in list_of_steps]
+    if all([x == cols_across_steps[0] for x in cols_across_steps]):
+        # if we enter here, this step has the same columns across
+        # all steps. This means that we can create one Pipeline for
+        # this group of columns and let it run parallel to
+        # everything else as its inputs are never dependent on the
+        # result from any step in another pipeline.
+        transformer_list = ['group: %d' % group_number,
+                            Pipeline([m[0] for m in list_of_steps]),
+                            cols_across_steps[0]]
+        # transformer_list = [name, pipeline of transformers, cols]
+        # cols here is the same for each step, so we just pass it in
+        # once as a single group.
+        # TODO this is a very simple check, this could be optimized
+        #  further
+    else:
+        # this group could not be separated out.
+        return None
+    return transformer_list
+
+
+def _batch_parallelize(column_mapping, parallelized):
+    """Batch parallelizes any groups in column_mapping if not parallelized.
+
+    _check_parallelizable_batch will parallelize a group of columns across
+    all steps of transformers if possible. The rest that are left have
+    interdependencies and so the best we can do is to parallelize each step
+    across all groups of columns. This helper performs that task and creates a
+    Pipeline of steps that is parallelized across each group of cols at each
+    step.
+
+    Args:
+        column_mapping: the column_mapping from self.get_mapping()
+        parallelized: mapping of group_number in column_mapping to True if
+            already parallelized or False if not.
+
+    Returns:
+        list of steps for Pipeline, all_cols
+        all_cols is the set of all cols that needs to be passed, as a list.
+
+    """
+    total_steps = len(column_mapping[0])
+    steps = []  # each individual step, or dim1, will go in here.
+    all_cols = set()
+    for step_number in range(total_steps):
+        groups = []
+        for group_number in parallelized:
+            if not parallelized[group_number]:  # we do not have a
+                # transformer_list yet for this group.
+                list_of_steps = column_mapping[group_number]
+                step_for_group = list_of_steps[step_number]
+                transformer = step_for_group[0]
+                cols = step_for_group[1]
+                groups.append((group_number, transformer, cols))
+                for col in cols:
+                    all_cols.add(col)
+        transformer_list = [
+            ["group: %d, transformer: %s" % (group_number,
+                                             transformer.__name__),
+             transformer,
+             cols,
+             ] for group_number, transformer, cols in groups
+        ]  # this is one step parallelized across the columns (dim1
+        # parallelized across dim2).
+        steps.append(
+            ("step: %d" % step_number, ParallelProcessor(transformer_list))
+        )  # list of steps for final pipeline.
+    return steps, list(all_cols)
+
+
 class PreparerStep(BaseEstimator, TransformerMixin):
     """Base class for any pipeline step of DataPreparer.
 
@@ -47,6 +133,9 @@ class PreparerStep(BaseEstimator, TransformerMixin):
     def separate_cols(transformer_per_col=()):
         """Return a valid mapping where each col has a separate transformer.
 
+        For each column mapped separately to the same transformer, do:
+        self.separate_cols([[transformer, col] for col in X.columns])
+
         Args:
             transformer_per_col: list of (transformer, col) tuples where col is
                 a single column.
@@ -61,68 +150,51 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
     @classmethod
     def logging_name(cls):
+        """Returns the logging name for this transformer.
+
+        Returns:
+            See return.
+
+        """
         return "DataPreparerStep: %s " % cls.__name__
 
     @staticmethod
     def parallelize_mapping(column_mapping):
+        """Create parallelized workflow for column_mapping.
+
+        Each group of cols that is separated has the key: 'group_number' and a
+        valid transformer_list for ParallelProcessor.
+        The rest that are batch parallelized has key: 'grouped_pipeline' and
+        a valid transformer_list for ParallelProcessor.
+
+        Args:
+            column_mapping: the column mapping returned from self.get_mapping()
+
+        Returns:
+            dict(), see above statement. Each value in this dict is a valid
+            transformer_list for ParallelProcessor.
+
+        """
         final_mapping = {}
         parallelized = {}  # we will first map all groups that have no
         # interdependencies with other groups. Then, we will do all the rest
         # of the groups after as they will be performed step-by-step
         # parallelized.
         for group_number in column_mapping:
-            list_of_steps = column_mapping[group_number]
-            cols_across_steps = [mapping[1] for mapping in list_of_steps]
-            if all([x == cols_across_steps[0] for x in cols_across_steps]):
-                # if we enter here, this step has the same columns across
-                # all steps. This means that we can create one Pipeline for
-                # this group of columns and let it run parallel to
-                # everything else as its inputs are never dependent on the
-                # result from any step in another pipeline.
-                transformer_list = ['group: %d' % group_number,
-                                    Pipeline([m[0] for m in list_of_steps]),
-                                    cols_across_steps[0]]
-                # transformer_list = [name, pipeline of transformers, cols]
-                # cols here is the same for each step, so we just pass it in
-                # once as a single group.
+            transformer_list = _check_parallelizable_batch(column_mapping,
+                                                           group_number
+                                                           )
+            if transformer_list is None:  # could not be separated out
+                parallelized[group_number] = False
+            else:  # could be separated and parallelized
                 final_mapping[group_number] = transformer_list
                 parallelized[group_number] = True
-                # TODO this is a very simple check, this could be optimized
-                #  further
-            else:
-                parallelized[group_number] = False  # this group could not
-                # be separated out.
         if len(final_mapping) < len(column_mapping):  # then there must be
             # groups of columns that have interdependcies.
-            total_steps = len(column_mapping[0])
-            steps = []  # each individual step, or dim1, will go in here.
-            all_cols = set()
-            for step_number in range(total_steps):
-                groups = []
-                for group_number in parallelized:
-                    if not parallelized[group_number]:  # we do not have a
-                        # transformer_list yet for this group.
-                        list_of_steps = column_mapping[group_number]
-                        step_for_group = list_of_steps[step_number]
-                        transformer = step_for_group[0]
-                        cols = step_for_group[1]
-                        groups.append((group_number, transformer, cols))
-                        for col in cols:
-                            all_cols.add(col)
-                transformer_list = [
-                    ["group: %d, transformer: %s" % (group_number,
-                                                     transformer.__name__),
-                     transformer,
-                     cols,
-                     ] for group_number, transformer, cols in groups
-                ]  # this is one step parallelized across the columns (dim1
-                # parallelized across dim2).
-                steps.append(
-                    ("step: %d" % step_number, ParallelProcessor(transformer_list))
-                )  # list of steps for final pipeline.
+            steps, all_cols = _batch_parallelize(column_mapping, parallelized)
             final_mapping['grouped_pipeline'] = ['grouped_pipeline',
                                                  Pipeline(steps),
-                                                 list(all_cols)]
+                                                 all_cols]
 
         return final_mapping
 
@@ -144,9 +216,6 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             X: DataFrame
 
         """
-        # TODO consider overlapping cols
-        # TODO consider checking on parent or child
-        # TODO consider child making pipeline or parent making pipeline.
         column_mapping = self.get_mapping(X)
         logging.debug(self.logging_name() + 'column_mapping: {}'.format(
             column_mapping
@@ -222,7 +291,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
         """
         self.check_process(X)
-        self._parallel_process.fit(X, *args, **kwargs)
+        return self._parallel_process.fit(X, *args, **kwargs)
 
     def check_process(self, X):
         if self._parallel_process is None:
@@ -232,11 +301,12 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
     def fit_transform(self, X, y=None, **fit_params):
         self.check_process(X)
+        return self._parallel_process.fit_transform(X, y=y, **fit_params)
 
     def transform(self, X, *args, **kwargs):
         self.check_process(X)
-        self._parallel_process.transform(X, *args, **kwargs)
+        return self._parallel_process.transform(X, *args, **kwargs)
 
     def inverse_transform(self, X, *args, **kwargs):
         self.check_process(X)
-        self._parallel_process.transform(X, *args, **kwargs)
+        return self._parallel_process.inverse_transform(X, *args, **kwargs)
