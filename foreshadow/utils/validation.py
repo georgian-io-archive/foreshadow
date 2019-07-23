@@ -1,8 +1,6 @@
 """Common module utilities."""
 
 import warnings
-from collections import OrderedDict
-from importlib import import_module
 
 import numpy as np
 import pandas as pd
@@ -96,67 +94,16 @@ def check_transformer_imports(printout=True):
             transformers
 
     """
-    from foreshadow.transformers import externals as exter
-    from foreshadow.transformers import internals as inter
+    import foreshadow.transformers.concrete as conc
 
     if printout:
         print(
-            "Loaded {} internals transformer plugins:\n{}".format(
-                len(inter.classes), inter.classes
-            )
-        )
-        print(
-            "Loaded {} externals transformer plugins\n{}".format(
-                len(exter.classes), exter.classes
+            "Loaded {} transformer plugins:\n{}".format(
+                len(conc.classes), conc.classes
             )
         )
 
-    return inter.classes, exter.classes
-
-
-def get_transformer(class_name, source_lib=None):
-    """Get the transformer class from its name.
-
-    Note:
-        In case of name conflict, internal transformer is preferred over
-        external transformer import.
-
-    Args:
-        class_name (str): The transformer class name
-        source_lib (str): The string import path if known
-
-    Returns:
-        Imported class
-
-    Raises:
-        ValueError: If class_name could not be found in internal or external
-            transformer library pathways.
-
-    """
-    if source_lib is not None:
-        module = import_module(source_lib)
-    else:
-        sources = OrderedDict(
-            (source, import_module(source))
-            for source in [
-                "foreshadow.transformers.internals",
-                "foreshadow.transformers.externals",
-                "foreshadow.transformers.smart",
-            ]
-        )
-
-        for v in sources.values():
-            if hasattr(v, class_name):
-                module = v
-                break
-        else:
-            raise ValueError(
-                "Could not find transformer {} in {}".format(
-                    class_name, ", ".join(sources.keys())
-                )
-            )
-
-    return getattr(module, class_name)
+    return conc.classes
 
 
 def is_transformer(value, method="isinstance"):

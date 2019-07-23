@@ -4,7 +4,7 @@ import re
 
 from foreshadow.intents.base import PipelineTemplateEntry
 from foreshadow.intents.general import NumericIntent
-from foreshadow.transformers.internals import DropFeature
+from foreshadow.transformers.concrete import DropFeature
 from foreshadow.transformers.smart import (
     FinancialCleaner,
     Scaler,

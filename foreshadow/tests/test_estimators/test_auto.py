@@ -50,6 +50,12 @@ def test_invalid_kwargs_not_dict():
     assert str(e.value) == "estimator_kwargs must be a valid kwarg dictionary"
 
 
+@pytest.mark.skip(
+    reason=(
+        "auto-sklearn is a pain to install waiting on: "
+        "https://github.com/automl/auto-sklearn/pull/703"
+    )
+)
 def test_override_kwarg_dict():
     from foreshadow.estimators import AutoEstimator
 
@@ -78,6 +84,12 @@ def test_temp():
     _ = AutoEstimator()
 
 
+@pytest.mark.skip(
+    reason=(
+        "auto-sklearn is a pain to install waiting on: "
+        "https://github.com/automl/auto-sklearn/pull/703"
+    )
+)
 def test_default_estimator_setup_classification():
     import numpy as np
     import pandas as pd

@@ -1,11 +1,13 @@
 [flake8]
-exclude = .git,__pycache__,doc/*,build,dist
+exclude = .git,__pycache__,doc/*,build,dist,.tox
 ignore = 
 	W503, # Line break occurred after a binary operator (opposite of W504) 
 	D107 # Missing docstring in __init__
 	D301 # Use r""" if any backslashes in a docstring
 per-file-ignores =
-	foreshadow/transformers/externals.py:F401
+    foreshadow/transformers/concrete/__init__.py:F401 F403
+	foreshadow/transformers/concrete/externals.py:F401
+    foreshadow/transformers/concrete/internals/__init__.py:F401
 	foreshadow/tests/*:D100 D101 D102 D103 D104 D105 D106 D107 D200 D201 D202 D203 D204 D205 D206 D207 D208 D209 D210 D211 D212 D213 D214 D215 D300 D301 D302 D400 D401 D401 D402 D403 D404 D405 D406 D407 D408 D409 D410 D411 D412 D413 D414 I101 I102 I103 I201 I202 I203 I301 I302 I401 I402 I501 S001 S002
 	examples/*:D100 D101 D102 D103 D104 D105 D106 D107 D200 D201 D202 D203 D204 D205 D206 D207 D208 D209 D210 D211 D212 D213 D214 D215 D300 D301 D302 D400 D401 D401 D402 D403 D404 D405 D406 D407 D408 D409 D410 D411 D412 D413 D414 I101 I102 I103 I201 I202 I203 I301 I302 I401 I402 I501 S001 S002
 	# Ignore doclinter for tests and examples

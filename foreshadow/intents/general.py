@@ -6,7 +6,7 @@ import pandas as pd
 from pandas.api.types import is_numeric_dtype, is_string_dtype
 
 from foreshadow.intents.base import BaseIntent, PipelineTemplateEntry
-from foreshadow.transformers.internals import DropFeature
+from foreshadow.transformers.concrete import DropFeature
 from foreshadow.transformers.smart import (
     Encoder,
     MultiImputer,

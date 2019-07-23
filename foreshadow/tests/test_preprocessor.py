@@ -13,7 +13,7 @@ def patch_intents(mocker):
         TransformerEntry,
     )
     from foreshadow.intents import registry
-    from foreshadow.transformers.externals import Imputer, PCA
+    from foreshadow.transformers.concrete import Imputer, PCA
 
     _saved_registry = deepcopy(registry._registry)
     registry._registry = {}
@@ -194,7 +194,7 @@ def test_preprocessor_init_json_pipeline_map():
     proc = Preprocessor(from_json=json.load(open((test_path), "r")))
 
     assert "crim" in proc._pipeline_map.keys()
-    assert type(proc._pipeline_map["crim"]).__name__ == "Pipeline"
+    assert type(proc._pipeline_map["crim"]).__name__ == "SerializablePipeline"
     assert len(proc._pipeline_map["crim"].steps) == 1
     assert (
         proc._pipeline_map["crim"].steps[0][PipelineStep["NAME"]] == "Scaler"
@@ -231,7 +231,7 @@ def test_preprocessor_init_json_multi_pipeline():
 
     obj = pipe[2]
 
-    assert type(obj).__name__ == "Pipeline"
+    assert type(obj).__name__ == "SerializablePipeline"
     assert len(obj.steps) == 1
     assert obj.steps[0][PipelineStep["NAME"]] == "PCA"
 
@@ -266,7 +266,7 @@ def test_preprocessor_init_json_intent_override_multi():
 
     multi = pipes["multi"]
 
-    assert type(multi).__name__ == "Pipeline"
+    assert type(multi).__name__ == "SerializablePipeline"
     assert len(multi.steps) == 1
 
     step = multi.steps[0]
@@ -304,7 +304,7 @@ def test_preprocessor_init_json_intent_override_single():
 
     single = pipes["single"]
 
-    assert type(single).__name__ == "Pipeline"
+    assert type(single).__name__ == "SerializablePipeline"
     assert len(single.steps) == 1
 
     step = single.steps[0]
@@ -379,7 +379,10 @@ def test_preprocessor_fit_create_single_pipeline_default():
 
     for c in cols:
         assert c in proc_default._pipeline_map
-        assert type(proc_default._pipeline_map[c]).__name__ == "Pipeline"
+        assert (
+            type(proc_default._pipeline_map[c]).__name__
+            == "SerializablePipeline"
+        )
 
     numeric = registry_eval("TestNumericIntent")
 
@@ -411,7 +414,10 @@ def test_preprocessor_fit_create_single_pipeline_override_column():
 
     for c in cols:
         assert c in proc_column._pipeline_map
-        assert type(proc_column._pipeline_map[c]).__name__ == "Pipeline"
+        assert (
+            type(proc_column._pipeline_map[c]).__name__
+            == "SerializablePipeline"
+        )
 
     assert (
         proc_column._pipeline_map["crim"].steps[0][PipelineStep["NAME"]]
@@ -443,7 +449,10 @@ def test_preprocessor_fit_create_single_pipeline_override_intent():
 
     for c in cols:
         assert c in proc_intent._pipeline_map
-        assert type(proc_intent._pipeline_map[c]).__name__ == "Pipeline"
+        assert (
+            type(proc_intent._pipeline_map[c]).__name__
+            == "SerializablePipeline"
+        )
 
     assert (
         proc_intent._pipeline_map["crim"].steps[0][PipelineStep["NAME"]]
@@ -505,7 +514,7 @@ def test_preprocessor_make_pipeline():
     )
     assert (
         type(proc.pipeline.steps[1][PipelineStep["CLASS"]]).__name__
-        == "Pipeline"
+        == "SerializablePipeline"
     )
     assert (
         type(proc.pipeline.steps[2][PipelineStep["CLASS"]]).__name__
@@ -697,9 +706,10 @@ def test_preprocessor_get_params():
     test_path2 = get_file_path("test_configs", "complete_pipeline_test.json")
 
     df = pd.read_csv(boston_path)
-    truth = pickle.load(open(test_path, "rb"))
     proc = Preprocessor(from_json=json.load(open(test_path2, "r")))
     proc.fit(df)
+
+    truth = pickle.load(open(test_path, "rb"))
 
     assert proc.get_params().keys() == truth.keys()
 
@@ -712,7 +722,7 @@ def test_preprocessor_set_params():
     from foreshadow.preprocessor import Preprocessor
 
     boston_path = get_file_path("test_data", "boston_housing.csv")
-    test_path = get_file_path("test_configs", "tests_params.pkl")
+    test_path = get_file_path("test_configs", "test_params.pkl")
     test_path2 = get_file_path("test_configs", "complete_pipeline_test.json")
 
     df = pd.read_csv(boston_path)
