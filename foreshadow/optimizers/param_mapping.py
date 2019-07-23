@@ -212,7 +212,7 @@ def _extract_config_params(param):
             name = type(param.get(key, None)).__name__
             if name not in [
                 "ParallelProcessor",
-                "Pipeline",
+                "SerializablePipeline",
                 "Preprocessor",
                 "FeatureUnion",
             ]:

@@ -16,6 +16,12 @@ class InverseUnavailable(Exception):
     pass
 
 
+class TransformerNotFound(Exception):
+    """Raised when a transformer cannot be found in the registry."""
+
+    pass
+
+
 class InvalidDataFrame(Exception):
     """Raised when a tranformer outputs an invalid DataFrame.
 

@@ -5,7 +5,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 
 from foreshadow.core import logging
-from foreshadow.transformers.base import ParallelProcessor
+from foreshadow.transformers.core import ParallelProcessor
 
 
 def _check_parallelizable_batch(column_mapping, group_number):
@@ -161,12 +161,12 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         """
         if cols is None and X is not None:
             return {
-                i: {"inputs": ((col,),), "steps": transformers[i]}
+                i: {"inputs": ([col],), "steps": transformers[i]}
                 for i, col in enumerate(X)
             }
         elif X is None and cols is not None:
             return {
-                i: {"inputs": ((cols,),), "steps": transformers[i]}
+                i: {"inputs": (cols[i],), "steps": transformers[i]}
                 for i, cols in enumerate(cols)
             }
         else:

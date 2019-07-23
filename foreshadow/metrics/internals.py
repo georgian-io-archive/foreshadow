@@ -64,7 +64,8 @@ def regex_rows(feature, cleaner):
         Return percentage of rows matched by regex transformations.
 
     """
-    matched_lens = [cleaner(row).match_lens for row in feature]
+    matched_lens = [cleaner(row[0]).match_lens for _, row in
+                    feature.iterrows()]
     return sum([min(list_lens) for list_lens in matched_lens]) / len(feature)
 
 
@@ -86,7 +87,8 @@ def avg_col_regex(feature, cleaner, mode=min):
     Returns:
 
     """
-    matched_lens = [(cleaner(row).match_lens, len(row)) for row in feature]
+    matched_lens = [(cleaner(row[0]).match_lens, len(row)) for _, row in
+                    feature.iterrows()]
     return sum(
         [mode(list_lens) / row_len for list_lens, row_len in matched_lens]
     ) / len(feature)

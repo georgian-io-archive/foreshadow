@@ -7,13 +7,15 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from foreshadow.core.base import PreparerStep
 from foreshadow.exceptions import InvalidDataFrame, SmartResolveError
 from foreshadow.metrics.internals import avg_col_regex, regex_rows
-from foreshadow.transformers.smart import SmartTransformer
-from foreshadow.transformers.transformers import (
-    _Empty,
+from foreshadow.transformers.core import SmartTransformer
+from foreshadow.transformers.core import (
     make_pandas_transformer,
 )
+from foreshadow.transformers.core.wrapper import _Empty
 from foreshadow.utils.testing import dynamic_import
 from foreshadow.utils.validation import check_df
+from itertools import zip_longest
+
 
 
 CleanerReturn = namedtuple("CleanerReturn", ["row", "match_lens"])
@@ -74,9 +76,8 @@ class SmartCleaner(SmartTransformer):
                 best_cleaner = cleaner
 
         if best_cleaner is None:
-            self.transformer = _Empty()
-        else:
-            self.transformer = best_cleaner
+            return _Empty()
+        return best_cleaner
 
 
 class SmartFlatten(SmartTransformer):
@@ -113,9 +114,8 @@ class SmartFlatten(SmartTransformer):
                 best_flattener = flattener
 
         if best_flattener is None:
-            self.transformer = _Empty()
-        else:
-            self.transformer = best_flattener
+            return _Empty()
+        return best_flattener
 
 
 class BaseCleaner(BaseEstimator, TransformerMixin):
@@ -136,7 +136,7 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
                 column to be used.
             confidence_computation:
         """
-        if not isinstance(output_columns, (int, list, None)):
+        if not isinstance(output_columns, (int, list, type(None))):
             raise ValueError("output columns not a valid type")
 
         self.output_columns = output_columns
@@ -156,12 +156,12 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         """
         return sum(
             [
-                metric_fn(X, encoder=self) * weight
+                metric_fn(X, cleaner=self) * weight
                 for metric_fn, weight in self.confidence_computation.items()
             ]
         )
 
-    def __call__(self, row_of_feature):
+    def __call__(self, row_of_feature, return_tuple=True):
         """Perform clean operations on text, that is a row of feature.
 
         By
@@ -185,9 +185,12 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
             row = row_of_feature
             row, match_len = transform(row, return_search=True)
             if match_len == 0:
-                return CleanerReturn(row_of_feature, 0)
+                return CleanerReturn(row_of_feature, [0])
             matched_lengths.append(match_len)
-        return CleanerReturn(row, matched_lengths)
+        if return_tuple:
+            return CleanerReturn(row, matched_lengths)
+        else:
+            return row
 
     def fit(self, X, y=None):
         """Empty fit.
@@ -200,13 +203,10 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
             self
 
         """
-        if isinstance(self.transformer, _Empty):
-            return None
-        else:
-            return self
+        return self
 
     def transform(self, X, y=None):
-        """Clean string columns to prepare for financial transformer.
+        """Clean string columns.
 
         Here, we assume that any list output means that these are desired
         to be new columns in our dataset. Contractually, this could change
@@ -239,17 +239,18 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         # over each row for a given column on my own, which requires me to
         # leave
 
-        outputs = X[X.columns[0]].apply(self)  # access single column as
-        # series and apply the list of transformations to each row in the
-        # series.
+        out = X[X.columns[0]].apply(self, return_tuple=False)  # access single
+        # column as series and apply the list of transformations to each row
+        # in the series.
         if any(
             [
-                isinstance(outputs[i], (list, tuple))
-                for i in range(outputs.shape[0])
+                isinstance(out[i], (list, tuple))
+                for i in range(out.shape[0])
             ]
-        ):  # outputs are lists == new columns
+        ):  # out are lists == new columns
             if not all(
-                [len(X[0]) == len(X[i]) for i in range(outputs.shape[0])]
+                [len(out[0]) == len(out[i]) for i
+                 in range(len(out[0]))]
             ):
                 raise InvalidDataFrame(
                     "length of lists returned not of same " "value."
@@ -258,18 +259,20 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
                 columns = self.output_columns
                 if columns is None:
                     columns = []
-                X = pd.DataFrame.from_items(
-                    zip(outputs.index, outputs.values), columns=columns
+                print(out[0])
+                print(out.index, out.values, zip(out.index, out.values))
+                X = pd.DataFrame.from_records(
+                    zip_longest(*out.values), columns=columns
                 ).T
         elif any(
-            [isinstance(outputs[i], (dict)) for i in range(outputs.shape[0])]
-        ):  # outputs are dicts ==  named new columns
+            [isinstance(out[i], (dict)) for i in range(out.shape[0])]
+        ):  # out are dicts ==  named new columns
             all_keys = dict()
-            for row in outputs:
+            for row in out:
                 all_keys.update({key: True for key in row})  # get all columns
-            X = pd.DataFrame(outputs.values, columns=list(all_keys.keys()))
+            X = pd.DataFrame(out.values, columns=list(all_keys.keys()))
             # by default, this will create a DataFrame where if a row
             # contains the value, it will be added, if not NaN is added.
         else:  # no lists, still 1 column output
-            X[X.columns[0]] = outputs
+            X[X.columns[0]] = out
         return X

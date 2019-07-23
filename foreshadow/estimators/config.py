@@ -21,6 +21,10 @@ def get_tpot_config(type_, include_preprocessors=False):
         ValueError: type_ not a valid type_
 
     """
+    # TODO: allow TPOT to use xgboost again
+    classifier_config_dict.pop("xgboost.XGBClassifier", None)
+    regressor_config_dict.pop("xgboost.XGBRegressor", None)
+
     configs = {
         "classification": classifier_config_dict,
         "regression": regressor_config_dict,
@@ -34,6 +38,7 @@ def get_tpot_config(type_, include_preprocessors=False):
         "feature_selection",
         "cluster",
     ]
+
     if type_ not in configs.keys():
         raise ValueError(
             "type_: '{0}' not in : '{1}'".format(type_, configs.keys())

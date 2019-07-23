@@ -85,12 +85,11 @@ def test_module_installed():
 def test_check_transformer_imports(capsys):
     from foreshadow.utils import check_transformer_imports
 
-    inter_trans, exter_trans = check_transformer_imports()
+    conc = check_transformer_imports()
     out, err = capsys.readouterr()
 
     assert out.startswith("Loaded")
-    assert len(inter_trans) > 0
-    assert len(exter_trans) > 0
+    assert len(conc) > 0
 
 
 def test_check_transformer_imports_no_output(capsys):
@@ -107,7 +106,8 @@ def test_check_transformer_imports_no_output(capsys):
 )
 def test_is_wrapped(transformer_name):
     import sklearn.preprocessing as sk_tf_lib
-    import foreshadow.transformers.externals as fs_tf_lib
+
+    import foreshadow.transformers.concrete as fs_tf_lib
     from foreshadow.utils import is_wrapped
 
     sk_tf = getattr(sk_tf_lib, transformer_name)()

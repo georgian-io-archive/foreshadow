@@ -4,7 +4,7 @@ import glob
 import inspect
 import os
 
-from foreshadow.transformers.transformers import _get_modules
+from foreshadow.transformers.core import _get_modules
 
 
 def _get_classes():

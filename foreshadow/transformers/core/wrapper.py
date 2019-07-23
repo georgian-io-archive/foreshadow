@@ -2,7 +2,6 @@
 
 import warnings
 from functools import partial
-from importlib import import_module
 
 import numpy as np
 import pandas as pd
@@ -10,12 +9,13 @@ import scipy
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.fixes import signature
 
+from foreshadow.core import ConcreteSerializerMixin
 from foreshadow.exceptions import InverseUnavailable
 from foreshadow.utils import check_df, is_transformer
 
 
 def _get_modules(classes, globals_, mname):  # TODO auto import all sklearn
-    # TODO transformers and test each one genericly.
+    # TODO transformers and test each one generically.
     """Import sklearn transformers from transformers directory.
 
     Searches transformers directory for classes implementing BaseEstimator and
@@ -37,42 +37,11 @@ def _get_modules(classes, globals_, mname):  # TODO auto import all sklearn
     ]
 
     for t in transformers:
-        t = _check_override_with_internal(t)
         copied_t = type(t.__name__, (t, *t.__bases__), dict(t.__dict__))
         copied_t.__module__ = mname
         globals_[copied_t.__name__] = make_pandas_transformer(copied_t)
 
     return [t.__name__ for t in transformers]
-
-
-def _check_override_with_internal(transformer):  # TODO write test for this
-    """Check if sklearn transformer should be overridden with an internal one.
-
-    Some sklearn transformers break their own convention and/or may require
-    specific wrapping that we do not want to exist in the generic
-    pandas_wrapper. To handle these cases, we wrap them specifically to a
-    form that pandas_wrapper can handle. We do this wrapping in internals,
-    and override the external import from sklearn with our internal
-    implementation.
-
-    Args:
-        transformer: transformer in the process of being wrapped.
-
-    Returns:
-        Correct transformer to use. Itself if no matching internal that it
-        should be overridden with.
-
-    """
-    internal_conversions = {
-        "TfidfVectorizer": ("tfidf", "FixedTfidfVectorizer")
-    }  # TODO add TfidfTransformer
-    conversion = internal_conversions.get(transformer.__name__, None)
-    if conversion is not None:
-        mod = import_module(
-            "foreshadow.transformers.internals.{}".format(conversion[0])
-        )
-        transformer = getattr(mod, conversion[1])
-    return transformer
 
 
 def make_pandas_transformer(transformer):
@@ -96,15 +65,36 @@ def make_pandas_transformer(transformer):
     class DFTransformerMeta(type(transformer)):
         """Metaclass for DFTransformer to appear as parent Transformer."""
 
-        def __new__(mcs, *args, **kwargs):
-            class_ = super(DFTransformerMeta, mcs).__new__(
-                mcs, *args, **kwargs
-            )
-            class_.__name__ = transformer.__name__
-            class_.__doc__ = transformer.__doc__
+        def __new__(meta, name, bases, class_dict):
+            class_ = super().__new__(meta, name, bases, class_dict)
+
+            if name == "DFTransformer":
+                # If directly overriding a transformer using magic imports or
+                # using decorator, imitate the parent class and register as the
+                # parent class.
+                # TODO (@Chris): The list of magic methods that are mapped
+                # might need to increase.
+                name_ = transformer.__name__
+                class_.__name__ = name_
+                class_.__doc__ = transformer.__doc__
+            else:
+                # If not directly wrapped, make sure to register the name of
+                # the actual class being wrapped
+                name_ = name
+
+            # Only serialize if directly inheriting from SerializerMixin
+            # if SerializerMixin in bases:
+            #     register_transformer(class_, name_)
+            # Unfortunately, polluting globals is the only way to
+            # allow the pickling of wrapped transformers
+            globals()[name_] = class_
+            class_.__qualname__ = name_
+
             return class_
 
-    class DFTransformer(transformer, metaclass=DFTransformerMeta):
+    class DFTransformer(
+        transformer, ConcreteSerializerMixin, metaclass=DFTransformerMeta
+    ):
         """Wrapper to Enable parent transformer to handle DataFrames."""
 
         def __init__(self, *args, keep_columns=False, name=None, **kwargs):
@@ -200,7 +190,7 @@ def make_pandas_transformer(transformer):
             return self_params
 
         def fit(self, X, *args, **kwargs):
-            """Fit the estimtor or transformer, pandas enabled.
+            """Fit the estimator or transformer, pandas enabled.
 
             See transformer.
 

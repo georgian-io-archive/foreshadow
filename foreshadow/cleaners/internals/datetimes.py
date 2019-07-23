@@ -25,6 +25,9 @@ def _split_to_new_cols(text, return_search=False):
     if res is not None:
         res = sum([len(range(reg[0], reg[1])) for reg in res.regs[1:2]])
         texts = [re.sub(regex, r"\%d" % i, text) for i in range(2, 5)]
+    else:
+        texts = [text, '', '']
+        res = 0
     if return_search:
         return texts, res
     return texts
@@ -38,5 +41,5 @@ class YYYYMMDDDateCleaner(BaseCleaner):
     """
 
     def __init__(self):
-        transformations = [_split_to_new_cols()]
+        transformations = [_split_to_new_cols]
         super().__init__(transformations)

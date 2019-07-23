@@ -17,7 +17,7 @@ def test_smart_scaler_normal():
     import scipy.stats as ss
 
     from foreshadow.transformers.smart import Scaler
-    from foreshadow.transformers.externals import StandardScaler
+    from foreshadow.transformers.concrete import StandardScaler
 
     np.random.seed(0)
     normal_data = ss.norm.rvs(size=100)
@@ -30,7 +30,7 @@ def test_smart_scaler_unifrom():
     import scipy.stats as ss
 
     from foreshadow.transformers.smart import Scaler
-    from foreshadow.transformers.externals import MinMaxScaler
+    from foreshadow.transformers.concrete import MinMaxScaler
 
     np.random.seed(0)
     uniform_data = ss.uniform.rvs(size=100)
@@ -55,7 +55,7 @@ def test_smart_encoder_less_than_30_levels():
     import numpy as np
 
     from foreshadow.transformers.smart import Encoder
-    from foreshadow.transformers.externals import OneHotEncoder
+    from foreshadow.transformers.concrete import OneHotEncoder
 
     np.random.seed(0)
     leq_30_random_data = np.random.choice(30, size=500)
@@ -67,7 +67,7 @@ def test_smart_encoder_more_than_30_levels():
     import numpy as np
 
     from foreshadow.transformers.smart import Encoder
-    from foreshadow.transformers.externals import HashingEncoder
+    from foreshadow.transformers.concrete import HashingEncoder
 
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
@@ -79,7 +79,7 @@ def test_smart_encoder_more_than_30_levels_that_reduces():
     import numpy as np
 
     from foreshadow.transformers.smart import Encoder
-    from foreshadow.transformers.externals import OneHotEncoder
+    from foreshadow.transformers.concrete import OneHotEncoder
 
     np.random.seed(0)
     gt_30_random_data = np.concatenate(
@@ -96,7 +96,7 @@ def test_smart_encoder_y_var():
     import pandas as pd
 
     from foreshadow.transformers.smart import Encoder
-    from foreshadow.transformers.internals import (
+    from foreshadow.transformers.concrete import (
         FixedLabelEncoder as LabelEncoder,
     )
 
@@ -235,7 +235,7 @@ def test_preprocessor_hashencoder_no_name_collision():
 def test_smart_encoder_delimmited():
     import pandas as pd
     from foreshadow.transformers.smart import Encoder
-    from foreshadow.transformers.internals import DummyEncoder
+    from foreshadow.transformers.concrete import DummyEncoder
 
     data = pd.DataFrame({"test": ["a", "a,b,c", "a,b", "a,c"]})
     smart_coder = Encoder()
@@ -245,7 +245,7 @@ def test_smart_encoder_delimmited():
 def test_smart_encoder_more_than_30_levels_with_overwritten_cutoff():
     import numpy as np
     from foreshadow.transformers.smart import Encoder
-    from foreshadow.transformers.externals import OneHotEncoder
+    from foreshadow.transformers.concrete import OneHotEncoder
 
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
@@ -310,8 +310,8 @@ def test_smart_text():
     import pandas as pd
 
     from foreshadow.transformers.smart import SmartText
-    from foreshadow.transformers.internals import FixedTfidfVectorizer
-    from foreshadow.transformers.internals import HTMLRemover
+    from foreshadow.transformers.concrete import FixedTfidfVectorizer
+    from foreshadow.transformers.concrete import HTMLRemover
 
     X1 = pd.DataFrame(["abc", "def", "1321", "tester"])
     tf1 = SmartText().fit(X1)
