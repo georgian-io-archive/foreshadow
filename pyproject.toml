@@ -48,6 +48,7 @@ scikit-learn = "^0.19.2"
 scipy = "^1.1.0"
 toml = "^0.10.0"
 TPOT = "^0.10.1"
+marshmallow = "^2.19.5"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^18.6b4", python = "^3.6"}
@@ -107,7 +108,7 @@ exclude = '''
 
 [tool.isort]
 known_first_party = 'foreshadow'
-known_third_party = ["category_encoders", "numpy", "pandas", "pytest", "scipy", "sklearn", "tpot"]
+known_third_party = ["category_encoders", "marshmallow", "numpy", "pandas", "pytest", "scipy", "sklearn", "tpot"]
 multi_line_output = 3
 lines_after_imports = 2
 force_grid_wrap = 0
