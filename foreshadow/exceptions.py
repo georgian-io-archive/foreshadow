@@ -1,5 +1,7 @@
 class SmartResolveError(Exception):
     """Resolution error in SmartTransformer determining best Transformer."""
+
+
 """Foreshadow specific exceptions."""
 
 
@@ -8,6 +10,16 @@ class InverseUnavailable(Exception):
 
     An example of when this might occur is when empty data is passed into a
     transformer which thus, cannot invert said transformation.
+
+    """
+
+    pass
+
+
+class InvalidDataFrame(Exception):
+    """Raised when a tranformer outputs an invalid DataFrame.
+
+    An example of when this might occur is a DataFrame different list lengths.
 
     """
 

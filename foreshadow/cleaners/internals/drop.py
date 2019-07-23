@@ -1,12 +1,11 @@
-"""StandardDollarFinancial transformers."""
-
 import re
 
 from foreshadow.cleaners.data_cleaner import BaseCleaner
+from foreshadow.core.base import DropMixin
 
 
-def financial_transform(text, return_search=False):
-    """Clean text if it is a financial text.
+def drop_transform(text, return_search=False):
+    """Drop this column at the cleaning stage.
 
     Args:
         text: string of text
@@ -16,18 +15,17 @@ def financial_transform(text, return_search=False):
         Otherwise: None, original text.
 
     """
-    regex = "^([\W]*\$)([\d]+[\.]+[\d])(.*)$"
+    regex = "^$"
     text = str(text)
     res = re.search(regex, text)
     if res is not None:
-        res = sum([len(range(reg[0], reg[1])) for reg in res.regs[1:]])
-        text = re.sub(regex, r"\2", text)
+        res = 1
     if return_search:
         return text, res
     return text
 
 
-class DollarFinancialCleaner(BaseCleaner):
+class DropCleaner(BaseCleaner, DropMixin):
     """Clean financial data.
 
     Note: requires pandas input dataframes.
@@ -35,5 +33,5 @@ class DollarFinancialCleaner(BaseCleaner):
     """
 
     def __init__(self):
-        transformations = [financial_transform]
+        transformations = [drop_transform]
         super().__init__(transformations)

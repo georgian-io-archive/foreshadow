@@ -49,7 +49,7 @@ def unique_count_weight(feature):
 def regex_rows(feature, cleaner):
     """Return percentage of rows matched by regex transformations.
 
-    cleaner(row) will return a RegexReturn namedtupled, which will have the
+    cleaner(row) will return a CleanerReturn namedtupled, which will have the
     transformed text after all transformations (or the original text if it
     failed) and then a list of all the number of characters matched by each
     individual regex transform. Ergo, if any one of them is 0, then the
@@ -65,9 +65,7 @@ def regex_rows(feature, cleaner):
 
     """
     matched_lens = [cleaner(row).match_lens for row in feature]
-    return sum([min(list_lens) for list_lens in matched_lens]) / len(
-        feature
-    )
+    return sum([min(list_lens) for list_lens in matched_lens]) / len(feature)
 
 
 @metric
@@ -88,7 +86,7 @@ def avg_col_regex(feature, cleaner, mode=min):
     Returns:
 
     """
-    matched_lens = [(cleaner(row).match_lens, len(row)) for row in
-                      feature]
-    return sum([mode(list_lens) / row_len for list_lens, row_len in
-                matched_lens]) / len(feature)
+    matched_lens = [(cleaner(row).match_lens, len(row)) for row in feature]
+    return sum(
+        [mode(list_lens) / row_len for list_lens, row_len in matched_lens]
+    ) / len(feature)
