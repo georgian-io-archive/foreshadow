@@ -4,6 +4,6 @@ steps:
     versionSpec: '3.6'
 - script: |
     pip install pre-commit
-    pre-commit install-hooks
+    pre-commit install -f --install-hooks
     pre-commit run --all-files
   displayName: Running pre-commit on all files
