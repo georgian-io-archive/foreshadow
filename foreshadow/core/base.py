@@ -26,7 +26,7 @@ def _check_parallelizable_batch(column_mapping, group_number):
     pipeline = column_mapping[group_number]
     if len(pipeline["inputs"]) == 1:
         inputs = pipeline["inputs"][0]
-        steps = pipeline["steps"]
+        steps = [(step.__class__.__name__, step) for step in pipeline["steps"]]
         # if we enter here, this step has the same columns across
         # all steps. This means that we can create one Pipeline for
         # this group of columns and let it run parallel to
