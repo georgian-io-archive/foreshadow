@@ -214,7 +214,6 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         # Only resolve if transformer is not set or re-resolve is requested.
         if self.should_resolve:
             self.transformer = self.pick_transformer(X, y, **fit_params)
-            print(self.transformer)
             self.transformer.name = self.name
             self.transformer.keep_columns = self.keep_columns
 

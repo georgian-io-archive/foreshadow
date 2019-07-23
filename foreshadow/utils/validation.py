@@ -11,7 +11,8 @@ from sklearn.feature_extraction.text import VectorizerMixin
 PipelineStep = {"NAME": 0, "CLASS": 1, "COLS": 2}
 
 
-def check_df(input_data, ignore_none=False, single_column=False):
+def check_df(input_data, ignore_none=False, single_column=False,
+             single_or_empty=False):
     """Convert non dataframe inputs into dataframes (or series).
 
     Args:
@@ -59,7 +60,10 @@ def check_df(input_data, ignore_none=False, single_column=False):
 
     if single_column and len(ret_df.columns) != 1:
         raise ValueError("Input Dataframe must have only one column")
-
+        # TODO custom error.
+    if single_or_empty and (len(ret_df.columns) != 1 and not ret_df.empty):
+        raise ValueError("Input Dataframe must have only one column or be "
+                         "empty.")
     return ret_df
 
 

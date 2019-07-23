@@ -8,20 +8,15 @@ from foreshadow.core.base import PreparerStep
 from foreshadow.exceptions import InvalidDataFrame, SmartResolveError
 from foreshadow.metrics.internals import avg_col_regex, regex_rows
 from foreshadow.transformers.core import SmartTransformer
-from foreshadow.transformers.core import (
-    make_pandas_transformer,
-)
 from foreshadow.transformers.core.wrapper import _Empty
 from foreshadow.utils.testing import dynamic_import
 from foreshadow.utils.validation import check_df
-from itertools import zip_longest
-
+from foreshadow.transformers.core.notransform import NoTransform
 
 
 CleanerReturn = namedtuple("CleanerReturn", ["row", "match_lens"])
 
 
-@make_pandas_transformer
 class DataCleaner(PreparerStep):
     """Determine and perform best data cleaning step."""
 
@@ -33,11 +28,12 @@ class DataCleaner(PreparerStep):
             **kwargs: kwargs to PreparerStep constructor.
 
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, use_single_pipeline=True, **kwargs)
 
     def get_mapping(self, X):
         return self.separate_cols(
-            transformers=[[SmartFlatten(), SmartCleaner()] for col in X], X=X
+            transformers=[[SmartFlatten(), SmartCleaner()] for col in X],
+            X=X
         )
 
 
@@ -62,21 +58,22 @@ class SmartCleaner(SmartTransformer):
         from foreshadow.cleaners.internals import __all__ as cleaners
 
         cleaners = [
-            dynamic_import(cleaner, "foreshadow.cleaners.internals")
+            (dynamic_import(cleaner, "foreshadow.cleaners.internals"),
+             cleaner)
             for cleaner in cleaners
-            if cleaner.lower().find("cleaner")
+            if cleaner.lower().find("cleaner") != -1
         ]
         best_score = 0
         best_cleaner = None
-        for cleaner in cleaners:
-            cleaner = cleaner()
+        for cleaner, name in cleaners:
+            cleaner = cleaner(name=name)
             score = cleaner.metric_score(X)
             if score > best_score:
                 best_score = score
                 best_cleaner = cleaner
 
         if best_cleaner is None:
-            return _Empty()
+            return NoTransform()
         return best_cleaner
 
 
@@ -96,33 +93,37 @@ class SmartFlatten(SmartTransformer):
             Best data flattening transformer
 
         """
-        from foreshadow.cleaners.internals import __all__ as cleaners
+        from foreshadow.cleaners.internals import __all__ as flatteners
 
         flatteners = [
-            dynamic_import(cleaner, "foreshadow.cleaners.internals")
-            for cleaner in cleaners
-            if cleaner.lower().find("flatten")
+            (dynamic_import(flattener, "foreshadow.cleaners.internals"),
+             flattener)
+            for flattener in flatteners
+            if flattener.lower().find("flatten") != -1
         ]
 
         best_score = 0
         best_flattener = None
-        for flattener in flatteners:
-            flattener = flattener()
+        for flattener, name in flatteners:
+            flattener = flattener(name=name)
             score = flattener.metric_score(X)
             if score > best_score:
                 best_score = score
                 best_flattener = flattener
 
         if best_flattener is None:
-            return _Empty()
+            return NoTransform()
         return best_flattener
 
 
 class BaseCleaner(BaseEstimator, TransformerMixin):
     """Base class for any Cleaner Transformer."""
 
-    def __init__(
-        self, transformations, output_columns=None, confidence_computation=None
+    def __init__(self,
+                 transformations,
+                 output_columns=None,
+                 confidence_computation=None,
+                 default=lambda x: x,
     ):
         """
 
@@ -139,6 +140,7 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         if not isinstance(output_columns, (int, list, type(None))):
             raise ValueError("output columns not a valid type")
 
+        self.default = default
         self.output_columns = output_columns
         self.transformations = transformations
         self.confidence_computation = {regex_rows: 0.8, avg_col_regex: 0.2}
@@ -185,7 +187,9 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
             row = row_of_feature
             row, match_len = transform(row, return_search=True)
             if match_len == 0:
-                return CleanerReturn(row_of_feature, [0])
+                matched_lengths.append(0)
+                row = self.default(row_of_feature)
+                break
             matched_lengths.append(match_len)
         if return_tuple:
             return CleanerReturn(row, matched_lengths)
@@ -227,7 +231,7 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
 
         """
         X = check_df(X, single_column=True)
-        # PRoblem:
+        # Problem:
         # I can use .apply to perform all these transformations and that
         # works beautifully, except when I want to define a funtion that
         # will use the pandas.series.str.split operation. In which case,
@@ -248,29 +252,24 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
                 for i in range(out.shape[0])
             ]
         ):  # out are lists == new columns
-            if not all(
-                [len(out[0]) == len(out[i]) for i
-                 in range(len(out[0]))]
-            ):
+            if not all([len(out[0]) == len(out[i])
+                        for i in range(len(out[0]))]):
                 raise InvalidDataFrame(
-                    "length of lists returned not of same " "value."
+                    "length of lists: {}, returned not of same value.".format(
+                        [out[i] for i in range(len(out[0]))]
+                    )
                 )
-            if self.output_columns is None:
-                columns = self.output_columns
-                if columns is None:
-                    columns = []
-                print(out[0])
-                print(out.index, out.values, zip(out.index, out.values))
-                X = pd.DataFrame.from_records(
-                    zip_longest(*out.values), columns=columns
-                ).T
+            columns = self.output_columns
+            X = pd.DataFrame(
+                [*out.values], columns=columns
+            )
         elif any(
             [isinstance(out[i], (dict)) for i in range(out.shape[0])]
         ):  # out are dicts ==  named new columns
             all_keys = dict()
             for row in out:
                 all_keys.update({key: True for key in row})  # get all columns
-            X = pd.DataFrame(out.values, columns=list(all_keys.keys()))
+            X = pd.DataFrame([*out.values], columns=list(all_keys.keys()))
             # by default, this will create a DataFrame where if a row
             # contains the value, it will be added, if not NaN is added.
         else:  # no lists, still 1 column output

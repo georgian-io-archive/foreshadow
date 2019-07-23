@@ -4,7 +4,7 @@ import re
 from foreshadow.cleaners.data_cleaner import BaseCleaner
 
 
-def _split_to_new_cols(text, return_search=False):
+def _split_to_new_cols(t, return_search=False):
     """Clean text if it is in a YYYYMDD format and split to three columns.
 
     Args:
@@ -20,13 +20,13 @@ def _split_to_new_cols(text, return_search=False):
         delimiters,
         delimiters,
     )
-    text = str(text)
+    text = str(t)
     res = re.search(regex, text)
     if res is not None:
         res = sum([len(range(reg[0], reg[1])) for reg in res.regs[1:2]])
         texts = [re.sub(regex, r"\%d" % i, text) for i in range(2, 5)]
     else:
-        texts = [text, '', '']
+        texts = t
         res = 0
     if return_search:
         return texts, res
@@ -42,4 +42,5 @@ class YYYYMMDDDateCleaner(BaseCleaner):
 
     def __init__(self):
         transformations = [_split_to_new_cols]
-        super().__init__(transformations)
+        default = lambda x: [x, '', '']
+        super().__init__(transformations, default=default)

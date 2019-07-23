@@ -6,9 +6,11 @@ from sklearn.pipeline import Pipeline
 
 from foreshadow.core import logging
 from foreshadow.transformers.core import ParallelProcessor
+from foreshadow.transformers.core import SingleInputPipeline
 
 
-def _check_parallelizable_batch(column_mapping, group_number):
+def _check_parallelizable_batch(column_mapping, group_number,
+                                PipelineClass=Pipeline):
     """See if the group of cols 'group_number' is parallelizable.
 
     'group_number' in column_mapping is parallelizable if the cols across
@@ -18,6 +20,8 @@ def _check_parallelizable_batch(column_mapping, group_number):
     Args:
         column_mapping: the column mapping from self.get_mapping()
         group_number: the group number
+        PipelineClass: declare which Pipeline class to use. Default is a
+            normal Pipeline but you can also use SingleInputPipeline.
 
     Returns:
         transformer_list if parallelizable, else None.
@@ -34,7 +38,7 @@ def _check_parallelizable_batch(column_mapping, group_number):
         # result from any step in another pipeline.
         transformer_list = [
             "group: %d" % group_number,
-            Pipeline(steps),
+            PipelineClass(steps),
             inputs,
         ]
         # transformer_list = [name, pipeline of transformers, cols]
@@ -127,7 +131,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, use_single_pipeline=False, **kwargs):
         """Set the original pipeline steps internally.
 
         Takes a list of desired SmartTransformer steps and stores them as
@@ -140,6 +144,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             **kwargs: kwargs to PIpeline constructor.
         """
         self._parallel_process = None
+        self._use_single_pipeline = use_single_pipeline
         super().__init__(*args, **kwargs)
 
     @staticmethod
@@ -184,8 +189,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         """
         return "DataPreparerStep: %s " % cls.__name__
 
-    @staticmethod
-    def parallelize_mapping(column_mapping):
+    def parallelize_mapping(self, column_mapping):
         """Create parallelized workflow for column_mapping.
 
         Each group of cols that is separated has the key: 'group_number' and a
@@ -206,9 +210,13 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         # interdependencies with other groups. Then, we will do all the rest
         # of the groups after as they will be performed step-by-step
         # parallelized.
+        PipelineClass = Pipeline
+        if self._use_single_pipeline:
+            PipelineClass = SingleInputPipeline
         for group_number in column_mapping:
+
             transformer_list = _check_parallelizable_batch(
-                column_mapping, group_number
+                column_mapping, group_number, PipelineClass=PipelineClass,
             )
             if transformer_list is None:  # could not be separated out
                 parallelized[group_number] = False
@@ -327,7 +335,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
         """
         # TODO make fit remove a step if nothing is done, rather than a
-        #  NoTrasform Transformer.
+        #  NoTransform Transformer.
         self.check_process(X)
         return self._parallel_process.fit(X, *args, **kwargs)
 

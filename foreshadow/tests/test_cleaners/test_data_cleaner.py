@@ -18,7 +18,24 @@ def test_data_cleaner_fit():
         },
         columns=["dates", "json", "financials"],
     )
-
     dc = DataCleaner()
     dc.fit(data)
     dc.transform(data)
+
+
+def test_data():
+    import pandas as pd
+    from foreshadow.cleaners import DataCleaner
+
+    data = pd.DataFrame(
+        {
+            "financials": ["$1.00", "$550.01", "$1234", "$12353.3345"],
+        },
+        columns=["financials"],
+    )
+    dc = DataCleaner()
+    dc.fit(data)
+    transformed_data = dc.transform(data)
+    print(type(transformed_data))
+    print(transformed_data)
+    assert False
