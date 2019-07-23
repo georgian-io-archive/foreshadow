@@ -1,4 +1,4 @@
-"""Foreshadow system config resolver"""
+"""Foreshadow system config resolver."""
 
 import os
 
@@ -48,7 +48,7 @@ def get_config(base):
 
 
 def resolve_config():
-    """Resolves the configuration to actual classes.
+    """Resolve the configuration to actual classes.
 
     Note:
         The order is resolution is as follows in increasing precedence order:
@@ -57,6 +57,7 @@ def resolve_config():
     Returns:
         A dictionary with the same keys as `foreshadow.config.DEFAULT_CONFIG`
         with the correct overrides.
+
     """
     default = DEFAULT_CONFIG
     user = get_config(get_config_path())

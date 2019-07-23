@@ -14,7 +14,7 @@ from foreshadow.estimators import AutoEstimator
 from foreshadow.estimators.auto import determine_problem_type
 
 
-def generate_model(args):
+def generate_model(args):  # noqa: C901
     """Process command line args and generate a Foreshadow model to fit.
 
     Args:
