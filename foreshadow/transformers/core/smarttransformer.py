@@ -259,7 +259,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         y = check_df(y, ignore_none=True)
         self.resolve(X, y, **fit_params)
         self.transformer.full_df = fit_params.pop("full_df", None)
-
+        self.transformer.fit(X, y, **fit_params)
         return self  # .transformer.fit(X, y, **fit_params)
         # This should not return the self.transformer.fit as that will
         # cause fit_transforms, which call .fit().transform() to fail when
