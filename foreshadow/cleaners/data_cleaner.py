@@ -32,7 +32,7 @@ class DataCleaner(PreparerStep):
 
     def get_mapping(self, X):
         return self.separate_cols(
-            transformers=[[SmartFlatten(), SmartCleaner()] for col in X],
+            transformers=[[SmartFlatten(), SmartCleaner()] for c in X],
             X=X
         )
 
@@ -269,7 +269,9 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
             all_keys = dict()
             for row in out:
                 all_keys.update({key: True for key in row})  # get all columns
-            X = pd.DataFrame([*out.values], columns=list(all_keys.keys()))
+            X = pd.DataFrame([*out.values],
+                             columns=list(all_keys.keys())
+                             )
             # by default, this will create a DataFrame where if a row
             # contains the value, it will be added, if not NaN is added.
         else:  # no lists, still 1 column output

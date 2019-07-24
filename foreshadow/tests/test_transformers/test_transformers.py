@@ -413,6 +413,8 @@ def test_smarttransformer_function_override(smart_child):
     std.fit(df[["crim"]])
     std_data = std.transform(df[["crim"]])
 
+    assert std_data.columns[0] == 'crim_impute_0'
+
     # TODO, remove when SmartTransformer is no longer wrapped
     # Column names will be different, thus np.allclose() is used
     assert np.allclose(smart_data, std_data)

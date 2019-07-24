@@ -1,16 +1,17 @@
 """General base classes used across Foreshadow."""
-from copy import deepcopy
-
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 
 from foreshadow.core import logging
 from foreshadow.transformers.core import ParallelProcessor
-from foreshadow.transformers.core import SingleInputPipeline
+from foreshadow.transformers.core.pipeline import (
+    SingleInputPipeline,
+    TransformersPipeline,
+)
 
 
 def _check_parallelizable_batch(column_mapping, group_number,
-                                PipelineClass=Pipeline):
+                                PipelineClass=TransformersPipeline):
     """See if the group of cols 'group_number' is parallelizable.
 
     'group_number' in column_mapping is parallelizable if the cols across
@@ -106,7 +107,8 @@ def _batch_parallelize(column_mapping, parallelized):
         ]  # this is one step parallelized across the columns (dim1
         # parallelized across dim2).
         steps.append(
-            ("step: %d" % step_number, ParallelProcessor(transformer_list))
+            ("step: %d" % step_number, ParallelProcessor(transformer_list,
+                                                         collapse_index=True))
         )  # list of steps for final pipeline.
     return steps, list(all_cols)
 
@@ -263,7 +265,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             transformer_list
             for transformer_list in parallelized_mapping.values()
         ]
-        return ParallelProcessor(group_transformer_list)
+        return ParallelProcessor(group_transformer_list, collapse_index=True)
 
     def get_mapping(self, X):
         """Return dict of lists of tuples representing columns:transformers.
