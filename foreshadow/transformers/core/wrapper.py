@@ -97,7 +97,13 @@ def make_pandas_transformer(transformer):
     ):
         """Wrapper to Enable parent transformer to handle DataFrames."""
 
-        def __init__(self, *args, keep_columns=False, name=None, **kwargs):
+        def __init__(self,
+                     *args,
+                     keep_columns=False,
+                     name=None,
+                     column_sharer=None,
+                     **kwargs
+                     ):
             """Initialize parent Transformer.
 
             Args:
@@ -111,6 +117,7 @@ def make_pandas_transformer(transformer):
             """
             self.keep_columns = keep_columns
             self.name = name
+            self.column_sharer = column_sharer
             super(DFTransformer, self).__init__(*args, **kwargs)
 
             # TODO: remove this when _Empty is removed
@@ -261,12 +268,14 @@ def make_pandas_transformer(transformer):
                     out, pd.DataFrame
                 ):  # custom handling based on the
                     # type returned by the sklearn transformer function call
-                    out = _df_post_process(out, init_cols, name)
+                    out, graph = _df_post_process(out, init_cols, name)
                 elif isinstance(out, np.ndarray):
-                    out = _ndarray_post_process(out, df.index, init_cols, name)
+                    out, graph = _ndarray_post_process(out, df.index,
+                                                      init_cols, name)
                 elif scipy.sparse.issparse(out):
                     out = out.toarray()
-                    out = _ndarray_post_process(out, df, init_cols, name)
+                    out, graph = _ndarray_post_process(out, df, init_cols,
+                                                       name)
                 elif isinstance(out, pd.Series):
                     pass  # just return the series
                 else:
@@ -274,6 +283,8 @@ def make_pandas_transformer(transformer):
 
                 if self.keep_columns:
                     out = _keep_columns_process(out, df, name)
+                for column in X:
+                    self.column_sharer['graph', column] = graph
             return out
 
         def inverse_transform(self, X, *args, **kwargs):
@@ -465,12 +476,16 @@ def _ndarray_post_process(ndarray, index, init_cols, prefix):
 
     # Append new columns to data frame
     kw = {}
+    print(ndarray.shape, index.shape, init_cols, prefix, index.columns)
     for i, col in enumerate(ndarray.transpose().tolist()):
-        kw["{}_{}_{}".format("_".join(init_cols), prefix, i)] = pd.Series(
+        kw[index.columns[i]] = pd.Series(
             col, index=index  # noqa: E126
         )  # noqa: E121
 
-    return pd.DataFrame(kw)
+    graph = ["{}_{}_{}".format("_".join(init_cols), prefix, i) for i in
+             range(ndarray.shape[1])]
+
+    return pd.DataFrame(ndarray, columns=index.columns), graph
 
 
 def _df_post_process(dataframe, init_cols, prefix):
@@ -485,8 +500,12 @@ def _df_post_process(dataframe, init_cols, prefix):
         DataFrame with new column names
 
     """
-    dataframe.columns = [
+    graph = [
         "{}_{}_{}".format("_".join(init_cols), prefix, c)
         for c in dataframe.columns
     ]
-    return dataframe
+    return dataframe, graph
+    # dataframe.columns = [
+    #     "{}_{}_{}".format("_".join(init_cols), prefix, c)
+    #     for c in dataframe.columns
+    # ]

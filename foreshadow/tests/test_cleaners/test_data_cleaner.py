@@ -6,6 +6,7 @@ def test_data_cleaner_fit():
     import numpy as np
     from numpy import testing as npt
     from foreshadow.cleaners import DataCleaner
+    from foreshadow.core.column_sharer import ColumnSharer
 
     data = pd.DataFrame(
         {
@@ -20,7 +21,8 @@ def test_data_cleaner_fit():
         },
         columns=["dates", "json", "financials"],
     )
-    dc = DataCleaner()
+    cs = ColumnSharer()
+    dc = DataCleaner(cs)
     dc.fit(data)
     data = dc.transform(data)
     check = pd.DataFrame([['2019', '02', '11', '2019', '04', '11', np.nan,
@@ -31,12 +33,14 @@ def test_data_cleaner_fit():
                            np.nan, '$1234'],
                           ['1900', '01', '55', np.nan, '', '', np.nan, 'asdf',
                            '12353.3']])
-    print(data)
-    assert False
+    assert np.all(np.equal(data, check, dtype=np.object))
+
 
 def test_financials():
     import pandas as pd
+    import numpy as np
     from foreshadow.cleaners import DataCleaner
+    from foreshadow.core.column_sharer import ColumnSharer
 
     data = pd.DataFrame(
         {
@@ -44,16 +48,18 @@ def test_financials():
         },
         columns=["financials"],
     )
-    dc = DataCleaner()
+    cs = ColumnSharer()
+    dc = DataCleaner(cs)
     dc.fit(data)
     transformed_data = dc.transform(data)
-    print(transformed_data)
-    assert False
+    # assert np.all(np.equal(data, check, dtype=np.object))
 
 
 def test_data_cleaner_json():
     import pandas as pd
     from foreshadow.cleaners import DataCleaner
+    from foreshadow.core.column_sharer import ColumnSharer
+    import numpy as np
 
     data = pd.DataFrame(
         {
@@ -66,7 +72,12 @@ def test_data_cleaner_json():
         },
         columns=["json"],
     )
-    print(data)
-    dc = DataCleaner()
+    cs = ColumnSharer()
+    dc = DataCleaner(cs)
     dc.fit(data)
-    dc.transform(data)
+    data = dc.transform(data)
+    assert False
+    # as np
+
+
+# TODO test graph, could be implemented very wrong.

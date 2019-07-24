@@ -3,7 +3,7 @@
 from sklearn.pipeline import Pipeline
 
 
-def _none_to_dict(name, val):
+def _none_to_dict(name, val, column_sharer=None):
     """Transform input kwarg to valid dict, handling sentinel value.
 
     Accepts a single kwarg.
@@ -11,6 +11,7 @@ def _none_to_dict(name, val):
     Args:
         name: the kwarg name
         val: the kwarg value to ensure is proper format for kwargs.
+        column_sharer: if None, do nothing. If a value, add to kwarg values.
 
     Returns:
         kwarg set to default
@@ -25,6 +26,8 @@ def _none_to_dict(name, val):
         raise ValueError(
             "value for kwarg: {} must be dict or " "None.".format(name)
         )
+    if column_sharer is not None:
+        val['column_sharer'] = column_sharer
     return val
 
 
@@ -33,6 +36,7 @@ class DataPreparer(Pipeline):
 
     def __init__(
         self,
+        column_sharer,
         cleaner_kwargs=None,
         intent_kwargs=None,
         engineerer_kwargs=None,
@@ -41,9 +45,12 @@ class DataPreparer(Pipeline):
         modeler_kwargs=None,
     ):
         from foreshadow.cleaners.data_cleaner import DataCleaner
-
+        self.column_sharer = column_sharer
         # TODO look at fixing structure so we don't have to import inside init.
-        cleaner_kwargs_ = _none_to_dict("cleaner_kwargs", cleaner_kwargs)
+        cleaner_kwargs_ = _none_to_dict("cleaner_kwargs",
+                                        cleaner_kwargs,
+                                        column_sharer,
+                                        )
         # intent_kwargs_ = _none_to_dict(intent_kwargs=intent_kwargs)
         # engineerer_kwargs_ = _none_to_dict(
         # engineerer_kwargs=engineerer_kwargs

@@ -381,6 +381,19 @@ def test_smarttransformer_function(smart_child):
     assert np.allclose(smart_data, std_data)
 
 
+def test_smarttransformer_fitself(smart_child, mocker):
+    """Test that fit returns self.
+
+    This is important so that .fit().transform()
+
+    Args:
+        smart_child: A subclass of SmartTransformer
+
+    """
+    smart = smart_child(override='Imputer', name='test')
+    assert smart.fit() == smart
+
+
 def test_smarttransformer_function_override(smart_child):
     """Test SmartTransformer override through parameter specification.
 
@@ -413,7 +426,7 @@ def test_smarttransformer_function_override(smart_child):
     std.fit(df[["crim"]])
     std_data = std.transform(df[["crim"]])
 
-    assert std_data.columns[0] == 'crim_impute_0'
+    assert std_data.columns[0] == 'crim_impute__crim_impute_0'
 
     # TODO, remove when SmartTransformer is no longer wrapped
     # Column names will be different, thus np.allclose() is used

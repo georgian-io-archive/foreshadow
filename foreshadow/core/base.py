@@ -133,7 +133,12 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
     """
 
-    def __init__(self, *args, use_single_pipeline=False, **kwargs):
+    def __init__(self,
+                 column_sharer,
+                 *args,
+                 use_single_pipeline=False,
+                 **kwargs
+                 ):
         """Set the original pipeline steps internally.
 
         Takes a list of desired SmartTransformer steps and stores them as
@@ -145,6 +150,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             *args: args to Pipeline constructor.
             **kwargs: kwargs to PIpeline constructor.
         """
+        self.column_sharer = column_sharer
         self._parallel_process = None
         self._use_single_pipeline = use_single_pipeline
         super().__init__(*args, **kwargs)

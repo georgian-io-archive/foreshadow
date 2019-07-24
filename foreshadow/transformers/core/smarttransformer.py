@@ -47,15 +47,17 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
     """
 
-    def __init__(
-        self,
-        y_var=False,
-        override=None,
-        should_resolve=True,
-        force_reresolve=False,
-        **kwargs
-    ):
+    def __init__(self,
+                 y_var=False,
+                 override=None,
+                 should_resolve=True,
+                 force_reresolve=False,
+                 # column_sharer=None,
+                 **kwargs,
+                 ):
         self.kwargs = kwargs
+        # self.column_sharer=column_sharer
+        # TODO will need to add the above when this is no longer wrapped
         self.y_var = y_var
         self.transformer = None
         self.should_resolve = should_resolve
@@ -152,6 +154,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             "override": self.override,
             "name": self.name,
             "keep_columns": self.keep_columns,
+            "column_sharer": self.column_sharer,
             **(
                 self.transformer.get_params(deep=deep)
                 if self.transformer is not None and deep

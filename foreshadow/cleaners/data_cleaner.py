@@ -32,7 +32,9 @@ class DataCleaner(PreparerStep):
 
     def get_mapping(self, X):
         return self.separate_cols(
-            transformers=[[SmartFlatten(), SmartCleaner()] for c in X],
+            transformers=[[SmartFlatten(column_sharer=self.column_sharer),
+                           SmartCleaner(column_sharer=self.column_sharer)]
+                          for c in X],
             X=X
         )
 
@@ -66,14 +68,14 @@ class SmartCleaner(SmartTransformer):
         best_score = 0
         best_cleaner = None
         for cleaner, name in cleaners:
-            cleaner = cleaner(name=name)
+            cleaner = cleaner(column_sharer=self.column_sharer, name=name)
             score = cleaner.metric_score(X)
             if score > best_score:
                 best_score = score
                 best_cleaner = cleaner
 
         if best_cleaner is None:
-            return NoTransform()
+            return NoTransform(column_sharer=self.column_sharer)
         return best_cleaner
 
 
@@ -105,14 +107,14 @@ class SmartFlatten(SmartTransformer):
         best_score = 0
         best_flattener = None
         for flattener, name in flatteners:
-            flattener = flattener(name=name)
+            flattener = flattener(column_sharer=self.column_sharer, name=name)
             score = flattener.metric_score(X)
             if score > best_score:
                 best_score = score
                 best_flattener = flattener
 
         if best_flattener is None:
-            return NoTransform()
+            return NoTransform(column_sharer=self.column_sharer)
         return best_flattener
 
 
@@ -260,6 +262,11 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
                     )
                 )
             columns = self.output_columns
+            if columns is None:
+                columns = [X.columns[0]+str(c) for c in range(len(out[0]))]
+                # by default, pandas would have given a unique integer to
+                # each column, instead, we keep the previous column name and
+                # add that integer.
             X = pd.DataFrame(
                 [*out.values], columns=columns
             )
@@ -269,9 +276,12 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
             all_keys = dict()
             for row in out:
                 all_keys.update({key: True for key in row})  # get all columns
-            X = pd.DataFrame([*out.values],
-                             columns=list(all_keys.keys())
+            columns = list(all_keys.keys())
+            out = pd.DataFrame([*out.values],
+                             columns=columns
                              )
+            out.columns = [X.columns[0]+"_"+c for c in columns]
+            X = out
             # by default, this will create a DataFrame where if a row
             # contains the value, it will be added, if not NaN is added.
         else:  # no lists, still 1 column output
