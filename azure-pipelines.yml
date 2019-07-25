@@ -25,39 +25,40 @@ stages:
   # Build
   # Linux
   # TODO: Turn off Linux Testing until https://github.com/sdispater/poetry/issues/1197 is resolved
-  # - job: test_linux
-  #   dependsOn: lint
-  #   pool:
-  #     vmImage: 'ubuntu-16.04'
-  #   strategy:
-  #     matrix:
-  #       Python36:
-  #         python.version: '3.6'
-  #   steps:
-  #   - bash: |
-  #       sudo apt update
-  #       sudo apt install swig3.0
-  #       sudo ln -s /usr/bin/swig3.0 /usr/bin/swig
-  #     displayName: Install swig on Linux
-  #   - template: ci/install.yml
-  #   - template: ci/tests.yml
-
-  #MacOS
-  - job: test_macos
+  - job: test_linux
     dependsOn: lint
     pool:
-      vmImage: 'macOS-10.13'
+      vmImage: 'ubuntu-16.04'
     strategy:
       matrix:
         Python36:
           python.version: '3.6'
     steps:
-    - script: |
-        brew install swig
-        brew install gcc@5
-      displayName: Install Brew packages
+    - bash: |
+        sudo apt update
+        sudo apt install swig3.0
+        sudo ln -s /usr/bin/swig3.0 /usr/bin/swig
+      displayName: Install swig on Linux
     - template: ci/install.yml
     - template: ci/tests.yml
+
+  #MacOS
+  # # MacOs builds seem to be hanging
+  # - job: test_macos
+  #   dependsOn: lint
+  #   pool:
+  #     vmImage: 'macOS-10.13'
+  #   strategy:
+  #     matrix:
+  #       Python36:
+  #         python.version: '3.6'
+  #   steps:
+  #   - script: |
+  #       brew install swig
+  #       brew install gcc@5
+  #     displayName: Install Brew packages
+  #   - template: ci/install.yml
+  #   - template: ci/tests.yml
 
 # TODO: switch to linux box release when the above is fixed
 # - stage: Release
