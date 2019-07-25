@@ -15,12 +15,10 @@ steps:
     condition: or(eq( variables['Agent.OS'], 'Linux' ), eq( variables['Agent.OS'], 'Darwin' ))
     displayName: Add Poetry to path (Unix)
   - script: |
-      pip freeze
-      pip --version
       poetry --version
-      poetry shell
-      poetry run pip install --upgrade pip
-      poetry run pip freeze --all
+      pip freeze --all
+      pip --version
+      poetry config settings.virtualenvs.create false
       poetry install -vvv
     displayName: Install all packages
   # Temporary patch to make CI pass, install poetry twice to mask setuptools error
