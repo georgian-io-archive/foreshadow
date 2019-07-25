@@ -14,7 +14,10 @@ steps:
     condition: or(eq( variables['Agent.OS'], 'Linux' ), eq( variables['Agent.OS'], 'Darwin' ))
     displayName: Add Poetry to path (Unix)
   - script: |
-      poetry install -vvv
+      poetry --version
+      pip freeze --all
+      pip --version
+      poetry config settings.virtualenvs.create false
       poetry install -vvv
     displayName: Install all packages
   # TODO: Fix manual patch for pyrfr after https://github.com/automl/auto-sklearn/issues/688 is closed
