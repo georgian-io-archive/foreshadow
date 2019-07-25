@@ -71,6 +71,7 @@ sphinxcontrib-plantuml = "^0.16.1"
 towncrier = "^19.2"
 tox = "^3.9.0"
 xdoctest = "^0.8.1"
+docutils = "<0.15.1"  # hot fix: https://github.com/sdispater/poetry/issues/1194
 
 # [tool.poetry.extras]
 # dev = ["auto-sklearn"]

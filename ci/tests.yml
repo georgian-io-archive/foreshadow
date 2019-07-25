@@ -1,5 +1,5 @@
 steps: 
-  - script: $HOME/.poetry/bin/poetry run pytest --junitxml=junit/test-results.xml --cov-report=xml
+  - script: poetry run pytest --junitxml=junit/test-results.xml --cov-report=xml
     env:
       FORESHADOW_TESTS: ALL
     displayName: Run pytest

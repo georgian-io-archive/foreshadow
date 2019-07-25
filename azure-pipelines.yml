@@ -76,8 +76,8 @@ stages:
 #         brew install gcc@5
 #       displayName: Install Brew packages
 #     - template: ci/install.yml
-#     - script: $HOME/.poetry/bin/poetry build
-#         $HOME/.poetry/bin/poetry publish -u $(pypi_username) -p $(pypi_password)
+#     - script: poetry build
+#         poetry publish -u $(pypi_username) -p $(pypi_password)
 #       displayName: Release to pypi
 #     - task: GitHubRelease@0
 #       inputs:
