@@ -4,7 +4,6 @@ import re
 import pandas as pd
 
 from foreshadow.cleaners.data_cleaner import BaseCleaner
-from foreshadow.core.preparerstep import DropMixin
 from foreshadow.utils.validation import check_df
 
 
@@ -29,7 +28,7 @@ def drop_transform(text):
     return text, res
 
 
-class DropCleaner(BaseCleaner, DropMixin):
+class DropCleaner(BaseCleaner):
     """Clean financial data.
 
     Note: requires pandas input dataframes.

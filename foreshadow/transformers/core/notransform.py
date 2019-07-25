@@ -1,7 +1,7 @@
 """No Transform class through acts as a pass through for DataFrame and flag."""
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from foreshadow.transformers.core import make_pandas_transformer
+from foreshadow.transformers.core.wrapper import make_pandas_transformer
 
 
 @make_pandas_transformer
