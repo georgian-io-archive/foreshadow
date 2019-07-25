@@ -17,8 +17,9 @@ steps:
       pip freeze
       pip --version
       poetry --version
-      poetry shell pip install --update pip
-      poetry shell pip freeze
+      poetry shell
+      poetry run pip install --update pip
+      poetry run pip freeze --all
       poetry install -vvv
     displayName: Install all packages
   # TODO: Fix manual patch for pyrfr after https://github.com/automl/auto-sklearn/issues/688 is closed
