@@ -148,7 +148,21 @@ def is_wrapped(transformer):
         transformer: A transformer instance
 
     Returns:
-        bool: Whether or not the transformer is wrapped.
+        bool: True if transformer is wrapped, otherwise False.
 
     """
     return hasattr(transformer, "is_wrapped")
+
+
+def is_drop(transformer):
+    """Check if the determined transformer is a DropTransformer.
+
+    Args:
+        transformer: A transformer instance.
+
+    Returns:
+        bool: Trueif the transformer is a DropTransformer, else False.
+
+    """
+    from foreshadow.core.preparerstep import DropMixin
+    return issubclass(transformer, DropMixin)

@@ -90,13 +90,13 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
         """
         # Check transformer type
-        valid_tranformer = is_transformer(value) and is_wrapped(value)
-        valid_pipeline = isinstance(value, SerializablePipeline)
-        set_none = value is None
-
+        is_trans = is_transformer(value) and is_wrapped(value)
+        is_pipe = isinstance(value, SerializablePipeline)
+        is_none = value is None
+        is_empty = isinstance(value, _Empty)
+        checks = [is_trans, is_pipe, is_none, is_empty]
         # Check the transformer inheritance status
-        if not valid_tranformer and not valid_pipeline and not set_none\
-                and not _Empty:
+        if not any(checks):
             raise ValueError(
                 "{} is neither a scikit-learn Pipeline, FeatureUnion, a "
                 "wrapped foreshadow transformer, nor None.".format(value)
@@ -219,7 +219,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         # Only resolve if transformer is not set or re-resolve is requested.
         if self.should_resolve:
             self.transformer = self.pick_transformer(X, y, **fit_params)
-            if self.transformer.name is None:
+            if getattr(self.transformer, 'name', None) is None:
                 self.transformer.name = self.name
             self.transformer.keep_columns = self.keep_columns
 

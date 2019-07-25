@@ -4,14 +4,14 @@ from collections import namedtuple
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from foreshadow.core.base import PreparerStep
-from foreshadow.exceptions import InvalidDataFrame, SmartResolveError
+from foreshadow.core.preparerstep import PreparerStep
+from foreshadow.exceptions import InvalidDataFrame
 from foreshadow.metrics.internals import avg_col_regex, regex_rows
 from foreshadow.transformers.core import SmartTransformer
-from foreshadow.transformers.core.wrapper import _Empty
 from foreshadow.utils.testing import dynamic_import
 from foreshadow.utils.validation import check_df
 from foreshadow.transformers.core.notransform import NoTransform
+from foreshadow.utils.validation import is_drop
 
 
 CleanerReturn = namedtuple("CleanerReturn", ["row", "match_lens"])
@@ -160,12 +160,12 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         """
         return sum(
             [
-                metric_fn(X, cleaner=self) * weight
+                metric_fn(X, cleaner=self.transform_row) * weight
                 for metric_fn, weight in self.confidence_computation.items()
             ]
         )
 
-    def __call__(self, row_of_feature, return_tuple=True):
+    def transform_row(self, row_of_feature, return_tuple=True):
         """Perform clean operations on text, that is a row of feature.
 
         By
@@ -245,9 +245,9 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         # over each row for a given column on my own, which requires me to
         # leave
 
-        out = X[X.columns[0]].apply(self, return_tuple=False)  # access single
-        # column as series and apply the list of transformations to each row
-        # in the series.
+        out = X[X.columns[0]].apply(self.transform_row, return_tuple=False)
+        # access single column as series and apply the list of
+        # transformations to each row in the series.
         if any(
             [
                 isinstance(out[i], (list, tuple))

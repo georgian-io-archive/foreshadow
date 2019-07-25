@@ -18,6 +18,9 @@ class SerializablePipeline(Pipeline, PipelineSerializerMixin):
 
 
 class SingleInputPipeline(Pipeline):
+    """Dynamically routes multiple outputs to separate Transformers."""
+    # TODO replace with thorough dynamic pipeline that handles all use cases
+    #  and is based off defined inputs/outputs for each transformer.
     def _fit(self, X, y=None, **fit_params):  # copied super method
         # shallow copy of steps - this should really be steps_
         self.steps = list(self.steps)
@@ -71,7 +74,8 @@ class SingleInputPipeline(Pipeline):
                         ParallelProcessor(
                             [['dynamic_single_input_col_%d' % i,
                               clone(next_trans),  # need separate instances
-                              [columns[i]]] for i in range(len(columns))]
+                              [columns[i]]] for i in range(len(columns))],
+                            collapse_index=True
                         )
                     )
                 # ------------------------------------------------------------

@@ -15,9 +15,9 @@ def test_dummy_encoder():
 
     check = pd.DataFrame(
         {
-            "test_DummyEncoder_a": [1, 1, 1, 1],
-            "test_DummyEncoder_b": [0, 1, 1, 0],
-            "test_DummyEncoder_c": [0, 1, 0, 1],
+            "a": [1, 1, 1, 1],
+            "b": [0, 1, 1, 0],
+            "c": [0, 1, 0, 1],
         }
     )
 
@@ -35,13 +35,12 @@ def test_dummy_encoder_other():
     de = DummyEncoder(other_cutoff=0.25)
     de.fit(data)
     df = de.transform(data)
-
     check = pd.DataFrame(
         {
-            "test_DummyEncoder_a": [1, 1, 1, 1, 1, 1, 1],
-            "test_DummyEncoder_b": [0, 1, 1, 0, 1, 1, 1],
-            "test_DummyEncoder_c": [0, 1, 0, 1, 1, 1, 1],
-            "test_DummyEncoder_other": [0, 0, 0, 1, 0, 0, 1],
+            "a": [1, 1, 1, 1, 1, 1, 1],
+            "b": [0, 1, 1, 0, 1, 1, 1],
+            "c": [0, 1, 0, 1, 1, 1, 1],
+            "other": [0, 0, 0, 1, 0, 0, 1],
         }
     )
 
@@ -73,8 +72,8 @@ def test_transformer_fancy_impute_set_params():
     impute_kwargs = {"fill_method": "mean"}
 
     impute = FancyImputer(method="SimpleFill", impute_kwargs=impute_kwargs)
-    heart_path = get_file_path("test_data", "heart-h.csv")
-    heart_impute_path = get_file_path("test_data", "heart-h_impute_mean.csv")
+    heart_path = get_file_path("data", "heart-h.csv")
+    heart_impute_path = get_file_path("data", "heart-h_impute_mean.csv")
 
     df = pd.read_csv(heart_path)
 
@@ -135,8 +134,8 @@ def test_transformer_onehotencoder_fit_transform():
     ohe = OneHotEncoder(use_cat_names=True, handle_unknown="ignore")
     assert ohe.fit(df) == ohe
     assert list(ohe.transform(df)) == [
-        "neat_OneHotEncoder_neat_apple",
-        "neat_OneHotEncoder_neat_orange",
+        "neat_apple",
+        "neat_orange",
     ]
 
 
@@ -155,9 +154,9 @@ def test_transformer_onehotencoder_fit_transform_keep_cols():
     )
     assert ohe.fit(df) == ohe
     assert list(ohe.transform(df)) == [
-        "neat_encoder_origin_0",
-        "neat_encoder_neat_apple",
-        "neat_encoder_neat_orange",
+        "neat",
+        "neat_apple",
+        "neat_orange",
     ]
 
 
@@ -411,7 +410,7 @@ def test_tfidf_and_sparse_processing_core():
 
     rslt1 = tfidf.fit_transform(X1)
     rslt2 = tfidf.fit(X2).transform(X2)
-
+    print(rslt1)
     assert np.allclose(rslt1, exp)
     assert np.allclose(rslt2, exp)
     rslt1_inverse = tfidf.inverse_transform(rslt1).values  # TODO move to

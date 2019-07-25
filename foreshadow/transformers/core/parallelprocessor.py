@@ -255,12 +255,14 @@ class ParallelProcessor(FeatureUnion):
             #                     range(len(Xs))], axis=1)
             # else:
             Xs = pd.concat(Xs, axis=1)
-
         # Reduces the multi-index to a single index if specified
         if self.collapse_index:
-            Xs.columns = Xs.columns.droplevel()
-            Xs.index.name = None
-            Xs.columns.name = None
+            try:
+                Xs.columns = Xs.columns.droplevel()
+                Xs.index.name = None
+                Xs.columns.name = None
+            except:  # TODO figure out why is this needed
+                pass
         return Xs
 
     def fit_transform(self, X, y=None, **fit_params):
@@ -314,9 +316,12 @@ class ParallelProcessor(FeatureUnion):
 
         # Convert multi index to single index if specified
         if self.collapse_index:
-            Xs.columns = Xs.columns.droplevel()
-            Xs.index.name = None
-            Xs.columns.name = None
+            try:
+                Xs.columns = Xs.columns.droplevel()
+                Xs.index.name = None
+                Xs.columns.name = None
+            except:  # TODO figure out why this is needed
+                pass
         return Xs
 
 

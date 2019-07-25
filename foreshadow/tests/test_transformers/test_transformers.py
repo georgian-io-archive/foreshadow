@@ -32,7 +32,7 @@ def test_transformer_wrapper_function():
     from sklearn.preprocessing import StandardScaler as StandardScaler
     from foreshadow.transformers.concrete import StandardScaler as CustomScaler
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -78,7 +78,7 @@ def test_transformer_keep_cols():
     import pandas as pd
     from foreshadow.transformers.concrete import StandardScaler as CustomScaler
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -92,28 +92,28 @@ def test_transformer_naming_override():
     from foreshadow.transformers.concrete import StandardScaler
     import pandas as pd
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
     scaler = StandardScaler(name="test", keep_columns=False)
     out = scaler.fit_transform(df[["crim"]])
 
-    assert out.iloc[:, 0].name == "crim_test_0"
+    assert out.iloc[:, 0].name == "crim"
 
 
 def test_transformer_naming_default():
     from foreshadow.transformers.concrete import StandardScaler
     import pandas as pd
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
     scaler = StandardScaler(keep_columns=False)
     out = scaler.fit_transform(df[["crim"]])
 
-    assert out.iloc[:, 0].name == "crim_StandardScaler_0"
+    assert out.iloc[:, 0].name == "crim"
 
 
 def test_transformer_parallel_invalid():
@@ -138,7 +138,7 @@ def test_transformer_parallel_empty():
     import pandas as pd
     from foreshadow.transformers.core import ParallelProcessor
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -168,7 +168,7 @@ def test_transformer_parallel():
     from foreshadow.transformers.core import ParallelProcessor
     from foreshadow.transformers.concrete import StandardScaler
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -194,12 +194,8 @@ def test_transformer_parallel():
     assert tf.equals(tf_2)
 
     tf_norm = ss.transform(df[["crim", "zn", "indus"]])
-    tf_others = df.drop(["crim", "zn", "indus"], axis=1)
+    tf_others = tf.drop(["crim", "zn", "indus"], axis=1)
     tf_test = pd.concat([tf_norm, tf_others], axis=1)
-    tf_test.columns = tf_test.columns.rename("new")
-
-    tf.sort_values("new", axis=1, inplace=True)
-    tf_test.sort_values("new", axis=1, inplace=True)
 
     assert tf.equals(tf_test)
 
@@ -219,7 +215,7 @@ def test_transformer_pipeline():
     from sklearn.pipeline import Pipeline
     from sklearn.linear_model import LinearRegression
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -305,7 +301,7 @@ def test_smarttransformer_notsubclassed():
 def test_smarttransformer_attributeerror(smart_child, mocker):
     import pandas as pd
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -326,7 +322,7 @@ def test_smarttransformer_invalidtransformer(smart_child, mocker):
     """Test SmartTransformer initialization """
     import pandas as pd
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -358,7 +354,7 @@ def test_smarttransformer_function(smart_child):
 
     from foreshadow.transformers.concrete import StandardScaler
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -390,8 +386,9 @@ def test_smarttransformer_fitself(smart_child, mocker):
         smart_child: A subclass of SmartTransformer
 
     """
+    import pandas as pd
     smart = smart_child(override='Imputer', name='test')
-    assert smart.fit() == smart
+    assert smart.fit(pd.DataFrame([])) == smart
 
 
 def test_smarttransformer_function_override(smart_child):
@@ -406,7 +403,7 @@ def test_smarttransformer_function_override(smart_child):
 
     from foreshadow.transformers.concrete import Imputer
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
     df = pd.read_csv(boston_path)
 
     smart = smart_child(override="Imputer", name="impute")
@@ -426,7 +423,7 @@ def test_smarttransformer_function_override(smart_child):
     std.fit(df[["crim"]])
     std_data = std.transform(df[["crim"]])
 
-    assert std_data.columns[0] == 'crim_impute__crim_impute_0'
+    assert std_data.columns[0] == 'crim'
 
     # TODO, remove when SmartTransformer is no longer wrapped
     # Column names will be different, thus np.allclose() is used
@@ -504,7 +501,6 @@ def test_smarttransformer_get_params(smart_child):
     smart.fit([1, 2, 3])
 
     params = smart.get_params()
-
     assert params == {
         "override": "Imputer",
         "name": None,
@@ -515,6 +511,7 @@ def test_smarttransformer_get_params(smart_child):
         "strategy": "mean",
         "verbose": 0,
         "y_var": False,
+        "column_sharer": None,
     }
 
 
@@ -609,9 +606,9 @@ def test_sparse_matrix_conversion():
 @pytest.mark.parametrize(
     "transformer,input_csv",
     [
-        ("StandardScaler", get_file_path("test_data", "boston_housing.csv")),
-        ("OneHotEncoder", get_file_path("test_data", "boston_housing.csv")),
-        ("TfidfTransformer", get_file_path("test_data", "boston_housing.csv")),
+        ("StandardScaler", get_file_path("data", "boston_housing.csv")),
+        ("OneHotEncoder", get_file_path("data", "boston_housing.csv")),
+        ("TfidfTransformer", get_file_path("data", "boston_housing.csv")),
     ],
 )
 def test_make_pandas_transformer_fit(transformer, input_csv):
@@ -662,19 +659,19 @@ def test_make_pandas_transformer_meta(transformer, expected_path):
             "StandardScaler",
             {},
             "sklearn.preprocessing",
-            get_file_path("test_data", "boston_housing.csv"),
+            get_file_path("data", "boston_housing.csv"),
         ),
         (
             "OneHotEncoder",
             {},
             "category_encoders",
-            get_file_path("test_data", "boston_housing.csv"),
+            get_file_path("data", "boston_housing.csv"),
         ),
         (
             "TfidfTransformer",
             {},
             "sklearn.feature_extraction.text",
-            get_file_path("test_data", "boston_housing.csv"),
+            get_file_path("data", "boston_housing.csv"),
         ),
     ],
 )
@@ -714,12 +711,12 @@ def test_make_pandas_transformer_transform(
         (
             "StandardScaler",
             "sklearn.preprocessing",
-            get_file_path("test_data", "boston_housing.csv"),
+            get_file_path("data", "boston_housing.csv"),
         ),
         (
             "TfidfTransformer",
             "sklearn.feature_extraction.text",
-            get_file_path("test_data", "boston_housing.csv"),
+            get_file_path("data", "boston_housing.csv"),
         ),
     ],
 )

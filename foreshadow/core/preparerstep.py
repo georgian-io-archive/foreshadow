@@ -8,6 +8,7 @@ from foreshadow.transformers.core.pipeline import (
     SingleInputPipeline,
     TransformersPipeline,
 )
+from foreshadow.transformers.core.notransform import NoTransform
 
 
 def _check_parallelizable_batch(column_mapping, group_number,
@@ -118,9 +119,12 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
     This class automatically wraps the defined pipeline to make it
     parallelizable across a DataFrame. To make this possible and still be
-    customizable, subclasses must implement get_transformer_list and
-    get_transformer_weights, which are two inputs the ParallelProcessor
-    (the class used to make parallelization possible).
+    customizable, subclasses must implement get_mapping, which tells this
+    object how the columns would be grouped and what SmartTransformers will
+    be used in what sequence. See get_mapping for instructions on how to
+    implement it. This method automatically handles compiling steps into a
+    usable format for ParallelProcessor and given mismatched columns,
+    can handle that with the flag use_single_pipeline set to True.
 
 
     The transformer_list represents the mapping from columns to
@@ -145,14 +149,20 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         self._steps. Constructs self an sklearn pipeline object.
 
         Args:
-            steps: list of ('name', 'Mapping') tuples, where the latter is a
-                function that
+            column_sharer: ColumnSharer instance to be shared across all steps.
+            use_single_pipeline: Creates pipelines using SinglePipeline
+                class. This will
             *args: args to Pipeline constructor.
             **kwargs: kwargs to PIpeline constructor.
         """
         self.column_sharer = column_sharer
         self._parallel_process = None
-        self._use_single_pipeline = use_single_pipeline
+        self._use_single_pipeline = use_single_pipeline  # TODO right now,
+        #  TODO this handles the case where a transformer outputs multiple
+        #   columns and another transformer only accepts single inputs. We
+        #   should make sure to define inputs and outputs for each
+        #   transformer so that the Dynamic pipeline can match these
+        #   requirements dynamically, at run time.
         super().__init__(*args, **kwargs)
 
     @staticmethod
@@ -271,6 +281,8 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             transformer_list
             for transformer_list in parallelized_mapping.values()
         ]
+        if len(group_transformer_list) == 0:
+            return NoTransform()
         return ParallelProcessor(group_transformer_list, collapse_index=True)
 
     def get_mapping(self, X):

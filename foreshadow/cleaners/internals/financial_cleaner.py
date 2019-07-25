@@ -16,7 +16,7 @@ def financial_transform(text, return_search=False):
         Otherwise: None, original text.
 
     """
-    regex = "^([\W]*\$)([\d]+[\.]+[\d])(.*)$"
+    regex = "^([\W]*\$)([\d]+[\.]?[\d]*)(.*)$"
     text = str(text)
     res = re.search(regex, text)
     if res is not None:

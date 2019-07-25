@@ -345,7 +345,7 @@ def test_foreshadow_param_optimize_fit(mock_p):
 
     from foreshadow import Foreshadow
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
     data = pd.read_csv(boston_path)
 
     class DummyRegressor(BaseEstimator, TransformerMixin):
@@ -397,10 +397,10 @@ def test_foreshadow_param_optimize():  # TODO: Make this test faster
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.optimizers.param_mapping import _param_mapping
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
-    test_json_path = get_file_path("test_configs", "optimizer_test.json")
+    boston_path = get_file_path("data", "boston_housing.csv")
+    test_json_path = get_file_path("configs", "optimizer_test.json")
 
-    truth_path = get_file_path("test_configs", "search_space_optimize.pkl")
+    truth_path = get_file_path("configs", "search_space_optimize.pkl")
 
     data = pd.read_csv(boston_path)
     js = json.load(open(test_json_path, "r"))
@@ -438,8 +438,8 @@ def test_foreshadow_param_optimize_no_config():
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.optimizers.param_mapping import _param_mapping
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
-    test_path = get_file_path("test_configs", "search_space_no_cfg.pkl")
+    boston_path = get_file_path("data", "boston_housing.csv")
+    test_path = get_file_path("configs", "search_space_no_cfg.pkl")
 
     data = pd.read_csv(boston_path)
 
@@ -474,8 +474,8 @@ def test_foreshadow_param_optimize_no_combinations():
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.optimizers.param_mapping import _param_mapping
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
-    test_path = get_file_path("test_configs", "search_space_no_combo.pkl")
+    boston_path = get_file_path("data", "boston_housing.csv")
+    test_path = get_file_path("configs", "search_space_no_combo.pkl")
 
     data = pd.read_csv(boston_path)
 
@@ -513,8 +513,8 @@ def test_foreshadow_param_optimize_invalid_array_idx():
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.optimizers.param_mapping import _param_mapping
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
-    test_path = get_file_path("test_configs", "invalid_optimizer_config.json")
+    boston_path = get_file_path("data", "boston_housing.csv")
+    test_path = get_file_path("configs", "invalid_optimizer_config.json")
 
     data = pd.read_csv(boston_path)
     cfg = json.load(open(test_path, "r"))
@@ -549,7 +549,7 @@ def test_foreshadow_param_optimize_invalid_dict_key():
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.optimizers.param_mapping import _param_mapping
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     data = pd.read_csv(boston_path)
 

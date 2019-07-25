@@ -6,7 +6,7 @@ from foreshadow.utils.testing import get_file_path
 def test_console_generate_ignore_method():
     from foreshadow.console import generate_model
 
-    data_path = get_file_path("test_data", "boston_housing.csv")
+    data_path = get_file_path("data", "boston_housing.csv")
 
     args = [data_path, "medv", "--level", "3", "--method", "method"]
 
@@ -17,7 +17,7 @@ def test_console_generate_ignore_method():
 def test_console_generate_ignore_time():
     from foreshadow.console import generate_model
 
-    data_path = get_file_path("test_data", "boston_housing.csv")
+    data_path = get_file_path("data", "boston_housing.csv")
 
     args = [data_path, "medv", "--level", "2", "--time", "20"]
 
@@ -39,7 +39,7 @@ def test_console_generate_invalid_file():
 def test_console_generate_invalid_target():
     from foreshadow.console import generate_model
 
-    data_path = get_file_path("test_data", "boston_housing.csv")
+    data_path = get_file_path("data", "boston_housing.csv")
 
     args = [data_path, "badtarget"]
 
@@ -53,7 +53,7 @@ def test_console_generate_default():
     from foreshadow.console import generate_model
     from sklearn.linear_model import LinearRegression
 
-    data_path = get_file_path("test_data", "boston_housing.csv")
+    data_path = get_file_path("data", "boston_housing.csv")
 
     args = [data_path, "medv"]
 
@@ -65,7 +65,7 @@ def test_console_generate_default():
 def test_console_generate_invalid():
     from foreshadow.console import generate_model
 
-    data_path = get_file_path("test_data", "boston_housing.csv")
+    data_path = get_file_path("data", "boston_housing.csv")
 
     args = [data_path, "medv", "--level", "5"]
 
@@ -79,7 +79,7 @@ def test_console_generate_level2():
     from foreshadow.console import generate_model
     from sklearn.linear_model import LinearRegression
 
-    data_path = get_file_path("test_data", "boston_housing.csv")
+    data_path = get_file_path("data", "boston_housing.csv")
 
     args = [data_path, "medv", "--level", "2"]
 
@@ -93,8 +93,8 @@ def test_console_generate_config():
 
     from foreshadow.console import generate_model
 
-    data_path = get_file_path("test_data", "boston_housing.csv")
-    config = get_file_path("test_configs", "override_multi_pipeline.json")
+    data_path = get_file_path("data", "boston_housing.csv")
+    config = get_file_path("configs", "override_multi_pipeline.json")
 
     args = [
         data_path,
@@ -116,9 +116,9 @@ def test_console_generate_config():
 def test_console_invalid_x_config():
     from foreshadow.console import generate_model
 
-    data_path = get_file_path("test_data", "boston_housing.csv")
-    x_config = get_file_path("test_configs", "invalid.json")
-    y_config = get_file_path("test_configs", "override_multi_pipeline.json")
+    data_path = get_file_path("data", "boston_housing.csv")
+    x_config = get_file_path("configs", "invalid.json")
+    y_config = get_file_path("configs", "override_multi_pipeline.json")
 
     args = [
         data_path,
@@ -140,9 +140,9 @@ def test_console_invalid_x_config():
 def test_console_invalid_y_config():
     from foreshadow.console import generate_model
 
-    data_path = get_file_path("test_data", "boston_housing.csv")
-    x_config = get_file_path("test_configs", "override_multi_pipeline.json")
-    y_config = get_file_path("test_configs", "invalid.json")
+    data_path = get_file_path("data", "boston_housing.csv")
+    x_config = get_file_path("configs", "override_multi_pipeline.json")
+    y_config = get_file_path("configs", "invalid.json")
 
     args = [
         data_path,
@@ -165,7 +165,7 @@ def test_console_generate_level3():
     from foreshadow.estimators import AutoEstimator
     from foreshadow.console import generate_model
 
-    data_path = get_file_path("test_data", "boston_housing.csv")
+    data_path = get_file_path("data", "boston_housing.csv")
 
     args = [data_path, "medv", "--level", "3"]
 
