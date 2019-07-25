@@ -24,7 +24,7 @@ _cfg = {}
 
 
 def get_config(base):
-    """Try to get config data given given a folder path.
+    """Try to load configuration data from specific folder path.
 
     Args:
         base (str): A base path that has a file called `config.yml`

@@ -112,5 +112,5 @@ def test_resolve_config_overrides(data, mocker):
     assert resolved == test_data
 
 
-def test_cfg_caching(mocker):
-    pass  # TODO: write tests for this.
+# def test_cfg_caching(mocker):
+#     pass  # TODO: write tests for this.
