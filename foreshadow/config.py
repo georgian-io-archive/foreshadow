@@ -20,9 +20,11 @@ DEFAULT_CONFIG = {
     "reducer": {},
 }
 
+_cfg = {}
+
 
 def get_config(base):
-    """Get a configuration file given a root path.
+    """Try to get config data given given a folder path.
 
     Args:
         base (str): A base path that has a file called `config.yml`
@@ -63,6 +65,10 @@ def resolve_config():
     user = get_config(get_config_path())
     local = get_config(os.path.abspath(""))
 
+    global _cfg
+    if local in _cfg:
+        return _cfg.get(local)
+
     # Expand the dictionaries in order of precedence
     _resolved = {**default, **user, **local}
 
@@ -82,5 +88,7 @@ def resolve_config():
                 ]
                 for intent, transformer_list in data.items()
             }
+
+    _cfg[local] = resolved
 
     return resolved

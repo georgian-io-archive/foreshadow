@@ -53,12 +53,7 @@ def test_resolve_config_only_sys():
     "data",
     [
         ({}, {}, {}, "configs_empty.json"),
-        (
-            {"cleaner": ["T1", "T2"]},
-            {},
-            {},
-            "configs_override1.json",
-        ),  # This will resolve to 'T4'
+        ({"cleaner": ["T1", "T2"]}, {}, {}, "configs_override1.json"),
         (
             {"cleaner": ["T1", "T2"]},
             {"cleaner": ["T3"]},
@@ -115,3 +110,7 @@ def test_resolve_config_overrides(data, mocker):
         test_data = json.load(fopen)
 
     assert resolved == test_data
+
+
+def test_cfg_caching(mocker):
+    pass  # TODO: write tests for this.
