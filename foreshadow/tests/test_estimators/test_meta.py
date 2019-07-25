@@ -70,7 +70,7 @@ def test_metaestimator_score():
 
     me.fit(X_train, y_train)
 
-    # comapre
+    # compare
     scaler = LabelEncoder().fit(y_train)
     est = LogisticRegression().fit(X_train, scaler.transform(y_train))
     assert np.allclose(

@@ -140,7 +140,7 @@ def test_preprocessor_init_json_intent_map():
     from foreshadow.preprocessor import Preprocessor
 
     test_path = get_file_path(
-        "test_configs", "override_column_intent_pipeline.json"
+        "configs", "override_column_intent_pipeline.json"
     )
 
     proc = Preprocessor(from_json=json.load(open((test_path), "r")))
@@ -188,7 +188,7 @@ def test_preprocessor_init_json_pipeline_map():
     from foreshadow.utils import PipelineStep
 
     test_path = get_file_path(
-        "test_configs", "override_column_intent_pipeline.json"
+        "configs", "override_column_intent_pipeline.json"
     )
 
     proc = Preprocessor(from_json=json.load(open((test_path), "r")))
@@ -217,7 +217,7 @@ def test_preprocessor_init_json_multi_pipeline():
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.utils import PipelineStep
 
-    test_path = get_file_path("test_configs", "override_multi_pipeline.json")
+    test_path = get_file_path("configs", "override_multi_pipeline.json")
 
     proc = Preprocessor(from_json=json.load(open(test_path, "r")))
 
@@ -252,9 +252,7 @@ def test_preprocessor_init_json_intent_override_multi():
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.utils import PipelineStep
 
-    test_path = get_file_path(
-        "test_configs", "override_intent_pipeline_multi.json"
-    )
+    test_path = get_file_path("configs", "override_intent_pipeline_multi.json")
 
     proc = Preprocessor(from_json=json.load(open((test_path), "r")))
 
@@ -291,7 +289,7 @@ def test_preprocessor_init_json_intent_override_single():
     from foreshadow.utils import PipelineStep
 
     test_path = get_file_path(
-        "test_configs", "override_intent_pipeline_single.json"
+        "configs", "override_intent_pipeline_single.json"
     )
 
     proc = Preprocessor(from_json=json.load(open((test_path), "r")))
@@ -325,7 +323,7 @@ def test_preprocessor_fit_map_intents_default():
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -347,9 +345,9 @@ def test_preprocessor_fit_map_intents_override():
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path(
-        "test_configs", "override_column_intent_pipeline.json"
+        "configs", "override_column_intent_pipeline.json"
     )
 
     df = pd.read_csv(boston_path)
@@ -370,7 +368,7 @@ def test_preprocessor_fit_create_single_pipeline_default():
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.intents.registry import registry_eval
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
     df = pd.read_csv(boston_path)
     cols = list(df)
 
@@ -401,9 +399,9 @@ def test_preprocessor_fit_create_single_pipeline_override_column():
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.utils import PipelineStep
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path(
-        "test_configs", "override_column_intent_pipeline.json"
+        "configs", "override_column_intent_pipeline.json"
     )
 
     df = pd.read_csv(boston_path)
@@ -435,9 +433,9 @@ def test_preprocessor_fit_create_single_pipeline_override_intent():
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.utils import PipelineStep
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path(
-        "test_configs", "override_intent_pipeline_single.json"
+        "configs", "override_intent_pipeline_single.json"
     )
 
     df = pd.read_csv(boston_path)
@@ -466,8 +464,8 @@ def test_preprocessor_make_empty_pipeline():
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
-    test_path = get_file_path("test_configs", "empty_pipeline_test.json")
+    boston_path = get_file_path("data", "boston_housing.csv")
+    test_path = get_file_path("configs", "empty_pipeline_test.json")
 
     df = pd.read_csv(boston_path)
     orig = df.copy(deep=True)
@@ -494,8 +492,8 @@ def test_preprocessor_make_pipeline():
     from foreshadow.intents.registry import registry_eval
     from foreshadow.utils import PipelineStep
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
-    test_path = get_file_path("test_configs", "complete_pipeline_test.json")
+    boston_path = get_file_path("data", "boston_housing.csv")
+    test_path = get_file_path("configs", "complete_pipeline_test.json")
 
     df = pd.read_csv(boston_path)
     proc = Preprocessor(from_json=json.load(open(test_path, "r")))
@@ -594,17 +592,17 @@ def test_preprocessor_make_pipeline():
     )
 
 
-def test_preprocessor_fit_transform():
+def test_preprocessor_fit_transform():  # TODO figure out what this test is
     import json
 
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
     boston_preprocessed_path = get_file_path(
-        "test_data", "boston_housing_processed.csv"
+        "data", "boston_housing_processed.csv"
     )
-    test_path = get_file_path("test_configs", "complete_pipeline_test.json")
+    test_path = get_file_path("configs", "complete_pipeline_test.json")
 
     df = pd.read_csv(boston_path)
 
@@ -623,7 +621,7 @@ def test_preprocessor_inverse_transform():
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
     js = {
@@ -664,7 +662,7 @@ def test_preprocessor_inverse_transform_multicol():
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
     js = {
@@ -694,36 +692,37 @@ def test_preprocessor_inverse_transform_multicol():
     assert str(e.value) == "Pipeline does not support inverse transform!"
 
 
-def test_preprocessor_get_params():
+def test_preprocessor_get_params():  # TODO figure out what this test is
     import json
     import pickle
 
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
-    test_path = get_file_path("test_configs", "test_params.pkl")
-    test_path2 = get_file_path("test_configs", "complete_pipeline_test.json")
+    boston_path = get_file_path("data", "boston_housing.csv")
+    test_path = get_file_path("configs", "test_params.pkl")
+    test_path2 = get_file_path("configs", "complete_pipeline_test.json")
 
     df = pd.read_csv(boston_path)
     proc = Preprocessor(from_json=json.load(open(test_path2, "r")))
     proc.fit(df)
 
     truth = pickle.load(open(test_path, "rb"))
+    print(truth.keys(), proc.get_params().keys())
 
     assert proc.get_params().keys() == truth.keys()
 
 
-def test_preprocessor_set_params():
+def test_preprocessor_set_params():  # TODO figure out what this test is
     import json
     import pickle
 
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
-    test_path = get_file_path("test_configs", "test_params.pkl")
-    test_path2 = get_file_path("test_configs", "complete_pipeline_test.json")
+    boston_path = get_file_path("data", "boston_housing.csv")
+    test_path = get_file_path("configs", "test_params.pkl")
+    test_path2 = get_file_path("configs", "complete_pipeline_test.json")
 
     df = pd.read_csv(boston_path)
     params = pickle.load(open(test_path, "rb"))
@@ -740,7 +739,7 @@ def test_preprocessor_malformed_json_transformer():
 
     from foreshadow.preprocessor import Preprocessor
 
-    test_path = get_file_path("test_configs", "malformed_transformer.json")
+    test_path = get_file_path("configs", "malformed_transformer.json")
 
     with pytest.raises(ValueError) as e:
         Preprocessor(from_json=json.load(open((test_path), "r")))
@@ -752,7 +751,7 @@ def test_preprocessor_invalid_json_transformer_class():
     import json
     from foreshadow.preprocessor import Preprocessor
 
-    test_path = get_file_path("test_configs", "invalid_transformer_class.json")
+    test_path = get_file_path("configs", "invalid_transformer_class.json")
 
     with pytest.raises(ValueError) as e:
         Preprocessor(from_json=json.load(open((test_path), "r")))
@@ -765,9 +764,7 @@ def test_preprocessor_invalid_json_transformer_params():
 
     from foreshadow.preprocessor import Preprocessor
 
-    test_path = get_file_path(
-        "test_configs", "invalid_transformer_params.json"
-    )
+    test_path = get_file_path("configs", "invalid_transformer_params.json")
 
     with pytest.raises(ValueError) as e:
         Preprocessor(from_json=json.load(open((test_path), "r")))
@@ -801,7 +798,7 @@ def test_preprocessor_transform_no_pipeline():
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     proc = Preprocessor()
     df = pd.read_csv(boston_path)
@@ -817,9 +814,9 @@ def test_preprocessor_serialize():
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
-    test_path = get_file_path("test_configs", "test_serialize.json")
-    test_path2 = get_file_path("test_configs", "complete_pipeline_test.json")
+    boston_path = get_file_path("data", "boston_housing.csv")
+    test_path = get_file_path("configs", "test_serialize.json")
+    test_path2 = get_file_path("configs", "complete_pipeline_test.json")
 
     df = pd.read_csv(boston_path)
 
@@ -829,13 +826,16 @@ def test_preprocessor_serialize():
     out = proc.serialize()
 
     assert json.loads(json.dumps(truth)) == json.loads(json.dumps(out))
+    # with open(test_path, 'w') as outfile:
+    #     json.dump(out, outfile)
+    # assert False
 
 
 def test_preprocessor_continuity():
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
 
@@ -851,7 +851,7 @@ def test_preprocessor_y_var_filtering():
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     df = pd.read_csv(boston_path)
     y_df = df[["medv"]]
@@ -868,8 +868,8 @@ def test_preprocessor_summarize():
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
-    test_path = get_file_path("test_configs", "complete_pipeline_test.json")
+    boston_path = get_file_path("data", "boston_housing.csv")
+    test_path = get_file_path("configs", "complete_pipeline_test.json")
 
     df = pd.read_csv(boston_path)
     proc = Preprocessor(from_json=json.load(open(test_path, "r")))

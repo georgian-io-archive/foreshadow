@@ -37,7 +37,7 @@ def test_resolve_config_only_sys():
 
     resolved = resolve_config()
 
-    test_data_path = get_file_path("test_configs", "configs_default.pkl")
+    test_data_path = get_file_path("configs", "configs_default.pkl")
 
     # # Un comment to regenerate this file (if you change default configs)
     # with open(test_data_path, 'wb+') as fopen:
@@ -103,7 +103,7 @@ def test_resolve_config_overrides(data, mocker):
 
     resolved = resolve_config()
 
-    test_data_path = get_file_path("test_configs", test_data_fname)
+    test_data_path = get_file_path("configs", test_data_fname)
 
     # # This shouldn't need to be done again (unless re-factor)
     # with open(test_data_path, 'w+') as fopen:

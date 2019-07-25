@@ -9,7 +9,7 @@ import scipy
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.fixes import signature
 
-from foreshadow.core import ConcreteSerializerMixin
+from foreshadow.core import ConcreteSerializerMixin, logging
 from foreshadow.exceptions import InverseUnavailable
 from foreshadow.utils import check_df, is_transformer
 
@@ -97,7 +97,14 @@ def make_pandas_transformer(transformer):  # noqa: C901
     ):
         """Wrapper to Enable parent transformer to handle DataFrames."""
 
-        def __init__(self, *args, keep_columns=False, name=None, **kwargs):
+        def __init__(
+            self,
+            *args,
+            keep_columns=False,
+            name=None,
+            column_sharer=None,
+            **kwargs
+        ):
             """Initialize parent Transformer.
 
             Args:
@@ -111,6 +118,7 @@ def make_pandas_transformer(transformer):  # noqa: C901
             """
             self.keep_columns = keep_columns
             self.name = name
+            self.column_sharer = column_sharer
             super(DFTransformer, self).__init__(*args, **kwargs)
 
             # TODO: remove this when _Empty is removed
@@ -245,7 +253,6 @@ def make_pandas_transformer(transformer):  # noqa: C901
                 func = partial(_Empty.transform, self)
 
             out = func(df, *args, **kwargs)
-
             # determine name of new columns
             name = self.name if self.name else type(self).__name__
             out_is_transformer = hasattr(out, "__class__") and is_transformer(
@@ -261,19 +268,31 @@ def make_pandas_transformer(transformer):  # noqa: C901
                     out, pd.DataFrame
                 ):  # custom handling based on the
                     # type returned by the sklearn transformer function call
-                    out = _df_post_process(out, init_cols, name)
+                    out, graph = _df_post_process(out, init_cols, name)
                 elif isinstance(out, np.ndarray):
-                    out = _ndarray_post_process(out, df.index, init_cols, name)
+                    out, graph = _ndarray_post_process(
+                        out, df, init_cols, name
+                    )
                 elif scipy.sparse.issparse(out):
                     out = out.toarray()
-                    out = _ndarray_post_process(out, df, init_cols, name)
+                    out, graph = _ndarray_post_process(
+                        out, df, init_cols, name
+                    )
                 elif isinstance(out, pd.Series):
-                    pass  # just return the series
+                    graph = []  # just return the series
                 else:
                     raise ValueError("undefined output {0}".format(type(out)))
 
                 if self.keep_columns:
-                    out = _keep_columns_process(out, df, name)
+                    out = _keep_columns_process(out, df, name, graph)
+                if self.column_sharer is not None:  # only used when part of
+                    # the Foreshadow flow.
+                    for column in X:
+                        self.column_sharer["graph", column] = graph
+                else:
+                    logging.debug(
+                        "column sharer is not set for: " "{}".format(self)
+                    )
             return out
 
         def inverse_transform(self, X, *args, **kwargs):
@@ -328,19 +347,31 @@ def make_pandas_transformer(transformer):  # noqa: C901
                     out, pd.DataFrame
                 ):  # custom handling based on the
                     # type returned by the sklearn transformer function call
-                    out = _df_post_process(out, init_cols, name)
+                    out, graph = _df_post_process(out, init_cols, name)
                 elif isinstance(out, np.ndarray):
-                    out = _ndarray_post_process(out, df.index, init_cols, name)
+                    out, graph = _ndarray_post_process(
+                        out, df, init_cols, name
+                    )
                 elif scipy.sparse.issparse(out):
                     out = out.toarray()
-                    out = _ndarray_post_process(out, df, init_cols, name)
+                    out, graph = _ndarray_post_process(
+                        out, df, init_cols, name
+                    )
                 elif isinstance(out, pd.Series):
-                    pass  # just return the series
+                    graph = []  # just return the series
                 else:
                     raise ValueError("undefined input {0}".format(type(out)))
 
                 if self.keep_columns:
-                    out = _keep_columns_process(out, df, name)
+                    out = _keep_columns_process(out, df, name, graph)
+                if self.column_sharer is not None:  # only used when part of
+                    # the Foreshadow flow.
+                    for column in X:
+                        self.column_sharer["graph", column] = graph
+                else:
+                    logging.debug(
+                        "column sharer is not set for: " "{}".format(self)
+                    )
             return out  # TODO output is a DataFrame, make it detect based
             # TODO on what is passed to fit and give that output.
 
@@ -368,17 +399,32 @@ def make_pandas_transformer(transformer):  # noqa: C901
                 # there
                 if isinstance(out, np.ndarray):  # output was not yet
                     # transformed to DataFrame
-                    out = _ndarray_post_process(out, df.index, init_cols, name)
+                    out, graph = _ndarray_post_process(
+                        out, df, init_cols, name
+                    )
                 elif scipy.sparse.issparse(out):
                     out = out.toarray()
-                    out = _ndarray_post_process(out, df, init_cols, name)
+                    out, graph = _ndarray_post_process(
+                        out, df, init_cols, name
+                    )
                 elif isinstance(out, pd.Series):
-                    pass  # just return the series
+                    graph = []  # just return the series
                 else:
                     raise ValueError("undefined input {0}".format(type(out)))
                 if self.keep_columns:
-                    out = _keep_columns_process(out, df, name)
+                    out = _keep_columns_process(out, df, name, graph)
+                if self.column_sharer is not None:  # only used when part of
+                    # the Foreshadow flow.
+                    for column in X:
+                        self.column_sharer["graph", column] = graph
+                else:
+                    logging.debug(
+                        "column sharer is not set for: " "{}".format(self)
+                    )
             return out
+
+        def __repr__(self):
+            return "DFTransformer: %s" % self.__class__.__name__
 
     return DFTransformer
 
@@ -425,49 +471,71 @@ class _Empty(BaseEstimator, TransformerMixin):
         return pd.DataFrame([])
 
 
-def _keep_columns_process(out, dataframe, prefix):
+def _keep_columns_process(out, dataframe, prefix, graph):
     """Keep original columns of input datafarme on output dataframe.
 
     Args:
         out: the output dataframe from the sklearn public function
         dataframe: the input dataframe from the sklearn public function
         prefix: the prefixes (name) to add
+        graph: current list representing information to add to graph in
+            ColumnSharer
 
     Returns:
         [dataframe, out] concat along axis=1
 
     """
-    dataframe.columns = [
-        "{}_{}_origin_{}".format(c, prefix, i)
-        for i, c in enumerate(dataframe.columns)
-    ]
+    graph.extend(
+        [
+            "{}_{}_origin_{}".format(c, prefix, i)
+            for i, c in enumerate(dataframe.columns)
+        ]
+    )
     return pd.concat([dataframe, out], axis=1)
 
 
-def _ndarray_post_process(ndarray, index, init_cols, prefix):
+def _ndarray_post_process(ndarray, df, init_cols, prefix):
     """Create dataframe from sklearn public function ndarray.
 
     Args:
         ndarray: the output ndarray from the sklearn public function
-        index: pandas.DataFrame.index
+        df: pandas.DataFrame
         init_cols: the initial columns before public function call
         prefix: prefix for each column (unique name)
 
     Returns:
-        mimicked DataFrame for ndarray, with column names.
+        mimicked DataFrame for ndarray, with column names, list of info to
+            graph in ColumnSharer
 
     """
     if ndarray.ndim == 1 and ndarray.size != 0:
         ndarray = ndarray.reshape((-1, 1))
 
+    if ndarray.size == 0:
+        return pd.DataFrame([]), ["{}_{}".format("_".join(init_cols), prefix)]
+    # try to intelligently name ndarray columns, based off initial df columns
+    if len(df.columns) == ndarray.shape[1]:  # the number of columns
+        # match, so we don't have to do anything
+        columns = df.columns
+    elif len(df.columns) == 1:  # all new columns came from 1 column
+        columns = [
+            str(df.columns[0]) + "_%d" % i for i in range(ndarray.shape[1])
+        ]
+    else:  # all new columns came from a mix of columns
+        df_columns = "_".join(df.columns)
+        columns = [df_columns + "|%d" % i for i in range(ndarray.shape[1])]
     # Append new columns to data frame
     kw = {}
     for i, col in enumerate(ndarray.transpose().tolist()):
-        kw["{}_{}_{}".format("_".join(init_cols), prefix, i)] = pd.Series(
-            col, index=index  # noqa: E126
+        kw[columns[i]] = pd.Series(
+            col, index=df.index  # noqa: E126
         )  # noqa: E121
+    graph = [
+        "{}_{}_{}".format("_".join(init_cols), prefix, i)
+        for i in range(ndarray.shape[1])
+    ]
 
-    return pd.DataFrame(kw)
+    return pd.DataFrame(kw, columns=columns), graph
 
 
 def _df_post_process(dataframe, init_cols, prefix):
@@ -479,11 +547,12 @@ def _df_post_process(dataframe, init_cols, prefix):
         prefix: prefix for each column (unique name)
 
     Returns:
-        DataFrame with new column names
+        DataFrame with new column names, list of info to
+            graph in ColumnSharer
 
     """
-    dataframe.columns = [
+    graph = [
         "{}_{}_{}".format("_".join(init_cols), prefix, c)
         for c in dataframe.columns
     ]
-    return dataframe
+    return dataframe, graph

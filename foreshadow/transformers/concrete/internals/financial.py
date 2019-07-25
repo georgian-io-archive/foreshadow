@@ -1,4 +1,4 @@
-"""Financial transformers."""
+"""StandardDollarFinancial transformers."""
 
 import re
 

@@ -242,6 +242,42 @@ for level in LEVELS:  # dynamicaally expose the logging methods for each level
     setattr(_this_module, level, log)
 
 
+def debug(*args, **kwargs):
+    """Log debug message.
+
+    Manually overriding so that this method is explicitly a part of this
+    module.
+
+    Args:
+        *args: To logging.debug
+        **kwargs: To logging.debug
+
+    Returns:
+        logging.debug
+
+    """
+    log = _wrap_log(_log, "debug")
+    return log(*args, **kwargs)
+
+
+def info(*args, **kwargs):
+    """Log info message.
+
+    Manually overriding so that this method is explicitly a part of this
+    module.
+
+    Args:
+        *args: To logging.info
+        **kwargs: To logging.info
+
+    Returns:
+        logging.info
+
+    """
+    log = _wrap_log(_log, "info")
+    return log(*args, **kwargs)
+
+
 def log_and_gui(level, msg, gui_details, gui_schema, *args, **kwargs):
     """Log msg to gui at specific level and write gui_details under gui_schema.
 
