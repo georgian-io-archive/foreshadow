@@ -5,13 +5,17 @@ steps:
       versionSpec: '$(python.version)'
   - script: |
       pip install --upgrade pip
-      curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+      POETRY_PREVIEW=1 curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+      pip freeze
     displayName: Install Poetry
   # Unix
   - bash: |
       echo "##vso[task.prependpath]$HOME/.poetry/bin"
     condition: or(eq( variables['Agent.OS'], 'Linux' ), eq( variables['Agent.OS'], 'Darwin' ))
     displayName: Add Poetry to path (Unix)
-  - script: poetry install -vvv
+  - script: |
+      pip freeze
+      pip --version
+      poetry install -vvv
     displayName: Install all packages
   # TODO: Fix manual patch for pyrfr after https://github.com/automl/auto-sklearn/issues/688 is closed
