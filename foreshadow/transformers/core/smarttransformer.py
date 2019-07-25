@@ -5,14 +5,16 @@ from abc import ABCMeta, abstractmethod
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from foreshadow.transformers.core.pipeline import SerializablePipeline
-from foreshadow.transformers.core.wrapper import make_pandas_transformer
+from foreshadow.transformers.core.wrapper import (
+    _Empty,
+    make_pandas_transformer,
+)
 from foreshadow.utils import (
     check_df,
     get_transformer,
     is_transformer,
     is_wrapped,
 )
-from foreshadow.transformers.core.wrapper import _Empty
 
 
 # TODO: Remove once _Empty is removed when DataCleaner is implemented
@@ -47,14 +49,15 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
     """
 
-    def __init__(self,
-                 y_var=False,
-                 override=None,
-                 should_resolve=True,
-                 force_reresolve=False,
-                 # column_sharer=None,
-                 **kwargs,
-                 ):
+    def __init__(
+        self,
+        y_var=False,
+        override=None,
+        should_resolve=True,
+        force_reresolve=False,
+        # column_sharer=None,
+        **kwargs,
+    ):
         self.kwargs = kwargs
         # self.column_sharer=column_sharer
         # TODO will need to add the above when this is no longer wrapped
@@ -219,7 +222,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         # Only resolve if transformer is not set or re-resolve is requested.
         if self.should_resolve:
             self.transformer = self.pick_transformer(X, y, **fit_params)
-            if getattr(self.transformer, 'name', None) is None:
+            if getattr(self.transformer, "name", None) is None:
                 self.transformer.name = self.name
             self.transformer.keep_columns = self.keep_columns
 

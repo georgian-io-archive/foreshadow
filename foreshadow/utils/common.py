@@ -4,7 +4,6 @@ import os
 from collections import OrderedDict
 from importlib import import_module
 
-
 from foreshadow.exceptions import TransformerNotFound
 
 
@@ -92,4 +91,3 @@ def get_transformer(class_name, source_lib=None):
             )
 
     return getattr(module, class_name)
-

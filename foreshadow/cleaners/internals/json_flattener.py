@@ -1,3 +1,4 @@
+"""Detects and flattens json entries into various output styles."""
 import json
 from collections import MutableMapping
 
@@ -5,6 +6,18 @@ from foreshadow.cleaners.data_cleaner import BaseCleaner
 
 
 def flatten(d, parent_key="", sep="_"):
+    """Flatten the json completely, preserving tree in names.
+
+    Args:
+        d: dict to flatten.
+        parent_key: what to put for the at the beginning of the flattened key.
+            Empty maps to the parent's value.
+        sep: Separate between 'parent_key' and the current key.
+
+    Returns:
+        dict with only 1 layer.
+
+    """
     items = []
     for k, v in d.items():
         new_key = "{0}{1}{2}".format(parent_key, sep, k) if parent_key else k
@@ -18,7 +31,7 @@ def flatten(d, parent_key="", sep="_"):
     return dict(items)
 
 
-def json_flatten(text, return_search=False):
+def json_flatten(text):
     """Flatten a json array.
 
     Args:
@@ -29,30 +42,14 @@ def json_flatten(text, return_search=False):
         Otherwise: None, original text.
 
     """
-    #   regex = """
-    # /
-    # (?(DEFINE)
-    #    (?<number>   -? (?= [1-9]|0(?!\d) ) \d+ (\.\d+)? ([eE] [+-]? \d+)? )
-    #    (?<boolean>   true | false | null )
-    #    (?<string>    " ([^"\\\\]* | \\\\ ["\\\\bfnrt\/] | \\\\ u [0-9a-f]{4} )* " )
-    #    (?<array>     \[  (?:  (?&json)  (?: , (?&json)  )*  )?  \s* \] )
-    #    (?<pair>      \s* (?&string) \s* : (?&json)  )
-    #    (?<object>    \{  (?:  (?&pair)  (?: , (?&pair)  )*  )?  \s* \} )
-    #    (?<json>   \s* (?: (?&number) | (?&boolean) | (?&string) | (?&array) | (?&object) ) \s* )
-    # )
-    # \A (?&json) \Z
-    # /six
-    #   """
     ret = text
     matched = 0
     try:
         ret = json.loads(text)
         matched = len(text)
-    except:
-        pass
-    if return_search:
-        return ret, matched
-    return text
+    except json.JSONDecodeError:
+        pass  # didn't match.
+    return ret, matched
 
 
 class StandardJsonFlattener(BaseCleaner):

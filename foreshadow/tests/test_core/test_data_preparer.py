@@ -33,13 +33,7 @@ def test_data_preparer_init(cleaner_kwargs, expected_error):
         DataPreparer(cs, cleaner_kwargs=cleaner_kwargs)
 
 
-@pytest.mark.parametrize(
-    "cleaner_kwargs",
-    [
-        ({}),
-        (None),
-    ],
-)
+@pytest.mark.parametrize("cleaner_kwargs", [({}), (None)])
 def test_data_preparer_fit(cleaner_kwargs):
     """Test fitting of DataPreparer after creation with kwargs.
 

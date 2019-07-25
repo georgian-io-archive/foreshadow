@@ -252,9 +252,7 @@ def test_preprocessor_init_json_intent_override_multi():
     from foreshadow.preprocessor import Preprocessor
     from foreshadow.utils import PipelineStep
 
-    test_path = get_file_path(
-        "configs", "override_intent_pipeline_multi.json"
-    )
+    test_path = get_file_path("configs", "override_intent_pipeline_multi.json")
 
     proc = Preprocessor(from_json=json.load(open((test_path), "r")))
 
@@ -766,9 +764,7 @@ def test_preprocessor_invalid_json_transformer_params():
 
     from foreshadow.preprocessor import Preprocessor
 
-    test_path = get_file_path(
-        "configs", "invalid_transformer_params.json"
-    )
+    test_path = get_file_path("configs", "invalid_transformer_params.json")
 
     with pytest.raises(ValueError) as e:
         Preprocessor(from_json=json.load(open((test_path), "r")))

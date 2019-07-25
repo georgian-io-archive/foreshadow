@@ -1,14 +1,12 @@
 """A serializable form of sklearn pipelines."""
 import six
-from sklearn.pipeline import Pipeline
+from sklearn.base import clone
+from sklearn.pipeline import Pipeline, _fit_transform_one
+from sklearn.utils.validation import check_memory
 
 from foreshadow.core import PipelineSerializerMixin
 from foreshadow.transformers.core import ParallelProcessor
 from foreshadow.utils.validation import check_df
-from sklearn.pipeline import Pipeline
-from sklearn.utils.validation import check_memory
-from sklearn.base import clone
-from sklearn.pipeline import _fit_transform_one
 
 
 class SerializablePipeline(Pipeline, PipelineSerializerMixin):
@@ -19,9 +17,29 @@ class SerializablePipeline(Pipeline, PipelineSerializerMixin):
 
 class SingleInputPipeline(Pipeline):
     """Dynamically routes multiple outputs to separate Transformers."""
+
     # TODO replace with thorough dynamic pipeline that handles all use cases
     #  and is based off defined inputs/outputs for each transformer.
     def _fit(self, X, y=None, **fit_params):  # copied super method
+        """Fit and then transform data.
+
+        Fit all the transforms one after the other and transform the
+        data. Has no final_estimator.
+
+        Args:
+            X (iterable): Training data. Must fulfill input requirements of
+                first step of the pipeline.
+            y (iterable, default=None): Training targets. Must fulfill label
+                requirements for all steps of the pipeline.
+            **fit_params (dict of string -> object): Parameters passed to the
+                ``fit`` method of each step, where each parameter name is
+                prefixed such that parameter ``p`` for step ``s`` has key
+                ``s__p``.
+
+        Returns:
+            Transformed inputs.
+
+        """
         # shallow copy of steps - this should really be steps_
         self.steps = list(self.steps)
         self._validate_steps()
@@ -30,10 +48,11 @@ class SingleInputPipeline(Pipeline):
 
         fit_transform_one_cached = memory.cache(_fit_transform_one)
 
-        fit_params_steps = dict((name, {}) for name, step in self.steps
-                                if step is not None)
+        fit_params_steps = dict(
+            (name, {}) for name, step in self.steps if step is not None
+        )
         for pname, pval in six.iteritems(fit_params):
-            step, param = pname.split('__', 1)
+            step, param = pname.split("__", 1)
             fit_params_steps[step][param] = pval
         Xt = X
         # A CHANGE FOR SingleInputPipeline, steps has no final_estimator
@@ -41,7 +60,7 @@ class SingleInputPipeline(Pipeline):
             if transformer is None:
                 pass
             else:
-                if hasattr(memory, 'cachedir') and memory.cachedir is None:
+                if hasattr(memory, "cachedir") and memory.cachedir is None:
                     # we do not clone when caching is disabled to preserve
                     # backward compatibility
                     cloned_transformer = transformer
@@ -49,13 +68,13 @@ class SingleInputPipeline(Pipeline):
                     cloned_transformer = clone(transformer)
                 # Fit or load from cache the current transfomer
                 Xt, fitted_transformer = fit_transform_one_cached(
-                    cloned_transformer, None, Xt, y,
-                    **fit_params_steps[name])
+                    cloned_transformer, None, Xt, y, **fit_params_steps[name]
+                )
                 # ------------ THIS IS ONE CHANGE FOR SingleInputPipeline
                 is_single_column = True
                 try:
                     check_df(Xt, single_or_empty=True)
-                except:
+                except ValueError:  # TODO raise and check custom error.
                     columns = Xt.columns
                     is_single_column = False
                 if not is_single_column and step_idx < len(self.steps) - 1:
@@ -68,15 +87,22 @@ class SingleInputPipeline(Pipeline):
                     # output the DataFrame (which has more than one column)
                     # and the next SmartTransformer will have to handle it
                     # as its input.
-                    next_step, next_trans = self.steps[step_idx+1]
-                    self.steps[step_idx+1] = (
-                        '%s' % next_step,
+                    next_step, next_trans = self.steps[step_idx + 1]
+                    self.steps[step_idx + 1] = (
+                        "%s" % next_step,
                         ParallelProcessor(
-                            [['dynamic_single_input_col_%d' % i,
-                              clone(next_trans),  # need separate instances
-                              [columns[i]]] for i in range(len(columns))],
-                            collapse_index=True
-                        )
+                            [
+                                [
+                                    "dynamic_single_input_col_%d" % i,
+                                    clone(
+                                        next_trans
+                                    ),  # need separate instances
+                                    [columns[i]],
+                                ]
+                                for i in range(len(columns))
+                            ],
+                            collapse_index=True,
+                        ),
                     )
                 # ------------------------------------------------------------
                 # Replace the transformer of the step with the fitted
@@ -86,37 +112,52 @@ class SingleInputPipeline(Pipeline):
         return Xt
 
     def fit(self, X, y=None, **fit_params):
-        """Fit the model
+        """Fit the model.
 
         Fit all the transforms one after the other and transform the
         data. Has no final_estimator.
 
-        Parameters
-        ----------
-        X : iterable
-            Training data. Must fulfill input requirements of first step of the
-            pipeline.
+        Args:
+            X (iterable): Training data. Must fulfill input requirements of
+                first step of the pipeline.
+            y (iterable, default=None): Training targets. Must fulfill label
+                requirements for all steps of the pipeline.
+            **fit_params (dict of string -> object): Parameters passed to the
+                ``fit`` method of each step, where each parameter name is
+                prefixed such that parameter ``p`` for step ``s`` has key
+                ``s__p``.
 
-        y : iterable, default=None
-            Training targets. Must fulfill label requirements for all steps of
-            the pipeline.
+        Returns:
+            self : Pipeline, this estimator
 
-        **fit_params : dict of string -> object
-            Parameters passed to the ``fit`` method of each step, where
-            each parameter name is prefixed such that parameter ``p`` for step
-            ``s`` has key ``s__p``.
-
-        Returns
-        -------
-        self : Pipeline
-            This estimator
         """
         self._fit(X, y, **fit_params)
         return self
 
 
 class TransformersPipeline(Pipeline):
+    """Pipeline for only transformers (no estimator)."""
+
     def _fit(self, X, y=None, **fit_params):
+        """Fit and then transform data.
+
+        Fit all the transforms one after the other and transform the
+        data. Has no final_estimator.
+
+        Args:
+            X (iterable): Training data. Must fulfill input requirements of
+                first step of the pipeline.
+            y (iterable, default=None): Training targets. Must fulfill label
+                requirements for all steps of the pipeline.
+            **fit_params (dict of string -> object): Parameters passed to the
+                ``fit`` method of each step, where each parameter name is
+                prefixed such that parameter ``p`` for step ``s`` has key
+                ``s__p``.
+
+        Returns:
+            Transformed inputs.
+
+        """
         # shallow copy of steps - this should really be steps_
         self.steps = list(self.steps)
         self._validate_steps()
@@ -125,17 +166,18 @@ class TransformersPipeline(Pipeline):
 
         fit_transform_one_cached = memory.cache(_fit_transform_one)
 
-        fit_params_steps = dict((name, {}) for name, step in self.steps
-                                if step is not None)
+        fit_params_steps = dict(
+            (name, {}) for name, step in self.steps if step is not None
+        )
         for pname, pval in six.iteritems(fit_params):
-            step, param = pname.split('__', 1)
+            step, param = pname.split("__", 1)
             fit_params_steps[step][param] = pval
         Xt = X
         for step_idx, (name, transformer) in enumerate(self.steps):
             if transformer is None:
                 pass
             else:
-                if hasattr(memory, 'cachedir') and memory.cachedir is None:
+                if hasattr(memory, "cachedir") and memory.cachedir is None:
                     # we do not clone when caching is disabled to preserve
                     # backward compatibility
                     cloned_transformer = transformer
@@ -143,8 +185,8 @@ class TransformersPipeline(Pipeline):
                     cloned_transformer = clone(transformer)
                 # Fit or load from cache the current transfomer
                 Xt, fitted_transformer = fit_transform_one_cached(
-                    cloned_transformer, None, Xt, y,
-                    **fit_params_steps[name])
+                    cloned_transformer, None, Xt, y, **fit_params_steps[name]
+                )
                 # Replace the transformer of the step with the fitted
                 # transformer. This is necessary when loading the transformer
                 # from the cache.
@@ -152,64 +194,53 @@ class TransformersPipeline(Pipeline):
         return Xt
 
     def fit(self, X, y=None, **fit_params):
-        """Fit the model
+        """Fit the model.
 
         Fit all the transforms one after the other and transform the
-        data, then fit the transformed data using the final estimator.
+        data. Has no final_estimator.
 
-        Parameters
-        ----------
-        X : iterable
-            Training data. Must fulfill input requirements of first step of the
-            pipeline.
+        Args:
+            X (iterable): Training data. Must fulfill input requirements of
+                first step of the pipeline.
+            y (iterable, default=None): Training targets. Must fulfill label
+                requirements for all steps of the pipeline.
+            **fit_params (dict of string -> object): Parameters passed to the
+                ``fit`` method of each step, where each parameter name is
+                prefixed such that parameter ``p`` for step ``s`` has key
+                ``s__p``.
 
-        y : iterable, default=None
-            Training targets. Must fulfill label requirements for all steps of
-            the pipeline.
+        Returns:
+            self : Pipeline, this estimator
 
-        **fit_params : dict of string -> object
-            Parameters passed to the ``fit`` method of each step, where
-            each parameter name is prefixed such that parameter ``p`` for step
-            ``s`` has key ``s__p``.
-
-        Returns
-        -------
-        self : Pipeline
-            This estimator
         """
         Xt, fit_params = self._fit(X, y, **fit_params)
         return self
 
     def fit_transform(self, X, y=None, **fit_params):
-        """Fit the model and transform with the final estimator
+        """Fit the model and transform with the final estimator.
 
         Fits all the transforms one after the other and transforms the
         data, then uses fit_transform on transformed data with the final
         estimator.
 
-        Parameters
-        ----------
-        X : iterable
-            Training data. Must fulfill input requirements of first step of the
-            pipeline.
+        Args:
+            X (iterable): Training data. Must fulfill input requirements of
+                first step of the pipeline.
+            y (iterable, default=None): Training targets. Must fulfill label
+                requirements for all steps of the pipeline.
+            **fit_params (dict of string -> object): Parameters passed to
+                the ``fit`` method of each step, where each parameter name
+                is prefixed such that parameter ``p`` for step ``s`` has key
+                ``s__p``.
 
-        y : iterable, default=None
-            Training targets. Must fulfill label requirements for all steps of
-            the pipeline.
-
-        **fit_params : dict of string -> object
-            Parameters passed to the ``fit`` method of each step, where
-            each parameter name is prefixed such that parameter ``p`` for step
-            ``s`` has key ``s__p``.
-
-        Returns
-        -------
-        Xt : array-like, shape = [n_samples, n_transformed_features]
+        Returns:
+            Xt : array-like, shape = [n_samples, n_transformed_features] of
             Transformed samples
+
         """
         last_step = self._final_estimator
         Xt, fit_params = self._fit(X, y, **fit_params)
-        if hasattr(last_step, 'fit_transform'):
+        if hasattr(last_step, "fit_transform"):
             return last_step.fit_transform(Xt, y, **fit_params)
         elif last_step is None:
             return Xt

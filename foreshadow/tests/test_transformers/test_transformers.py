@@ -387,7 +387,8 @@ def test_smarttransformer_fitself(smart_child, mocker):
 
     """
     import pandas as pd
-    smart = smart_child(override='Imputer', name='test')
+
+    smart = smart_child(override="Imputer", name="test")
     assert smart.fit(pd.DataFrame([])) == smart
 
 
@@ -423,7 +424,7 @@ def test_smarttransformer_function_override(smart_child):
     std.fit(df[["crim"]])
     std_data = std.transform(df[["crim"]])
 
-    assert std_data.columns[0] == 'crim'
+    assert std_data.columns[0] == "crim"
 
     # TODO, remove when SmartTransformer is no longer wrapped
     # Column names will be different, thus np.allclose() is used

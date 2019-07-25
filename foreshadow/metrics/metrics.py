@@ -18,12 +18,8 @@ class Metric(object):  # Metric wrapper
     def __call__(self, feature, **kwargs):
         """Use the metric function passed at initialization.
 
-        Note: encoder is an explicit named argument as it will be important
-        for many metrics.
-
         Args:
             feature: feature/column of pandas dataset
-            encoder: the encoder being used. Only required if metric fn
                 requires it.
             **kwargs: any keyword arguments to metric function
 

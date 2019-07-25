@@ -1,3 +1,6 @@
+"""Custom exceptions for the Foreshadow project."""
+
+
 class SmartResolveError(Exception):
     """Resolution error in SmartTransformer determining best Transformer."""
 

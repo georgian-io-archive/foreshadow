@@ -4,11 +4,11 @@ import re
 from foreshadow.cleaners.data_cleaner import BaseCleaner
 
 
-def _split_to_new_cols(t, return_search=False):
+def _split_to_new_cols(t):
     """Clean text if it is in a YYYYMDD format and split to three columns.
 
     Args:
-        text: string of text
+        t: string of text
 
     Returns:
         length of match, new string assuming a match.
@@ -16,7 +16,7 @@ def _split_to_new_cols(t, return_search=False):
 
     """
     delimiters = "[-/]"
-    regex = "^.*(([\d]{4})%s([\d]{2})%s([\d]{2})).*$" % (
+    regex = r"^.*(([\d]{4})%s([\d]{2})%s([\d]{2})).*$" % (
         delimiters,
         delimiters,
     )
@@ -28,9 +28,7 @@ def _split_to_new_cols(t, return_search=False):
     else:
         texts = t
         res = 0
-    if return_search:
-        return texts, res
-    return texts
+    return texts, res
 
 
 class YYYYMMDDDateCleaner(BaseCleaner):
@@ -42,5 +40,19 @@ class YYYYMMDDDateCleaner(BaseCleaner):
 
     def __init__(self):
         transformations = [_split_to_new_cols]
-        default = lambda x: [x, '', '']
+
+        def make_list_of_three(x):
+            """Return default output which must have 3 columns.
+
+            Args:
+                x: initial row.
+
+            Returns:
+                list of three with initial row as first element, 2 empty
+                elements.
+
+            """
+            return [x, "", ""]
+
+        default = make_list_of_three
         super().__init__(transformations, default=default)

@@ -8,10 +8,9 @@ from foreshadow.core.preparerstep import PreparerStep
 from foreshadow.exceptions import InvalidDataFrame
 from foreshadow.metrics.internals import avg_col_regex, regex_rows
 from foreshadow.transformers.core import SmartTransformer
+from foreshadow.transformers.core.notransform import NoTransform
 from foreshadow.utils.testing import dynamic_import
 from foreshadow.utils.validation import check_df
-from foreshadow.transformers.core.notransform import NoTransform
-from foreshadow.utils.validation import is_drop
 
 
 CleanerReturn = namedtuple("CleanerReturn", ["row", "match_lens"])
@@ -31,11 +30,24 @@ class DataCleaner(PreparerStep):
         super().__init__(*args, use_single_pipeline=True, **kwargs)
 
     def get_mapping(self, X):
+        """Return the mapping of transformations for the DataCleaner step.
+
+        Args:
+            X: input DataFrame.
+
+        Returns:
+            Mapping in accordance with super.
+
+        """
         return self.separate_cols(
-            transformers=[[SmartFlatten(column_sharer=self.column_sharer),
-                           SmartCleaner(column_sharer=self.column_sharer)]
-                          for c in X],
-            X=X
+            transformers=[
+                [
+                    SmartFlatten(column_sharer=self.column_sharer),
+                    SmartCleaner(column_sharer=self.column_sharer),
+                ]
+                for c in X
+            ],
+            X=X,
         )
 
 
@@ -60,8 +72,7 @@ class SmartCleaner(SmartTransformer):
         from foreshadow.cleaners.internals import __all__ as cleaners
 
         cleaners = [
-            (dynamic_import(cleaner, "foreshadow.cleaners.internals"),
-             cleaner)
+            (dynamic_import(cleaner, "foreshadow.cleaners.internals"), cleaner)
             for cleaner in cleaners
             if cleaner.lower().find("cleaner") != -1
         ]
@@ -80,6 +91,8 @@ class SmartCleaner(SmartTransformer):
 
 
 class SmartFlatten(SmartTransformer):
+    """Smartly determine how to flatten an input DataFrame."""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -98,8 +111,10 @@ class SmartFlatten(SmartTransformer):
         from foreshadow.cleaners.internals import __all__ as flatteners
 
         flatteners = [
-            (dynamic_import(flattener, "foreshadow.cleaners.internals"),
-             flattener)
+            (
+                dynamic_import(flattener, "foreshadow.cleaners.internals"),
+                flattener,
+            )
             for flattener in flatteners
             if flattener.lower().find("flatten") != -1
         ]
@@ -121,13 +136,14 @@ class SmartFlatten(SmartTransformer):
 class BaseCleaner(BaseEstimator, TransformerMixin):
     """Base class for any Cleaner Transformer."""
 
-    def __init__(self,
-                 transformations,
-                 output_columns=None,
-                 confidence_computation=None,
-                 default=lambda x: x,
+    def __init__(
+        self,
+        transformations,
+        output_columns=None,
+        confidence_computation=None,
+        default=lambda x: x,
     ):
-        """
+        """Construct any cleaner/flattener.
 
         Args:
             transformations: a callable that takes a string and returns a
@@ -137,7 +153,15 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
                 are assumed to be separate columns in the new DataFrame.
                 Otherwise, pass the names for each desired output
                 column to be used.
-            confidence_computation:
+            confidence_computation: The dict of {metric: weight} for the
+                subclass's metric computation. This implies an OVR model.
+            default: Function that returns the default value for a row if
+                the transformation failed. Accepts the row as input.
+
+        Raises:
+            ValueError: If not a list, int, or None specifying expected
+                output columns.
+
         """
         if not isinstance(output_columns, (int, list, type(None))):
             raise ValueError("output columns not a valid type")
@@ -150,12 +174,17 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
             self.confidence_computation = confidence_computation
 
     def metric_score(self, X):
-        """Compute the score for this cleaner using
+        """Compute the score for this cleaner using confidence_computation.
+
+        confidence_computation is passed through init for each subclass.
+        The confidence determines which cleaner/flattener is picked in an
+        OVR fashion.
 
         Args:
-            X:
+            X: input DataFrame.
 
         Returns:
+            float: confidence value.
 
         """
         return sum(
@@ -168,10 +197,15 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
     def transform_row(self, row_of_feature, return_tuple=True):
         """Perform clean operations on text, that is a row of feature.
 
-        By
+        Uses self.transformations determined at init time by the child class
+        and performs the transformations sequentially.
 
         Args:
             row_of_feature: one row of one column
+            return_tuple: return named_tuple object instead of just the row.
+                This will often be set to False when passing this method to an
+                external function (non source code) that will expect the
+                output to only be the transformed row, such as DataFrame.apply.
 
         Returns:
             NamedTuple object with:
@@ -187,7 +221,7 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         # columns
         for transform in self.transformations:
             row = row_of_feature
-            row, match_len = transform(row, return_search=True)
+            row, match_len = transform(row)
             if match_len == 0:
                 matched_lengths.append(0)
                 row = self.default(row_of_feature)
@@ -231,6 +265,12 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         Returns:
             :obj:`pandas.DataFrame`: Transformed data
 
+        Raises:
+            InvalidDataFrame: If unexpected output returned that was not
+                handled correctly. This happens if the output specified by the
+                child does not match what is actually returned. The child
+                should ensure it's implementation is consistent.
+
         """
         X = check_df(X, single_column=True)
         # Problem:
@@ -249,13 +289,11 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         # access single column as series and apply the list of
         # transformations to each row in the series.
         if any(
-            [
-                isinstance(out[i], (list, tuple))
-                for i in range(out.shape[0])
-            ]
+            [isinstance(out[i], (list, tuple)) for i in range(out.shape[0])]
         ):  # out are lists == new columns
-            if not all([len(out[0]) == len(out[i])
-                        for i in range(len(out[0]))]):
+            if not all(
+                [len(out[0]) == len(out[i]) for i in range(len(out[0]))]
+            ):
                 raise InvalidDataFrame(
                     "length of lists: {}, returned not of same value.".format(
                         [out[i] for i in range(len(out[0]))]
@@ -263,13 +301,11 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
                 )
             columns = self.output_columns
             if columns is None:
-                columns = [X.columns[0]+str(c) for c in range(len(out[0]))]
+                columns = [X.columns[0] + str(c) for c in range(len(out[0]))]
                 # by default, pandas would have given a unique integer to
                 # each column, instead, we keep the previous column name and
                 # add that integer.
-            X = pd.DataFrame(
-                [*out.values], columns=columns
-            )
+            X = pd.DataFrame([*out.values], columns=columns)
         elif any(
             [isinstance(out[i], (dict)) for i in range(out.shape[0])]
         ):  # out are dicts ==  named new columns
@@ -277,10 +313,8 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
             for row in out:
                 all_keys.update({key: True for key in row})  # get all columns
             columns = list(all_keys.keys())
-            out = pd.DataFrame([*out.values],
-                             columns=columns
-                             )
-            out.columns = [X.columns[0]+"_"+c for c in columns]
+            out = pd.DataFrame([*out.values], columns=columns)
+            out.columns = [X.columns[0] + "_" + c for c in columns]
             X = out
             # by default, this will create a DataFrame where if a row
             # contains the value, it will be added, if not NaN is added.

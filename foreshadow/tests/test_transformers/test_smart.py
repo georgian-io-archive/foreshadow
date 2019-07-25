@@ -22,8 +22,9 @@ def test_smart_scaler_normal():
     np.random.seed(0)
     normal_data = ss.norm.rvs(size=100)
     smart_scaler = Scaler()
-    assert isinstance(smart_scaler.fit(normal_data).transformer,
-                      StandardScaler)
+    assert isinstance(
+        smart_scaler.fit(normal_data).transformer, StandardScaler
+    )
 
 
 def test_smart_scaler_unifrom():
@@ -61,8 +62,9 @@ def test_smart_encoder_less_than_30_levels():
     np.random.seed(0)
     leq_30_random_data = np.random.choice(30, size=500)
     smart_coder = Encoder()
-    assert isinstance(smart_coder.fit(leq_30_random_data).transformer,
-                      OneHotEncoder)
+    assert isinstance(
+        smart_coder.fit(leq_30_random_data).transformer, OneHotEncoder
+    )
 
 
 def test_smart_encoder_more_than_30_levels():
@@ -74,8 +76,9 @@ def test_smart_encoder_more_than_30_levels():
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
     smart_coder = Encoder()
-    assert isinstance(smart_coder.fit(gt_30_random_data).transformer,
-                      HashingEncoder)
+    assert isinstance(
+        smart_coder.fit(gt_30_random_data).transformer, HashingEncoder
+    )
 
 
 def test_smart_encoder_more_than_30_levels_that_reduces():
@@ -91,7 +94,7 @@ def test_smart_encoder_more_than_30_levels_that_reduces():
     smart_coder = Encoder()
     assert isinstance(
         smart_coder.fit(gt_30_random_data).transformer.steps[-1][1],
-        OneHotEncoder
+        OneHotEncoder,
     )
 
 
@@ -254,8 +257,9 @@ def test_smart_encoder_more_than_30_levels_with_overwritten_cutoff():
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
     smart_coder = Encoder(unique_num_cutoff=35)
-    assert isinstance(smart_coder.fit(gt_30_random_data).transformer,
-                      OneHotEncoder)
+    assert isinstance(
+        smart_coder.fit(gt_30_random_data).transformer, OneHotEncoder
+    )
 
 
 def test_smart_financial_cleaner_us():
@@ -320,8 +324,6 @@ def test_smart_text():
 
     X1 = pd.DataFrame(["abc", "def", "1321", "tester"])
     tf1 = SmartText().fit(X1)
-
-
 
     assert isinstance(tf1.transformer, FixedTfidfVectorizer)
 

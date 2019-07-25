@@ -243,12 +243,38 @@ for level in LEVELS:  # dynamicaally expose the logging methods for each level
 
 
 def debug(*args, **kwargs):
-    log = _wrap_log(_log, 'debug')
+    """Log debug message.
+
+    Manually overriding so that this method is explicitly a part of this
+    module.
+
+    Args:
+        *args: To logging.debug
+        **kwargs: To logging.debug
+
+    Returns:
+        logging.debug
+
+    """
+    log = _wrap_log(_log, "debug")
     return log(*args, **kwargs)
 
 
 def info(*args, **kwargs):
-    log = _wrap_log(_log, 'info')
+    """Log info message.
+
+    Manually overriding so that this method is explicitly a part of this
+    module.
+
+    Args:
+        *args: To logging.info
+        **kwargs: To logging.info
+
+    Returns:
+        logging.info
+
+    """
+    log = _wrap_log(_log, "info")
     return log(*args, **kwargs)
 
 

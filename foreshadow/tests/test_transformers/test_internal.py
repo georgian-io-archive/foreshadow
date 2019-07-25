@@ -14,11 +14,7 @@ def test_dummy_encoder():
     df = de.transform(data)
 
     check = pd.DataFrame(
-        {
-            "a": [1, 1, 1, 1],
-            "b": [0, 1, 1, 0],
-            "c": [0, 1, 0, 1],
-        }
+        {"a": [1, 1, 1, 1], "b": [0, 1, 1, 0], "c": [0, 1, 0, 1]}
     )
 
     assert check.equals(df)
@@ -133,10 +129,7 @@ def test_transformer_onehotencoder_fit_transform():
     )
     ohe = OneHotEncoder(use_cat_names=True, handle_unknown="ignore")
     assert ohe.fit(df) == ohe
-    assert list(ohe.transform(df)) == [
-        "neat_apple",
-        "neat_orange",
-    ]
+    assert list(ohe.transform(df)) == ["neat_apple", "neat_orange"]
 
 
 def test_transformer_onehotencoder_fit_transform_keep_cols():
@@ -153,11 +146,7 @@ def test_transformer_onehotencoder_fit_transform_keep_cols():
         handle_unknown="ignore",
     )
     assert ohe.fit(df) == ohe
-    assert list(ohe.transform(df)) == [
-        "neat",
-        "neat_apple",
-        "neat_orange",
-    ]
+    assert list(ohe.transform(df)) == ["neat", "neat_apple", "neat_orange"]
 
 
 def test_drop_transformer_above_thresh():

@@ -1,12 +1,14 @@
+"""DropCleaner which detects when to drop cleaner."""
 import re
+
+import pandas as pd
 
 from foreshadow.cleaners.data_cleaner import BaseCleaner
 from foreshadow.core.preparerstep import DropMixin
 from foreshadow.utils.validation import check_df
-import pandas as pd
 
 
-def drop_transform(text, return_search=False):
+def drop_transform(text):
     """Drop this column at the cleaning stage.
 
     Args:
@@ -24,9 +26,7 @@ def drop_transform(text, return_search=False):
         res = 1
     else:
         res = 0
-    if return_search:
-        return text, res
-    return text
+    return text, res
 
 
 class DropCleaner(BaseCleaner, DropMixin):

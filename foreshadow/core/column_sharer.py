@@ -18,11 +18,12 @@ class ColumnSharer(MutableMapping):
         # have a nested defaultdict for every key, which holds {column:
         # key-column info} and gives None by default. It is the users
         # responsibility to make sure returned values are useful.
-        acceptable_keys = {"intent": True,
-                           "domain": True,
-                           "metastat": True,
-                           "graph": True,
-                           }
+        acceptable_keys = {
+            "intent": True,
+            "domain": True,
+            "metastat": True,
+            "graph": True,
+        }
         self.__acceptable_keys = defaultdict(lambda: False, acceptable_keys)
 
     def __getitem__(self, key_list):

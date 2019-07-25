@@ -27,7 +27,7 @@ def _none_to_dict(name, val, column_sharer=None):
             "value for kwarg: {} must be dict or " "None.".format(name)
         )
     if column_sharer is not None:
-        val['column_sharer'] = column_sharer
+        val["column_sharer"] = column_sharer
     return val
 
 
@@ -45,12 +45,12 @@ class DataPreparer(Pipeline):
         modeler_kwargs=None,
     ):
         from foreshadow.cleaners.data_cleaner import DataCleaner
+
         self.column_sharer = column_sharer
         # TODO look at fixing structure so we don't have to import inside init.
-        cleaner_kwargs_ = _none_to_dict("cleaner_kwargs",
-                                        cleaner_kwargs,
-                                        column_sharer,
-                                        )
+        cleaner_kwargs_ = _none_to_dict(
+            "cleaner_kwargs", cleaner_kwargs, column_sharer
+        )
         # intent_kwargs_ = _none_to_dict(intent_kwargs=intent_kwargs)
         # engineerer_kwargs_ = _none_to_dict(
         # engineerer_kwargs=engineerer_kwargs

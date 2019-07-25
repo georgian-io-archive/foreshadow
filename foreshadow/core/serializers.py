@@ -94,6 +94,7 @@ def _pickle_cache_path(self, cache_path=None):
     filename.
 
     Args:
+        self: TODO @Adithya
         cache_path (str, optional): override the default cache_path which
             is in the root of the user's directory.
 

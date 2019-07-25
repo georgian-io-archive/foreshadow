@@ -4,15 +4,16 @@ from sklearn.pipeline import Pipeline
 
 from foreshadow.core import logging
 from foreshadow.transformers.core import ParallelProcessor
+from foreshadow.transformers.core.notransform import NoTransform
 from foreshadow.transformers.core.pipeline import (
     SingleInputPipeline,
     TransformersPipeline,
 )
-from foreshadow.transformers.core.notransform import NoTransform
 
 
-def _check_parallelizable_batch(column_mapping, group_number,
-                                PipelineClass=TransformersPipeline):
+def _check_parallelizable_batch(
+    column_mapping, group_number, PipelineClass=TransformersPipeline
+):
     """See if the group of cols 'group_number' is parallelizable.
 
     'group_number' in column_mapping is parallelizable if the cols across
@@ -74,6 +75,9 @@ def _batch_parallelize(column_mapping, parallelized):
         list of steps for Pipeline, all_cols
         all_cols is the set of all cols that needs to be passed, as a list.
 
+    Raises:
+        ValueError: number inputs do not equal number of steps.
+
     """
     total_steps = len(column_mapping[0])
     steps = []  # each individual step, or dim1, will go in here.
@@ -108,8 +112,10 @@ def _batch_parallelize(column_mapping, parallelized):
         ]  # this is one step parallelized across the columns (dim1
         # parallelized across dim2).
         steps.append(
-            ("step: %d" % step_number, ParallelProcessor(transformer_list,
-                                                         collapse_index=True))
+            (
+                "step: %d" % step_number,
+                ParallelProcessor(transformer_list, collapse_index=True),
+            )
         )  # list of steps for final pipeline.
     return steps, list(all_cols)
 
@@ -137,12 +143,9 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
     """
 
-    def __init__(self,
-                 column_sharer,
-                 *args,
-                 use_single_pipeline=False,
-                 **kwargs
-                 ):
+    def __init__(
+        self, column_sharer, *args, use_single_pipeline=False, **kwargs
+    ):
         """Set the original pipeline steps internally.
 
         Takes a list of desired SmartTransformer steps and stores them as
@@ -151,9 +154,10 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         Args:
             column_sharer: ColumnSharer instance to be shared across all steps.
             use_single_pipeline: Creates pipelines using SinglePipeline
-                class. This will
+                class instead of normal Pipelines.  .. #noqa: I102
             *args: args to Pipeline constructor.
             **kwargs: kwargs to PIpeline constructor.
+
         """
         self.column_sharer = column_sharer
         self._parallel_process = None
@@ -176,10 +180,16 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         Args:
             transformers: list of transformers of length equal to X.shape[1] or
                 len(cols).
+            X: input DataFrame. See description for when to pass.
+            cols: DataFrame.columns, list of columns. See description for
+                when to pass.
 
         Returns:
             A list where each entry can be used to separately access an
             individual column from X.
+
+        Raises:
+            ValueError: input does not matched defined format.
 
         """
         if cols is None and X is not None:
@@ -193,13 +203,11 @@ class PreparerStep(BaseEstimator, TransformerMixin):
                 for i, cols in enumerate(cols)
             }
         else:
-            raise NotImplementedError(
-                "not valid input. Please read " "docstring."
-            )
+            raise ValueError("not valid input. Please read " "docstring.")
 
     @classmethod
     def logging_name(cls):
-        """Returns the logging name for this transformer.
+        """Return the logging name for this transformer.
 
         Returns:
             See return.
@@ -234,7 +242,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         for group_number in column_mapping:
 
             transformer_list = _check_parallelizable_batch(
-                column_mapping, group_number, PipelineClass=PipelineClass,
+                column_mapping, group_number, PipelineClass=PipelineClass
             )
             if transformer_list is None:  # could not be separated out
                 parallelized[group_number] = False
@@ -269,6 +277,10 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
         Args:
             X: DataFrame
+
+        Returns:
+            ParallelProcessor instance holding all the steps, parallelized
+            as good as possible.
 
         """
         column_mapping = self.get_mapping(X)
@@ -319,31 +331,24 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         transformer, as a SmartTransformer is just a wrapper shadowing an
         underlying concrete transformer.
 
-        # Here, step is a useful argument to define concrete end points in
-        # your parallelized operations. This class will automatically
-        # parallelize as much as possible, but if the decision of which
-        # SmartTransformer to apply to a group of columns is dependent on the
-        # results from the previous run, then you would make a step 1 take
-        # perform those operations, and step 2 can access that information
-        # from ColumnSharer to make that decision.
-        # This method should be implemented s.t. it is expected ot be
-        # continuously called until None is returned.
-        #
-        # Currently, multiple calls to this function is not supported in
-        # HyperParameter tuning as scikit-learn tuners require the entire
-        # pipeline to be defined up front.
-
         Args:
-            # step: integer representing the step number.
             X: DataFrame
 
         Returns:
             third order list of lists, then None when finished.
+
+        Raises:
+            NotImplementedError: If child did not override and implement.
+
+        .. #noqa: I202
+
         """
         raise NotImplementedError("Must implement this method.")
 
     def fit(self, X, *args, **kwargs):
-        """fit
+        """Fit this step.
+
+        calls underlying parallel process.
 
         Args:
             X: input DataFrame
@@ -360,6 +365,12 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         return self._parallel_process.fit(X, *args, **kwargs)
 
     def check_process(self, X):
+        """If fit was never called, makes sure to create the parallel process.
+
+        Args:
+            X: input DataFrame
+
+        """
         if self._parallel_process is None:
             logging.debug(
                 "DataPreparerStep: %s called check_process"
@@ -368,17 +379,51 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             self._parallel_process = self.parallelize_smart_steps(X)
 
     def fit_transform(self, X, y=None, **fit_params):
+        """Fit then transform this PreparerStep.
+
+        calls underlying parallel process.
+
+        Args:
+            X: input DataFrame
+            y: input labels
+            **fit_params: kwarg params to fit
+
+        Returns:
+            Result from .transform()
+
+        """
         self.check_process(X)
         return self._parallel_process.fit_transform(X, y=y, **fit_params)
 
     def transform(self, X, *args, **kwargs):
-        self.check_process(X)
+        """Transform X using this PreparerStep.
+
+        calls underlying parallel process.
+
+        Args:
+            X: input DataFrame
+            *args: args to .transform()
+            **kwargs: kwargs to .transform()
+
+        Returns:
+            result from .transform()
+
+        """
         return self._parallel_process.transform(X, *args, **kwargs)
 
     def inverse_transform(self, X, *args, **kwargs):
+        """Inverse transform X using this PreparerStep.
+
+        calls underlying parallel process.
+
+        Args:
+            X: input DataFrame.
+            *args: args to .inverse_transform()
+            **kwargs: kwargs to .inverse_transform()
+
+        Returns:
+            result from .inverse_transform()
+
+        """
         self.check_process(X)
         return self._parallel_process.inverse_transform(X, *args, **kwargs)
-
-
-class DropMixin:
-    pass

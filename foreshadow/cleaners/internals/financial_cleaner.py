@@ -5,7 +5,7 @@ import re
 from foreshadow.cleaners.data_cleaner import BaseCleaner
 
 
-def financial_transform(text, return_search=False):
+def financial_transform(text):
     """Clean text if it is a financial text.
 
     Args:
@@ -16,7 +16,7 @@ def financial_transform(text, return_search=False):
         Otherwise: None, original text.
 
     """
-    regex = "^([\W]*\$)([\d]+[\.]?[\d]*)(.*)$"
+    regex = r"^([\W]*\$)([\d]+[\.]?[\d]*)(.*)$"
     text = str(text)
     res = re.search(regex, text)
     if res is not None:
@@ -24,9 +24,7 @@ def financial_transform(text, return_search=False):
         text = re.sub(regex, r"\2", text)
     else:
         res = 0
-    if return_search:
-        return text, res
-    return text
+    return text, res
 
 
 class DollarFinancialCleaner(BaseCleaner):
