@@ -77,7 +77,7 @@ def test_resolve_config_only_sys():
 def test_resolve_config_overrides(data, mocker):
     import json
 
-    from foreshadow.config import resolve_config
+    from foreshadow.config import resolve_config, reset_config
     from foreshadow.utils.testing import get_file_path
 
     from functools import partial
@@ -97,6 +97,9 @@ def test_resolve_config_overrides(data, mocker):
     mocker.patch("os.path.abspath", return_value="LOCAL")
     mocker.patch("foreshadow.config.get_config", side_effect=test_get_config)
     mocker.patch("foreshadow.config.get_transformer", side_effect=lambda x: x)
+
+    # Clear the config cache
+    reset_config()
 
     resolved = resolve_config()
 

@@ -49,6 +49,18 @@ def get_config(base):
                 return data
 
 
+def reset_config():
+    """Reset internal configuration
+
+    Note:
+        This is useful in an IDLE setting when the configuration file might
+        have been modified but you don't want to reload the system.
+
+    """
+    global _cfg
+    _cfg = {}
+
+
 def resolve_config():
     """Resolve the configuration to actual classes.
 
@@ -63,11 +75,14 @@ def resolve_config():
     """
     default = DEFAULT_CONFIG
     user = get_config(get_config_path())
-    local = get_config(os.path.abspath(""))
+    local_path = os.path.abspath("")
+    local = get_config(local_path)
+
+    # import pdb; pdb.set_trace()
 
     global _cfg
-    if local in _cfg:
-        return _cfg.get(local)
+    if local_path in _cfg:
+        return _cfg.get(local_path)
 
     # Expand the dictionaries in order of precedence
     _resolved = {**default, **user, **local}
@@ -89,6 +104,6 @@ def resolve_config():
                 for intent, transformer_list in data.items()
             }
 
-    _cfg[local] = resolved
+    _cfg[local_path] = resolved
 
     return resolved
