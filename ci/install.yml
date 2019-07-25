@@ -6,8 +6,6 @@ steps:
   - script: |
       pip install --upgrade pip
       curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
-    env:
-      POETRY_PREVIEW: 1
     displayName: Install Poetry
   # Unix
   - bash: |
