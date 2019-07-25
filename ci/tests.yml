@@ -1,14 +1,8 @@
 steps: 
-  - script: $HOME/.poetry/bin/poetry run pytest --junitxml=junit/test-results.xml --cov-report=xml
+  - script: poetry run pytest --junitxml=junit/test-results.xml --cov-report=xml
     env:
       FORESHADOW_TESTS: ALL
     displayName: Run pytest
-  # TODO: Switch back to 'Linux' when https://github.com/sdispater/poetry/issues/1197 is resolved
-  - script: $HOME/.poetry/bin/poetry run coveralls
-    condition: and(succeeded(), eq( variables['Agent.OS'], 'Darwin' ))
-    env:
-      COVERALLS_REPO_TOKEN: $(coveralls_token)
-    displayName: Submit coveralls report
   - task: PublishTestResults@2
     inputs:
       testResultsFiles: 'junit/test-results.xml'
@@ -19,3 +13,10 @@ steps:
       codeCoverageTool: Cobertura
       summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
       reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
+  - task: BuildQualityChecks@6
+    inputs:
+      checkCoverage: true
+      coverageFailOption: 'fixed'
+      coverageType: 'branches'
+      coverageThreshold: '90'
+    displayName: 'Check build quality'

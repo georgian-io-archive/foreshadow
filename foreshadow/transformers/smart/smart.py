@@ -84,7 +84,7 @@ class Scaler(SmartTransformer):
             return distributions[best_dist]
 
 
-class Encoder(SmartTransformer):
+class CategoricalEncoder(SmartTransformer):
     """Automatically encode categorical features.
 
     If there are less than 30 categories, then OneHotEncoder is used, if there
@@ -307,7 +307,7 @@ class FinancialCleaner(SmartTransformer):
             return us_pipeline
 
 
-class SmartText(SmartTransformer):
+class TextEncoder(SmartTransformer):
     """Automatically choose appropriate parameters for a text column.
 
     Args:

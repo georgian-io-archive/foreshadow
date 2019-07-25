@@ -1,20 +1,20 @@
 """Internal SmartTransformer definitions."""
 
 from foreshadow.transformers.smart.smart import (
-    Encoder,
+    CategoricalEncoder,
     FinancialCleaner,
     MultiImputer,
     Scaler,
     SimpleImputer,
-    SmartText,
+    TextEncoder,
 )
 
 
 __all__ = [
-    "Encoder",
+    "CategoricalEncoder",
     "FinancialCleaner",
     "MultiImputer",
     "Scaler",
     "SimpleImputer",
-    "SmartText",
+    "TextEncoder",
 ]

@@ -56,12 +56,12 @@ def test_smart_scaler_neither():
 def test_smart_encoder_less_than_30_levels():
     import numpy as np
 
-    from foreshadow.transformers.smart import Encoder
+    from foreshadow.transformers.smart import CategoricalEncoder
     from foreshadow.transformers.concrete import OneHotEncoder
 
     np.random.seed(0)
     leq_30_random_data = np.random.choice(30, size=500)
-    smart_coder = Encoder()
+    smart_coder = CategoricalEncoder()
     assert isinstance(
         smart_coder.fit(leq_30_random_data).transformer, OneHotEncoder
     )
@@ -70,12 +70,12 @@ def test_smart_encoder_less_than_30_levels():
 def test_smart_encoder_more_than_30_levels():
     import numpy as np
 
-    from foreshadow.transformers.smart import Encoder
+    from foreshadow.transformers.smart import CategoricalEncoder
     from foreshadow.transformers.concrete import HashingEncoder
 
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
-    smart_coder = Encoder()
+    smart_coder = CategoricalEncoder()
     assert isinstance(
         smart_coder.fit(gt_30_random_data).transformer, HashingEncoder
     )
@@ -84,14 +84,14 @@ def test_smart_encoder_more_than_30_levels():
 def test_smart_encoder_more_than_30_levels_that_reduces():
     import numpy as np
 
-    from foreshadow.transformers.smart import Encoder
+    from foreshadow.transformers.smart import CategoricalEncoder
     from foreshadow.transformers.concrete import OneHotEncoder
 
     np.random.seed(0)
     gt_30_random_data = np.concatenate(
         [np.random.choice(29, size=500), np.array([31, 32, 33, 34, 35, 36])]
     )
-    smart_coder = Encoder()
+    smart_coder = CategoricalEncoder()
     assert isinstance(
         smart_coder.fit(gt_30_random_data).transformer.steps[-1][1],
         OneHotEncoder,
@@ -102,13 +102,13 @@ def test_smart_encoder_y_var():
     import numpy as np
     import pandas as pd
 
-    from foreshadow.transformers.smart import Encoder
+    from foreshadow.transformers.smart import CategoricalEncoder
     from foreshadow.transformers.concrete import (
         FixedLabelEncoder as LabelEncoder,
     )
 
     y_df = pd.DataFrame({"A": np.array([1, 2, 10] * 3)})
-    smart_coder = Encoder(y_var=True)
+    smart_coder = CategoricalEncoder(y_var=True)
 
     assert isinstance(smart_coder.fit(y_df).transformer, LabelEncoder)
     assert np.array_equal(
@@ -241,22 +241,22 @@ def test_preprocessor_hashencoder_no_name_collision():
 
 def test_smart_encoder_delimmited():
     import pandas as pd
-    from foreshadow.transformers.smart import Encoder
+    from foreshadow.transformers.smart import CategoricalEncoder
     from foreshadow.transformers.concrete import DummyEncoder
 
     data = pd.DataFrame({"test": ["a", "a,b,c", "a,b", "a,c"]})
-    smart_coder = Encoder()
+    smart_coder = CategoricalEncoder()
     assert isinstance(smart_coder.fit(data).transformer, DummyEncoder)
 
 
 def test_smart_encoder_more_than_30_levels_with_overwritten_cutoff():
     import numpy as np
-    from foreshadow.transformers.smart import Encoder
+    from foreshadow.transformers.smart import CategoricalEncoder
     from foreshadow.transformers.concrete import OneHotEncoder
 
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
-    smart_coder = Encoder(unique_num_cutoff=35)
+    smart_coder = CategoricalEncoder(unique_num_cutoff=35)
     assert isinstance(
         smart_coder.fit(gt_30_random_data).transformer, OneHotEncoder
     )
@@ -318,19 +318,19 @@ def test_smart_text():
     import numpy as np
     import pandas as pd
 
-    from foreshadow.transformers.smart import SmartText
+    from foreshadow.transformers.smart import TextEncoder
     from foreshadow.transformers.concrete import FixedTfidfVectorizer
     from foreshadow.transformers.concrete import HTMLRemover
 
     X1 = pd.DataFrame(["abc", "def", "1321", "tester"])
-    tf1 = SmartText().fit(X1)
+    tf1 = TextEncoder().fit(X1)
 
     assert isinstance(tf1.transformer, FixedTfidfVectorizer)
 
     X2 = pd.DataFrame(["<p> Hello </p>", "World", "<h1> Tag </h1>"])
-    tf2 = SmartText().fit(X2)
+    tf2 = TextEncoder().fit(X2)
 
     assert any(isinstance(tf, HTMLRemover) for n, tf in tf2.transformer.steps)
     assert isinstance(tf2.transformer.steps[-1][1], FixedTfidfVectorizer)
 
-    assert SmartText().fit(pd.DataFrame([1, 2, 3, np.nan]))
+    assert TextEncoder().fit(pd.DataFrame([1, 2, 3, np.nan]))
