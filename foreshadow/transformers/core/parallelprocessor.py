@@ -36,7 +36,7 @@ class ParallelProcessor(FeatureUnion):
         n_jobs (int): See base class
         transformer_weights (:obj:`numpy.ndarray`): See base class
         transformer_list (list): List of transformer objects in form
-            [(name, [cols], TransformerObject), ...]
+            [(name, TransformerObject, [cols]), ...]
 
     """
 
@@ -210,10 +210,7 @@ class ParallelProcessor(FeatureUnion):
         # Create a parallel process of fitting transformers
         transformers = Parallel(n_jobs=self.n_jobs)(
             delayed(_fit_one_transformer)(
-                trans,
-                _slice_cols(X, cols),
-                y,
-                **{**fit_params, **_inject_df(trans, X)}
+                trans, _slice_cols(X, cols), y, **fit_params
             )
             for name, trans, cols, weight in self._iter()
         )
@@ -234,11 +231,10 @@ class ParallelProcessor(FeatureUnion):
         """
         Xs = Parallel(n_jobs=self.n_jobs)(
             delayed(_pandas_transform_one)(
-                trans, weight, _slice_cols(X, cols), cols
+                trans, weight, _slice_cols(X, cols), cols, self.collapse_index
             )
             for name, trans, cols, weight in self._iter()
         )
-
         # Iterates columns not specific in transformers
         Xo = X[self._get_other_cols(X)]
         if len(list(Xo)) > 0:
@@ -247,16 +243,23 @@ class ParallelProcessor(FeatureUnion):
                 Xo.columns = [list(Xo), list(Xo)]
 
             Xs += (Xo,)
-
         if not Xs:
             # All transformers are None
             return X[[]]
         else:
+            # if self.collapse_index:
+            #     Xs = pd.concat([Xs[i].get_level_values('new') for i in
+            #                     range(len(Xs))], axis=1)
+            # else:
             Xs = pd.concat(Xs, axis=1)
-
         # Reduces the multi-index to a single index if specified
         if self.collapse_index:
-            Xs.columns = Xs.columns.droplevel()
+            try:
+                Xs.columns = Xs.columns.droplevel()
+                Xs.index.name = None
+                Xs.columns.name = None
+            except AttributeError:  # TODO figure out why is this needed
+                pass
         return Xs
 
     def fit_transform(self, X, y=None, **fit_params):
@@ -281,7 +284,8 @@ class ParallelProcessor(FeatureUnion):
                 _slice_cols(X, cols),
                 y,
                 cols,
-                **{**fit_params, **_inject_df(trans, X)}
+                self.collapse_index,
+                **fit_params,
             )
             for name, trans, cols, weight in self._iter()
         )
@@ -309,7 +313,12 @@ class ParallelProcessor(FeatureUnion):
 
         # Convert multi index to single index if specified
         if self.collapse_index:
-            Xs.columns = Xs.columns.droplevel()
+            try:
+                Xs.columns = Xs.columns.droplevel()
+                Xs.index.name = None
+                Xs.columns.name = None
+            except AttributeError:  # TODO figure out why this is needed
+                pass
         return Xs
 
 
@@ -361,7 +370,6 @@ def _slice_cols(X, cols, drop_level=True):
         ],
         axis=1,
     )
-
     return df
 
 
@@ -386,7 +394,7 @@ def _inject_df(trans, df):
     }
 
 
-def _pandas_transform_one(transformer, weight, X, cols):
+def _pandas_transform_one(transformer, weight, X, cols, collapse_index):
     """Transform dataframe using sklearn transformer then adds multi-index.
 
     Args:
@@ -394,6 +402,7 @@ def _pandas_transform_one(transformer, weight, X, cols):
         weight: weighting for the one transformer
         X: input observations
         cols: columns for X
+        collapse_index: collapse multi-index to single-index
 
     Returns:
         output from _transform_one
@@ -404,12 +413,15 @@ def _pandas_transform_one(transformer, weight, X, cols):
     res = _transform_one(transformer, weight, X)
     # Applies multi_index such that the id of the column set is the name of the
     # leftmost column in the list.
-    res.columns = [[colname] * len(list(res)), list(res)]
-    res.columns = res.columns.rename(["origin", "new"])
+    if not collapse_index:
+        res.columns = [[colname] * len(list(res)), list(res)]
+        res.columns = res.columns.rename(["origin", "new"])
     return res
 
 
-def _pandas_fit_transform_one(transformer, weight, X, y, cols, **fit_params):
+def _pandas_fit_transform_one(
+    transformer, weight, X, y, cols, collapse_index, **fit_params
+):
     """Fit dataframe, executes transformation, then adds multi-index.
 
     Args:
@@ -418,6 +430,7 @@ def _pandas_fit_transform_one(transformer, weight, X, y, cols, **fit_params):
         X: input observations
         y: input labels
         cols: column names as list
+        collapse_index: collapse multi-index to single-index
         **fit_params: params to transformer fit
 
     Returns:
@@ -428,6 +441,7 @@ def _pandas_fit_transform_one(transformer, weight, X, y, cols, **fit_params):
     # Run original fit_transform function
     res, t = _fit_transform_one(transformer, weight, X, y, **fit_params)
     # Apply multi-index and name columns
-    res.columns = [[colname] * len(list(res)), list(res)]
-    res.columns = res.columns.rename(["origin", "new"])
+    if not collapse_index:
+        res.columns = [[colname] * len(list(res)), list(res)]
+        res.columns = res.columns.rename(["origin", "new"])
     return res, t

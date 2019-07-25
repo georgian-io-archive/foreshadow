@@ -7,7 +7,8 @@ import pytest
     [
         ({}, None),
         (None, None),
-        ({"random_kwarg": "random_value"}, None),  # replace with real kwargs
+        ({"random_kwarg": "random_value"}, TypeError),  # replace with real
+        # kwargs
         ([], ValueError),
     ],
 )
@@ -21,23 +22,18 @@ def test_data_preparer_init(cleaner_kwargs, expected_error):
 
     """
     from foreshadow.core.data_preparer import DataPreparer
+    from foreshadow.core.column_sharer import ColumnSharer
 
+    cs = ColumnSharer()
     if expected_error is not None:
         with pytest.raises(expected_error) as e:
-            DataPreparer(cleaner_kwargs=cleaner_kwargs)
+            DataPreparer(cs, cleaner_kwargs=cleaner_kwargs)
         assert issubclass(e.type, expected_error)
     else:
-        DataPreparer(cleaner_kwargs=cleaner_kwargs)
+        DataPreparer(cs, cleaner_kwargs=cleaner_kwargs)
 
 
-@pytest.mark.parametrize(
-    "cleaner_kwargs",
-    [
-        ({}),
-        (None),
-        ({"random_kwarg": "random_value"}),  # replace with real kwargs
-    ],
-)
+@pytest.mark.parametrize("cleaner_kwargs", [({}), (None)])
 def test_data_preparer_fit(cleaner_kwargs):
     """Test fitting of DataPreparer after creation with kwargs.
 
@@ -46,6 +42,8 @@ def test_data_preparer_fit(cleaner_kwargs):
 
     """
     from foreshadow.core.data_preparer import DataPreparer
+    from foreshadow.core.column_sharer import ColumnSharer
 
-    dp = DataPreparer(cleaner_kwargs=cleaner_kwargs)
+    cs = ColumnSharer()
+    dp = DataPreparer(cs, cleaner_kwargs=cleaner_kwargs)
     dp.fit([])

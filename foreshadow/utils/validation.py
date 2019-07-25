@@ -11,7 +11,9 @@ from sklearn.feature_extraction.text import VectorizerMixin
 PipelineStep = {"NAME": 0, "CLASS": 1, "COLS": 2}
 
 
-def check_df(input_data, ignore_none=False, single_column=False):
+def check_df(
+    input_data, ignore_none=False, single_column=False, single_or_empty=False
+):
     """Convert non dataframe inputs into dataframes (or series).
 
     Args:
@@ -20,6 +22,8 @@ def check_df(input_data, ignore_none=False, single_column=False):
         ignore_none (bool): allow None to pass through check_df
         single_column (bool): check if frame is of a single column and return
             series
+        single_or_empty (bool): check if the frame is a single column or an
+            empty DF.
 
     Returns:
         :obj:`DataFrame <pandas.DataFrame>`: Converted and validated input \
@@ -59,7 +63,11 @@ def check_df(input_data, ignore_none=False, single_column=False):
 
     if single_column and len(ret_df.columns) != 1:
         raise ValueError("Input Dataframe must have only one column")
-
+        # TODO custom error.
+    if single_or_empty and (len(ret_df.columns) != 1 and not ret_df.empty):
+        raise ValueError(
+            "Input Dataframe must have only one column or be " "empty."
+        )
     return ret_df
 
 
@@ -144,7 +152,7 @@ def is_wrapped(transformer):
         transformer: A transformer instance
 
     Returns:
-        bool: Whether or not the transformer is wrapped.
+        bool: True if transformer is wrapped, otherwise False.
 
     """
     return hasattr(transformer, "is_wrapped")

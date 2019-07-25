@@ -22,7 +22,9 @@ def test_smart_scaler_normal():
     np.random.seed(0)
     normal_data = ss.norm.rvs(size=100)
     smart_scaler = Scaler()
-    assert isinstance(smart_scaler.fit(normal_data), StandardScaler)
+    assert isinstance(
+        smart_scaler.fit(normal_data).transformer, StandardScaler
+    )
 
 
 def test_smart_scaler_unifrom():
@@ -35,7 +37,7 @@ def test_smart_scaler_unifrom():
     np.random.seed(0)
     uniform_data = ss.uniform.rvs(size=100)
     smart_scaler = Scaler()
-    assert isinstance(smart_scaler.fit(uniform_data), MinMaxScaler)
+    assert isinstance(smart_scaler.fit(uniform_data).transformer, MinMaxScaler)
 
 
 def test_smart_scaler_neither():
@@ -48,7 +50,7 @@ def test_smart_scaler_neither():
     np.random.seed(0)
     lognorm_data = ss.lognorm.rvs(size=100, s=0.954)  # one example
     smart_scaler = Scaler()
-    assert isinstance(smart_scaler.fit(lognorm_data), Pipeline)
+    assert isinstance(smart_scaler.fit(lognorm_data).transformer, Pipeline)
 
 
 def test_smart_encoder_less_than_30_levels():
@@ -60,7 +62,9 @@ def test_smart_encoder_less_than_30_levels():
     np.random.seed(0)
     leq_30_random_data = np.random.choice(30, size=500)
     smart_coder = Encoder()
-    assert isinstance(smart_coder.fit(leq_30_random_data), OneHotEncoder)
+    assert isinstance(
+        smart_coder.fit(leq_30_random_data).transformer, OneHotEncoder
+    )
 
 
 def test_smart_encoder_more_than_30_levels():
@@ -72,7 +76,9 @@ def test_smart_encoder_more_than_30_levels():
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
     smart_coder = Encoder()
-    assert isinstance(smart_coder.fit(gt_30_random_data), HashingEncoder)
+    assert isinstance(
+        smart_coder.fit(gt_30_random_data).transformer, HashingEncoder
+    )
 
 
 def test_smart_encoder_more_than_30_levels_that_reduces():
@@ -87,7 +93,8 @@ def test_smart_encoder_more_than_30_levels_that_reduces():
     )
     smart_coder = Encoder()
     assert isinstance(
-        smart_coder.fit(gt_30_random_data).steps[-1][1], OneHotEncoder
+        smart_coder.fit(gt_30_random_data).transformer.steps[-1][1],
+        OneHotEncoder,
     )
 
 
@@ -103,7 +110,7 @@ def test_smart_encoder_y_var():
     y_df = pd.DataFrame({"A": np.array([1, 2, 10] * 3)})
     smart_coder = Encoder(y_var=True)
 
-    assert isinstance(smart_coder.fit(y_df), LabelEncoder)
+    assert isinstance(smart_coder.fit(y_df).transformer, LabelEncoder)
     assert np.array_equal(
         smart_coder.transform(y_df).values.ravel(), np.array([0, 1, 2] * 3)
     )
@@ -114,7 +121,7 @@ def test_smart_impute_simple_none():
     import pandas as pd
     from foreshadow.transformers.smart import SimpleImputer
 
-    heart_path = get_file_path("test_data", "heart-h.csv")
+    heart_path = get_file_path("data", "heart-h.csv")
 
     impute = SimpleImputer(threshold=0.05)
     df = pd.read_csv(heart_path)
@@ -132,8 +139,8 @@ def test_smart_impute_simple_mean():
     import pandas as pd
     from foreshadow.transformers.smart import SimpleImputer
 
-    heart_path = get_file_path("test_data", "heart-h.csv")
-    heart_impute_path = get_file_path("test_data", "heart-h_impute_mean.csv")
+    heart_path = get_file_path("data", "heart-h.csv")
+    heart_impute_path = get_file_path("data", "heart-h_impute_mean.csv")
 
     impute = SimpleImputer()
     df = pd.read_csv(heart_path)
@@ -152,8 +159,8 @@ def test_smart_impute_simple_median():
     import numpy as np
     from foreshadow.transformers.smart import SimpleImputer
 
-    heart_path = get_file_path("test_data", "heart-h.csv")
-    heart_impute_path = get_file_path("test_data", "heart-h_impute_median.csv")
+    heart_path = get_file_path("data", "heart-h.csv")
+    heart_impute_path = get_file_path("data", "heart-h_impute_median.csv")
 
     impute = SimpleImputer()
     df = pd.read_csv(heart_path)
@@ -173,8 +180,8 @@ def test_smart_impute_multiple():
     import pandas as pd
     from foreshadow.transformers.smart import MultiImputer
 
-    heart_path = get_file_path("test_data", "heart-h.csv")
-    heart_impute_path = get_file_path("test_data", "heart-h_impute_multi.csv")
+    heart_path = get_file_path("data", "heart-h.csv")
+    heart_impute_path = get_file_path("data", "heart-h_impute_multi.csv")
 
     impute = MultiImputer()
     df = pd.read_csv(heart_path)
@@ -194,7 +201,7 @@ def test_smart_impute_multiple_none():
     from foreshadow.transformers.smart import MultiImputer
     from foreshadow.utils import PipelineStep
 
-    boston_path = get_file_path("test_data", "boston_housing.csv")
+    boston_path = get_file_path("data", "boston_housing.csv")
 
     impute = MultiImputer()
     df = pd.read_csv(boston_path)
@@ -239,7 +246,7 @@ def test_smart_encoder_delimmited():
 
     data = pd.DataFrame({"test": ["a", "a,b,c", "a,b", "a,c"]})
     smart_coder = Encoder()
-    assert isinstance(smart_coder.fit(data), DummyEncoder)
+    assert isinstance(smart_coder.fit(data).transformer, DummyEncoder)
 
 
 def test_smart_encoder_more_than_30_levels_with_overwritten_cutoff():
@@ -250,7 +257,9 @@ def test_smart_encoder_more_than_30_levels_with_overwritten_cutoff():
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
     smart_coder = Encoder(unique_num_cutoff=35)
-    assert isinstance(smart_coder.fit(gt_30_random_data), OneHotEncoder)
+    assert isinstance(
+        smart_coder.fit(gt_30_random_data).transformer, OneHotEncoder
+    )
 
 
 def test_smart_financial_cleaner_us():
@@ -316,12 +325,12 @@ def test_smart_text():
     X1 = pd.DataFrame(["abc", "def", "1321", "tester"])
     tf1 = SmartText().fit(X1)
 
-    assert isinstance(tf1, FixedTfidfVectorizer)
+    assert isinstance(tf1.transformer, FixedTfidfVectorizer)
 
     X2 = pd.DataFrame(["<p> Hello </p>", "World", "<h1> Tag </h1>"])
     tf2 = SmartText().fit(X2)
 
-    assert any(isinstance(tf, HTMLRemover) for n, tf in tf2.steps)
-    assert isinstance(tf2.steps[-1][1], FixedTfidfVectorizer)
+    assert any(isinstance(tf, HTMLRemover) for n, tf in tf2.transformer.steps)
+    assert isinstance(tf2.transformer.steps[-1][1], FixedTfidfVectorizer)
 
     assert SmartText().fit(pd.DataFrame([1, 2, 3, np.nan]))

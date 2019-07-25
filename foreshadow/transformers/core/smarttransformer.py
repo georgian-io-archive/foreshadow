@@ -5,7 +5,10 @@ from abc import ABCMeta, abstractmethod
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from foreshadow.transformers.core.pipeline import SerializablePipeline
-from foreshadow.transformers.core.wrapper import make_pandas_transformer
+from foreshadow.transformers.core.wrapper import (
+    _Empty,
+    make_pandas_transformer,
+)
 from foreshadow.utils import (
     check_df,
     get_transformer,
@@ -52,9 +55,12 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         override=None,
         should_resolve=True,
         force_reresolve=False,
-        **kwargs
+        # column_sharer=None,
+        **kwargs,
     ):
         self.kwargs = kwargs
+        # self.column_sharer=column_sharer
+        # TODO will need to add the above when this is no longer wrapped
         self.y_var = y_var
         self.transformer = None
         self.should_resolve = should_resolve
@@ -87,12 +93,13 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
         """
         # Check transformer type
-        valid_tranformer = is_transformer(value) and is_wrapped(value)
-        valid_pipeline = isinstance(value, SerializablePipeline)
-        set_none = value is None
-
+        is_trans = is_transformer(value) and is_wrapped(value)
+        is_pipe = isinstance(value, SerializablePipeline)
+        is_none = value is None
+        is_empty = isinstance(value, _Empty)
+        checks = [is_trans, is_pipe, is_none, is_empty]
         # Check the transformer inheritance status
-        if not valid_tranformer and not valid_pipeline and not set_none:
+        if not any(checks):
             raise ValueError(
                 "{} is neither a scikit-learn Pipeline, FeatureUnion, a "
                 "wrapped foreshadow transformer, nor None.".format(value)
@@ -124,6 +131,8 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             self.transformer = get_transformer(value)(
                 name=self.name, keep_columns=self.keep_columns, **self.kwargs
             )
+            self.transformer.name = self.name
+            self.transformer.keep_columns = self.keep_columns
             self.should_resolve = False
             self.force_reresolve = False
 
@@ -148,6 +157,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             "override": self.override,
             "name": self.name,
             "keep_columns": self.keep_columns,
+            "column_sharer": self.column_sharer,
             **(
                 self.transformer.get_params(deep=deep)
                 if self.transformer is not None and deep
@@ -212,7 +222,8 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         # Only resolve if transformer is not set or re-resolve is requested.
         if self.should_resolve:
             self.transformer = self.pick_transformer(X, y, **fit_params)
-            self.transformer.name = self.name
+            if getattr(self.transformer, "name", None) is None:
+                self.transformer.name = self.name
             self.transformer.keep_columns = self.keep_columns
 
         # reset should_resolve
@@ -235,6 +246,12 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
     def fit(self, X, y=None, **fit_params):
         """See base class.
 
+        This class returns self, not self.transformer.fit, which would
+        return the aggregated transformers self because then chains such as
+        SmartTransformer().fit().transform() would only call the underlying
+        transformer's fit. In the case that Smart is Wrapped, this changes
+        the way columns are named.
+
         Args:
             X: see base class
             y: see base class
@@ -248,8 +265,12 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         y = check_df(y, ignore_none=True)
         self.resolve(X, y, **fit_params)
         self.transformer.full_df = fit_params.pop("full_df", None)
-
-        return self.transformer.fit(X, y, **fit_params)
+        self.transformer.fit(X, y, **fit_params)
+        return self  # .transformer.fit(X, y, **fit_params)
+        # This should not return the self.transformer.fit as that will
+        # cause fit_transforms, which call .fit().transform() to fail when
+        # using our wrapper for transformers; TL;DR, it misses the call to
+        # this class's transform.
 
     def inverse_transform(self, X):
         """Invert transform if possible.
