@@ -87,13 +87,14 @@ def _make_deserializable(data):
         return data
 
 
-def _pickle_cache_path(self, cache_path=None):
+def _pickle_cache_path(cls_name, cache_path=None):
     """Get the pickle cache path of a transformer.
 
     Uses a generated UUID and the class name to come up with a unique
     filename.
 
     Args:
+        cls_name (str): Name of the class to be pickled
         cache_path (str, optional): override the default cache_path which
             is in the root of the user's directory.
 
@@ -105,7 +106,7 @@ def _pickle_cache_path(self, cache_path=None):
     if cache_path is None:
         cache_path = get_cache_path()
 
-    fname = self.__class__.__name__ + uuid.uuid4().hex
+    fname = cls_name + uuid.uuid4().hex
     fpath = "{}.pkl".format(fname)
     path = os.path.join(cache_path, fpath)
 
@@ -325,7 +326,7 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             str: The path the data was saved to.
 
         """
-        fpath = _pickle_cache_path(cache_path)
+        fpath = _pickle_cache_path(self.__class__.__name__, cache_path)
         with open(fpath, "wb+") as fopen:
             pickle.dump(self, fopen, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -434,7 +435,7 @@ class PipelineSerializerMixin(ConcreteSerializerMixin):
 
         Note:
             This recursively serializes the individual steps to facilitate a
-            human readabel form.
+            human readable form.
 
         Args:
             deep (bool): If True, will return the parameters for this estimator

@@ -7,7 +7,7 @@ from importlib import import_module
 from foreshadow.exceptions import TransformerNotFound
 
 
-DATA_DIR = "~/.foreshadow"
+CONFIG_DIR = "~/.foreshadow"
 
 
 def get_config_path():
@@ -20,7 +20,7 @@ def get_config_path():
         str: The path to the config directory.
 
     """
-    ret_path = os.path.expanduser(DATA_DIR)
+    ret_path = os.path.expanduser(CONFIG_DIR)
     os.makedirs(ret_path, exist_ok=True)
 
     return ret_path

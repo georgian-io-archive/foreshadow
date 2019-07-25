@@ -96,23 +96,23 @@ def dynamic_import(attribute, module_path):
 
 def import_init_transformer(
     transformer_class,
-    path="foreshadow.transformers.externals",
+    path="foreshadow.transformers.concrete",
     instantiate=True,
     params=None,
 ):
-    """Import and init a transformer from a specified path
+    """Import and init a transformer from a specified path.
 
     Args:
         transformer_class (str): The transformer class to import
         path (str): The import path to import from, default is
-            `foreshadow.transformers.externals`
+            `foreshadow.transformers.concrete`
+        instantiate (bool): Whether or not to instantiate the class
         params (dict): A param dictionary
 
     Returns:
         object: an initialized version of the transformer
 
     """
-
     if instantiate:
         if params is not None:
             return dynamic_import(transformer_class, path)(**params)

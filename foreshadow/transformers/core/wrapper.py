@@ -44,7 +44,7 @@ def _get_modules(classes, globals_, mname):  # TODO auto import all sklearn
     return [t.__name__ for t in transformers]
 
 
-def make_pandas_transformer(transformer):
+def make_pandas_transformer(transformer):  # noqa: C901
     """Wrap a scikit-learn transformer to support pandas DataFrames.
 
     Args:
