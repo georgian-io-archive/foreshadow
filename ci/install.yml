@@ -3,6 +3,7 @@ steps:
     displayName: 'Use Python $(python.version)'
     inputs:
       versionSpec: '$(python.version)'
+    name: python3
   - script: |
       pip install --upgrade pip
       curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
@@ -12,6 +13,11 @@ steps:
       echo "##vso[task.prependpath]$HOME/.poetry/bin"
     condition: or(eq( variables['Agent.OS'], 'Linux' ), eq( variables['Agent.OS'], 'Darwin' ))
     displayName: Add Poetry to path (Unix)
+  # Unix
+  - bash: |
+      echo "##vso[task.setvariable variable=LD_LIBRARY_PATH;]$(python3.pythonLocation)"
+    condition: or(eq( variables['Agent.OS'], 'Linux' ), eq( variables['Agent.OS'], 'Darwin' ))
+    displayName: Set python path in LD_LIBRARY_PATH (Unix)
   - script: |
       poetry --version
       pip freeze --all
