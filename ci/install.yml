@@ -5,8 +5,10 @@ steps:
       versionSpec: '$(python.version)'
   - script: |
       pip install --upgrade pip
-      POETRY_PREVIEW=1 curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+      curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
       pip freeze
+    env:
+      POETRY_PREVIEW: 1
     displayName: Install Poetry
   # Unix
   - bash: |
