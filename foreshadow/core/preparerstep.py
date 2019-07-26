@@ -153,7 +153,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
         Args:
             column_sharer: ColumnSharer instance to be shared across all steps.
-            use_single_pipeline: Creates pipelines using SinglePipeline
+            use_single_pipeline: Creates pipelines using SingleInputPipeline
                 class instead of normal Pipelines.  .. #noqa: I102
             *args: args to Pipeline constructor.
             **kwargs: kwargs to PIpeline constructor.
