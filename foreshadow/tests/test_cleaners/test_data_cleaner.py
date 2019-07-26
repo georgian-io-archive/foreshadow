@@ -134,3 +134,18 @@ def test_drop():
 
 
 # TODO test graph, could be implemented very wrong.
+
+
+def test_numerical_input():
+    """Test numerical input."""
+    import numpy as np
+    import pandas as pd
+    from foreshadow.cleaners import DataCleaner
+    from foreshadow.core.column_sharer import ColumnSharer
+
+    columns = ["financials"]
+    data = pd.DataFrame({"financials": np.arange(10)}, columns=columns)
+    cs = ColumnSharer()
+    dc = DataCleaner(cs)
+    dc.fit(data)
+    # transformed_data = dc.transform(data)
