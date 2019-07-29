@@ -53,7 +53,6 @@ code = """#
                 # output the DataFrame (which has more than one column)
                 # and the next SmartTransformer will have to handle it
                 # as its input.
-                print("here")
                 columns = Xt.columns
                 transformer = ParallelProcessor(
                         [
@@ -77,12 +76,17 @@ code = """#
                 Xt, fitted_transformer = fit_transform_one_cached(
                     cloned_transformer, None, Xt, y,
                     **fit_params_steps[name]
-                )"""
+                )
+                self.steps[step_idx] = (name, fitted_transformer)"""
 _fit_source = re.sub(
     r"(?sm)Xt, fitted_transformer.+fitted_transformer\)", code, _fit_source
 )  # modifying fit portion
-print(_fit_source)
 exec(compile(_fit_source, "<string>", "exec"))  # will compile to _fit
+# I highly don't recommend using exec to do this, but seeing as we cannot
+# copy scikit-learn code and super() won't work, this seems to be the only way.
+# Debugging this when it fails will be an absolute pain: it will be spooky
+# and mysterious. I recommend typing the code (rather than exec) if errors
+# are encountered.
 
 
 class DynamicPipeline(Pipeline, PipelineSerializerMixin):
@@ -111,83 +115,7 @@ class DynamicPipeline(Pipeline, PipelineSerializerMixin):
             Transformed inputs.
 
         """
-        # shallow copy of steps - this should really be steps_
-        self.steps = list(self.steps)
-        self._validate_steps()
-        # Setup the memory
-        memory = check_memory(self.memory)
-
-        fit_transform_one_cached = memory.cache(_fit_transform_one)
-
-        fit_params_steps = dict(
-            (name, {}) for name, step in self.steps if step is not None
-        )
-        for pname, pval in six.iteritems(fit_params):
-            step, param = pname.split("__", 1)
-            fit_params_steps[step][param] = pval
-        Xt = X
-        for step_idx, (name, transformer) in enumerate(self.steps):
-            if transformer is None:
-                pass
-            else:
-                if hasattr(memory, "cachedir") and memory.cachedir is None:
-                    # we do not clone when caching is disabled to preserve
-                    # backward compatibility
-                    cloned_transformer = transformer
-                else:
-                    cloned_transformer = clone(transformer)
-                # Fit or load from cache the current transfomer
-                try:
-                    Xt, fitted_transformer = fit_transform_one_cached(
-                        cloned_transformer,
-                        None,
-                        Xt,
-                        y,
-                        **fit_params_steps[name]
-                    )
-                except ValueError:  # single input required
-                    # ---------- THIS IS ONE CHANGE FOR SingleInputPipeline
-                    # Modifying the n+1 step to create a new transformer for
-                    # each column outputted by this step.
-                    # Only do this if its not the last step, because then
-                    # the next pipeline will have to handle the outputs of
-                    # this method. If its the last step, then we will just
-                    # output the DataFrame (which has more than one column)
-                    # and the next SmartTransformer will have to handle it
-                    # as its input.
-                    print("here")
-                    columns = Xt.columns
-                    transformer = ParallelProcessor(
-                        [
-                            [
-                                "dynamic_single_input_col_%d" % i,
-                                clone(transformer),  # need separate instances
-                                [columns[i]],
-                            ]
-                            for i in range(len(columns))
-                        ],
-                        collapse_index=True,
-                    )
-                    if hasattr(memory, "cachedir") and memory.cachedir is None:
-                        # we do not clone when caching is disabled to preserve
-                        # backward compatibility
-                        cloned_transformer = transformer
-                    else:
-                        cloned_transformer = clone(transformer)
-                    Xt, fitted_transformer = fit_transform_one_cached(
-                        cloned_transformer,
-                        None,
-                        Xt,
-                        y,
-                        **fit_params_steps[name]
-                    )
-                # Replace the transformer of the step with the fitted
-                # transformer. This is necessary when loading the transformer
-                # from the cache.
-                self.steps[step_idx] = (name, fitted_transformer)
-        if self._final_estimator is None:
-            return Xt, {}
-        return Xt, fit_params_steps[self.steps[-1][0]]
+        return _fit(self, X, y, **fit_params)
 
     def fit(self, X, y=None, **fit_params):
         """Fit the model.

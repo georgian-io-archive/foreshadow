@@ -47,7 +47,7 @@ def json_flatten(text):
     try:
         ret = json.loads(text)
         matched = len(text)
-    except json.JSONDecodeError:
+    except (json.JSONDecodeError, TypeError):
         pass  # didn't match.
     return ret, matched
 
