@@ -14,6 +14,9 @@ from foreshadow.transformers.core.smarttransformer import SmartTransformer
 from foreshadow.utils.testing import dynamic_import
 from foreshadow.utils.validation import check_df
 
+from foreshadow.config import get_intents
+
+from abc import ABCMeta, abstractmethod
 
 class IntentResolver(PreparerStep):
     """Apply intent resolution to each column."""
@@ -26,7 +29,7 @@ class IntentResolver(PreparerStep):
             **kwargs: kwargs to PreparerStep constructor.
 
         """
-        super().__init__(*args, use_single_pipeline=False, **kwargs)
+        super().__init__(*args, use_single_pipeline=True, **kwargs)
 
     def get_mapping(self, X):
         """Return the mapping of transformations for the DataCleaner step.
@@ -40,23 +43,11 @@ class IntentResolver(PreparerStep):
         """
         return self.separate_cols(
             transformers=[
-                Resolver(column_sharer=self.column_sharer) for c in X
+                [Resolver(column_sharer=self.column_sharer)]
+                for c in X
             ],
             X=X,
         )
-
-
-class Numeric(BaseEstimator, TransformerMixin):
-    def fit(self, X, y=None, **fit_params):
-        return self
-
-    def transform(self, X, y=None):
-        return pd.to_numeric(X, errors="coerce")
-
-
-def pick_intent(X):
-    return Numeric()
-
 
 class Resolver(SmartTransformer):
     """Determine the intent for a particular column
@@ -65,16 +56,22 @@ class Resolver(SmartTransformer):
         column_sharer (`foreshadow.core.column_sharer.ColumnSharer`): shared
 
     """
+    validate_wrapped = False
 
-    def __init__(self, column_sharer, **kwargs):
-        self.column_sharer = column_sharer
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def pick_transformer(self, X, y=None, **fit_params):
-        intent = pick_intent(X)
-        self.column_sharer["intent", column_name] = intent
+    def resolve_intent(self, X, y=None):
+        return max(get_intents(), key=lambda intent: intent.get_confidence(X))
 
-        return intent
+
+    def pick_transformer(self, X, y=None, **fit_params):
+        intent_class = self.resolve_intent(X, y=y)
+
+        column_name = X.columns[0]
+        self.column_sharer["intent", column_name] = intent_class.__name__
+
+        return intent_class()
 
 
 if __name__ == "__main__":
