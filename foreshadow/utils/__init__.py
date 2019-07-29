@@ -9,6 +9,7 @@ from foreshadow.utils.common import (
 from foreshadow.utils.validation import (
     PipelineStep,
     check_df,
+    check_series,
     check_module_installed,
     check_transformer_imports,
     is_transformer,
@@ -22,6 +23,7 @@ __all__ = [
     "get_transformer",
     "PipelineStep",
     "check_df",
+    "check_series",
     "check_module_installed",
     "check_transformer_imports",
     "is_transformer",
