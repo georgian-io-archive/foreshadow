@@ -3,8 +3,8 @@
 from foreshadow.transformers.core.notransform import NoTransform
 from foreshadow.transformers.core.parallelprocessor import ParallelProcessor
 from foreshadow.transformers.core.pipeline import (
+    DynamicPipeline,
     SerializablePipeline,
-    SingleInputPipeline,
 )
 from foreshadow.transformers.core.smarttransformer import SmartTransformer
 from foreshadow.transformers.core.wrapper import (

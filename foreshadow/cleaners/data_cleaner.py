@@ -55,6 +55,8 @@ class SmartCleaner(SmartTransformer):
     """Intelligently decide which cleaning function should be applied."""
 
     def __init__(self, **kwargs):
+        self.single_input = True  # all transformers under this only accept
+        # 1 column. This is how DynamicPipeline knows this.
         super().__init__(**kwargs)
 
     def pick_transformer(self, X, y=None, **fit_params):

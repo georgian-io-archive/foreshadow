@@ -5,15 +5,10 @@ from sklearn.pipeline import Pipeline
 from foreshadow.core import logging
 from foreshadow.transformers.core import ParallelProcessor
 from foreshadow.transformers.core.notransform import NoTransform
-from foreshadow.transformers.core.pipeline import (
-    SingleInputPipeline,
-    TransformersPipeline,
-)
+from foreshadow.transformers.core.pipeline import DynamicPipeline
 
 
-def _check_parallelizable_batch(
-    column_mapping, group_number, PipelineClass=TransformersPipeline
-):
+def _check_parallelizable_batch(column_mapping, group_number):
     """See if the group of cols 'group_number' is parallelizable.
 
     'group_number' in column_mapping is parallelizable if the cols across
@@ -41,7 +36,7 @@ def _check_parallelizable_batch(
         # result from any step in another pipeline.
         transformer_list = [
             "group: %d" % group_number,
-            PipelineClass(steps),
+            DynamicPipeline(steps),
             inputs,
         ]
         # transformer_list = [name, pipeline of transformers, cols]
@@ -236,13 +231,10 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         # interdependencies with other groups. Then, we will do all the rest
         # of the groups after as they will be performed step-by-step
         # parallelized.
-        PipelineClass = Pipeline
-        if self._use_single_pipeline:
-            PipelineClass = SingleInputPipeline
         for group_number in column_mapping:
 
             transformer_list = _check_parallelizable_batch(
-                column_mapping, group_number, PipelineClass=PipelineClass
+                column_mapping, group_number
             )
             if transformer_list is None:  # could not be separated out
                 parallelized[group_number] = False
