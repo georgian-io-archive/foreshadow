@@ -34,6 +34,6 @@ class DollarFinancialCleaner(BaseCleaner):
 
     """
 
-    def __init__(self):
+    def __init__(self, column_sharer=None):
         transformations = [financial_transform]
-        super().__init__(transformations)
+        super().__init__(transformations, column_sharer=column_sharer)

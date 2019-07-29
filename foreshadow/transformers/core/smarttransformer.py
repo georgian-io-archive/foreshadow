@@ -15,10 +15,12 @@ from foreshadow.utils import (
     is_transformer,
     is_wrapped,
 )
+from foreshadow.core import logging
+from copy import deepcopy
+import inspect
 
 
 # TODO: Remove once _Empty is removed when DataCleaner is implemented
-@make_pandas_transformer
 class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
     """Abstract transformer class for meta transformer selection decisions.
 
@@ -49,24 +51,28 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
     """
 
-    def __init__(
-        self,
-        y_var=False,
-        override=None,
-        should_resolve=True,
-        force_reresolve=False,
-        # column_sharer=None,
-        **kwargs,
-    ):
+    def __init__(self,
+                 y_var=False,
+                 transformer=None,
+                 should_resolve=True,
+                 force_reresolve=False,
+                 column_sharer=None,
+                 name=None,
+                 keep_columns=False,
+                 check_wrapped=True,
+                 **kwargs,
+                 ):
+        self.name = name
+        self.keep_columns = keep_columns
         self.kwargs = kwargs
-        # self.column_sharer=column_sharer
+        self.column_sharer = column_sharer
         # TODO will need to add the above when this is no longer wrapped
         self.y_var = y_var
-        self.transformer = None
         self.should_resolve = should_resolve
         self.force_reresolve = force_reresolve
         # Needs to be declared last as this overrides the resolve parameters
-        self.override = override
+        self.transformer = transformer
+        self.check_wrapped = check_wrapped
 
     @property
     def transformer(self):
@@ -77,6 +83,10 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
         """
         return self._transformer
+
+    def unset_resolve(self):
+        self.should_resolve = False
+        self.force_reresolve = False
 
     @transformer.setter
     def transformer(self, value):
@@ -92,51 +102,35 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
                 nor None.
 
         """
+        value = deepcopy(value)
+        if isinstance(value, str):
+            value = get_transformer(value)(**self.kwargs)
+            self.unset_resolve()
+        elif isinstance(value, dict):
+            class_name = value.pop('class_name')
+            self.kwargs.update(value)
+            value = get_transformer(class_name)(**self.kwargs)
+            self.unset_resolve()
         # Check transformer type
-        is_trans = is_transformer(value) and is_wrapped(value)
+        is_trans = is_transformer(value)
+        trans_wrapped = is_wrapped(value) if getattr(self,
+                                                     'check_wrapped',
+                                                     True) else True
+        # True by default passes this check if we don't want it.
         is_pipe = isinstance(value, SerializablePipeline)
         is_none = value is None
         is_empty = isinstance(value, _Empty)
-        checks = [is_trans, is_pipe, is_none, is_empty]
+        checks = [is_trans, is_pipe, is_none, is_empty, trans_wrapped]
         # Check the transformer inheritance status
         if not any(checks):
+            logging.error('transformer: {} failed checks: {}'.format(value,
+                                                                     checks))
             raise ValueError(
                 "{} is neither a scikit-learn Pipeline, FeatureUnion, a "
                 "wrapped foreshadow transformer, nor None.".format(value)
             )
 
         self._transformer = value
-
-    @property
-    def override(self):
-        """Get the override parameter.
-
-        Returns:
-            str: The name of the override transformer class.
-
-        """
-        return self._override
-
-    @override.setter
-    def override(self, value):
-        """Set the override parameter using a string class name.
-
-        Args:
-            value (str): The name of the desired transformer.
-
-        """
-        # self.name and self.keep_columns are injected as a result of pandas
-        # wrapping. Try to resolve the transformer, otherwise error out.
-        if value is not None:
-            self.transformer = get_transformer(value)(
-                name=self.name, keep_columns=self.keep_columns, **self.kwargs
-            )
-            self.transformer.name = self.name
-            self.transformer.keep_columns = self.keep_columns
-            self.should_resolve = False
-            self.force_reresolve = False
-
-        self._override = value
 
     def get_params(self, deep=True):
         """Get parameters for this estimator.
@@ -152,18 +146,17 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             Parameter names mapped to their values.
 
         """
-        return {
-            "y_var": self.y_var,
-            "override": self.override,
-            "name": self.name,
-            "keep_columns": self.keep_columns,
-            "column_sharer": self.column_sharer,
-            **(
-                self.transformer.get_params(deep=deep)
-                if self.transformer is not None and deep
-                else {}
-            ),
-        }
+        params = super().get_params(deep=deep)
+        transformer_params = {}
+        if self.transformer is not None:
+            transformer_params = {"transformer":
+                                      self.transformer.get_params(deep=deep)}
+            transformer_params['transformer'].update(
+                {'class_name': type(self.transformer).__name__})
+        params.update(transformer_params)
+        params = {key: val for key, val in params.items() if
+                  key.find('transformer__') == -1}
+        return params
 
     def set_params(self, **params):
         """Set the parameters of this estimator.
@@ -174,20 +167,27 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             **params (dict): any valid parameter of this estimator
 
         """
-        self.name = params.pop("name", self.name)
-        self.keep_columns = params.pop("keep_columns", self.keep_columns)
-        self.y_var = params.pop("y_var", self.y_var)
+        params = deepcopy(params)
+        transformer_params = params.pop('transformer', self.transformer)
+        super().set_params(**params)
 
         # Calls to override auto set the transformer instance
-        self.override = params.pop("override", self.override)
-
-        if self.transformer is not None:
-            valid_params = {
-                k.partition("__")[2]: v
-                for k, v in params.items()
-                if k.split("__")[0] == "transformer"
-            }
-            self.transformer.set_params(**valid_params)
+        if isinstance(transformer_params, dict) and 'class_name' in \
+                transformer_params:  # instantiate a
+            # new
+            # self.transformer
+            self.transformer = transformer_params
+        elif self.transformer is not None:
+            # valid_params = {
+            #     k.partition("__")[2]: v
+            #     for k, v in params.items()
+            #     if k.split("__")[0] == "transformer"
+            # }
+            self.transformer.set_params(**transformer_params)
+            self.transformer.set_extra_params(
+                name=type(self.transformer).__name__,
+                keep_columns=self.keep_columns
+            )
 
     @abstractmethod
     def pick_transformer(self, X, y=None, **fit_params):

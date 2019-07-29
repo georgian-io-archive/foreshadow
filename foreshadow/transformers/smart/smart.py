@@ -66,6 +66,7 @@ class Scaler(SmartTransformer):
             An initialized scaling transformer
 
         """
+        X = check_df(X)
         data = X.iloc[:, 0]
         # statistically invalid but good enough measure of relative closeness
         # ks-test does not allow estimated parameters

@@ -37,7 +37,7 @@ class YYYYMMDDDateCleaner(BaseCleaner):
 
     """
 
-    def __init__(self):
+    def __init__(self, column_sharer=None):
         transformations = [_split_to_new_cols]
 
         def make_list_of_three(x):
@@ -54,4 +54,6 @@ class YYYYMMDDDateCleaner(BaseCleaner):
             return [x, "", ""]
 
         default = make_list_of_three
-        super().__init__(transformations, default=default)
+        super().__init__(transformations,
+                         default=default,
+                         column_sharer=column_sharer)

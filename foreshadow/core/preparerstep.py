@@ -6,6 +6,7 @@ from foreshadow.core import logging
 from foreshadow.transformers.core import ParallelProcessor
 from foreshadow.transformers.core.notransform import NoTransform
 from foreshadow.transformers.core.pipeline import DynamicPipeline
+from inspect import signature
 
 
 def _check_parallelizable_batch(column_mapping, group_number):
@@ -19,8 +20,6 @@ def _check_parallelizable_batch(column_mapping, group_number):
     Args:
         column_mapping: the column mapping from self.get_mapping()
         group_number: the group number
-        PipelineClass: declare which Pipeline class to use. Default is a
-            normal Pipeline but you can also use SingleInputPipeline.
 
     Returns:
         transformer_list if parallelizable, else None.
@@ -140,7 +139,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
     """
 
     def __init__(
-        self, column_sharer, *args, use_single_pipeline=False, **kwargs
+        self, use_single_pipeline=False, column_sharer=None, **kwargs
     ):
         """Set the original pipeline steps internally.
 
@@ -151,7 +150,6 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             column_sharer: ColumnSharer instance to be shared across all steps.
             use_single_pipeline: Creates pipelines using SinglePipeline
                 class instead of normal Pipelines.  .. #noqa: I102
-            *args: args to Pipeline constructor.
             **kwargs: kwargs to PIpeline constructor.
 
         """
@@ -163,7 +161,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         #   should make sure to define inputs and outputs for each
         #   transformer so that the Dynamic pipeline can match these
         #   requirements dynamically, at run time.
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
 
     @staticmethod
     def separate_cols(transformers, X=None, cols=None):
@@ -421,3 +419,15 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         """
         self.check_process(X)
         return self._parallel_process.inverse_transform(X, *args, **kwargs)
+
+    @staticmethod
+    def _preparer_params():
+        init = getattr(PreparerStep.__init__,
+                       'deprecated_original',
+                       PreparerStep.__init__
+                       )
+        init_signature = signature(init)
+        # Consider the constructor parameters excluding 'self'
+        parameters = [p for p in init_signature.parameters.values()
+                      if p.name != 'self' and p.kind != p.VAR_KEYWORD]
+        return [p.name for p in parameters]

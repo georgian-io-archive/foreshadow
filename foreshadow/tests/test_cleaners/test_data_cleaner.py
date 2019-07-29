@@ -22,7 +22,7 @@ def test_data_cleaner_fit():
         columns=["dates", "json", "financials"],
     )
     cs = ColumnSharer()
-    dc = DataCleaner(cs)
+    dc = DataCleaner(column_sharer=cs)
     dc.fit(data)
     data = dc.transform(data)
     check = pd.DataFrame(
@@ -61,7 +61,7 @@ def test_financials():
         columns=["financials"],
     )
     cs = ColumnSharer()
-    dc = DataCleaner(cs)
+    dc = DataCleaner(column_sharer=cs)
     dc.fit(data)
     transformed_data = dc.transform(data)
     check = pd.DataFrame(
@@ -94,7 +94,7 @@ def test_json():
         columns=["json"],
     )
     cs = ColumnSharer()
-    dc = DataCleaner(cs)
+    dc = DataCleaner(column_sharer=cs)
     dc.fit(data)
     data = dc.transform(data)
     check = pd.DataFrame(
@@ -112,6 +112,7 @@ def test_json():
             "json_random",
         ],
     )
+    print(data.values, check.values)
     assert np.all(
         np.equal(data.values[data.notna()], check.values[check.notna()])
     )
@@ -126,7 +127,7 @@ def test_drop():
     columns = ["financials"]
     data = pd.DataFrame({"financials": ["", "", "", ""]}, columns=columns)
     cs = ColumnSharer()
-    dc = DataCleaner(cs)
+    dc = DataCleaner(column_sharer=cs)
     dc.fit(data)
     transformed_data = dc.transform(data)
     assert transformed_data.empty
@@ -143,7 +144,7 @@ def test_numerical_input():
     columns = ["financials"]
     data = pd.DataFrame({"financials": np.arange(10)}, columns=columns)
     cs = ColumnSharer()
-    dc = DataCleaner(cs)
+    dc = DataCleaner(column_sharer=cs)
     dc.fit(data)
     # transformed_data = dc.transform(data)
 

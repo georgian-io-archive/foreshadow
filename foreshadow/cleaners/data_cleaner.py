@@ -19,7 +19,7 @@ CleanerReturn = namedtuple("CleanerReturn", ["row", "match_lens"])
 class DataCleaner(PreparerStep):
     """Determine and perform best data cleaning step."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """Define the single step for DataCleaner, using SmartCleaner.
 
         Args:
@@ -27,7 +27,7 @@ class DataCleaner(PreparerStep):
             **kwargs: kwargs to PreparerStep constructor.
 
         """
-        super().__init__(*args, use_single_pipeline=True, **kwargs)
+        super().__init__(use_single_pipeline=True, **kwargs)
 
     def get_mapping(self, X):
         """Return the mapping of transformations for the DataCleaner step.
@@ -50,14 +50,25 @@ class DataCleaner(PreparerStep):
             X=X,
         )
 
+    def __repr__(self):
+        r = super().__repr__()
+        preparer_params = self._preparer_params()
+        preparer_params = {p: getattr(self, p, None) for p in preparer_params}
+        preparer_print = ", ".join(["{}={}".format(k, v)
+                                    for k, v in preparer_params.items()])
+        return r[:-1] + preparer_print + ")"
+
 
 class SmartCleaner(SmartTransformer):
     """Intelligently decide which cleaning function should be applied."""
 
-    def __init__(self, **kwargs):
+    def __init__(self,  # manually adding as otherwise get_params won't see it.
+                 check_wrapped=False,
+                 **kwargs):
         self.single_input = True  # all transformers under this only accept
         # 1 column. This is how DynamicPipeline knows this.
-        super().__init__(**kwargs)
+        # get_params then set_params, it may be in kwargs already
+        super().__init__(check_wrapped=check_wrapped, **kwargs)
 
     def pick_transformer(self, X, y=None, **fit_params):
         """Get best transformer for a given column.
@@ -81,12 +92,11 @@ class SmartCleaner(SmartTransformer):
         best_score = 0
         best_cleaner = None
         for cleaner, name in cleaners:
-            cleaner = cleaner(column_sharer=self.column_sharer, name=name)
+            cleaner = cleaner(column_sharer=self.column_sharer)
             score = cleaner.metric_score(X)
             if score > best_score:
                 best_score = score
                 best_cleaner = cleaner
-
         if best_cleaner is None:
             return NoTransform(column_sharer=self.column_sharer)
         return best_cleaner
@@ -95,8 +105,10 @@ class SmartCleaner(SmartTransformer):
 class SmartFlatten(SmartTransformer):
     """Smartly determine how to flatten an input DataFrame."""
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self,
+                 check_wrapped=True,
+                 **kwargs):
+        super().__init__(check_wrapped=check_wrapped, **kwargs)
 
     def pick_transformer(self, X, y=None, **fit_params):
         """Get best transformer for a given column.
@@ -124,12 +136,11 @@ class SmartFlatten(SmartTransformer):
         best_score = 0
         best_flattener = None
         for flattener, name in flatteners:
-            flattener = flattener(column_sharer=self.column_sharer, name=name)
+            flattener = flattener(column_sharer=self.column_sharer)
             score = flattener.metric_score(X)
             if score > best_score:
                 best_score = score
                 best_flattener = flattener
-
         if best_flattener is None:
             return NoTransform(column_sharer=self.column_sharer)
         return best_flattener
@@ -138,13 +149,12 @@ class SmartFlatten(SmartTransformer):
 class BaseCleaner(BaseEstimator, TransformerMixin):
     """Base class for any Cleaner Transformer."""
 
-    def __init__(
-        self,
-        transformations,
-        output_columns=None,
-        confidence_computation=None,
-        default=lambda x: x,
-    ):
+    def __init__(self,
+                 transformations,
+                 output_columns=None,
+                 confidence_computation=None,
+                 default=lambda x: x,
+                 column_sharer=None):
         """Construct any cleaner/flattener.
 
         Args:
@@ -172,6 +182,7 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         self.output_columns = output_columns
         self.transformations = transformations
         self.confidence_computation = {regex_rows: 0.8, avg_col_regex: 0.2}
+        self.column_sharer = column_sharer
         if confidence_computation is not None:
             self.confidence_computation = confidence_computation
 

@@ -2,13 +2,14 @@
 import inspect
 import re
 
-import six
-from sklearn.base import clone
-from sklearn.pipeline import Pipeline, _fit_transform_one
-from sklearn.utils.validation import check_memory
+import six  # noqa: F401
+from sklearn.base import clone  # noqa: F401
+from sklearn.pipeline import Pipeline, _fit_transform_one  # noqa: F401
+from sklearn.utils.validation import check_memory  # noqa: F401
 
 from foreshadow.core import PipelineSerializerMixin
-from foreshadow.transformers.core import ParallelProcessor
+from foreshadow.transformers.core import ParallelProcessor  # noqa: F401
+# Above imports used in runtime override.
 
 
 class SerializablePipeline(Pipeline, PipelineSerializerMixin):
@@ -36,10 +37,10 @@ _fit_source = source(Pipeline._fit)
 _fit_source = re.sub(
     r"(for.+)(enumerate.+):", r"\1" + "enumerate(self.steps):", _fit_source
 )
-code = """#     
+code = """#
             try:
                 Xt, fitted_transformer = fit_transform_one_cached(
-                    cloned_transformer, None, Xt, y, 
+                    cloned_transformer, None, Xt, y,
                     **fit_params_steps[name]
                 )
             except ValueError:  # single input required
@@ -53,6 +54,9 @@ code = """#
                 # and the next SmartTransformer will have to handle it
                 # as its input.
                 columns = Xt.columns
+                transformer.transformer = None  # in case this is Smart and 
+                # resolved.
+                transformer.should_resolve = True
                 transformer = ParallelProcessor(
                         [
                             [
@@ -114,7 +118,7 @@ class DynamicPipeline(Pipeline, PipelineSerializerMixin):
             Transformed inputs.
 
         """
-        return _fit(self, X, y, **fit_params)
+        return _fit(self, X, y, **fit_params)  # noqa: F821
 
     def fit(self, X, y=None, **fit_params):
         """Fit the model.

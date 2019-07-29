@@ -1,5 +1,6 @@
 """Test the data_preparer.py file."""
 import pytest
+from foreshadow.utils.testing import get_file_path
 
 
 @pytest.mark.parametrize(
@@ -43,7 +44,11 @@ def test_data_preparer_fit(cleaner_kwargs):
     """
     from foreshadow.core.data_preparer import DataPreparer
     from foreshadow.core.column_sharer import ColumnSharer
+    import pandas as pd
+
+    boston_path = get_file_path("data", "boston_housing.csv")
+    data = pd.read_csv(boston_path)
 
     cs = ColumnSharer()
     dp = DataPreparer(cs, cleaner_kwargs=cleaner_kwargs)
-    dp.fit([])
+    dp.fit(data)

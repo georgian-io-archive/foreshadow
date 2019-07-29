@@ -14,8 +14,8 @@ from foreshadow.exceptions import InverseUnavailable
 from foreshadow.utils import check_df, is_transformer
 
 
-def _get_modules(classes, globals_, mname):  # TODO auto import all sklearn
-    # TODO transformers and test each one generically.
+def _get_modules(classes, globals_, mname, wrap=True):  # TODO auto import all
+    # TODO sklearn transformers and test each one generically.
     """Import sklearn transformers from transformers directory.
 
     Searches transformers directory for classes implementing BaseEstimator and
@@ -27,19 +27,35 @@ def _get_modules(classes, globals_, mname):  # TODO auto import all sklearn
         classes: A list of classes
         globals_: The globals in the callee's context
         mname: The module name
+        wrap: True to wrap the transformers.
 
     Returns:
         The list of wrapped transformers.
 
     """
+    def no_wrap(t):
+        """Return original function pointer.
+
+        Don't wrap the transformer.
+
+        Args:
+            t: input transformer
+
+        Returns:
+            t, unwrapped.
+
+        """
+        return t
     transformers = [
         cls for cls in classes if is_transformer(cls, method="issubclass")
     ]
 
+    wrap_func = make_pandas_transformer if wrap else no_wrap
+
     for t in transformers:
         copied_t = type(t.__name__, (t, *t.__bases__), dict(t.__dict__))
         copied_t.__module__ = mname
-        globals_[copied_t.__name__] = make_pandas_transformer(copied_t)
+        globals_[copied_t.__name__] = wrap_func(copied_t)
 
     return [t.__name__ for t in transformers]
 
@@ -87,10 +103,14 @@ def make_pandas_transformer(transformer):  # noqa: C901
             #     register_transformer(class_, name_)
             # Unfortunately, polluting globals is the only way to
             # allow the pickling of wrapped transformers
+            class_._repr_val = transformer.__module__+'.'+transformer.__name__
             globals()[name_] = class_
             class_.__qualname__ = name_
 
             return class_
+
+        def __repr__(self):
+            return self._repr_val
 
     class DFTransformer(
         transformer, ConcreteSerializerMixin, metaclass=DFTransformerMeta
@@ -100,9 +120,6 @@ def make_pandas_transformer(transformer):  # noqa: C901
         def __init__(
             self,
             *args,
-            keep_columns=False,
-            name=None,
-            column_sharer=None,
             **kwargs
         ):
             """Initialize parent Transformer.
@@ -116,9 +133,16 @@ def make_pandas_transformer(transformer):  # noqa: C901
             ..#noqa: I102
 
             """
-            self.keep_columns = keep_columns
-            self.name = name
-            self.column_sharer = column_sharer
+            if 'name' in kwargs:
+                self.name = kwargs.pop('name')
+                logging.warning('name is a deprecated kwarg. Please remove '
+                                'it from the kwargs and instead set it '
+                                'after instantiation.')
+            if 'keep_columns' in kwargs:
+                self.keep_column = kwargs.pop('keep_columns')
+                logging.warning('keep_columns is a deprecated kwarg. Please '
+                                'remove it from the kwargs and instead set '
+                                'it after instantiation.')
             super(DFTransformer, self).__init__(*args, **kwargs)
 
             # TODO: remove this when _Empty is removed
@@ -215,12 +239,12 @@ def make_pandas_transformer(transformer):  # noqa: C901
 
             func = super(DFTransformer, self).fit
             # TODO: Remove this once DataCleaner is implemented
-            if df.empty:
-                # this situation may happen when a transformer comes after the
-                # Empty transformer in a pipeline. Scikit-learn transformers
-                # will break on empty input and so we reroute to _Empty.
-                func = partial(_Empty.fit, self)
-                self.__empty_fit = True
+            # if df.empty:
+            #     # this situation may happen when a transformer comes after the
+            #     # Empty transformer in a pipeline. Scikit-learn transformers
+            #     # will break on empty input and so we reroute to _Empty.
+            #     func = partial(_Empty.fit, self)
+            #     self.__empty_fit = True
             out = func(df, *args, **kwargs)
             return out
 
@@ -246,15 +270,15 @@ def make_pandas_transformer(transformer):  # noqa: C901
 
             init_cols = [str(col) for col in df]
             func = super(DFTransformer, self).transform
-            if df.empty:
-                # this situation may happen when a transformer comes after the
-                # Empty transformer in a pipeline. Scikit-learn transformers
-                # will break on empty input and so we reroute to _Empty.
-                func = partial(_Empty.transform, self)
+            # if df.empty:
+            #     # this situation may happen when a transformer comes after the
+            #     # Empty transformer in a pipeline. Scikit-learn transformers
+            #     # will break on empty input and so we reroute to _Empty.
+            #     func = partial(_Empty.transform, self)
 
             out = func(df, *args, **kwargs)
             # determine name of new columns
-            name = self.name if self.name else type(self).__name__
+            name = getattr(self, 'name', type(self).__name__)
             out_is_transformer = hasattr(out, "__class__") and is_transformer(
                 out.__class__
             )
@@ -283,10 +307,10 @@ def make_pandas_transformer(transformer):  # noqa: C901
                 else:
                     raise ValueError("undefined output {0}".format(type(out)))
 
-                if self.keep_columns:
+                if getattr(self, 'keep_columns', False):
                     out = _keep_columns_process(out, df, name, graph)
-                if self.column_sharer is not None:  # only used when part of
-                    # the Foreshadow flow.
+                if getattr(self, 'column_sharer', None) is not None:  # only
+                    # used when part of the Foreshadow flow.
                     for column in X:
                         self.column_sharer["graph", column] = graph
                 else:
@@ -317,23 +341,23 @@ def make_pandas_transformer(transformer):  # noqa: C901
 
             init_cols = [str(col) for col in df]
             func = super(DFTransformer, self).inverse_transform
-            if self.__empty_fit:
-                raise InverseUnavailable(
-                    "{} was fit with empty data, thus, "
-                    "inverse_transform is unavailable.".format(
-                        self.__class__.__name__
-                    )
-                )
-            elif df.empty:
-                # this situation may happen when a transformer comes after the
-                # Empty transformer in a pipeline. Scikit-learn transformers
-                # will break on empty input and so we reroute to _Empty.
-                func = partial(_Empty.inverse_transform, self)
+            # if self.__empty_fit:
+            #     raise InverseUnavailable(
+            #         "{} was fit with empty data, thus, "
+            #         "inverse_transform is unavailable.".format(
+            #             self.__class__.__name__
+            #         )
+            #     )
+            # elif df.empty:
+            #     # this situation may happen when a transformer comes after the
+            #     # Empty transformer in a pipeline. Scikit-learn transformers
+            #     # will break on empty input and so we reroute to _Empty.
+            #     func = partial(_Empty.inverse_transform, self)
 
             out = func(df, *args, **kwargs)
 
             # determine name of new columns
-            name = self.name if self.name else type(self).__name__
+            name = getattr(self, 'name', type(self).__name__)
             out_is_transformer = hasattr(out, "__class__") and is_transformer(
                 out.__class__, method="issubclass"
             )  # noqa: E127
@@ -362,10 +386,10 @@ def make_pandas_transformer(transformer):  # noqa: C901
                 else:
                     raise ValueError("undefined input {0}".format(type(out)))
 
-                if self.keep_columns:
+                if getattr(self, 'keep_columns', False):
                     out = _keep_columns_process(out, df, name, graph)
-                if self.column_sharer is not None:  # only used when part of
-                    # the Foreshadow flow.
+                if getattr(self, 'column_sharer', None) is not None:  # only
+                    # used when part of the Foreshadow flow.
                     for column in X:
                         self.column_sharer["graph", column] = graph
                 else:
@@ -383,7 +407,7 @@ def make_pandas_transformer(transformer):  # noqa: C901
             out = func(df, *args, **kwargs)
 
             # determine name of new columns
-            name = self.name if self.name else type(self).__name__
+            name = getattr(self, 'name', type(self).__name__)
             out_is_transformer = hasattr(out, "__class__") and is_transformer(
                 out.__class__, method="issubclass"
             )  # noqa: E127
@@ -411,10 +435,10 @@ def make_pandas_transformer(transformer):  # noqa: C901
                     graph = []  # just return the series
                 else:
                     raise ValueError("undefined input {0}".format(type(out)))
-                if self.keep_columns:
+                if getattr(self, 'keep_columns', False):
                     out = _keep_columns_process(out, df, name, graph)
-                if self.column_sharer is not None:  # only used when part of
-                    # the Foreshadow flow.
+                if getattr(self, 'column_sharer', None) is not None:  # only
+                    # used when part of the Foreshadow flow.
                     for column in X:
                         self.column_sharer["graph", column] = graph
                 else:
@@ -425,6 +449,10 @@ def make_pandas_transformer(transformer):  # noqa: C901
 
         def __repr__(self):
             return "DFTransformer: {}".format(self.__class__.__name__)
+
+        def set_extra_params(self, name=None, keep_columns=False):
+            setattr(self, 'name', name)
+            setattr(self, 'keep_columns', keep_columns)
 
     return DFTransformer
 

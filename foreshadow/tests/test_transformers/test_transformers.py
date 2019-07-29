@@ -7,7 +7,8 @@ from foreshadow.utils.testing import get_file_path
 def test_transformer_wrapper_init():
     from foreshadow.transformers.concrete import StandardScaler
 
-    scaler = StandardScaler(name="test-scaler", keep_columns=True)
+    scaler = StandardScaler()
+    scaler.set_extra_params(name="test-scaler", keep_columns=True)
 
     assert scaler.name == "test-scaler"
     assert scaler.keep_columns is True
@@ -64,14 +65,8 @@ def test_transformer_wrapper_empty_input():
 
     with pytest.raises(ValueError) as e:
         StandardScaler().fit(df)
-    cs = CustomScaler().fit(df)
-    out = cs.transform(df)
-
-    assert "Found array with" in str(e)
-    assert out.values.size == 0
-
-    # If for some weird reason transform is called before fit
-    assert CustomScaler().transform(df).values.size == 0
+    with pytest.raises(ValueError) as e:
+        CustomScaler().fit(df)
 
 
 def test_transformer_keep_cols():
@@ -82,7 +77,8 @@ def test_transformer_keep_cols():
 
     df = pd.read_csv(boston_path)
 
-    custom = CustomScaler(keep_columns=True)
+    custom = CustomScaler()
+    custom.set_extra_params(keep_columns=True)
     custom_tf = custom.fit_transform(df[["crim"]])
 
     assert custom_tf.shape[1] == 2
@@ -96,7 +92,8 @@ def test_transformer_naming_override():
 
     df = pd.read_csv(boston_path)
 
-    scaler = StandardScaler(name="test", keep_columns=False)
+    scaler = StandardScaler()
+    scaler.set_extra_params(name="test", keep_columns=False)
     out = scaler.fit_transform(df[["crim"]])
 
     assert out.iloc[:, 0].name == "crim"
@@ -300,6 +297,7 @@ def test_smarttransformer_notsubclassed():
 
 def test_smarttransformer_attributeerror(smart_child, mocker):
     import pandas as pd
+    from foreshadow.exceptions import TransformerNotFound
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
@@ -309,13 +307,8 @@ def test_smarttransformer_attributeerror(smart_child, mocker):
     smart.pick_transformer = mocker.Mock()
     smart.pick_transformer.return_value = "INVALID"
 
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(TransformerNotFound) as e:
         smart.fit(df[["crim"]])
-
-    assert (
-        "is neither a scikit-learn Pipeline, FeatureUnion, a "
-        "wrapped foreshadow transformer, nor None."
-    ) in str(e.value)
 
 
 def test_smarttransformer_invalidtransformer(smart_child, mocker):
@@ -389,7 +382,7 @@ def test_smarttransformer_fitself(smart_child, mocker):
     import pandas as pd
 
     smart = smart_child(override="Imputer", name="test")
-    assert smart.fit(pd.DataFrame([])) == smart
+    assert smart.fit(pd.DataFrame([1, 2, 3])) == smart
 
 
 def test_smarttransformer_function_override(smart_child):
@@ -407,13 +400,15 @@ def test_smarttransformer_function_override(smart_child):
     boston_path = get_file_path("data", "boston_housing.csv")
     df = pd.read_csv(boston_path)
 
-    smart = smart_child(override="Imputer", name="impute")
+    smart = smart_child(transformer="Imputer", name="impute")
     smart_data = smart.fit_transform(df[["crim"]])
 
     assert isinstance(smart.transformer, Imputer)
-    assert smart.transformer.name == "impute"
+    # assert smart.transformer.name == "impute"
+    # not relevant anymore.
 
-    std = Imputer(name="impute")
+    std = Imputer()
+    std.set_extra_params(name="impute")
     std_data = std.fit_transform(df[["crim"]])
 
     assert smart_data.equals(std_data)
@@ -441,7 +436,7 @@ def test_smarttransformer_function_override_invalid(smart_child):
     from foreshadow.exceptions import TransformerNotFound
 
     with pytest.raises(TransformerNotFound) as e:
-        smart_child(override="BAD")
+        smart_child(transformer="BAD")
 
     assert "Could not find transformer BAD in" in str(e.value)
 
@@ -455,8 +450,8 @@ def test_smarttransformer_set_params_override(smart_child):
     """
     from foreshadow.transformers.concrete import StandardScaler
 
-    smart = smart_child(override="Imputer")
-    smart.set_params(**{"override": "StandardScaler"})
+    smart = smart_child(transformer="Imputer")
+    smart.set_params(**{"transformer": {"class_name": "StandardScaler"}})
 
     assert isinstance(smart.transformer, StandardScaler)
 
@@ -484,7 +479,7 @@ def test_smarttransformer_set_params_default(smart_child):
     smart = smart_child()
     smart.fit([1, 2, 3])
 
-    smart.set_params(**{"transformer__with_mean": False})
+    smart.set_params(**{"transformer": {"with_mean": False}})
 
     assert not smart.transformer.with_mean
 
@@ -497,22 +492,26 @@ def test_smarttransformer_get_params(smart_child):
 
     """
     smart = smart_child(
-        override="Imputer", missing_values="NaN", strategy="mean"
+        transformer="Imputer", missing_values="NaN", strategy="mean"
     )
     smart.fit([1, 2, 3])
 
     params = smart.get_params()
+    print(params)
     assert params == {
-        "override": "Imputer",
+        "transformer": {"class_name": "Imputer",
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "copy": True,
+                        "axis": 0,
+                        "verbose": 0,},
         "name": None,
         "keep_columns": False,
-        "axis": 0,
-        "copy": True,
-        "missing_values": "NaN",
-        "strategy": "mean",
-        "verbose": 0,
         "y_var": False,
+        "force_reresolve": False,
+        "should_resolve": False,
         "column_sharer": None,
+        "check_wrapped": True,
     }
 
 
@@ -523,17 +522,10 @@ def test_smarttransformer_empty_inverse(smart_child):
         smart_child: A subclass of SmartTransformer.
 
     """
-    from foreshadow.exceptions import InverseUnavailable
-
     smart = smart_child()
-    smart.fit([])
+    smart.fit([1, 2, 10])
 
-    with pytest.raises(InverseUnavailable) as e:
-        smart.inverse_transform([1, 2, 10])
-
-    assert (
-        "was fit with empty data, thus, inverse_transform is unavailable."
-    ) in str(e)
+    smart.inverse_transform([])
 
 
 def test_smarttransformer_should_resolve(smart_child, mocker):

@@ -50,7 +50,7 @@ def get_config(base):
 
 
 def reset_config():
-    """Reset internal configuration
+    """Reset internal configuration.
 
     Note:
         This is useful in an IDLE setting when the configuration file might

@@ -33,5 +33,5 @@ def _get_classes():
     return classes
 
 
-classes = _get_modules(_get_classes(), globals(), __name__)
+classes = _get_modules(_get_classes(), globals(), __name__, wrap=False)
 __all__ = classes
