@@ -132,7 +132,6 @@ class PreparerStep(BaseEstimator, TransformerMixin):
     usable format for ParallelProcessor and given mismatched columns,
     can handle that with the flag use_single_pipeline set to True.
 
-
     The transformer_list represents the mapping from columns to
     transformers, in the form of ['name', 'transformer', ['cols']],
     where the [cols] are the cols for transformer 'transformer. These
@@ -240,7 +239,6 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         if self._use_single_pipeline:
             PipelineClass = SingleInputPipeline
         for group_number in column_mapping:
-
             transformer_list = _check_parallelizable_batch(
                 column_mapping, group_number, PipelineClass=PipelineClass
             )
@@ -249,6 +247,28 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             else:  # could be separated and parallelized
                 final_mapping[group_number] = transformer_list
                 parallelized[group_number] = True
+            # pipeline = column_mapping[group_number]
+            # if isinstance(pipeline['steps'], Pipeline):
+            #     transformer_list = _check_parallelizable_batch(
+            #         column_mapping, group_number, PipelineClass=PipelineClass
+            #     )
+            #     if transformer_list is None:  # could not be separated out
+            #         parallelized[group_number] = False
+            #     else:  # could be separated and parallelized
+            #         final_mapping[group_number] = transformer_list
+            #         parallelized[group_number] = True
+            # elif isinstance(pipeline['steps'], BaseEstimator):
+            #     # TODO: This is a hacky way to get non-pipelines to pass
+            #     # passthrough, what I'd like to see is a better abstraction
+            #     # for this.
+            #     transformer_list = [
+            #         "group: {:d}".format(group_number),
+            #         pipeline['steps'],
+            #         pipeline["inputs"][0],
+            #     ]
+            #     final_mapping[group_number] = transformer_list
+            #     parallelized[group_number] = True
+
         if len(final_mapping) < len(column_mapping) and False:  # then there
             # must be groups of columns that have interdependcies.
             # CURRENTLy DISABLED.

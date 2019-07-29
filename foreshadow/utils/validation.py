@@ -11,10 +11,36 @@ from sklearn.feature_extraction.text import VectorizerMixin
 PipelineStep = {"NAME": 0, "CLASS": 1, "COLS": 2}
 
 
+def check_series(input_data):
+    """Convert non series inputs into series."""
+
+    ret_ser = None
+
+    if isinstance(input_data, pd.DataFrame):
+        ret_ser = input_data.T.squeeze()
+        if not isinstance(ret_ser, pd.Series):
+            raise ValueError("Input DataFrame has more than one column")
+    elif isinstance(input_data, pd.Series):
+        pass
+    elif isinstance(input_data, np.ndarray) or isinstance(
+        input_data, (list, tuple)
+    ):
+        ret_ser = pd.Series(input_data)
+    else:
+        raise ValueError(
+            "Invalid input type: {} is not pd.DataFrame, "
+            "pd.Series, "
+            "np.ndarray, "
+            "nor list".format(type(input_data))
+        )
+
+    return ret_ser
+
+
 def check_df(
     input_data, ignore_none=False, single_column=False, single_or_empty=False
 ):
-    """Convert non dataframe inputs into dataframes (or series).
+    """Convert non dataframe inputs into dataframes.
 
     Args:
         input_data (:obj:`pandas.DataFrame`, :obj:`numpy.ndarray`, list): input

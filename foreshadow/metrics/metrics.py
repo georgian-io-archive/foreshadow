@@ -1,21 +1,23 @@
 """Metrics used across Foreshadow for smart decision making."""
 
+from functools import wraps
 
-class Metric(object):  # Metric wrapper
+class Metric():  # Metric wrapper
     """Metric class for metric functions.
 
     Apply this class by using the metric decorator.
     """
 
-    def __init__(self, fn):
+    def __init__(self, fn, default_return=None, *kwargs):
         """Initialize metric function with fn as attribute.
 
         Args:
             fn: metric function
         """
         self.fn = fn
+        self.default_return = default_return
 
-    def __call__(self, feature, **kwargs):
+    def __call__(self, feature, invert=False, **kwargs):
         """Use the metric function passed at initialization.
 
         Args:
@@ -34,8 +36,16 @@ class Metric(object):  # Metric wrapper
         #     # encoder. The internal self.fn is expected to accept encoder if
         #     # it is passed and it is the users job to only pass encoder when
         #     # it is accepted as a kwarg by self.fn
-        self._last_call = self.fn(feature, **kwargs)
-        return self._last_call
+        try:
+            self._last_call = self.fn(feature, **kwargs)
+        except Exception as e:
+            print(str(e))
+            if self.default_return is not None:
+                return self.default_return
+            else:
+                raise e
+            
+        return self._last_call if not invert else (1. - self._last_call)
 
     def last_call(self):
         """Value from previous call to metric function.
@@ -67,7 +77,7 @@ class Metric(object):  # Metric wrapper
         )
 
 
-def metric(fn):
+class metric():
     """Decorate any metric function.
 
     Args:
@@ -77,4 +87,17 @@ def metric(fn):
         Metric function as callable object.
 
     """
-    return Metric(fn)
+    def __init__(self, default_return=None):
+        self.default_return = default_return
+
+    def __call__(self, fn):
+        return Metric(fn, self.default_return)
+
+# def metric(default_return=None):
+#     def real_decorator(fn):
+#         @wraps(fn)
+#         def wrapper(*args, **kwargs):
+#             wrapped_metric = Metric(fn, default_return=default_return)
+#             return wrapped_metric(*args, **kwargs)
+#         return wrapper
+#     return real_decorator

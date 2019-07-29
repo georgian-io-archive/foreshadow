@@ -2,8 +2,7 @@
 from foreshadow.metrics.metrics import metric
 
 
-# ------------------------------------------------
-@metric
+@metric()
 def unique_count(feature):
     """Count number of unique values in feature.
 
@@ -17,7 +16,7 @@ def unique_count(feature):
     return len(feature.value_counts())
 
 
-@metric
+@metric()
 def unique_count_bias(feature):
     """Difference of count of unique values relative to the length of feature.
 
@@ -31,7 +30,7 @@ def unique_count_bias(feature):
     return len(feature) - len(feature.value_counts())
 
 
-@metric
+@metric()
 def unique_count_weight(feature):
     """Normalize count number of unique values relative to length of feature.
 
@@ -45,7 +44,7 @@ def unique_count_weight(feature):
     return len(feature.value_counts()) / len(feature)
 
 
-@metric
+@metric()
 def regex_rows(feature, cleaner):
     """Return percentage of rows matched by regex transformations.
 
@@ -70,7 +69,7 @@ def regex_rows(feature, cleaner):
     return sum([min(list_lens) for list_lens in matched_lens]) / len(feature)
 
 
-@metric
+@metric()
 def avg_col_regex(feature, cleaner, mode=min):
     """Return average percentage of each row's text transformed by cleaner.
 
