@@ -424,7 +424,7 @@ def make_pandas_transformer(transformer):  # noqa: C901
             return out
 
         def __repr__(self):
-            return "DFTransformer: %s" % self.__class__.__name__
+            return "DFTransformer: {}".format(self.__class__.__name__)
 
     return DFTransformer
 
@@ -519,11 +519,13 @@ def _ndarray_post_process(ndarray, df, init_cols, prefix):
         columns = df.columns
     elif len(df.columns) == 1:  # all new columns came from 1 column
         columns = [
-            str(df.columns[0]) + "_%d" % i for i in range(ndarray.shape[1])
+            str(df.columns[0]) + "_{}".format(i)
+            for i in range(ndarray.shape[1])
         ]
     else:  # all new columns came from a mix of columns
         df_columns = "_".join(df.columns)
-        columns = [df_columns + "|%d" % i for i in range(ndarray.shape[1])]
+        columns = [df_columns + "|{}".format(i)
+                   for i in range(ndarray.shape[1])]
     # Append new columns to data frame
     kw = {}
     for i, col in enumerate(ndarray.transpose().tolist()):

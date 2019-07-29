@@ -16,15 +16,14 @@ def _split_to_new_cols(t):
 
     """
     delimiters = "[-/]"
-    regex = r"^.*(([\d]{4})%s([\d]{2})%s([\d]{2})).*$" % (
-        delimiters,
-        delimiters,
+    regex = r"^.*(([\d]{{4}}){delim}([\d]{{2}}){delim}([\d]{{2}})).*$".format(
+        delim=delimiters,
     )
     text = str(t)
     res = re.search(regex, text)
     if res is not None:
         res = sum([len(range(reg[0], reg[1])) for reg in res.regs[1:2]])
-        texts = [re.sub(regex, r"\%d" % i, text) for i in range(2, 5)]
+        texts = [re.sub(regex, r"\{}".format(i), text) for i in range(2, 5)]
     else:
         texts = t
         res = 0

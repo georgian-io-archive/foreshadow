@@ -291,25 +291,28 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         # access single column as series and apply the list of
         # transformations to each row in the series.
         if any(
-            [isinstance(out[i], (list, tuple)) for i in range(out.shape[0])]
+            [isinstance(out.iloc[i], (list, tuple))
+             for i in range(out.shape[0])]
         ):  # out are lists == new columns
             if not all(
-                [len(out[0]) == len(out[i]) for i in range(len(out[0]))]
+                [len(out.iloc[0]) == len(out.iloc[i]) for i in range(len(
+                    out.iloc[0]))]
             ):
                 raise InvalidDataFrame(
                     "length of lists: {}, returned not of same value.".format(
-                        [out[i] for i in range(len(out[0]))]
+                        [out.iloc[i] for i in range(len(out[0]))]
                     )
                 )
             columns = self.output_columns
             if columns is None:
-                columns = [X.columns[0] + str(c) for c in range(len(out[0]))]
+                columns = [X.columns[0] + str(c)
+                           for c in range(len(out.iloc[0]))]
                 # by default, pandas would have given a unique integer to
                 # each column, instead, we keep the previous column name and
                 # add that integer.
             X = pd.DataFrame([*out.values], columns=columns)
         elif any(
-            [isinstance(out[i], (dict)) for i in range(out.shape[0])]
+            [isinstance(out.iloc[i], (dict)) for i in range(out.shape[0])]
         ):  # out are dicts ==  named new columns
             all_keys = dict()
             for row in out:

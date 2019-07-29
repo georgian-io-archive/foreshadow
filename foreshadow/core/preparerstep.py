@@ -13,7 +13,8 @@ def _check_parallelizable_batch(column_mapping, group_number):
 
     'group_number' in column_mapping is parallelizable if the cols across
     all steps are static. Then we can guarantee this Pipeline can run
-    without needing any other step to finish first.
+    without needing any other step to finish first. 'group_number' is the
+    outer key of the dict.
 
     Args:
         column_mapping: the column mapping from self.get_mapping()
@@ -35,7 +36,7 @@ def _check_parallelizable_batch(column_mapping, group_number):
         # everything else as its inputs are never dependent on the
         # result from any step in another pipeline.
         transformer_list = [
-            "group: %d" % group_number,
+            "group: {}".format(group_number),
             DynamicPipeline(steps),
             inputs,
         ]
@@ -44,10 +45,10 @@ def _check_parallelizable_batch(column_mapping, group_number):
         # once as a single group.
         # TODO this is a very simple check, this could be optimized
         #  further
+        return transformer_list
     else:
         # this group could not be separated out.
         return None
-    return transformer_list
 
 
 def _batch_parallelize(column_mapping, parallelized):
@@ -98,8 +99,8 @@ def _batch_parallelize(column_mapping, parallelized):
                     all_cols.add(col)
         transformer_list = [
             [
-                "group: %d, transformer: %s"
-                % (group_number, transformer.__name__),
+                "group: {}, transformer: {}".format(group_number,
+                                                    transformer.__name__),
                 transformer,
                 cols,
             ]
@@ -108,7 +109,7 @@ def _batch_parallelize(column_mapping, parallelized):
         # parallelized across dim2).
         steps.append(
             (
-                "step: %d" % step_number,
+                "step: {}".format(step_number),
                 ParallelProcessor(transformer_list, collapse_index=True),
             )
         )  # list of steps for final pipeline.
@@ -168,7 +169,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
     def separate_cols(transformers, X=None, cols=None):
         """Return a valid mapping where each col has a separate transformer.
 
-        if X!=None, each individual col will create its own pipeline.
+        If X!=None, each individual col will create its own pipeline.
         Else, define the groups of cols that will have their pipeline by
         passing them into cols and leave X == None.
 
@@ -180,7 +181,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
                 when to pass.
 
         Returns:
-            A list where each entry can be used to separately access an
+            A dict where each entry can be used to separately access an
             individual column from X.
 
         Raises:
@@ -198,7 +199,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
                 for i, cols in enumerate(cols)
             }
         else:
-            raise ValueError("not valid input. Please read " "docstring.")
+            raise ValueError("Invalid input. Please read the docstring.")
 
     @classmethod
     def logging_name(cls):
@@ -208,7 +209,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             See return.
 
         """
-        return "DataPreparerStep: %s " % cls.__name__
+        return "DataPreparerStep: {} ".format(cls.__name__)
 
     def parallelize_mapping(self, column_mapping):
         """Create parallelized workflow for column_mapping.
@@ -354,7 +355,8 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         # TODO make fit remove a step if nothing is done, rather than a
         #  NoTransform Transformer.
         self.check_process(X)
-        return self._parallel_process.fit(X, *args, **kwargs)
+        self._parallel_process.fit(X, *args, **kwargs)
+        return self
 
     def check_process(self, X):
         """If fit was never called, makes sure to create the parallel process.
@@ -365,8 +367,8 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         """
         if self._parallel_process is None:
             logging.debug(
-                "DataPreparerStep: %s called check_process"
-                % self.__class__.__name__
+                "DataPreparerStep: {} called check_process".format(
+                    self.__class__.__name__)
             )
             self._parallel_process = self.parallelize_smart_steps(X)
 
