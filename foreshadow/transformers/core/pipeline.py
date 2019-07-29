@@ -1,5 +1,4 @@
 """A serializable form of sklearn pipelines."""
-import ast
 import inspect
 import re
 

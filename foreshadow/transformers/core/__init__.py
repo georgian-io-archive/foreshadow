@@ -19,6 +19,6 @@ __all__ = [
     "ParallelProcessor",
     "SmartTransformer",
     "SerializablePipeline",
-    "SingleInputPipeline",
+    "DynamicPipeline",
     "NoTransform",
 ]
