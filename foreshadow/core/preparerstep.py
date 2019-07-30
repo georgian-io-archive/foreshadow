@@ -386,34 +386,32 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         return ParallelProcessor(group_transformer_list, collapse_index=True)
 
     def get_mapping(self, X):
-        """Return dict of lists of tuples representing columns:transformers.
+        """Return a PreparerMapping object.
 
-        The return can be viewed as a third order tensor, where:
-        dim 1: the number of operations to be performed on a given set of
-            columns. For instance, you could have this dimension = 3 where you
-            would then view that a given column would have 3 Smart transformers
-            associated with it.
+        The return has 2 major components:
+            1: the number of parallel operations to be performed on
+            the DataFrame.
 
-        dim 2: the number of steps/operations. This can be viewed as
-        groups of columns being passed to a single smart transformer. For
-        instance, you may pass a single column each to its on smart
-        transformer (say, to clean each column individually), or all columns
-        to a single smart transformer (for instance, for dimensionality
-        reduction).
+            For each parallel operation, there is:
+            2: the number of steps/operations. This can be viewed as
+            groups of columns being passed to a single smart transformer. For
+            instance, you may pass a single column each to its on smart
+            transformer (say, to clean each column individually), or all
+            columns to a single smart transformer (for instance,
+            for dimensionality reduction).
 
         dim 3: The number of inputs to each SmartTransformer. Defines the
         width of the input space (the number of columns being passed).
 
 
-        This data structure is constructed by using a nested dict structure, to
+        This data structure is constructed by using PreparerMapping, to
         more easily align with user configuration and serialization. The outer
-        levels defines the number of groups of operations. Here, the key is not
-        important but should be unique for each group. The second layer is a
-        dict with two keys: 'inputs' and 'steps'. There are two accepted
-        formats: inputs is a nested tuple of length 1, or nested tuple where
-        the number of nested tuples is equal to the number of steps. In this
-        case, each step is passed the inputs defined in each tuple. This
-        latter case is not yet fully implemented.
+        levels defines the number of groups of operations. The second layer is
+        a namedtuple with two keys: 'inputs' and 'steps'. There are two
+        accepted formats: inputs is a nested tuple of length 1, or nested
+        tuple where the number of nested tuples is equal to the number of
+        steps. In this case, each step is passed the inputs defined in each
+        tuple. This latter case is not yet fully implemented.
 
         Of course, any SmartTranformer can be replaced with a concrete
         transformer, as a SmartTransformer is just a wrapper shadowing an

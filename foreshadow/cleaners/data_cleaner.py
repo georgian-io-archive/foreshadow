@@ -4,6 +4,7 @@ from collections import namedtuple
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
+from foreshadow.core import logging
 from foreshadow.core.preparerstep import PreparerStep
 from foreshadow.exceptions import InvalidDataFrame
 from foreshadow.metrics.internals import avg_col_regex, regex_rows
@@ -109,6 +110,29 @@ class SmartCleaner(SmartTransformer):
             return NoTransform(column_sharer=self.column_sharer)
         return best_cleaner
 
+    def resolve(self, X, *args, **kwargs):
+        """Resolve the underlying concrete transformer.
+
+        Sets self.column_sharer with the domain tag.
+
+        Args:
+            X: input DataFrame
+            *args: args to super
+            **kwargs: kwargs to super
+
+        Returns:
+            Return from super.
+
+        """
+        ret = super().resolve(X, *args, **kwargs)
+        if self.column_sharer is not None:
+            self.column_sharer[
+                "domain", X.columns[0]
+            ] = self.transformer.__class__.__name__
+        else:
+            logging.debug("column_sharer was None")
+        return ret
+
 
 class SmartFlatten(SmartTransformer):
     """Smartly determine how to flatten an input DataFrame."""
@@ -150,6 +174,29 @@ class SmartFlatten(SmartTransformer):
         if best_flattener is None:
             return NoTransform(column_sharer=self.column_sharer)
         return best_flattener
+
+    def resolve(self, X, *args, **kwargs):
+        """Resolve the underlying concrete transformer.
+
+        Sets self.column_sharer with the domain tag.
+
+        Args:
+            X: input DataFrame
+            *args: args to super
+            **kwargs: kwargs to super
+
+        Returns:
+            Return from super.
+
+        """
+        ret = super().resolve(X, *args, **kwargs)
+        if self.column_sharer is not None:
+            self.column_sharer[
+                "domain", X.columns[0]
+            ] = self.transformer.__class__.__name__
+        else:
+            logging.debug("column_sharer was None")
+        return ret
 
 
 class BaseCleaner(BaseEstimator, TransformerMixin):
