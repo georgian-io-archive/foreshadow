@@ -1,4 +1,9 @@
 """General base classes used across Foreshadow."""
+from collections import (
+    MutableMapping,
+    defaultdict,
+    namedtuple,
+)
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 
@@ -9,7 +14,91 @@ from foreshadow.transformers.core.pipeline import DynamicPipeline
 from inspect import signature
 
 
-def _check_parallelizable_batch(column_mapping, group_number):
+GroupProcess = namedtuple("GroupProcess", ["single_input",
+                                           "step_inputs",
+                                           "steps"])
+
+
+class PreparerMapping(MutableMapping):
+    """Mapping to be returned by any subclass of PreparerStep.
+
+        This mapping is a dict of namedtuples used internally by
+        PreparerStep and should be created by using the .add() method.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.store = defaultdict(lambda: defaultdict(lambda: None))
+
+    def __getitem__(self, group_number):
+        """Gets item by internal group number, the parallel process number.
+
+        Args:
+            group_number: auto-incrementing integer field set internally.
+
+        """
+        return self.store[group_number]  # TODO make this as well accept by
+        # TODO list of columns representing a grouping, though this will have
+        #  decreased efficiency.
+
+    def __setitem__(self, group_number, group_process):
+        """
+        """
+        self.store[group_number] = group_process
+
+    def __delitem__(self, group_number):
+        """Enable deletion by column or by key.
+
+        Args:
+            group_number: the internal 'group_number' to delete.
+
+        """
+        del self.store[group_number]
+
+    def __iter__(self):
+        """Iteratore over group_processes.
+
+        Returns:
+            Iterator over internal dict.
+
+        """
+        # handle nested
+        return iter(self.store)
+
+    def __len__(self):
+        """Return number of processes.
+
+        Returns:
+           Number of processes
+
+        """
+        return len(self.store)
+
+    def add(self, inputs, transformers):
+        """Add another group_process defined by inputs and transformers.
+
+        Main API method to be used by subclasses of PreparerStep.
+
+        Args:
+            inputs: the input columns. May be a list of columns, or a list
+                of lists representing the groups of columns for each
+                transformer.
+            transformers: the transformers.
+
+        """
+        if not isinstance(inputs[0], list):  # one set of inputs at beginning.
+            self[len(self)] = GroupProcess(inputs, None, transformers)
+            # leverage setitem of self.
+        elif len(inputs) == len(transformers):  # defined inputs for each
+            # transformer
+            self[len(self)] = GroupProcess(None, inputs, transformers)
+            # leverage setitem of self.
+        else:
+            raise ValueError('inputs do no match valid options for '
+                             'transformers.')
+
+
+def _check_parallelizable_batch(group_process, group_number):
     """See if the group of cols 'group_number' is parallelizable.
 
     'group_number' in column_mapping is parallelizable if the cols across
@@ -18,17 +107,18 @@ def _check_parallelizable_batch(column_mapping, group_number):
     outer key of the dict.
 
     Args:
-        column_mapping: the column mapping from self.get_mapping()
+        group_process: an item from self.get_mapping(), a GroupProcess
+            namedtupled
         group_number: the group number
 
     Returns:
         transformer_list if parallelizable, else None.
 
     """
-    pipeline = column_mapping[group_number]
-    if len(pipeline["inputs"]) == 1:
-        inputs = pipeline["inputs"][0]
-        steps = [(step.__class__.__name__, step) for step in pipeline["steps"]]
+    if group_process.single_input is not None:
+        inputs = group_process.single_input
+        steps = [(step.__class__.__name__, step)
+                 for step in group_process.steps]
         # if we enter here, this step has the same columns across
         # all steps. This means that we can create one Pipeline for
         # this group of columns and let it run parallel to
@@ -50,7 +140,7 @@ def _check_parallelizable_batch(column_mapping, group_number):
         return None
 
 
-def _batch_parallelize(column_mapping, parallelized):
+def _batch_parallelize(column_mapping):
     """Batch parallelizes any groups in column_mapping if not parallelized.
 
     _check_parallelizable_batch will parallelize a group of columns across
@@ -63,8 +153,6 @@ def _batch_parallelize(column_mapping, parallelized):
 
     Args:
         column_mapping: the column_mapping from self.get_mapping()
-        parallelized: mapping of group_number in column_mapping to True if
-            already parallelized or False if not.
 
     Returns:
         list of steps for Pipeline, all_cols
@@ -79,8 +167,8 @@ def _batch_parallelize(column_mapping, parallelized):
     all_cols = set()
     for step_number in range(total_steps):
         groups = []
-        for group_number in parallelized:
-            if not parallelized[group_number]:  # we do not have a
+        for group_number, group_process in column_mapping:
+            if group_process.step_inputs is not None:  # we do not have a
                 # transformer_list yet for this group.
                 inputs = column_mapping["inputs"]
                 steps = column_mapping["steps"]
@@ -164,17 +252,16 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         super().__init__(**kwargs)
 
     @staticmethod
-    def separate_cols(transformers, X=None, cols=None):
+    def separate_cols(transformers, cols):
         """Return a valid mapping where each col has a separate transformer.
 
-        If X!=None, each individual col will create its own pipeline.
-        Else, define the groups of cols that will have their pipeline by
-        passing them into cols and leave X == None.
+        Define the groups of cols that will have their pipeline by
+        passing them into cols. If simply X.columns, each individual column
+        will get its own process.
 
         Args:
             transformers: list of transformers of length equal to X.shape[1] or
                 len(cols).
-            X: input DataFrame. See description for when to pass.
             cols: DataFrame.columns, list of columns. See description for
                 when to pass.
 
@@ -186,18 +273,17 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             ValueError: input does not matched defined format.
 
         """
-        if cols is None and X is not None:
-            return {
-                i: {"inputs": ([col],), "steps": transformers[i]}
-                for i, col in enumerate(X)
-            }
-        elif X is None and cols is not None:
-            return {
-                i: {"inputs": (cols[i],), "steps": transformers[i]}
-                for i, cols in enumerate(cols)
-            }
-        else:
-            raise ValueError("Invalid input. Please read the docstring.")
+        if len(transformers) != len(cols):
+            raise ValueError('number of transformer steps: \'{}\' '
+                             'does not match number of '
+                             'column groups: \'{}\''.format(len(transformers),
+                                                            len(cols)))
+        pm = PreparerMapping()
+        for i, group_col in enumerate(cols):
+            group_col = [group_col] if not isinstance(group_col,
+                                                      list) else group_col
+            pm.add(group_col, transformers[i])
+        return pm
 
     @classmethod
     def logging_name(cls):
@@ -226,24 +312,21 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
         """
         final_mapping = {}
-        parallelized = {}  # we will first map all groups that have no
+        # we will first map all groups that have no
         # interdependencies with other groups. Then, we will do all the rest
         # of the groups after as they will be performed step-by-step
         # parallelized.
-        for group_number in column_mapping:
+        for group_number, group_process in column_mapping.items():
 
             transformer_list = _check_parallelizable_batch(
-                column_mapping, group_number
+                group_process, group_number
             )
-            if transformer_list is None:  # could not be separated out
-                parallelized[group_number] = False
-            else:  # could be separated and parallelized
+            if transformer_list is not None:
                 final_mapping[group_number] = transformer_list
-                parallelized[group_number] = True
         if len(final_mapping) < len(column_mapping) and False:  # then there
             # must be groups of columns that have interdependcies.
             # CURRENTLy DISABLED.
-            steps, all_cols = _batch_parallelize(column_mapping, parallelized)
+            steps, all_cols = _batch_parallelize(column_mapping)
             final_mapping["grouped_pipeline"] = [
                 "grouped_pipeline",
                 Pipeline(steps),

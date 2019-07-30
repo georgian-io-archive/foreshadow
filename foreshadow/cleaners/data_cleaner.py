@@ -47,7 +47,7 @@ class DataCleaner(PreparerStep):
                 ]
                 for c in X
             ],
-            X=X,
+            cols=X.columns
         )
 
     def __repr__(self):
