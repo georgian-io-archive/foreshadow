@@ -1,3 +1,5 @@
+"""Test foreshadow metrics."""
+
 import re
 
 import pandas as pd
@@ -17,11 +19,11 @@ def test_metric_decorate(metric_fn):
         metric_fn: arbitrary metric function
 
     """
-    from foreshadow.metrics.metrics import metric
-    from foreshadow.metrics.metrics import Metric
+    from foreshadow.metrics import metric
+    from foreshadow.metrics.metrics import MetricWrapper
 
-    metric_fn = metric(metric_fn)  # applying decorator
-    assert isinstance(metric_fn, Metric)
+    metric_fn = metric()(metric_fn)  # applying decorator
+    assert isinstance(metric_fn, MetricWrapper)
 
 
 @pytest.mark.parametrize(
@@ -41,9 +43,9 @@ def test_metric_call(metric_fn, arg, kwargs):
         kwargs: any kwargs to metric call
 
     """
-    from foreshadow.metrics.metrics import metric
+    from foreshadow.metrics import metric
 
-    metric_fn = metric(metric_fn)
+    metric_fn = metric()(metric_fn)
     assert metric_fn(arg, **kwargs) == 1
 
 
@@ -64,9 +66,9 @@ def test_metric_last_call(metric_fn, arg, kwargs):
         kwargs: any kwargs to metric call
 
     """
-    from foreshadow.metrics.metrics import metric
+    from foreshadow.metrics import metric
 
-    metric_fn = metric(metric_fn)
+    metric_fn = metric()(metric_fn)
     _ = metric_fn(arg, **kwargs)
     assert metric_fn.last_call() == 1
 
@@ -74,10 +76,10 @@ def test_metric_last_call(metric_fn, arg, kwargs):
 @pytest.mark.parametrize(
     "fn,regex",
     [
-        ("__repr__", "class.*Metric"),
+        ("__repr__", "class.*MetricWrapper"),
         ("__repr__", "at.*"),
         ("__repr__", "function.*lambda"),
-        ("__str__", "(Metric)"),
+        ("__str__", "(MetricWrapper)"),
         ("__str__", "(lambda)"),
     ],
 )
@@ -89,9 +91,9 @@ def test_metric_print(fn, regex):
         regex: useful information to check
 
     """
-    from foreshadow.metrics.metrics import Metric
+    from foreshadow.metrics.metrics import MetricWrapper
 
-    metric_fn = Metric(lambda x: 1)
+    metric_fn = MetricWrapper(lambda x: 1)
     assert re.search(regex, getattr(metric_fn, fn)())
 
 
@@ -106,7 +108,7 @@ def test_unique_count(column, ret):
         ret: expected unique_count value
 
     """
-    from foreshadow.metrics.internals import unique_count
+    from foreshadow.metrics import unique_count
 
     assert unique_count(column) == ret
 
@@ -120,7 +122,7 @@ def test_unique_count_bias(column, ret):
         ret: expected unique_count value
 
     """
-    from foreshadow.metrics.internals import unique_count_bias
+    from foreshadow.metrics import unique_count_bias
 
     assert unique_count_bias(column) == ret
 
@@ -134,6 +136,34 @@ def test_unique_count_weight(column, ret):
             ret: expected unique_count value
 
         """
-    from foreshadow.metrics.internals import unique_count_weight
+    from foreshadow.metrics import unique_count_weight
 
     assert unique_count_weight(column) == ret
+
+
+def test_metric_default_return():
+    """Test metric default return value when a function errors."""
+
+    from foreshadow.metrics import metric
+
+    def test(X):
+        raise Exception
+
+    metric_fn = metric(0)(test)
+    assert 0 == metric_fn([1, 2, 3])
+
+
+@pytest.mark.parametrize("retval", [0, 1])
+def test_metric_invert(retval):
+    """Test metric invert computation."""
+
+    from foreshadow.metrics import metric
+
+    def test(X):
+        return retval
+
+    metric_fn = metric()(test)
+    assert (1 - retval) == metric_fn([1, 2, 3], invert=True)
+
+
+# TODO: write tests for intents used in internals

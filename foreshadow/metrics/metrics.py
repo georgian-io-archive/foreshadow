@@ -1,57 +1,66 @@
 """Metrics used across Foreshadow for smart decision making."""
 
-from functools import wraps
+from foreshadow.core import logging
 
-class Metric():  # Metric wrapper
-    """Metric class for metric functions.
 
-    Apply this class by using the metric decorator.
+class MetricWrapper:
+    """MetricWrapper class for metric functions.
+
+    Note:
+        Apply this class by using the metric decorator.
+
+    Params:
+        fn: Metric function to be wrapped
+        default_return (bool): The default return value of the wrapped
+            function.
+
+    .. automethod:: __call__
+
     """
 
-    def __init__(self, fn, default_return=None, *kwargs):
-        """Initialize metric function with fn as attribute.
-
-        Args:
-            fn: metric function
-        """
+    def __init__(self, fn, default_return=None):
         self.fn = fn
         self.default_return = default_return
 
     def __call__(self, feature, invert=False, **kwargs):
         """Use the metric function passed at initialization.
 
+        Note:
+            If default_return was set, the wrapper will suppress any errors
+            raised by the wrapped function.
+
         Args:
             feature: feature/column of pandas dataset
                 requires it.
+            invert (bool): Invert the output (1-x)
             **kwargs: any keyword arguments to metric function
 
         Returns:
-            the metric computation defined by the metric.
+            The metric computation defined by the metric.
+
+        Raises:
+            re_raise: If default return is not set the metric will display \
+                the raised errors in the function.
 
         """
-        # if encoder is not None:  # explicit since encoder is common kwarg.
-        #     kwargs["encoder"] = encoder  # passing the encoder through with
-        #     # kwargs, where it is guaranteed to not already be a kwarg (as
-        #     # it would have been passed through the explicit named argument,
-        #     # encoder. The internal self.fn is expected to accept encoder if
-        #     # it is passed and it is the users job to only pass encoder when
-        #     # it is accepted as a kwarg by self.fn
         try:
             self._last_call = self.fn(feature, **kwargs)
-        except Exception as e:
-            print(str(e))
+        except Exception as re_raise:
+            logging.debug(
+                "There was an exception when calling {}".format(self.fn)
+            )
             if self.default_return is not None:
                 return self.default_return
             else:
-                raise e
-            
-        return self._last_call if not invert else (1. - self._last_call)
+                raise re_raise
+
+        return self._last_call if not invert else (1.0 - self._last_call)
 
     def last_call(self):
         """Value from previous call to metric function.
 
         Returns:
-            last call to metric_fn (self.fn)
+            Last call to metric_fn (self.fn)
 
         """
         return self._last_call
@@ -77,27 +86,29 @@ class Metric():  # Metric wrapper
         )
 
 
-class metric():
+class metric:
     """Decorate any metric function.
 
     Args:
-        fn: function to decorate.
+        fn: function to decorate. (Automatically passed in)
+        default_return (bool): The default return value of the Metric function.
 
     Returns:
         Metric function as callable object.
 
     """
+
     def __init__(self, default_return=None):
         self.default_return = default_return
 
     def __call__(self, fn):
-        return Metric(fn, self.default_return)
+        """Get the wrapped metric function.
 
-# def metric(default_return=None):
-#     def real_decorator(fn):
-#         @wraps(fn)
-#         def wrapper(*args, **kwargs):
-#             wrapped_metric = Metric(fn, default_return=default_return)
-#             return wrapped_metric(*args, **kwargs)
-#         return wrapper
-#     return real_decorator
+        Args:
+            fn: The metric function to be wrapped.
+
+        Returns:
+            An instance `MetricWrapper` that wraps a function.
+
+        """
+        return MetricWrapper(fn, self.default_return)

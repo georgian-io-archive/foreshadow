@@ -7,11 +7,9 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 from foreshadow.intents import GenericIntent
 from foreshadow.intents.registry import registry_eval
-from foreshadow.transformers.core import (
-    ParallelProcessor,
-    SerializablePipeline,
-    SmartTransformer,
-)
+from foreshadow.transformers.core.parallelprocessor import ParallelProcessor
+from foreshadow.transformers.core.pipeline import SerializablePipeline
+from foreshadow.transformers.core.smarttransformer import SmartTransformer
 from foreshadow.utils import PipelineStep, check_df, get_transformer
 
 

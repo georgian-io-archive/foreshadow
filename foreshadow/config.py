@@ -12,15 +12,9 @@ CONFIG_FILE_NAME = "config.yml"
 DEFAULT_CONFIG = {
     "cleaner": [],
     "resolver": ["Numeric", "Categoric", "Text"],
-    "Numeric": {
-        "preprocessor": ["Imputer", "Scaler"],
-    },
-    "Categoric": {
-        "preprocessor": ["CategoricalEncoder"],
-    },
-    "Text": {
-        "preprocessor": ["TextEncoder"],
-    }
+    "Numeric": {"preprocessor": ["Imputer", "Scaler"]},
+    "Categoric": {"preprocessor": ["CategoricalEncoder"]},
+    "Text": {"preprocessor": ["TextEncoder"]},
 }
 
 _cfg = {}
@@ -53,7 +47,7 @@ def get_config(base):
 
 
 def reset_config():
-    """Reset internal configuration
+    """Reset internal configuration.
 
     Note:
         This is useful in an IDLE setting when the configuration file might
@@ -65,9 +59,13 @@ def reset_config():
 
 
 def get_intents():
-    """Get the intents defined in the config."""
+    """Get the intents defined in the config.
 
-    return resolve_config()['resolver']
+    Returns:
+        list: A list of strings for the specific configuration.
+
+    """
+    return resolve_config()["resolver"]
 
 
 def resolve_config():

@@ -178,7 +178,7 @@ def test_console_execute():
     import pandas as pd
 
     from foreshadow.console import execute_model
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
 
     from sklearn.datasets import load_boston
     from sklearn.model_selection import train_test_split

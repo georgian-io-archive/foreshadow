@@ -9,7 +9,8 @@ import scipy
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.fixes import signature
 
-from foreshadow.core import ConcreteSerializerMixin, logging
+from foreshadow.core.logging import logging
+from foreshadow.core.serializers import ConcreteSerializerMixin
 from foreshadow.exceptions import InverseUnavailable
 from foreshadow.utils import check_df, is_transformer
 
