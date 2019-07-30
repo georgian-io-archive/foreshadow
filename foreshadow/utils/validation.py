@@ -12,8 +12,19 @@ PipelineStep = {"NAME": 0, "CLASS": 1, "COLS": 2}
 
 
 def check_series(input_data):
-    """Convert non series inputs into series."""
+    """Convert non series inputs into series.
 
+    Args:
+        input_data (iterable): The input data
+
+    Returns:
+        pandas.Series
+
+    Raises:
+        ValueError: If the data could not be processed
+        ValueError: If the input is a DataFrame and has more than one column
+
+    """
     ret_ser = None
 
     if isinstance(input_data, pd.DataFrame):

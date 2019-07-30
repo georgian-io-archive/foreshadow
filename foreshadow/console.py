@@ -9,9 +9,10 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.model_selection import GridSearchCV, train_test_split
 
-from foreshadow import Foreshadow, Preprocessor
 from foreshadow.estimators import AutoEstimator
 from foreshadow.estimators.auto import determine_problem_type
+from foreshadow.foreshadow import Foreshadow
+from foreshadow.preprocessor import Preprocessor
 
 
 def generate_model(args):  # noqa: C901

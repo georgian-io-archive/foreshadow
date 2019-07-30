@@ -53,6 +53,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             to the overridden transformer
 
     """
+
     validate_wrapped = True
 
     def __init__(
@@ -100,11 +101,12 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         """
         # Check transformer type
         is_trans = is_transformer(value)
-        is_wrap = is_wrapped(value) or self.validate_wrapped
+        is_wrap = is_wrapped(value) or not self.validate_wrapped
+        check_trans = is_trans and is_wrap
         is_pipe = isinstance(value, SerializablePipeline)
         is_none = value is None
         is_empty = isinstance(value, _Empty)
-        checks = [is_trans, is_wrap, is_pipe, is_none, is_empty]
+        checks = [check_trans, is_pipe, is_none, is_empty]
         # Check the transformer inheritance status
         if not any(checks):
             raise ValueError(

@@ -3,8 +3,8 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 
 from foreshadow.core import logging
-from foreshadow.transformers.core import ParallelProcessor
 from foreshadow.transformers.core.notransform import NoTransform
+from foreshadow.transformers.core.parallelprocessor import ParallelProcessor
 from foreshadow.transformers.core.pipeline import (
     SingleInputPipeline,
     TransformersPipeline,
