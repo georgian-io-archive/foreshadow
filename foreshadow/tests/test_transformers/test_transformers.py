@@ -15,7 +15,7 @@ def test_transformer_wrapper_init():
 
 def test_transformer_wrapper_no_init():
     from sklearn.base import BaseEstimator, TransformerMixin
-    from foreshadow.transformers.core import make_pandas_transformer
+    from foreshadow.transformers.core.wrapper import make_pandas_transformer
 
     class NewTransformer(BaseEstimator, TransformerMixin):
         pass
@@ -117,7 +117,9 @@ def test_transformer_naming_default():
 
 
 def test_transformer_parallel_invalid():
-    from foreshadow.transformers.core import ParallelProcessor
+    from foreshadow.transformers.core.parallelprocessor import (
+        ParallelProcessor,
+    )
 
     class InvalidTransformer:
         pass
@@ -136,7 +138,9 @@ def test_transformer_parallel_invalid():
 
 def test_transformer_parallel_empty():
     import pandas as pd
-    from foreshadow.transformers.core import ParallelProcessor
+    from foreshadow.transformers.core.parallelprocessor import (
+        ParallelProcessor,
+    )
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
@@ -165,7 +169,9 @@ def test_transformer_parallel_empty():
 def test_transformer_parallel():
     import pandas as pd
 
-    from foreshadow.transformers.core import ParallelProcessor
+    from foreshadow.transformers.core.parallelprocessor import (
+        ParallelProcessor,
+    )
     from foreshadow.transformers.concrete import StandardScaler
 
     boston_path = get_file_path("data", "boston_housing.csv")
@@ -207,7 +213,9 @@ def test_transformer_pipeline():
     np.random.seed(1337)
 
     from foreshadow.transformers.concrete import StandardScaler as CustomScaler
-    from foreshadow.transformers.core import ParallelProcessor
+    from foreshadow.transformers.core.parallelprocessor import (
+        ParallelProcessor,
+    )
 
     from sklearn.preprocessing import StandardScaler
     from sklearn.pipeline import FeatureUnion
@@ -262,7 +270,7 @@ def smart_child():
         Always returns StandardScaler.
 
     """
-    from foreshadow.transformers.core import SmartTransformer
+    from foreshadow.transformers.core.smarttransformer import SmartTransformer
     from foreshadow.transformers.concrete import StandardScaler
 
     class TestSmartTransformer(SmartTransformer):
@@ -274,7 +282,7 @@ def smart_child():
 
 def test_smarttransformer_instantiate():
     """Instantiating a SmartTransformer should fail"""
-    from foreshadow.transformers.core import SmartTransformer
+    from foreshadow.transformers.core.smarttransformer import SmartTransformer
 
     # Note: cannot use fixture since this is not a subclass of SmartTransformer
     with pytest.raises(TypeError) as e:
@@ -285,7 +293,7 @@ def test_smarttransformer_instantiate():
 
 def test_smarttransformer_notsubclassed():
     """SmartTransformer (get_transformer TypeError) not being implemented."""
-    from foreshadow.transformers.core import SmartTransformer
+    from foreshadow.transformers.core.smarttransformer import SmartTransformer
 
     # Note: cannot use fixture since the metaclass implementation sets flags on
     # class definition time.
@@ -299,6 +307,13 @@ def test_smarttransformer_notsubclassed():
 
 
 def test_smarttransformer_attributeerror(smart_child, mocker):
+    """Test attribute error is raised if pick_transformer returns invalid obj.
+
+    Args:
+        smart_child: A subclass of SmartTransformer.
+        mocker: pytest mocker fixture
+
+    """
     import pandas as pd
 
     boston_path = get_file_path("data", "boston_housing.csv")
@@ -318,8 +333,37 @@ def test_smarttransformer_attributeerror(smart_child, mocker):
     ) in str(e.value)
 
 
+def test_smarttransformer_skip_wrap_check(smart_child, mocker):
+    """Test that you can turn off wrapping validation.
+
+    Args:
+        smart_child: A subclass of SmartTransformer.
+        mocker: pytest mocker fixture
+
+    """
+    import pandas as pd
+
+    from sklearn.preprocessing import StandardScaler
+
+    boston_path = get_file_path("data", "boston_housing.csv")
+
+    df = pd.read_csv(boston_path)
+
+    smart_child.validate_wrapped = False
+    smart = smart_child()
+    smart.pick_transformer = mocker.Mock()
+    smart.pick_transformer.return_value = StandardScaler()
+    smart.fit(df[["crim"]])
+
+
 def test_smarttransformer_invalidtransformer(smart_child, mocker):
-    """Test SmartTransformer initialization """
+    """Test SmartTransformer initialization.
+
+    Args:
+        smart_child: A subclass of SmartTransformer.
+        mocker: pytest mocker fixture
+
+    """
     import pandas as pd
 
     boston_path = get_file_path("data", "boston_housing.csv")

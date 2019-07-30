@@ -7,8 +7,8 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from foreshadow.core.preparerstep import PreparerStep
 from foreshadow.exceptions import InvalidDataFrame
 from foreshadow.metrics.internals import avg_col_regex, regex_rows
-from foreshadow.transformers.core import SmartTransformer
 from foreshadow.transformers.core.notransform import NoTransform
+from foreshadow.transformers.core.smarttransformer import SmartTransformer
 from foreshadow.utils.testing import dynamic_import
 from foreshadow.utils.validation import check_df
 

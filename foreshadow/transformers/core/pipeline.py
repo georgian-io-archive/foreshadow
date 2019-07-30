@@ -4,8 +4,8 @@ from sklearn.base import clone
 from sklearn.pipeline import Pipeline, _fit_transform_one
 from sklearn.utils.validation import check_memory
 
-from foreshadow.core import PipelineSerializerMixin
-from foreshadow.transformers.core import ParallelProcessor
+from foreshadow.core.serializers import PipelineSerializerMixin
+from foreshadow.transformers.core.parallelprocessor import ParallelProcessor
 from foreshadow.utils.validation import check_df
 
 
