@@ -1,23 +1,19 @@
 """Smart Transformer and its helper methods."""
 
 from abc import ABCMeta, abstractmethod
+from copy import deepcopy
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
+from foreshadow.core import logging
 from foreshadow.transformers.core.pipeline import SerializablePipeline
-from foreshadow.transformers.core.wrapper import (
-    _Empty,
-    make_pandas_transformer,
-)
+from foreshadow.transformers.core.wrapper import _Empty
 from foreshadow.utils import (
     check_df,
     get_transformer,
     is_transformer,
     is_wrapped,
 )
-from foreshadow.core import logging
-from copy import deepcopy
-import inspect
 
 
 # TODO: Remove once _Empty is removed when DataCleaner is implemented
@@ -51,17 +47,18 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
     """
 
-    def __init__(self,
-                 y_var=False,
-                 transformer=None,
-                 should_resolve=True,
-                 force_reresolve=False,
-                 column_sharer=None,
-                 name=None,
-                 keep_columns=False,
-                 check_wrapped=True,
-                 **kwargs,
-                 ):
+    def __init__(
+        self,
+        y_var=False,
+        transformer=None,
+        should_resolve=True,
+        force_reresolve=False,
+        column_sharer=None,
+        name=None,
+        keep_columns=False,
+        check_wrapped=True,
+        **kwargs,
+    ):
         self.name = name
         self.keep_columns = keep_columns
         self.kwargs = kwargs
@@ -85,6 +82,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         return self._transformer
 
     def unset_resolve(self):
+        """Unset resolving for all passes."""
         self.should_resolve = False
         self.force_reresolve = False
 
@@ -107,15 +105,15 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             value = get_transformer(value)(**self.kwargs)
             self.unset_resolve()
         elif isinstance(value, dict):
-            class_name = value.pop('class_name')
+            class_name = value.pop("class_name")
             self.kwargs.update(value)
             value = get_transformer(class_name)(**self.kwargs)
             self.unset_resolve()
         # Check transformer type
         is_trans = is_transformer(value)
-        trans_wrapped = is_wrapped(value) if getattr(self,
-                                                     'check_wrapped',
-                                                     True) else True
+        trans_wrapped = (
+            is_wrapped(value) if getattr(self, "check_wrapped", True) else True
+        )
         # True by default passes this check if we don't want it.
         is_pipe = isinstance(value, SerializablePipeline)
         is_none = value is None
@@ -123,8 +121,9 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         checks = [is_trans, is_pipe, is_none, is_empty, trans_wrapped]
         # Check the transformer inheritance status
         if not any(checks):
-            logging.error('transformer: {} failed checks: {}'.format(value,
-                                                                     checks))
+            logging.error(
+                "transformer: {} failed checks: {}".format(value, checks)
+            )
             raise ValueError(
                 "{} is neither a scikit-learn Pipeline, FeatureUnion, a "
                 "wrapped foreshadow transformer, nor None.".format(value)
@@ -149,13 +148,18 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         params = super().get_params(deep=deep)
         transformer_params = {}
         if self.transformer is not None:
-            transformer_params = {"transformer":
-                                      self.transformer.get_params(deep=deep)}
-            transformer_params['transformer'].update(
-                {'class_name': type(self.transformer).__name__})
+            transformer_params = {
+                "transformer": self.transformer.get_params(deep=deep)
+            }
+            transformer_params["transformer"].update(
+                {"class_name": type(self.transformer).__name__}
+            )
         params.update(transformer_params)
-        params = {key: val for key, val in params.items() if
-                  key.find('transformer__') == -1}
+        params = {
+            key: val
+            for key, val in params.items()
+            if key.find("transformer__") == -1
+        }
         return params
 
     def set_params(self, **params):
@@ -168,12 +172,14 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
         """
         params = deepcopy(params)
-        transformer_params = params.pop('transformer', self.transformer)
+        transformer_params = params.pop("transformer", self.transformer)
         super().set_params(**params)
 
         # Calls to override auto set the transformer instance
-        if isinstance(transformer_params, dict) and 'class_name' in \
-                transformer_params:  # instantiate a
+        if (
+            isinstance(transformer_params, dict)
+            and "class_name" in transformer_params
+        ):  # instantiate a
             # new
             # self.transformer
             self.transformer = transformer_params
@@ -186,7 +192,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             self.transformer.set_params(**transformer_params)
             self.transformer.set_extra_params(
                 name=type(self.transformer).__name__,
-                keep_columns=self.keep_columns
+                keep_columns=self.keep_columns,
             )
 
     @abstractmethod

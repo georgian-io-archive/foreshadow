@@ -17,7 +17,7 @@ def _split_to_new_cols(t):
     """
     delimiters = "[-/]"
     regex = r"^.*(([\d]{{4}}){delim}([\d]{{2}}){delim}([\d]{{2}})).*$".format(
-        delim=delimiters,
+        delim=delimiters
     )
     text = str(t)
     res = re.search(regex, text)
@@ -54,6 +54,6 @@ class YYYYMMDDDateCleaner(BaseCleaner):
             return [x, "", ""]
 
         default = make_list_of_three
-        super().__init__(transformations,
-                         default=default,
-                         column_sharer=column_sharer)
+        super().__init__(
+            transformations, default=default, column_sharer=column_sharer
+        )

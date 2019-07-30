@@ -1,5 +1,6 @@
-from foreshadow.utils.testing import get_file_path
 import pytest
+
+from foreshadow.utils.testing import get_file_path
 
 
 def test_smart_emtpy_input():
@@ -10,7 +11,7 @@ def test_smart_emtpy_input():
     normal_data = np.array([])
     smart_scaler = Scaler()
 
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError):
         smart_scaler.fit_transform(normal_data).values.size == 0
 
 

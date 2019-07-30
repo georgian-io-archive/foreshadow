@@ -9,6 +9,8 @@ from sklearn.utils.validation import check_memory  # noqa: F401
 
 from foreshadow.core import PipelineSerializerMixin
 from foreshadow.transformers.core import ParallelProcessor  # noqa: F401
+
+
 # Above imports used in runtime override.
 
 
@@ -54,7 +56,7 @@ code = """#
                 # and the next SmartTransformer will have to handle it
                 # as its input.
                 columns = Xt.columns
-                transformer.transformer = None  # in case this is Smart and 
+                transformer.transformer = None  # in case this is Smart and
                 # resolved.
                 transformer.should_resolve = True
                 transformer = ParallelProcessor(

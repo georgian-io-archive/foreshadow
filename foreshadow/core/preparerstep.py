@@ -1,9 +1,7 @@
 """General base classes used across Foreshadow."""
-from collections import (
-    MutableMapping,
-    defaultdict,
-    namedtuple,
-)
+from collections import MutableMapping, defaultdict, namedtuple
+from inspect import signature
+
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 
@@ -11,19 +9,18 @@ from foreshadow.core import logging
 from foreshadow.transformers.core import ParallelProcessor
 from foreshadow.transformers.core.notransform import NoTransform
 from foreshadow.transformers.core.pipeline import DynamicPipeline
-from inspect import signature
 
 
-GroupProcess = namedtuple("GroupProcess", ["single_input",
-                                           "step_inputs",
-                                           "steps"])
+GroupProcess = namedtuple(
+    "GroupProcess", ["single_input", "step_inputs", "steps"]
+)
 
 
 class PreparerMapping(MutableMapping):
     """Mapping to be returned by any subclass of PreparerStep.
 
-        This mapping is a dict of namedtuples used internally by
-        PreparerStep and should be created by using the .add() method.
+    This mapping is a dict of namedtuples used internally by
+    PreparerStep and should be created by using the .add() method.
     """
 
     def __init__(self, *args, **kwargs):
@@ -31,10 +28,13 @@ class PreparerMapping(MutableMapping):
         self.store = defaultdict(lambda: defaultdict(lambda: None))
 
     def __getitem__(self, group_number):
-        """Gets item by internal group number, the parallel process number.
+        """Get item by internal group number, the parallel process number.
 
         Args:
             group_number: auto-incrementing integer field set internally.
+
+        Returns:
+            GroupProcess for group_number.
 
         """
         return self.store[group_number]  # TODO make this as well accept by
@@ -42,7 +42,13 @@ class PreparerMapping(MutableMapping):
         #  decreased efficiency.
 
     def __setitem__(self, group_number, group_process):
-        """
+        """Set new GroupProcess to key group_number.
+
+        Args:
+            group_number: the group_number for this process. Should be
+                unique. Suggested to be auto-incrementing.
+            group_process: the GroupProcess namedtuple for this group_number.
+
         """
         self.store[group_number] = group_process
 
@@ -69,7 +75,7 @@ class PreparerMapping(MutableMapping):
         """Return number of processes.
 
         Returns:
-           Number of processes
+            Number of processes.
 
         """
         return len(self.store)
@@ -85,6 +91,9 @@ class PreparerMapping(MutableMapping):
                 transformer.
             transformers: the transformers.
 
+        Raises:
+            ValueError: if invalid input format.
+
         """
         if not isinstance(inputs[0], list):  # one set of inputs at beginning.
             self[len(self)] = GroupProcess(inputs, None, transformers)
@@ -94,8 +103,9 @@ class PreparerMapping(MutableMapping):
             self[len(self)] = GroupProcess(None, inputs, transformers)
             # leverage setitem of self.
         else:
-            raise ValueError('inputs do no match valid options for '
-                             'transformers.')
+            raise ValueError(
+                "inputs do no match valid options for transformers."
+            )
 
 
 def _check_parallelizable_batch(group_process, group_number):
@@ -117,8 +127,9 @@ def _check_parallelizable_batch(group_process, group_number):
     """
     if group_process.single_input is not None:
         inputs = group_process.single_input
-        steps = [(step.__class__.__name__, step)
-                 for step in group_process.steps]
+        steps = [
+            (step.__class__.__name__, step) for step in group_process.steps
+        ]
         # if we enter here, this step has the same columns across
         # all steps. This means that we can create one Pipeline for
         # this group of columns and let it run parallel to
@@ -186,8 +197,9 @@ def _batch_parallelize(column_mapping):
                     all_cols.add(col)
         transformer_list = [
             [
-                "group: {}, transformer: {}".format(group_number,
-                                                    transformer.__name__),
+                "group: {}, transformer: {}".format(
+                    group_number, transformer.__name__
+                ),
                 transformer,
                 cols,
             ]
@@ -274,14 +286,16 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
         """
         if len(transformers) != len(cols):
-            raise ValueError('number of transformer steps: \'{}\' '
-                             'does not match number of '
-                             'column groups: \'{}\''.format(len(transformers),
-                                                            len(cols)))
+            raise ValueError(
+                "number of transformer steps: '{}' "
+                "does not match number of "
+                "column groups: '{}'".format(len(transformers), len(cols))
+            )
         pm = PreparerMapping()
         for i, group_col in enumerate(cols):
-            group_col = [group_col] if not isinstance(group_col,
-                                                      list) else group_col
+            group_col = (
+                [group_col] if not isinstance(group_col, list) else group_col
+            )
             pm.add(group_col, transformers[i])
         return pm
 
@@ -449,7 +463,8 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         if self._parallel_process is None:
             logging.debug(
                 "DataPreparerStep: {} called check_process".format(
-                    self.__class__.__name__)
+                    self.__class__.__name__
+                )
             )
             self._parallel_process = self.parallelize_smart_steps(X)
 
@@ -505,12 +520,14 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
     @staticmethod
     def _preparer_params():
-        init = getattr(PreparerStep.__init__,
-                       'deprecated_original',
-                       PreparerStep.__init__
-                       )
+        init = getattr(
+            PreparerStep.__init__, "deprecated_original", PreparerStep.__init__
+        )
         init_signature = signature(init)
         # Consider the constructor parameters excluding 'self'
-        parameters = [p for p in init_signature.parameters.values()
-                      if p.name != 'self' and p.kind != p.VAR_KEYWORD]
+        parameters = [
+            p
+            for p in init_signature.parameters.values()
+            if p.name != "self" and p.kind != p.VAR_KEYWORD
+        ]
         return [p.name for p in parameters]

@@ -7,6 +7,7 @@ from foreshadow.transformers.core.wrapper import make_pandas_transformer
 @make_pandas_transformer
 class NoTransform(BaseEstimator, TransformerMixin):
     """Transformer that performs _Empty transformation."""
+
     def __init__(self, column_sharer):
         self.column_sharer = column_sharer
 

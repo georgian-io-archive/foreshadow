@@ -23,7 +23,6 @@ class DataCleaner(PreparerStep):
         """Define the single step for DataCleaner, using SmartCleaner.
 
         Args:
-            *args: args to PreparerStep constructor.
             **kwargs: kwargs to PreparerStep constructor.
 
         """
@@ -47,24 +46,33 @@ class DataCleaner(PreparerStep):
                 ]
                 for c in X
             ],
-            cols=X.columns
+            cols=X.columns,
         )
 
     def __repr__(self):
+        """Return string representation of this object with parent params.
+
+        Returns:
+            See above.
+
+        """
         r = super().__repr__()
         preparer_params = self._preparer_params()
         preparer_params = {p: getattr(self, p, None) for p in preparer_params}
-        preparer_print = ", ".join(["{}={}".format(k, v)
-                                    for k, v in preparer_params.items()])
+        preparer_print = ", ".join(
+            ["{}={}".format(k, v) for k, v in preparer_params.items()]
+        )
         return r[:-1] + preparer_print + ")"
 
 
 class SmartCleaner(SmartTransformer):
     """Intelligently decide which cleaning function should be applied."""
 
-    def __init__(self,  # manually adding as otherwise get_params won't see it.
-                 check_wrapped=False,
-                 **kwargs):
+    def __init__(
+        self,  # manually adding as otherwise get_params won't see it.
+        check_wrapped=False,
+        **kwargs
+    ):
         self.single_input = True  # all transformers under this only accept
         # 1 column. This is how DynamicPipeline knows this.
         # get_params then set_params, it may be in kwargs already
@@ -105,9 +113,7 @@ class SmartCleaner(SmartTransformer):
 class SmartFlatten(SmartTransformer):
     """Smartly determine how to flatten an input DataFrame."""
 
-    def __init__(self,
-                 check_wrapped=True,
-                 **kwargs):
+    def __init__(self, check_wrapped=True, **kwargs):
         super().__init__(check_wrapped=check_wrapped, **kwargs)
 
     def pick_transformer(self, X, y=None, **fit_params):
@@ -149,12 +155,14 @@ class SmartFlatten(SmartTransformer):
 class BaseCleaner(BaseEstimator, TransformerMixin):
     """Base class for any Cleaner Transformer."""
 
-    def __init__(self,
-                 transformations,
-                 output_columns=None,
-                 confidence_computation=None,
-                 default=lambda x: x,
-                 column_sharer=None):
+    def __init__(
+        self,
+        transformations,
+        output_columns=None,
+        confidence_computation=None,
+        default=lambda x: x,
+        column_sharer=None,
+    ):
         """Construct any cleaner/flattener.
 
         Args:
@@ -169,6 +177,8 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
                 subclass's metric computation. This implies an OVR model.
             default: Function that returns the default value for a row if
                 the transformation failed. Accepts the row as input.
+            column_sharer: An instance of 'foreshadow.core.ColumnSharer' to
+                be used to share information between PreparerSteps.
 
         Raises:
             ValueError: If not a list, int, or None specifying expected
@@ -302,12 +312,16 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         # access single column as series and apply the list of
         # transformations to each row in the series.
         if any(
-            [isinstance(out.iloc[i], (list, tuple))
-             for i in range(out.shape[0])]
+            [
+                isinstance(out.iloc[i], (list, tuple))
+                for i in range(out.shape[0])
+            ]
         ):  # out are lists == new columns
             if not all(
-                [len(out.iloc[0]) == len(out.iloc[i]) for i in range(len(
-                    out.iloc[0]))]
+                [
+                    len(out.iloc[0]) == len(out.iloc[i])
+                    for i in range(len(out.iloc[0]))
+                ]
             ):
                 raise InvalidDataFrame(
                     "length of lists: {}, returned not of same value.".format(
@@ -316,8 +330,9 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
                 )
             columns = self.output_columns
             if columns is None:
-                columns = [X.columns[0] + str(c)
-                           for c in range(len(out.iloc[0]))]
+                columns = [
+                    X.columns[0] + str(c) for c in range(len(out.iloc[0]))
+                ]
                 # by default, pandas would have given a unique integer to
                 # each column, instead, we keep the previous column name and
                 # add that integer.

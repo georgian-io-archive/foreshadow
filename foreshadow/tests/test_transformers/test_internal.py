@@ -139,11 +139,8 @@ def test_transformer_onehotencoder_fit_transform_keep_cols():
     df = pd.DataFrame(
         {"neat": ["apple", "apple", "orange", "apple", "orange"]}
     )
-    ohe = OneHotEncoder(
-        use_cat_names=True,
-        handle_unknown="ignore",
-    )
-    ohe.set_extra_params(name='encoder', keep_columns=True)
+    ohe = OneHotEncoder(use_cat_names=True, handle_unknown="ignore")
+    ohe.set_extra_params(name="encoder", keep_columns=True)
     assert ohe.fit(df) == ohe
     assert list(ohe.transform(df)) == ["neat", "neat_apple", "neat_orange"]
 

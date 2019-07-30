@@ -100,7 +100,8 @@ def avg_col_regex(feature, cleaner, mode=min):
     f = feature
     matched_lens = [
         (cleaner(f.get_value(i, f.columns[0])).match_lens, len(f.iloc[i]))
-        for i in f.index]
+        for i in f.index
+    ]
     return sum(
         [mode(list_lens) / row_len for list_lens, row_len in matched_lens]
     ) / len(feature)

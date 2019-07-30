@@ -63,9 +63,9 @@ def test_transformer_wrapper_empty_input():
 
     df = pd.DataFrame({"A": np.array([])})
 
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError):
         StandardScaler().fit(df)
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError):
         CustomScaler().fit(df)
 
 
@@ -307,7 +307,7 @@ def test_smarttransformer_attributeerror(smart_child, mocker):
     smart.pick_transformer = mocker.Mock()
     smart.pick_transformer.return_value = "INVALID"
 
-    with pytest.raises(TransformerNotFound) as e:
+    with pytest.raises(TransformerNotFound):
         smart.fit(df[["crim"]])
 
 
@@ -499,12 +499,14 @@ def test_smarttransformer_get_params(smart_child):
     params = smart.get_params()
     print(params)
     assert params == {
-        "transformer": {"class_name": "Imputer",
-                        "missing_values": "NaN",
-                        "strategy": "mean",
-                        "copy": True,
-                        "axis": 0,
-                        "verbose": 0,},
+        "transformer": {
+            "class_name": "Imputer",
+            "missing_values": "NaN",
+            "strategy": "mean",
+            "copy": True,
+            "axis": 0,
+            "verbose": 0,
+        },
         "name": None,
         "keep_columns": False,
         "y_var": False,
