@@ -203,7 +203,6 @@ def test_preprocessor_init_json_pipeline_map():
     transformer = proc._pipeline_map["crim"].steps[0][PipelineStep["CLASS"]]
 
     assert type(transformer).__name__ == "StandardScaler"
-    # assert hasattr(transformer, "name")
     # TODO when this test is replaced, add the new test for name attribute.
     assert not transformer.with_mean
 

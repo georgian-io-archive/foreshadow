@@ -1,5 +1,6 @@
 """Test the data_preparer.py file."""
 import pytest
+
 from foreshadow.utils.testing import get_file_path
 
 

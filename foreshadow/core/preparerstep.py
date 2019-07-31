@@ -6,9 +6,9 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
 
 from foreshadow.core import logging
-from foreshadow.transformers.core import ParallelProcessor
-from foreshadow.transformers.core.notransform import NoTransform
-from foreshadow.transformers.core.pipeline import DynamicPipeline
+from foreshadow.core.pipeline import DynamicPipeline
+from foreshadow.transformers.core.parallelprocessor import ParallelProcessor
+from foreshadow.transformers.internals import NoTransform
 
 
 GroupProcess = namedtuple(
@@ -95,7 +95,16 @@ class PreparerMapping(MutableMapping):
             ValueError: if invalid input format.
 
         """
-        if not isinstance(inputs[0], list):  # one set of inputs at beginning.
+        if isinstance(inputs, (str, int)):
+            logging.warning(
+                "Input column converted to proper list format. "
+                "This automatic inspection may not have the "
+                "desired so effect, so please follow "
+                "PreparerMapping.add() input."
+            )
+            inputs = [inputs]
+        if not isinstance(inputs[0], (list, tuple)):
+            # one set of inputs at the beginning.
             self[len(self)] = GroupProcess(inputs, None, transformers)
             # leverage setitem of self.
         elif len(inputs) == len(transformers):  # defined inputs for each
@@ -104,7 +113,8 @@ class PreparerMapping(MutableMapping):
             # leverage setitem of self.
         else:
             raise ValueError(
-                "inputs do no match valid options for transformers."
+                "inputs: {} do no match valid options for "
+                "transformers.".format(inputs)
             )
 
 
@@ -294,7 +304,9 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         pm = PreparerMapping()
         for i, group_col in enumerate(cols):
             group_col = (
-                [group_col] if not isinstance(group_col, list) else group_col
+                [group_col]
+                if not isinstance(group_col, (list, tuple))
+                else group_col
             )
             pm.add(group_col, transformers[i])
         return pm

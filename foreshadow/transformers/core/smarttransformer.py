@@ -6,7 +6,7 @@ from copy import deepcopy
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from foreshadow.core import logging
-from foreshadow.transformers.core.pipeline import SerializablePipeline
+from foreshadow.core.pipeline import SerializablePipeline
 from foreshadow.transformers.core.wrapper import _Empty
 from foreshadow.utils import (
     check_df,

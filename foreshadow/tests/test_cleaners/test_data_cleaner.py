@@ -146,7 +146,23 @@ def test_numerical_input():
     cs = ColumnSharer()
     dc = DataCleaner(column_sharer=cs)
     dc.fit(data)
-    # transformed_data = dc.transform(data)
+    transformed_data = dc.transform(data)
+    assert np.array_equal(transformed_data, data)
+
+
+def test_numerical_input_fittransform():
+    """Test numerical input."""
+    import numpy as np
+    import pandas as pd
+    from foreshadow.cleaners import DataCleaner
+    from foreshadow.core.column_sharer import ColumnSharer
+
+    columns = ["financials"]
+    data = pd.DataFrame({"financials": np.arange(10)}, columns=columns)
+    cs = ColumnSharer()
+    dc = DataCleaner(column_sharer=cs)
+    transformed_data = dc.fit_transform(data)
+    assert np.array_equal(transformed_data, data)
 
 
 # TODO test graph, could be implemented very wrong.

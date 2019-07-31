@@ -2,6 +2,8 @@
 
 from sklearn.pipeline import Pipeline
 
+from foreshadow.core import PipelineSerializerMixin
+
 
 def _none_to_dict(name, val, column_sharer=None):
     """Transform input kwarg to valid dict, handling sentinel value.
@@ -31,12 +33,12 @@ def _none_to_dict(name, val, column_sharer=None):
     return val
 
 
-class DataPreparer(Pipeline):
+class DataPreparer(Pipeline, PipelineSerializerMixin):
     """Predefined pipeline for the foreshadow workflow."""
 
     def __init__(
         self,
-        column_sharer,
+        column_sharer=None,
         cleaner_kwargs=None,
         intent_kwargs=None,
         engineerer_kwargs=None,
