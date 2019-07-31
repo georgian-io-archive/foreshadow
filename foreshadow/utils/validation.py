@@ -14,6 +14,15 @@ PipelineStep = {"NAME": 0, "CLASS": 1, "COLS": 2}
 def check_series(input_data):
     """Convert non series inputs into series.
 
+    This is function is to be used in situations where a series is expected but
+    cannot be guaranteed to exist. For example, this function is used in
+    the metrics package to perform computations on a column using functions
+    that only work with series.
+
+    Note:
+        This is not to be used in transformers as it will break the standard
+        that enforces only DataFrames as input and output for those objects.
+
     Args:
         input_data (iterable): The input data
 
