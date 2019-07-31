@@ -1,22 +1,33 @@
 """Cache utility for foreshadow pipeline workflow to share data."""
+import pprint
 from collections import MutableMapping, defaultdict
+
+
+class PrettyDefaultDict(defaultdict):
+    """A default dict wrapper that allows simple printing."""
+
+    __repr__ = dict.__repr__
 
 
 class ColumnSharer(MutableMapping):
     """Main cache-class to be used as single-instance to share data.
+
+    Note:
+        This object is not thread safe for reads but is thread safe for writes.
 
     .. automethod:: __getitem__
     .. automethod:: __setitem__
     .. automethod:: __delitem__
     .. automethod:: __iter__
     .. automethod:: __len__
+
     """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.store = defaultdict(lambda: defaultdict(lambda: None))  # will
-        # have a nested defaultdict for every key, which holds {column:
-        # key-column info} and gives None by default. It is the users
+        self.store = PrettyDefaultDict(lambda: PrettyDefaultDict(lambda: None))
+        # will have a nested PrettyDefaultDict for every key, which holds
+        # {column: key-column info} and gives None by default. It is the users
         # responsibility to make sure returned values are useful.
         acceptable_keys = {
             "intent": True,
@@ -24,7 +35,9 @@ class ColumnSharer(MutableMapping):
             "metastat": True,
             "graph": True,
         }
-        self.__acceptable_keys = defaultdict(lambda: False, acceptable_keys)
+        self.__acceptable_keys = PrettyDefaultDict(
+            lambda: False, acceptable_keys
+        )
 
     def __getitem__(self, key_list):
         """Override getitem to support multi key accessing simultaneously.
@@ -189,3 +202,12 @@ class ColumnSharer(MutableMapping):
 
         """
         return sum([len(self.store[key]) for key in self.store])
+
+    def __str__(self):
+        """Get a string representation of the internal store.
+
+        Returns:
+            A pretty printed version of the internal store.
+
+        """
+        return pprint.pformat(self.store, indent=2)

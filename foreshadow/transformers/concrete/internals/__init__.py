@@ -21,7 +21,7 @@ from foreshadow.transformers.concrete.internals.tostring import ToString
 from foreshadow.transformers.concrete.internals.uncommonremover import (
     UncommonRemover,
 )
-from foreshadow.transformers.core import _get_modules
+from foreshadow.transformers.core.wrapper import _get_modules
 
 
 def _get_classes():

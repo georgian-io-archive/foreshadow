@@ -29,7 +29,8 @@ from foreshadow.transformers.concrete import (
     ToString,
     UncommonRemover,
 )
-from foreshadow.transformers.core import SerializablePipeline, SmartTransformer
+from foreshadow.transformers.core.pipeline import SerializablePipeline
+from foreshadow.transformers.core.smarttransformer import SmartTransformer
 from foreshadow.utils import check_df
 
 
