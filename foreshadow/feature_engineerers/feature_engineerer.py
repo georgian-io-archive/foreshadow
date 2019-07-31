@@ -20,9 +20,8 @@ class FeatureEngineerer(PreparerStep):
         super().__init__(*args, use_single_pipeline=False, **kwargs)
 
     def get_mapping(self, X):
-        """TODO as mentioned in the design documentation, feature engineerer
-        aggregates columns by domain-tag in the columnsharer and then by
-        Intent to decide if any feature generation or reduction is possible.
+        """Maps the columns of the data frame by domain-tag then by Intent
+        stored in the ColumnSharer.
         """
 
         def group_by(iterable, column_sharer_key):
@@ -41,12 +40,6 @@ class FeatureEngineerer(PreparerStep):
                 columns_by_domain_and_intent[
                     domain + "_" + intent
                 ] += columns_by_intent[intent]
-
-        """TODO calling separate_cols doesn't seem to work when we want the inputs
-        to be a tuple like (['col1', 'col2', ...], ).
-        "input": (cols,), seems to fail due to out of index error.
-        """
-
         """Instead of using i as the outer layer key,
         should we use some more specific like the key
         in columns_by_domain_and_intent, which is ${domain}_${intent}?

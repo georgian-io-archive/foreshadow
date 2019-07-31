@@ -21,33 +21,30 @@ def test_feature_engineerer_fit():
         columns=["age", "weights", "financials"],
     )
     cs = ColumnSharer()
-    cs["domain"]["age"] = "personal"
-    cs["domain"]["weights"] = "personal"
-    cs["domain"]["financials"] = "financial"
+    cs["domain", "age"] = "personal"
+    cs["domain", "weights"] = "personal"
+    cs["domain", "financials"] = "financial"
 
-    cs["intent"]["age"] = "NumericIntent"
-    cs["intent"]["weights"] = "NumericIntent"
-    cs["intent"]["financials"] = "FinancialIntent"
+    cs["intent", "age"] = "Numeric"
+    cs["intent", "weights"] = "Numeric"
+    cs["intent", "financials"] = "Numeric"
 
     dc = FeatureEngineerer(cs)
     dc.fit(data)
-    data = dc.transform(data)
-    check = pd.DataFrame(
-        {
-            "age": [10, 20, 33, 44],
-            "weights": [20, 30, 50, 60],
-            "financials": ["$1.00", "$550.01", "$1234", "$12353.3345"],
-        },
-        columns=["age", "weights", "financials"],
-    )
+    transformed_data = dc.transform(data)
     assert np.all(
-        np.equal(data.values[data.notna()], check.values[check.notna()])
+        np.equal(
+            data.values[data.notna()],
+            transformed_data.values[transformed_data.notna()],
+        )
     )
 
 
 def test_feature_engineerer_get_mapping():
     """Test basic fit call."""
+    import pdb
 
+    pdb.set_trace()
     data = pd.DataFrame(
         {
             "age": [10, 20, 33, 44],
@@ -56,14 +53,15 @@ def test_feature_engineerer_get_mapping():
         },
         columns=["age", "weights", "financials"],
     )
+    print(data)
     cs = ColumnSharer()
-    cs["domain"]["age"] = "personal"
-    cs["domain"]["weights"] = "personal"
-    cs["domain"]["financials"] = "financial"
+    cs["domain", "age"] = "personal"
+    cs["domain", "weights"] = "personal"
+    cs["domain", "financials"] = "financial"
 
-    cs["intent"]["age"] = "NumericIntent"
-    cs["intent"]["weights"] = "NumericIntent"
-    cs["intent"]["financials"] = "FinancialIntent"
+    cs["intent", "age"] = "Numeric"
+    cs["intent", "weights"] = "Numeric"
+    cs["intent", "financials"] = "Numeric"
 
     dc = FeatureEngineerer(cs)
     column_mapping = dc.get_mapping(data)
@@ -74,4 +72,5 @@ def test_feature_engineerer_get_mapping():
         },
         1: {"inputs": (["financials"],), "steps": [SmartFeatureEngineerer()]},
     }
+    print(column_mapping)
     assert str(column_mapping) == str(check)
