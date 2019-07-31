@@ -75,7 +75,7 @@ def get_transformer(class_name, source_lib=None):
             for source in [
                 "foreshadow.transformers.concrete",
                 "foreshadow.transformers.smart",
-                "foreshadow.transformers.core",
+                "foreshadow.core",
                 "foreshadow.cleaners.internals",
             ]
         )

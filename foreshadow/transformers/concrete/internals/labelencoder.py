@@ -2,8 +2,10 @@
 
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import LabelEncoder as SklearnLabelEncoder
+from foreshadow.core import make_pandas_transformer
 
 
+@make_pandas_transformer
 class FixedLabelEncoder(BaseEstimator, TransformerMixin):
     """Fix LabelEncoder function signature to fit transformer standard."""
 

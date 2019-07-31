@@ -4,8 +4,10 @@ import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
+from foreshadow.core import make_pandas_transformer
 
 
+@make_pandas_transformer
 class DropFeature(BaseEstimator, TransformerMixin):
     """Drop data if it doesn't pass a set threshold.
 

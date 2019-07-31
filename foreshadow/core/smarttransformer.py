@@ -5,9 +5,8 @@ from copy import deepcopy
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from foreshadow.core import logging
-from foreshadow.core.pipeline import SerializablePipeline
-from foreshadow.transformers.core.wrapper import _Empty
+from . import logging
+from .pipeline import SerializablePipeline
 from foreshadow.utils import (
     check_df,
     get_transformer,
@@ -16,7 +15,6 @@ from foreshadow.utils import (
 )
 
 
-# TODO: Remove once _Empty is removed when DataCleaner is implemented
 class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
     """Abstract transformer class for meta transformer selection decisions.
 
@@ -117,8 +115,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         # True by default passes this check if we don't want it.
         is_pipe = isinstance(value, SerializablePipeline)
         is_none = value is None
-        is_empty = isinstance(value, _Empty)
-        checks = [is_trans, is_pipe, is_none, is_empty, trans_wrapped]
+        checks = [is_trans, is_pipe, is_none, trans_wrapped]
         # Check the transformer inheritance status
         if not any(checks):
             logging.error(

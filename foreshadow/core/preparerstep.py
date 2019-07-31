@@ -3,11 +3,10 @@ from collections import MutableMapping, defaultdict, namedtuple
 from inspect import signature
 
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.pipeline import Pipeline
 
-from foreshadow.core import logging
-from foreshadow.core.pipeline import DynamicPipeline
-from foreshadow.transformers.core.parallelprocessor import ParallelProcessor
+from . import logging
+from .pipeline import DynamicPipeline
+from .parallelprocessor import ParallelProcessor
 from foreshadow.transformers.internals import NoTransform
 
 
@@ -349,15 +348,15 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             )
             if transformer_list is not None:
                 final_mapping[group_number] = transformer_list
-        if len(final_mapping) < len(column_mapping) and False:  # then there
-            # must be groups of columns that have interdependcies.
-            # CURRENTLy DISABLED.
-            steps, all_cols = _batch_parallelize(column_mapping)
-            final_mapping["grouped_pipeline"] = [
-                "grouped_pipeline",
-                Pipeline(steps),
-                all_cols,
-            ]
+        # if len(final_mapping) < len(column_mapping):  # then there
+        #     # must be groups of columns that have interdependcies.
+        #     # CURRENTLy DISABLED.
+        #     steps, all_cols = _batch_parallelize(column_mapping)
+        #     final_mapping["grouped_pipeline"] = [
+        #         "grouped_pipeline",
+        #         Pipeline(steps),
+        #         all_cols,
+        #     ]
 
         return final_mapping
 

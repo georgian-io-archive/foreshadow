@@ -7,8 +7,8 @@ from sklearn.base import clone  # noqa: F401
 from sklearn.pipeline import Pipeline, _fit_transform_one  # noqa: F401
 from sklearn.utils.validation import check_memory  # noqa: F401
 
-from foreshadow.core.serializers import PipelineSerializerMixin
-from foreshadow.transformers.core import ParallelProcessor  # noqa: F401
+from .serializers import PipelineSerializerMixin
+from .parallelprocessor import ParallelProcessor  # noqa: F401
 
 
 # Above imports used in runtime override.

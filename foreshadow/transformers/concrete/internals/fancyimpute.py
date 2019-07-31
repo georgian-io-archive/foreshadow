@@ -1,8 +1,10 @@
 """Fancy imputation."""
 
 from sklearn.base import BaseEstimator, TransformerMixin
+from foreshadow.core import make_pandas_transformer
 
 
+@make_pandas_transformer
 class FancyImputer(BaseEstimator, TransformerMixin):
     """Wrapper for the fancy imputation methods.
 

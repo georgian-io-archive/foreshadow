@@ -21,7 +21,6 @@ from foreshadow.transformers.concrete.internals.tostring import ToString
 from foreshadow.transformers.concrete.internals.uncommonremover import (
     UncommonRemover,
 )
-from foreshadow.transformers.core import _get_modules
 
 
 def _get_classes():
@@ -36,7 +35,17 @@ def _get_classes():
     return [c for c in globals().values() if inspect.isclass(c)]
 
 
-classes = _get_modules(_get_classes(), globals(), __name__)
-__all__ = classes
+__all__ = [
+    "BoxCox",
+    "DropFeature",
+    "DummyEncoder",
+    "FancyImputer",
+    "ConvertFinancial",
+    "PrepareFinancial",
+    "HTMLRemover",
+    "FixedLabelEncoder",
+    "FixedTfidfVectorizer",
+    "ToString",
+    "UncommonRemover"
+]
 
-del _get_modules

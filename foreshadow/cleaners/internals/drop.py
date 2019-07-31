@@ -35,9 +35,9 @@ class DropCleaner(BaseCleaner):
 
     """
 
-    def __init__(self, column_sharer=None):
+    def __init__(self):
         transformations = [drop_transform]
-        super().__init__(transformations, column_sharer=column_sharer)
+        super().__init__(transformations)
 
     def transform(self, X, y=None):
         """Clean string columns.

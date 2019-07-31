@@ -707,9 +707,15 @@ def test_preprocessor_get_params():  # TODO figure out what this test is
     test_path2 = get_file_path("configs", "complete_pipeline_test.json")
 
     df = pd.read_csv(boston_path)
+    # (If you change default configs) or file structure, you will need to
+    # verify the outputs are correct manually and regenerate the pickle
+    # truth file.
     proc = Preprocessor(from_json=json.load(open(test_path2, "r")))
     proc.fit(df)
 
+    # (If you change default configs) or file structure, you will need to
+    # verify the outputs are correct manually and regenerate the pickle
+    # truth file.
     truth = pickle.load(open(test_path, "rb"))
 
     assert proc.get_params().keys() == truth.keys()
@@ -727,6 +733,9 @@ def test_preprocessor_set_params():  # TODO figure out what this test is
     test_path2 = get_file_path("configs", "complete_pipeline_test.json")
 
     df = pd.read_csv(boston_path)
+    # (If you change default configs) or file structure, you will need to
+    # verify the outputs are correct manually and regenerate the pickle
+    # truth file.
     params = pickle.load(open(test_path, "rb"))
     proc = Preprocessor(from_json=json.load(open(test_path2, "r")))
 

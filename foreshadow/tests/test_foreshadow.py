@@ -420,6 +420,9 @@ def test_foreshadow_param_optimize():  # TODO: Make this test faster
 
     results = _param_mapping(fs.pipeline, x_train, y_train)
 
+    # (If you change default configs) or file structure, you will need to
+    # verify the outputs are correct manually and regenerate the pickle
+    # truth file.
     truth = pickle.load(open(truth_path, "rb"))
 
     assert results[0].keys() == truth[0].keys()

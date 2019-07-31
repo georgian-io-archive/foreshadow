@@ -4,6 +4,7 @@ import re
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from foreshadow.utils import check_df
+from foreshadow.core import make_pandas_transformer
 
 
 HTML_REGEX = re.compile(r"<[^<]+?>")
@@ -21,6 +22,7 @@ IS_HTML_REGEX = re.compile(
 )
 
 
+@make_pandas_transformer
 class HTMLRemover(BaseEstimator, TransformerMixin):
     """Removes html tags from text data."""
 

@@ -6,8 +6,10 @@ from scipy.stats import boxcox
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
+from foreshadow.core import make_pandas_transformer
 
 
+@make_pandas_transformer
 class BoxCox(BaseEstimator, TransformerMixin):
     """Perform BoxCox transformation on continuous numeric data."""
 

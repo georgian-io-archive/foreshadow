@@ -8,7 +8,7 @@ from foreshadow.core import logging
 from foreshadow.core.preparerstep import PreparerStep
 from foreshadow.exceptions import InvalidDataFrame
 from foreshadow.metrics.internals import avg_col_regex, regex_rows
-from foreshadow.transformers.core import SmartTransformer
+from foreshadow.core import SmartTransformer
 from foreshadow.transformers.internals.notransform import NoTransform
 from foreshadow.utils.testing import dynamic_import
 from foreshadow.utils.validation import check_df
@@ -101,13 +101,13 @@ class SmartCleaner(SmartTransformer):
         best_score = 0
         best_cleaner = None
         for cleaner, name in cleaners:
-            cleaner = cleaner(column_sharer=self.column_sharer)
+            cleaner = cleaner()
             score = cleaner.metric_score(X)
             if score > best_score:
                 best_score = score
                 best_cleaner = cleaner
         if best_cleaner is None:
-            return NoTransform(column_sharer=self.column_sharer)
+            return NoTransform()
         return best_cleaner
 
     def resolve(self, X, *args, **kwargs):
@@ -166,13 +166,13 @@ class SmartFlatten(SmartTransformer):
         best_score = 0
         best_flattener = None
         for flattener, name in flatteners:
-            flattener = flattener(column_sharer=self.column_sharer)
+            flattener = flattener()
             score = flattener.metric_score(X)
             if score > best_score:
                 best_score = score
                 best_flattener = flattener
         if best_flattener is None:
-            return NoTransform(column_sharer=self.column_sharer)
+            return NoTransform()
         return best_flattener
 
     def resolve(self, X, *args, **kwargs):
@@ -208,7 +208,7 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         output_columns=None,
         confidence_computation=None,
         default=lambda x: x,
-        column_sharer=None,
+        # column_sharer=None,
     ):
         """Construct any cleaner/flattener.
 
@@ -239,7 +239,7 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         self.output_columns = output_columns
         self.transformations = transformations
         self.confidence_computation = {regex_rows: 0.8, avg_col_regex: 0.2}
-        self.column_sharer = column_sharer
+        # self.column_sharer = column_sharer
         if confidence_computation is not None:
             self.confidence_computation = confidence_computation
 

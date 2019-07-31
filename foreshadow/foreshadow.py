@@ -11,7 +11,7 @@ from foreshadow.estimators.auto import AutoEstimator
 from foreshadow.estimators.meta import MetaEstimator
 from foreshadow.optimizers.param_mapping import _param_mapping
 from foreshadow.preprocessor import Preprocessor
-from foreshadow.transformers.core import SerializablePipeline
+from foreshadow.core import SerializablePipeline
 from foreshadow.utils import check_df
 
 

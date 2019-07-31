@@ -2,7 +2,7 @@
 
 from sklearn.pipeline import Pipeline
 
-from foreshadow.core import PipelineSerializerMixin
+from .pipeline import PipelineSerializerMixin
 
 
 def _none_to_dict(name, val, column_sharer=None):

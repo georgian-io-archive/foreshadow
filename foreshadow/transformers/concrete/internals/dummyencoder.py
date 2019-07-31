@@ -3,8 +3,10 @@
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
+from foreshadow.core import make_pandas_transformer
 
 
+@make_pandas_transformer
 class DummyEncoder(BaseEstimator, TransformerMixin):
     """Dummy encode delimited data within column of dataframe."""
 

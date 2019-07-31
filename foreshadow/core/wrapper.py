@@ -8,56 +8,9 @@ import scipy
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.fixes import signature
 
-from foreshadow.core import ConcreteSerializerMixin, logging
+from .serializers import ConcreteSerializerMixin
+from . import logging
 from foreshadow.utils import check_df, is_transformer
-
-
-def _get_modules(classes, globals_, mname, wrap=True):  # TODO auto import all
-    # TODO sklearn transformers and test each one generically.
-    """Import sklearn transformers from transformers directory.
-
-    Searches transformers directory for classes implementing BaseEstimator and
-    TransformerMixin and duplicates them, wraps their init methods and public
-    functions to support pandas dataframes, and exposes them as
-    foreshadow.transformers.[name]
-
-    Args:
-        classes: A list of classes
-        globals_: The globals in the callee's context
-        mname: The module name
-        wrap: True to wrap the transformers.
-
-    Returns:
-        The list of wrapped transformers.
-
-    """
-    # noqa: D202
-    def no_wrap(t):
-        """Return original function pointer.
-
-        Don't wrap the transformer.
-
-        Args:
-            t: input transformer
-
-        Returns:
-            t, unwrapped.
-
-        """
-        return t
-
-    transformers = [
-        cls for cls in classes if is_transformer(cls, method="issubclass")
-    ]
-
-    wrap_func = make_pandas_transformer if wrap else no_wrap
-
-    for t in transformers:
-        copied_t = type(t.__name__, (t, *t.__bases__), dict(t.__dict__))
-        copied_t.__module__ = mname
-        globals_[copied_t.__name__] = wrap_func(copied_t)
-
-    return [t.__name__ for t in transformers]
 
 
 def make_pandas_transformer(transformer):  # noqa: C901
@@ -145,7 +98,11 @@ def make_pandas_transformer(transformer):  # noqa: C901
                     "remove it from the kwargs and instead set "
                     "it after instantiation."
                 )
-            super(DFTransformer, self).__init__(*args, **kwargs)
+            try:
+                super(DFTransformer, self).__init__(*args, **kwargs)
+            except TypeError as e:
+                raise type(e)(str(e) + ". Init for transformer: '{}' "
+                                          "called".format(transformer))
 
             # TODO: remove this when _Empty is removed
             self.__empty_fit = False
@@ -432,48 +389,6 @@ def make_pandas_transformer(transformer):  # noqa: C901
             setattr(self, "keep_columns", keep_columns)
 
     return DFTransformer
-
-
-class _Empty(BaseEstimator, TransformerMixin):
-    """Transformer that performs _Empty transformation."""
-
-    def fit(self, X, y=None):
-        """Empty fit function.
-
-        Args:
-            X (:obj:`numpy.ndarray`): input data to fit, observations
-            y: labels
-
-        Returns:
-            self
-
-        """
-        return self
-
-    def transform(self, X, y=None):
-        """Pass through transform.
-
-        Args:
-            X (:obj:`numpy.ndarray`): X data
-            y: labels
-
-        Returns:
-            :obj:`numpy.ndarray`: Empty numpy array
-
-        """
-        return pd.DataFrame([])
-
-    def inverse_transform(self, X):
-        """Pass through transform.
-
-        Args:
-            X (:obj:`numpy.ndarray`): X data
-
-        Returns:
-            :obj:`numpy.ndarray`: Empty numpy array
-
-        """
-        return pd.DataFrame([])
 
 
 def _keep_columns_process(out, dataframe, prefix, graph):
