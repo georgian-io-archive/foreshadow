@@ -9,6 +9,8 @@ from foreshadow.utils import get_config_path, get_transformer
 
 CONFIG_FILE_NAME = "config.yml"
 
+# TODO write a singleton object for this dictionary
+
 DEFAULT_CONFIG = {
     "cleaner": [],
     "resolver": ["Numeric", "Categoric", "Text"],
@@ -56,16 +58,6 @@ def reset_config():
     """
     global _cfg
     _cfg = {}
-
-
-def get_intents():
-    """Get the intents defined in the config.
-
-    Returns:
-        list: A list of strings for the specific configuration.
-
-    """
-    return resolve_config()["resolver"]
 
 
 def resolve_config():
