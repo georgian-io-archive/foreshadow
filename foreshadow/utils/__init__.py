@@ -9,8 +9,8 @@ from foreshadow.utils.common import (
 from foreshadow.utils.validation import (
     PipelineStep,
     check_df,
-    check_series,
     check_module_installed,
+    check_series,
     check_transformer_imports,
     is_transformer,
     is_wrapped,
