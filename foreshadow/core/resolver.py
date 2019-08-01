@@ -1,9 +1,8 @@
 """Resolver module that computes the intents for input data."""
 
+from foreshadow.config import resolve_config
 from foreshadow.core.preparerstep import PreparerStep
 from foreshadow.transformers.core.smarttransformer import SmartTransformer
-
-from foreshadow.config import resolve_config
 
 
 class IntentResolver(PreparerStep):
@@ -64,7 +63,7 @@ class Resolver(SmartTransformer):
         .. # noqa: S001
 
         """
-        intent_list = resolve_config()['resolver']
+        intent_list = resolve_config()["resolver"]
         return max(intent_list, key=lambda intent: intent.get_confidence(X))
 
     def resolve(self, X, *args, **kwargs):
