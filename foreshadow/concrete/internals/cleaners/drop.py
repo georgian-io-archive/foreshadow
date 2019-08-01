@@ -3,7 +3,7 @@ import re
 
 import pandas as pd
 
-from foreshadow.core.preparersteps.data_cleaner import BaseCleaner
+from .base import BaseCleaner
 from foreshadow.utils.validation import check_df
 
 

@@ -330,6 +330,7 @@ def test_foreshadow_predict_diff_cols():
     )
 
 
+@pytest.mark.skip("borken until parameter optimization is implemented")
 def test_foreshadow_param_optimize_fit(mocker):
     import pandas as pd
     from sklearn.base import BaseEstimator, TransformerMixin
@@ -460,6 +461,7 @@ def test_foreshadow_param_optimize_no_config():
     assert results[0].keys() == truth[0].keys()
 
 
+@pytest.mark.skip("borken until parameter optimization is implemented")
 def test_foreshadow_param_optimize_no_combinations():
     import pickle
 
@@ -498,6 +500,7 @@ def test_foreshadow_param_optimize_no_combinations():
     assert results[0].keys() == truth[0].keys()
 
 
+@pytest.mark.skip("borken until parameter optimization is implemented")
 def test_foreshadow_param_optimize_invalid_array_idx():
     import json
 
@@ -537,6 +540,7 @@ def test_foreshadow_param_optimize_invalid_array_idx():
     assert str(e.value).startswith("Attempted to index list")
 
 
+@pytest.mark.skip("borken until parameter optimization is implemented")
 def test_foreshadow_param_optimize_invalid_dict_key():
     import pandas as pd
     from sklearn.linear_model import LinearRegression

@@ -2,7 +2,7 @@
 import json
 from collections import MutableMapping
 
-from foreshadow.core.preparersteps.data_cleaner import BaseCleaner
+from .base import BaseCleaner
 
 
 def flatten(d, parent_key="", sep="_"):

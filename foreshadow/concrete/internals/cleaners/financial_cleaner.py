@@ -2,7 +2,7 @@
 
 import re
 
-from foreshadow.core.preparersteps.data_cleaner import BaseCleaner
+from .base import BaseCleaner
 
 
 def financial_transform(text):
