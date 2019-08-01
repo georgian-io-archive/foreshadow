@@ -6,7 +6,7 @@ from foreshadow.utils.testing import get_file_path
 def test_smart_emtpy_input():
     import numpy as np
 
-    from foreshadow.transformers.smart import Scaler
+    from foreshadow.smart import Scaler
 
     normal_data = np.array([])
     smart_scaler = Scaler()
@@ -19,8 +19,8 @@ def test_smart_scaler_normal():
     import numpy as np
     import scipy.stats as ss
 
-    from foreshadow.transformers.smart import Scaler
-    from foreshadow.transformers.concrete import StandardScaler
+    from foreshadow.smart import Scaler
+    from foreshadow.concrete import StandardScaler
 
     np.random.seed(0)
     normal_data = ss.norm.rvs(size=100)
@@ -34,8 +34,8 @@ def test_smart_scaler_unifrom():
     import numpy as np
     import scipy.stats as ss
 
-    from foreshadow.transformers.smart import Scaler
-    from foreshadow.transformers.concrete import MinMaxScaler
+    from foreshadow.smart import Scaler
+    from foreshadow.concrete import MinMaxScaler
 
     np.random.seed(0)
     uniform_data = ss.uniform.rvs(size=100)
@@ -47,7 +47,7 @@ def test_smart_scaler_neither():
     import numpy as np
     import scipy.stats as ss
 
-    from foreshadow.transformers.smart import Scaler
+    from foreshadow.smart import Scaler
     from sklearn.pipeline import Pipeline
 
     np.random.seed(0)
@@ -59,8 +59,8 @@ def test_smart_scaler_neither():
 def test_smart_encoder_less_than_30_levels():
     import numpy as np
 
-    from foreshadow.transformers.smart import CategoricalEncoder
-    from foreshadow.transformers.concrete import OneHotEncoder
+    from foreshadow.smart import CategoricalEncoder
+    from foreshadow.concrete import OneHotEncoder
 
     np.random.seed(0)
     leq_30_random_data = np.random.choice(30, size=500)
@@ -73,8 +73,8 @@ def test_smart_encoder_less_than_30_levels():
 def test_smart_encoder_more_than_30_levels():
     import numpy as np
 
-    from foreshadow.transformers.smart import CategoricalEncoder
-    from foreshadow.transformers.concrete import HashingEncoder
+    from foreshadow.smart import CategoricalEncoder
+    from foreshadow.concrete import HashingEncoder
 
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
@@ -87,8 +87,8 @@ def test_smart_encoder_more_than_30_levels():
 def test_smart_encoder_more_than_30_levels_that_reduces():
     import numpy as np
 
-    from foreshadow.transformers.smart import CategoricalEncoder
-    from foreshadow.transformers.concrete import OneHotEncoder
+    from foreshadow.smart import CategoricalEncoder
+    from foreshadow.concrete import OneHotEncoder
 
     np.random.seed(0)
     gt_30_random_data = np.concatenate(
@@ -105,8 +105,8 @@ def test_smart_encoder_y_var():
     import numpy as np
     import pandas as pd
 
-    from foreshadow.transformers.smart import CategoricalEncoder
-    from foreshadow.transformers.concrete import (
+    from foreshadow.smart import CategoricalEncoder
+    from foreshadow.concrete import (
         FixedLabelEncoder as LabelEncoder,
     )
 
@@ -122,7 +122,7 @@ def test_smart_encoder_y_var():
 def test_smart_impute_simple_none():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.smart import SimpleImputer
+    from foreshadow.smart import SimpleImputer
 
     heart_path = get_file_path("data", "heart-h.csv")
 
@@ -140,7 +140,7 @@ def test_smart_impute_simple_none():
 def test_smart_impute_simple_mean():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.smart import SimpleImputer
+    from foreshadow.smart import SimpleImputer
 
     heart_path = get_file_path("data", "heart-h.csv")
     heart_impute_path = get_file_path("data", "heart-h_impute_mean.csv")
@@ -160,7 +160,7 @@ def test_smart_impute_simple_mean():
 def test_smart_impute_simple_median():
     import pandas as pd
     import numpy as np
-    from foreshadow.transformers.smart import SimpleImputer
+    from foreshadow.smart import SimpleImputer
 
     heart_path = get_file_path("data", "heart-h.csv")
     heart_impute_path = get_file_path("data", "heart-h_impute_median.csv")
@@ -181,7 +181,7 @@ def test_smart_impute_simple_median():
 def test_smart_impute_multiple():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.smart import MultiImputer
+    from foreshadow.smart import MultiImputer
 
     heart_path = get_file_path("data", "heart-h.csv")
     heart_impute_path = get_file_path("data", "heart-h_impute_multi.csv")
@@ -201,7 +201,7 @@ def test_smart_impute_multiple():
 def test_smart_impute_multiple_none():
     import pandas as pd
     from sklearn.pipeline import Pipeline
-    from foreshadow.transformers.smart import MultiImputer
+    from foreshadow.smart import MultiImputer
     from foreshadow.utils import PipelineStep
 
     boston_path = get_file_path("data", "boston_housing.csv")
@@ -244,8 +244,8 @@ def test_preprocessor_hashencoder_no_name_collision():
 
 def test_smart_encoder_delimmited():
     import pandas as pd
-    from foreshadow.transformers.smart import CategoricalEncoder
-    from foreshadow.transformers.concrete import DummyEncoder
+    from foreshadow.smart import CategoricalEncoder
+    from foreshadow.concrete import DummyEncoder
 
     data = pd.DataFrame({"test": ["a", "a,b,c", "a,b", "a,c"]})
     smart_coder = CategoricalEncoder()
@@ -254,8 +254,8 @@ def test_smart_encoder_delimmited():
 
 def test_smart_encoder_more_than_30_levels_with_overwritten_cutoff():
     import numpy as np
-    from foreshadow.transformers.smart import CategoricalEncoder
-    from foreshadow.transformers.concrete import OneHotEncoder
+    from foreshadow.smart import CategoricalEncoder
+    from foreshadow.concrete import OneHotEncoder
 
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
@@ -268,7 +268,7 @@ def test_smart_encoder_more_than_30_levels_with_overwritten_cutoff():
 def test_smart_financial_cleaner_us():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.smart import FinancialCleaner
+    from foreshadow.smart import FinancialCleaner
 
     x = pd.DataFrame(
         [
@@ -294,7 +294,7 @@ def test_smart_financial_cleaner_us():
 def test_smart_financial_cleaner_eu():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.smart import FinancialCleaner
+    from foreshadow.smart import FinancialCleaner
 
     x = pd.DataFrame(
         [
@@ -321,9 +321,9 @@ def test_smart_text():
     import numpy as np
     import pandas as pd
 
-    from foreshadow.transformers.smart import TextEncoder
-    from foreshadow.transformers.concrete import FixedTfidfVectorizer
-    from foreshadow.transformers.concrete import HTMLRemover
+    from foreshadow.smart import TextEncoder
+    from foreshadow.concrete import FixedTfidfVectorizer
+    from foreshadow.concrete import HTMLRemover
 
     X1 = pd.DataFrame(["abc", "def", "1321", "tester"])
     tf1 = TextEncoder().fit(X1)

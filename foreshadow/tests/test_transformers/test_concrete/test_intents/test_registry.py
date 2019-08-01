@@ -2,8 +2,8 @@ import pytest
 
 
 def test_unregister():
-    from foreshadow.transformers.concrete.intents.base import BaseIntent
-    from foreshadow.transformers.concrete.intents.registry import (
+    from foreshadow.concrete import BaseIntent
+    from foreshadow.concrete import (
         _unregister_intent,
     )
 
@@ -54,7 +54,7 @@ def test_unregister():
 
 
 def test_unregister_invalid_input():
-    from foreshadow.transformers.concrete.intents.registry import (
+    from foreshadow.concrete import (
         _unregister_intent,
     )
 
@@ -65,7 +65,7 @@ def test_unregister_invalid_input():
 
 
 def test_unregister_intent_does_not_exist():
-    from foreshadow.transformers.concrete.intents.registry import (
+    from foreshadow.concrete import (
         _unregister_intent,
     )
 
@@ -82,8 +82,8 @@ def test_unregister_intent_does_not_exist():
 
 
 def test_registry_eval():
-    from foreshadow.transformers.concrete.intents.base import BaseIntent
-    from foreshadow.transformers.concrete.intents.registry import (
+    from foreshadow.concrete import BaseIntent
+    from foreshadow.concrete import (
         _unregister_intent,
         registry_eval,
     )
@@ -107,8 +107,8 @@ def test_registry_eval():
 
 
 def test_samename_subclass():
-    from foreshadow.transformers.concrete.intents.base import BaseIntent
-    from foreshadow.transformers.concrete.intents.registry import (
+    from foreshadow.concrete import BaseIntent
+    from foreshadow.concrete import (
         _unregister_intent,
     )
 
@@ -149,8 +149,8 @@ def test_samename_subclass():
 
 
 def test_invalid_transfomer_template_defenition_length():
-    from foreshadow.transformers.concrete.intents.base import BaseIntent
-    from foreshadow.transformers.smart import Scaler
+    from foreshadow.concrete import BaseIntent
+    from foreshadow.smart import Scaler
     import sklearn
 
     with pytest.raises(ValueError) as e:
@@ -190,7 +190,7 @@ def test_invalid_transfomer_template_defenition_length():
 
 
 def test_invalid_transfomer_template_defenition_bad_defenition():
-    from foreshadow.transformers.concrete.intents.base import BaseIntent
+    from foreshadow.concrete import BaseIntent
 
     with pytest.raises(ValueError) as e:
 
@@ -229,15 +229,15 @@ def test_invalid_transfomer_template_defenition_bad_defenition():
 
 
 def test_valid_intent_registration():
-    from foreshadow.transformers.concrete.intents.base import (
+    from foreshadow.concrete import (
         BaseIntent,
         PipelineTemplateEntry,
         TransformerEntry,
     )
-    from foreshadow.transformers.concrete.intents.registry import (
+    from foreshadow.concrete import (
         _unregister_intent,
     )
-    from foreshadow.transformers.smart import Scaler
+    from foreshadow.smart import Scaler
     import sklearn
 
     class TestIntent(BaseIntent):

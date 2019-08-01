@@ -7,12 +7,12 @@ from copy import deepcopy
 from sklearn.base import BaseEstimator
 from sklearn.model_selection._search import BaseSearchCV
 
-from foreshadow.core import SerializablePipeline
+from foreshadow.preparer import SerializablePipeline
 from foreshadow.estimators.auto import AutoEstimator
 from foreshadow.estimators.meta import MetaEstimator
-from foreshadow.optimizers.param_mapping import param_mapping
-from foreshadow.preprocessor import Preprocessor
 from foreshadow.utils import check_df
+from foreshadow.preparer import DataPreparer
+from foreshadow.preparer import ColumnSharer
 
 
 class Foreshadow(BaseEstimator):
@@ -22,11 +22,11 @@ class Foreshadow(BaseEstimator):
         >>> shadow = Foreshadow()
 
     Args:
-        X_preprocessor \
+        X_preparer \
             (:obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`, \
             optional): Preprocessor instance that will apply to X data. Passing
             False prevents the automatic generation of an instance.
-        y_preprocessor \
+        y_preparer \
             (:obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`, \
             optional): Preprocessor instance that will apply to y data. Passing
             False prevents the automatic generation of an instance.
@@ -40,13 +40,13 @@ class Foreshadow(BaseEstimator):
 
     def __init__(
         self,
-        X_preprocessor=None,
-        y_preprocessor=None,
+        X_preparer=None,
+        y_preparer=None,
         estimator=None,
         optimizer=None,
     ):
-        self.X_preprocessor = X_preprocessor
-        self.y_preprocessor = y_preprocessor
+        self.X_preparer = X_preparer
+        self.y_preparer = y_preparer
         self.estimator = estimator
         self.optimizer = optimizer
         self.pipeline = None
@@ -60,7 +60,7 @@ class Foreshadow(BaseEstimator):
             self.optimizer = None
 
     @property
-    def X_preprocessor(self):
+    def X_preparer(self):
         """Preprocessor object for performing feature engineering on X data.
 
         :getter: Returns Preprocessor object
@@ -74,20 +74,20 @@ class Foreshadow(BaseEstimator):
         """
         return self._X_preprocessor
 
-    @X_preprocessor.setter
-    def X_preprocessor(self, dp):
+    @X_preparer.setter
+    def X_preparer(self, dp):
         if dp is not None:
             if dp is False:
                 self._X_preprocessor = None
-            elif isinstance(dp, Preprocessor):
+            elif isinstance(dp, DataPreparer):
                 self._X_preprocessor = dp
             else:
-                raise ValueError("Invalid value passed as X_preprocessor")
+                raise ValueError("Invalid value passed as X_preparer")
         else:
-            self._X_preprocessor = Preprocessor()
+            self._X_preprocessor = DataPreparer(column_sharer=ColumnSharer())
 
     @property
-    def y_preprocessor(self):
+    def y_preparer(self):
         """Preprocessor object for performing scaling and encoding on Y data.
 
         :getter: Returns Preprocessor object
@@ -101,17 +101,18 @@ class Foreshadow(BaseEstimator):
         """
         return self._y_preprocessor
 
-    @y_preprocessor.setter
-    def y_preprocessor(self, yp):
+    @y_preparer.setter
+    def y_preparer(self, yp):
         if yp is not None:
             if yp is False:
                 self._y_preprocessor = None
-            elif isinstance(yp, Preprocessor):
+            elif isinstance(yp, DataPreparer):
                 self._y_preprocessor = yp
             else:
-                raise ValueError("Invalid value passed as y_preprocessor")
+                raise ValueError("Invalid value passed as y_preparer")
         else:
-            self._y_preprocessor = Preprocessor(y_var=True)
+            self._y_preprocessor = DataPreparer(column_sharer=ColumnSharer(),
+                                                y_var=True)
 
     @property
     def estimator(self):
@@ -139,7 +140,7 @@ class Foreshadow(BaseEstimator):
         else:
             self._estimator = AutoEstimator(
                 include_preprocessors=False
-                if self.X_preprocessor is not None
+                if self.X_preparer is not None
                 else True
             )
 
@@ -180,14 +181,14 @@ class Foreshadow(BaseEstimator):
         y_df = check_df(y_df)
         self.data_columns = X_df.columns.values.tolist()
 
-        # setup MetaEstimator if y_preprocessor is passed in
-        if self.y_preprocessor is not None:
-            self.estimator = MetaEstimator(self.estimator, self.y_preprocessor)
+        # setup MetaEstimator if y_preparer is passed in
+        if self.y_preparer is not None:
+            self.estimator = MetaEstimator(self.estimator, self.y_preparer)
 
-        if self.X_preprocessor is not None:
+        if self.X_preparer is not None:
             self.pipeline = SerializablePipeline(
                 [
-                    ("preprocessor", self.X_preprocessor),
+                    ("preprocessor", self.X_preparer),
                     ("estimator", self.estimator),
                 ]
             )
@@ -198,18 +199,18 @@ class Foreshadow(BaseEstimator):
 
         if self.optimizer is not None:
             # Calculate parameter search space
-            param_ranges = param_mapping(deepcopy(self.pipeline), X_df, y_df)
+            # param_ranges = param_mapping(deepcopy(self.pipeline), X_df, y_df)
 
             self.opt_instance = self.optimizer(self.pipeline, param_ranges)
             self.opt_instance.fit(X_df, y_df)
             self.pipeline = self.opt_instance.best_estimator_
             # extract trained preprocessors
-            if self.X_preprocessor is not None:
-                self.X_preprocessor = self.opt_instance.best_estimator_.steps[
+            if self.X_preparer is not None:
+                self.X_preparer = self.opt_instance.best_estimator_.steps[
                     0
                 ][1]
-            if self.y_preprocessor is not None:
-                self.y_preprocessor = self.opt_instance.best_estimator_.steps[
+            if self.y_preparer is not None:
+                self.y_preparer = self.opt_instance.best_estimator_.steps[
                     1
                 ][1].preprocessor
         else:

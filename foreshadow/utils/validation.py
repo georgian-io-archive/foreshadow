@@ -148,7 +148,7 @@ def check_transformer_imports(printout=True):
             transformers
 
     """
-    import foreshadow.transformers.concrete as conc
+    import foreshadow.concrete as conc
 
     if printout:
         print(

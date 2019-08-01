@@ -73,9 +73,9 @@ def get_transformer(class_name, source_lib=None):
         sources = OrderedDict(
             (source, import_module(source))
             for source in [
-                "foreshadow.transformers.concrete",
-                "foreshadow.transformers.smart",
-                "foreshadow.core",
+                "foreshadow.concrete.internals",
+                "foreshadow.concrete.externals",
+                "foreshadow.smart",
             ]
         )
 

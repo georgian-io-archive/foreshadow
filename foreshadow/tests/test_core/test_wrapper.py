@@ -5,7 +5,7 @@ from foreshadow.utils.testing import get_file_path
 
 
 def test_transformer_wrapper_init():
-    from foreshadow.transformers.concrete import StandardScaler
+    from foreshadow.concrete import StandardScaler
 
     scaler = StandardScaler()
     scaler.set_extra_params(name="test-scaler", keep_columns=True)
@@ -16,7 +16,7 @@ def test_transformer_wrapper_init():
 
 def test_transformer_wrapper_no_init():
     from sklearn.base import BaseEstimator, TransformerMixin
-    from foreshadow.core import make_pandas_transformer
+    from foreshadow.wrapper import make_pandas_transformer
 
     class NewTransformer(BaseEstimator, TransformerMixin):
         pass
@@ -31,7 +31,7 @@ def test_transformer_wrapper_function():
     import numpy as np
     import pandas as pd
     from sklearn.preprocessing import StandardScaler as StandardScaler
-    from foreshadow.transformers.concrete import StandardScaler as CustomScaler
+    from foreshadow.concrete import StandardScaler as CustomScaler
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
@@ -59,7 +59,7 @@ def test_transformer_wrapper_empty_input():
     import pandas as pd
 
     from sklearn.preprocessing import StandardScaler as StandardScaler
-    from foreshadow.transformers.concrete import StandardScaler as CustomScaler
+    from foreshadow.concrete import StandardScaler as CustomScaler
 
     df = pd.DataFrame({"A": np.array([])})
 

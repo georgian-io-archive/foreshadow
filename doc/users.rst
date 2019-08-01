@@ -119,8 +119,8 @@ You now have an initial pipeline. Lets see how it did and serialize it to a JSON
     shadow.score(X_test, y_test)
 
     # Serialize the pipeline
-    x_proc = shadow.X_preprocessor.serialize()
-    y_proc = shadow.y_preprocessor.serialize()
+    x_proc = shadow.X_preparer.serialize()
+    y_proc = shadow.y_preparer.serialize()
 
     # Write the serialized pipelines to file
     json.dump(x_proc, open("x_proc.json", "w"), indent=2)
@@ -156,7 +156,7 @@ Now let's re-create the Foreshadow object with your changes.
     y_processor = fs.Preprocessor(from_json=y_proc)
 
     # Create the foreshadow object
-    shadow = fs.Foreshadow(X_preprocessor=x_processor, y_preprocessor=y_processor, estimator=XGBRegressor())
+    shadow = fs.Foreshadow(X_preparer=x_processor, y_preparer=y_processor, estimator=XGBRegressor())
 
     # Fit the foreshadow object
     shadow.fit(X_train, y_train)
@@ -181,7 +181,7 @@ Once you add a combinations section to figure out the best parameters, create th
     y_processor = Preprocessor(from_json=y_proc_combo)
 
     # Create the foreshadow object
-    shadow = fs.Foreshadow(X_preprocessor=x_processor, y_preprocessor=y_processor, estimator=XGBRegressor(), optimizer=GridSearchCV)
+    shadow = fs.Foreshadow(X_preparer=x_processor, y_preparer=y_processor, estimator=XGBRegressor(), optimizer=GridSearchCV)
 
     # Fit the foreshadow object
     shadow.fit(X_train, y_train)
@@ -198,8 +198,8 @@ Once you add a combinations section to figure out the best parameters, create th
     # Export the best pipelines
 
     # Serialize the pipeline
-    x_proc_best = shadow.X_preprocessor.serialize()
-    y_proc_best = shadow.y_preprocessor.serialize()
+    x_proc_best = shadow.X_preparer.serialize()
+    y_proc_best = shadow.y_preparer.serialize()
 
     # Write the serialized pipelines to file
     json.dump(x_proc_best, open("x_proc_best.json", "w"), indent=2)
@@ -236,7 +236,7 @@ Here is an example of a fully defined :py:obj:`Foreshadow <foreshadow.foreshadow
 
 .. code-block:: python
 
-    shadow = fs.Foreshadow(X_preprocessor=Preprocessor(), y_preprocessor=Preprocessor(), estimator=AutoEstimator(), optimizer=None)
+    shadow = fs.Foreshadow(X_preparer=Preprocessor(), y_preparer=Preprocessor(), estimator=AutoEstimator(), optimizer=None)
 
 This code is equivalent to the :code:`fs.Foreshadow()` definition but explicitly defines each component. In order to disable one or more
 of these components simply pass :code:`False` to the named parameter (Note that the default :code:`None` automatically initializes the above).
@@ -513,7 +513,7 @@ prepend a dollar sign to the column name. For example :code:`["$age_scale_0", "$
 
 
 Through overriding these various components, any combination of feature engineering can be achieved. To generate this configuration dictionary after fitting a Preprocessor or a
-Foreshadow object, run the :code:`serialize()` method on the Preprocessor object or on :code:`Foreshadow.X_preprocessor` or :code:`y_preprocessor`. That dictionary can be programmatically modified in python
+Foreshadow object, run the :code:`serialize()` method on the Preprocessor object or on :code:`Foreshadow.X_preparer` or :code:`y_preparer`. That dictionary can be programmatically modified in python
 or can be serialized to JSON where it can be modified by hand. By default the output of :code:`serialize()` will fix all
 feature engineering to be constant. To only enforce sections of the configuration output from :code:`serialize()` simply copy and paste the relevant sections into a new JSON file.
 

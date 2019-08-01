@@ -6,7 +6,7 @@ from foreshadow.utils.testing import get_file_path
 def test_dummy_encoder():
     import pandas as pd
 
-    from foreshadow.transformers.concrete import DummyEncoder
+    from foreshadow.concrete import DummyEncoder
 
     data = pd.DataFrame({"test": ["a", "a,b,c", "a,b", "a,c"]})
     de = DummyEncoder()
@@ -23,7 +23,7 @@ def test_dummy_encoder():
 def test_dummy_encoder_other():
     import pandas as pd
 
-    from foreshadow.transformers.concrete import DummyEncoder
+    from foreshadow.concrete import DummyEncoder
 
     data = pd.DataFrame(
         {"test": ["a", "a,b,c", "a,b", "a,c,d", "a,b,c", "a,b,c", "a,b,c,e"]}
@@ -48,7 +48,7 @@ def test_box_cox():
     import pandas as pd
     import scipy.stats as ss
 
-    from foreshadow.transformers.concrete import BoxCox
+    from foreshadow.concrete import BoxCox
 
     np.random.seed(0)
     data = pd.DataFrame(ss.lognorm.rvs(size=100, s=0.954))
@@ -63,7 +63,7 @@ def test_box_cox():
 def test_transformer_fancy_impute_set_params():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.concrete import FancyImputer
+    from foreshadow.concrete import FancyImputer
 
     impute_kwargs = {"fill_method": "mean"}
 
@@ -83,7 +83,7 @@ def test_transformer_fancy_impute_set_params():
 
 
 def test_transformer_fancy_impute_get_params():
-    from foreshadow.transformers.concrete import FancyImputer
+    from foreshadow.concrete import FancyImputer
 
     impute_kwargs = {"fill_method": "median"}
     impute = FancyImputer(method="SimpleFill", impute_kwargs=impute_kwargs)
@@ -94,7 +94,7 @@ def test_transformer_fancy_impute_get_params():
 
 
 def test_transformer_fancy_impute_invalid_init():
-    from foreshadow.transformers.concrete import FancyImputer
+    from foreshadow.concrete import FancyImputer
 
     with pytest.raises(ValueError) as e:
         _ = FancyImputer(method="INVALID")
@@ -106,7 +106,7 @@ def test_transformer_fancy_impute_invalid_init():
 
 
 def test_transformer_fancy_impute_invalid_params():
-    from foreshadow.transformers.concrete import FancyImputer
+    from foreshadow.concrete import FancyImputer
 
     with pytest.raises(ValueError) as e:
         impute = FancyImputer(
@@ -122,7 +122,7 @@ def test_transformer_fancy_impute_invalid_params():
 
 def test_transformer_onehotencoder_fit_transform():
     import pandas as pd
-    from foreshadow.transformers.concrete import OneHotEncoder
+    from foreshadow.concrete import OneHotEncoder
 
     df = pd.DataFrame(
         {"neat": ["apple", "apple", "orange", "apple", "orange"]}
@@ -134,7 +134,7 @@ def test_transformer_onehotencoder_fit_transform():
 
 def test_transformer_onehotencoder_fit_transform_keep_cols():
     import pandas as pd
-    from foreshadow.transformers.concrete import OneHotEncoder
+    from foreshadow.concrete import OneHotEncoder
 
     df = pd.DataFrame(
         {"neat": ["apple", "apple", "orange", "apple", "orange"]}
@@ -148,7 +148,7 @@ def test_transformer_onehotencoder_fit_transform_keep_cols():
 def test_drop_transformer_above_thresh():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.concrete import DropFeature
+    from foreshadow.concrete import DropFeature
 
     x = pd.DataFrame({"A": np.arange(10)})
 
@@ -160,7 +160,7 @@ def test_drop_transformer_above_thresh():
 def test_drop_transformer_below_thresh():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.concrete import DropFeature
+    from foreshadow.concrete import DropFeature
 
     # default thresh is 0.3
     x = pd.DataFrame({"A": np.array([np.nan] * 8 + [0.1, 0.1])})
@@ -171,7 +171,7 @@ def test_drop_transformer_below_thresh():
 def test_drop_transformer_disallow_inverse():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.concrete import DropFeature
+    from foreshadow.concrete import DropFeature
 
     x = pd.DataFrame({"A": np.array([np.nan] * 8 + [0.1, 0.1])})
     drop_f = DropFeature(raise_on_inverse=True).fit(x)
@@ -187,7 +187,7 @@ def test_drop_transformer_disallow_inverse():
 def test_drop_transformer_default_inverse():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.concrete import DropFeature
+    from foreshadow.concrete import DropFeature
 
     x = pd.DataFrame({"A": np.array([np.nan] * 8 + [0.1, 0.1])})
     drop_f = DropFeature().fit(x)
@@ -200,7 +200,7 @@ def test_drop_transformer_string_input():
     import uuid
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.concrete import DropFeature
+    from foreshadow.concrete import DropFeature
 
     x = pd.DataFrame({"A": np.array([str(uuid.uuid4()) for _ in range(40)])})
     assert np.array_equal(
@@ -211,7 +211,7 @@ def test_drop_transformer_string_input():
 def test_prepare_financial():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.concrete import PrepareFinancial
+    from foreshadow.concrete import PrepareFinancial
 
     x = pd.DataFrame(
         [
@@ -247,7 +247,7 @@ def test_prepare_financial():
 def test_convert_financial_us():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.concrete import ConvertFinancial
+    from foreshadow.concrete import ConvertFinancial
 
     x = pd.DataFrame(
         [
@@ -272,7 +272,7 @@ def test_convert_financial_us():
 def test_convert_financial_eu():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.concrete import ConvertFinancial
+    from foreshadow.concrete import ConvertFinancial
 
     x = pd.DataFrame(
         [
@@ -297,7 +297,7 @@ def test_convert_financial_eu():
 def test_uncommon_remover_integers():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.concrete import UncommonRemover
+    from foreshadow.concrete import UncommonRemover
 
     x = pd.DataFrame({"A": np.array([0, 2, 10] + [1] * 400 + [3] * 400)})
     standard = UncommonRemover().fit_transform(x)
@@ -315,7 +315,7 @@ def test_uncommon_remover_integers():
 def test_uncommon_remover_strings():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.concrete import UncommonRemover
+    from foreshadow.concrete import UncommonRemover
 
     x = pd.DataFrame(
         {"A": np.array(["A", "B", "C"] + ["D"] * 400 + ["E"] * 400)}
@@ -335,7 +335,7 @@ def test_uncommon_remover_strings():
 def test_html_remover_basic():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.concrete import HTMLRemover
+    from foreshadow.concrete import HTMLRemover
 
     df = pd.DataFrame(
         ["<h1>Header<h1/>", "Normal Text", "<br/><br/>More text"]
@@ -350,7 +350,7 @@ def test_html_remover_basic():
 
 
 def test_html_remover_is_html():
-    from foreshadow.transformers.concrete import HTMLRemover
+    from foreshadow.concrete import HTMLRemover
 
     html = "<b>Real Tag</b> Test"
     not_html = "<not tag>"
@@ -362,7 +362,7 @@ def test_html_remover_is_html():
 def test_to_string_tf():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.concrete import ToString
+    from foreshadow.concrete import ToString
 
     data = [0, 1, 2, 3, np.nan]
     arr = np.array(data)
@@ -379,7 +379,7 @@ def test_to_string_tf():
 def test_tfidf_and_sparse_processing_core():
     import numpy as np
     import pandas as pd
-    from foreshadow.transformers.concrete import FixedTfidfVectorizer
+    from foreshadow.concrete import FixedTfidfVectorizer
 
     X1 = ["Test", "Another test", "How about another"]
     X2 = pd.DataFrame(["Test", "Another test", "How about another"])

@@ -5,8 +5,8 @@ def test_data_cleaner_fit():
     """Test basic fit call."""
     import pandas as pd
     import numpy as np
-    from foreshadow.core.preparersteps import DataCleaner
-    from foreshadow.core.column_sharer import ColumnSharer
+    from foreshadow.preparer.steps import CleanerMapper
+    from foreshadow.preparer.column_sharer import ColumnSharer
 
     data = pd.DataFrame(
         {
@@ -22,7 +22,7 @@ def test_data_cleaner_fit():
         columns=["dates", "json", "financials"],
     )
     cs = ColumnSharer()
-    dc = DataCleaner(column_sharer=cs)
+    dc = CleanerMapper(column_sharer=cs)
     dc.fit(data)
     data = dc.transform(data)
     check = pd.DataFrame(
@@ -52,8 +52,8 @@ def test_data_cleaner_fit():
 def test_financials():
     """Test financial column cleaned correctly."""
     import pandas as pd
-    from foreshadow.core.preparersteps import DataCleaner
-    from foreshadow.core.column_sharer import ColumnSharer
+    from foreshadow.preparer.steps import CleanerMapper
+    from foreshadow.preparer.column_sharer import ColumnSharer
     import numpy as np
 
     data = pd.DataFrame(
@@ -61,7 +61,7 @@ def test_financials():
         columns=["financials"],
     )
     cs = ColumnSharer()
-    dc = DataCleaner(column_sharer=cs)
+    dc = CleanerMapper(column_sharer=cs)
     dc.fit(data)
     transformed_data = dc.transform(data)
     check = pd.DataFrame(
@@ -78,8 +78,8 @@ def test_financials():
 def test_json():
     """Test json input cleaned correctly."""
     import pandas as pd
-    from foreshadow.core.preparersteps import DataCleaner
-    from foreshadow.core.column_sharer import ColumnSharer
+    from foreshadow.preparer.steps import CleanerMapper
+    from foreshadow.preparer.column_sharer import ColumnSharer
     import numpy as np
 
     data = pd.DataFrame(
@@ -94,7 +94,7 @@ def test_json():
         columns=["json"],
     )
     cs = ColumnSharer()
-    dc = DataCleaner(column_sharer=cs)
+    dc = CleanerMapper(column_sharer=cs)
     dc.fit(data)
     data = dc.transform(data)
     check = pd.DataFrame(
@@ -121,13 +121,13 @@ def test_json():
 def test_drop():
     """Test drop called when expected to."""
     import pandas as pd
-    from foreshadow.core.preparersteps import DataCleaner
-    from foreshadow.core.column_sharer import ColumnSharer
+    from foreshadow.preparer.steps import CleanerMapper
+    from foreshadow.preparer.column_sharer import ColumnSharer
 
     columns = ["financials"]
     data = pd.DataFrame({"financials": ["", "", "", ""]}, columns=columns)
     cs = ColumnSharer()
-    dc = DataCleaner(column_sharer=cs)
+    dc = CleanerMapper(column_sharer=cs)
     dc.fit(data)
     transformed_data = dc.transform(data)
     assert transformed_data.empty
@@ -138,13 +138,13 @@ def test_numerical_input():
     """Test numerical input."""
     import numpy as np
     import pandas as pd
-    from foreshadow.core.preparersteps import DataCleaner
-    from foreshadow.core.column_sharer import ColumnSharer
+    from foreshadow.preparer.steps import CleanerMapper
+    from foreshadow.preparer.column_sharer import ColumnSharer
 
     columns = ["financials"]
     data = pd.DataFrame({"financials": np.arange(10)}, columns=columns)
     cs = ColumnSharer()
-    dc = DataCleaner(column_sharer=cs)
+    dc = CleanerMapper(column_sharer=cs)
     dc.fit(data)
     transformed_data = dc.transform(data)
     assert np.array_equal(transformed_data, data)
@@ -154,13 +154,13 @@ def test_numerical_input_fittransform():
     """Test numerical input."""
     import numpy as np
     import pandas as pd
-    from foreshadow.core.preparersteps import DataCleaner
-    from foreshadow.core.column_sharer import ColumnSharer
+    from foreshadow.preparer.steps import CleanerMapper
+    from foreshadow.preparer.column_sharer import ColumnSharer
 
     columns = ["financials"]
     data = pd.DataFrame({"financials": np.arange(10)}, columns=columns)
     cs = ColumnSharer()
-    dc = DataCleaner(column_sharer=cs)
+    dc = CleanerMapper(column_sharer=cs)
     transformed_data = dc.fit_transform(data)
     assert np.array_equal(transformed_data, data)
 

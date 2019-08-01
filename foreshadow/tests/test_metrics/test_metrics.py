@@ -20,7 +20,7 @@ def test_metric_decorate(metric_fn):
 
     """
     from foreshadow.metrics import metric
-    from foreshadow.metrics.metrics import MetricWrapper
+    from foreshadow.metrics import MetricWrapper
 
     metric_fn = metric()(metric_fn)  # applying decorator
     assert isinstance(metric_fn, MetricWrapper)
@@ -91,7 +91,7 @@ def test_metric_print(fn, regex):
         regex: useful information to check
 
     """
-    from foreshadow.metrics.metrics import MetricWrapper
+    from foreshadow.metrics import MetricWrapper
 
     metric_fn = MetricWrapper(lambda x: 1)
     assert re.search(regex, getattr(metric_fn, fn)())

@@ -6,7 +6,7 @@ import pytest
 def test_base_intent_get_confidence():
     """Test base intent get_confidence."""
 
-    from foreshadow.transformers.concrete.intents import BaseIntent
+    from foreshadow.concrete import BaseIntent
 
     BaseIntent.confidence_computation = {
         (lambda x: 1): 0.5,
@@ -22,7 +22,7 @@ def test_intent_ordering_confidence():
     import pandas as pd
     import numpy as np
 
-    from foreshadow.transformers.concrete.intents import (
+    from foreshadow.concrete import (
         Numeric,
         Categoric,
         Text,
@@ -55,7 +55,7 @@ def test_intent_numeric_transform(test, val):
 
     import pandas as pd
 
-    from foreshadow.transformers.concrete.intents import Numeric
+    from foreshadow.concrete import Numeric
 
     test = pd.DataFrame(test)
     val = pd.DataFrame(val)
@@ -74,7 +74,7 @@ def test_intent_categoric_transform(test):
 
     import pandas as pd
 
-    from foreshadow.transformers.concrete.intents import Categoric
+    from foreshadow.concrete import Categoric
 
     test = pd.DataFrame(test)
 
@@ -95,7 +95,7 @@ def test_intent_text_transform(test, val):
 
     import pandas as pd
 
-    from foreshadow.transformers.concrete.intents import Text
+    from foreshadow.concrete import Text
 
     test = pd.DataFrame(test)
     val = pd.DataFrame(val)

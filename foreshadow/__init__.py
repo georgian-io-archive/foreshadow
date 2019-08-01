@@ -2,7 +2,7 @@
 
 from foreshadow import console
 from foreshadow.foreshadow import Foreshadow
-from foreshadow.preprocessor import Preprocessor
+from foreshadow.preparer.preparer import DataPreparer
 
 
 __doc__ = """
@@ -27,5 +27,5 @@ def get_version():
 
 
 __version__ = get_version()
-__all__ = ["Foreshadow", "Preprocessor", "console", "__version__"]
+__all__ = ["Foreshadow", "DataPreparer", "console", "__version__"]
 del get_version

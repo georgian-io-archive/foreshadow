@@ -7,13 +7,13 @@ from foreshadow.utils.testing import get_file_path
 def patch_intents(mocker):
     from copy import deepcopy
 
-    from foreshadow.transformers.concrete.intents.base import (
+    from foreshadow.concrete import (
         BaseIntent,
         PipelineTemplateEntry,
         TransformerEntry,
     )
-    from foreshadow.transformers.concrete.intents import registry
-    from foreshadow.transformers.concrete import Imputer, PCA
+    from foreshadow.concrete import registry
+    from foreshadow.concrete import Imputer, PCA
 
     _saved_registry = deepcopy(registry._registry)
     registry._registry = {}
@@ -151,7 +151,7 @@ def test_preprocessor_init_json_intent_map():
 
 def test_preprocessor_intent_dependency_order():
     from foreshadow.preprocessor import Preprocessor
-    from foreshadow.transformers.concrete.intents.registry import registry_eval
+    from foreshadow.concrete import registry_eval
 
     proc = Preprocessor()
     proc._intent_map = {
@@ -369,7 +369,7 @@ def test_preprocessor_fit_create_single_pipeline_default():
     """
     import pandas as pd
     from foreshadow.preprocessor import Preprocessor
-    from foreshadow.transformers.concrete.intents.registry import registry_eval
+    from foreshadow.concrete import registry_eval
 
     boston_path = get_file_path("data", "boston_housing.csv")
     df = pd.read_csv(boston_path)
@@ -492,7 +492,7 @@ def test_preprocessor_make_pipeline():
     import pandas as pd
     from collections import Counter
     from foreshadow.preprocessor import Preprocessor
-    from foreshadow.transformers.concrete.intents.registry import registry_eval
+    from foreshadow.concrete import registry_eval
     from foreshadow.utils import PipelineStep
 
     boston_path = get_file_path("data", "boston_housing.csv")

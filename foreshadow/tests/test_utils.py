@@ -107,7 +107,7 @@ def test_check_transformer_imports_no_output(capsys):
 def test_is_wrapped(transformer_name):
     import sklearn.preprocessing as sk_tf_lib
 
-    import foreshadow.transformers.concrete as fs_tf_lib
+    import foreshadow.concrete as fs_tf_lib
     from foreshadow.utils import is_wrapped
 
     sk_tf = getattr(sk_tf_lib, transformer_name)()
