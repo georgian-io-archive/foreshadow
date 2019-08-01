@@ -46,7 +46,7 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         reducer_kwargs=None,
         modeler_kwargs=None,
     ):
-        from foreshadow.cleaners.data_cleaner import DataCleaner
+        from foreshadow.core.preparersteps.data_cleaner import DataCleaner
 
         self.column_sharer = column_sharer
         # TODO look at fixing structure so we don't have to import inside init.

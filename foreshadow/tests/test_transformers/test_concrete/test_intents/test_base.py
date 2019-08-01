@@ -2,7 +2,7 @@ import pytest
 
 
 def test_call_classmethod_from_BaseIntent():
-    from foreshadow.intents.base import BaseIntent
+    from foreshadow.transformers.concrete.intents.base import BaseIntent
 
     with pytest.raises(TypeError) as e1:
         BaseIntent.to_string()
@@ -23,7 +23,7 @@ def test_call_classmethod_from_BaseIntent():
 
 
 def test_mock_subclass_missing_abstract_methods():
-    from foreshadow.intents.base import BaseIntent
+    from foreshadow.transformers.concrete.intents.base import BaseIntent
 
     with pytest.raises(NotImplementedError) as e:
 
@@ -34,7 +34,7 @@ def test_mock_subclass_missing_abstract_methods():
 
 
 def test_mock_subclass_missing_children():
-    from foreshadow.intents.base import BaseIntent
+    from foreshadow.transformers.concrete.intents.base import BaseIntent
 
     with pytest.raises(NotImplementedError) as e:
 
@@ -53,7 +53,7 @@ def test_mock_subclass_missing_children():
 
 
 def test_mock_subclass_missing_single_pipeline_template():
-    from foreshadow.intents.base import BaseIntent
+    from foreshadow.transformers.concrete.intents.base import BaseIntent
 
     with pytest.raises(NotImplementedError) as e:
 
@@ -73,7 +73,7 @@ def test_mock_subclass_missing_single_pipeline_template():
 
 
 def test_mock_subclass_missing_multi_pipeline_template():
-    from foreshadow.intents.base import BaseIntent
+    from foreshadow.transformers.concrete.intents.base import BaseIntent
 
     with pytest.raises(NotImplementedError) as e:
 
@@ -94,8 +94,10 @@ def test_mock_subclass_missing_multi_pipeline_template():
 
 
 def test_valid_mock_subclass():
-    from foreshadow.intents.registry import _unregister_intent
-    from foreshadow.intents.base import BaseIntent
+    from foreshadow.transformers.concrete.intents.registry import (
+        _unregister_intent,
+    )
+    from foreshadow.transformers.concrete.intents.base import BaseIntent
 
     class TestIntent(BaseIntent):
         @classmethod
@@ -116,8 +118,10 @@ def test_valid_mock_subclass():
 
 
 def test_to_string():
-    from foreshadow.intents.registry import _unregister_intent
-    from foreshadow.intents.base import BaseIntent
+    from foreshadow.transformers.concrete.intents.registry import (
+        _unregister_intent,
+    )
+    from foreshadow.transformers.concrete.intents.base import BaseIntent
 
     class TestIntent(BaseIntent):
         dtype = "TEST"
@@ -204,8 +208,10 @@ def test_to_string():
 
 
 def test_priority_traverse():
-    from foreshadow.intents.registry import _unregister_intent
-    from foreshadow.intents.base import BaseIntent
+    from foreshadow.transformers.concrete.intents.registry import (
+        _unregister_intent,
+    )
+    from foreshadow.transformers.concrete.intents.base import BaseIntent
 
     class TestIntent(BaseIntent):
         dtype = "TEST"

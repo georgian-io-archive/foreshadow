@@ -3,8 +3,8 @@ import re
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from foreshadow.utils import check_df
 from foreshadow.core import make_pandas_transformer
+from foreshadow.utils import check_df
 
 
 HTML_REGEX = re.compile(r"<[^<]+?>")

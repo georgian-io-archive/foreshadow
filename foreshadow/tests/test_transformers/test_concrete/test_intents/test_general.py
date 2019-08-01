@@ -1,6 +1,6 @@
 def test_generic_intent_is_intent():
     import pandas as pd
-    from foreshadow.intents import GenericIntent
+    from foreshadow.transformers.concrete.intents import GenericIntent
 
     X = pd.DataFrame([1, 2, 3])
 
@@ -9,7 +9,7 @@ def test_generic_intent_is_intent():
 
 def test_generic_intent_column_summary():
     import pandas as pd
-    from foreshadow.intents import GenericIntent
+    from foreshadow.transformers.concrete.intents import GenericIntent
 
     X = pd.DataFrame([1, 2, 3])
 
@@ -18,7 +18,7 @@ def test_generic_intent_column_summary():
 
 def test_numeric_intent_is_intent():
     import pandas as pd
-    from foreshadow.intents import NumericIntent
+    from foreshadow.transformers.concrete.intents import NumericIntent
 
     X = pd.DataFrame([1, 2, 3])
     X1 = pd.DataFrame([1, 2, "Test"])
@@ -30,7 +30,7 @@ def test_numeric_intent_is_intent():
 def test_mode_freq():
     import numpy as np
     import pandas as pd
-    from foreshadow.intents.general import _mode_freq
+    from foreshadow.transformers.concrete.intents.general import _mode_freq
 
     np.random.seed(0)
     X1 = pd.Series([])
@@ -66,7 +66,7 @@ def test_mode_freq():
 def test_outliers():
     import numpy as np
     import pandas as pd
-    from foreshadow.intents.general import _outliers
+    from foreshadow.transformers.concrete.intents.general import _outliers
 
     np.random.seed(0)
     X = pd.Series(
@@ -87,7 +87,7 @@ def test_outliers():
 def test_numeric_intent_column_summary():
     import numpy as np
     import pandas as pd
-    from foreshadow.intents import NumericIntent
+    from foreshadow.transformers.concrete.intents import NumericIntent
 
     np.random.seed(0)
     X = pd.DataFrame(
@@ -140,7 +140,7 @@ def test_numeric_intent_column_summary():
 
 def test_categorical_intent_is_intent_numeric():
     import pandas as pd
-    from foreshadow.intents import CategoricalIntent
+    from foreshadow.transformers.concrete.intents import CategoricalIntent
 
     X = pd.DataFrame([1] * 10 + [2] * 20)
     X1 = pd.DataFrame(list(range(0, 100)))
@@ -151,7 +151,7 @@ def test_categorical_intent_is_intent_numeric():
 
 def test_categorical_intent_is_intent_string():
     import pandas as pd
-    from foreshadow.intents import CategoricalIntent
+    from foreshadow.transformers.concrete.intents import CategoricalIntent
 
     X = pd.DataFrame(["test"] * 10 + ["hi"] * 10)
 
@@ -161,7 +161,9 @@ def test_categorical_intent_is_intent_string():
 def test_standard_intent_column_summary():
     import numpy as np
     import pandas as pd
-    from foreshadow.intents.general import _standard_col_summary
+    from foreshadow.transformers.concrete.intents.general import (
+        _standard_col_summary,
+    )
 
     X = pd.DataFrame(["test"] * 5 + ["hi"] * 10 + [np.nan] * 5)
     expected_dict = {
@@ -176,7 +178,10 @@ def test_standard_intent_column_summary():
 def test_standard_intent_column_summary_calls():
     import numpy as np
     import pandas as pd
-    from foreshadow.intents import CategoricalIntent, TextIntent
+    from foreshadow.transformers.concrete.intents import (
+        CategoricalIntent,
+        TextIntent,
+    )
 
     X = pd.DataFrame(["test"] * 5 + ["hi"] * 10 + [np.nan] * 5)
 

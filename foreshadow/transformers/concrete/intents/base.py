@@ -4,7 +4,11 @@ from abc import abstractmethod
 from collections import namedtuple
 from functools import wraps
 
-from foreshadow.intents.registry import _IntentRegistry, registry_eval
+from foreshadow.transformers.concrete.intents.registry import (
+    _IntentRegistry,
+    registry_eval,
+)
+from foreshadow.transformers.smart import MultiImputer
 
 
 # must be defined above registry import
@@ -204,3 +208,43 @@ class BaseIntent(metaclass=_IntentRegistry):
                         "Developers please see the documentation."
                     ).format(a)
                 )
+
+
+class GenericIntent(BaseIntent):
+    """See base class.
+
+    Serves as root of Intent tree. In the case that no other intent applies
+    this intent will serve as a placeholder.
+
+    """
+
+    children = ["TextIntent", "NumericIntent", "CategoricalIntent"]
+    """Match to CategoricalIntent over NumericIntent"""
+
+    single_pipeline_template = []
+    """No transformers"""
+
+    multi_pipeline_template = [
+        PipelineTemplateEntry("multi_impute", MultiImputer, False)
+    ]
+    """Perform multi imputation over the entire DataFrame."""
+
+    @classmethod
+    def is_intent(cls, df):
+        """Return true by default such that a column must match this.
+
+        .. # noqa: I101
+        .. # noqa: I201
+
+        """
+        return True
+
+    @classmethod
+    def column_summary(cls, df):
+        """No statistics can be computed for a general column.
+
+        .. # noqa: I101
+        .. # noqa: I201
+
+        """
+        return {}

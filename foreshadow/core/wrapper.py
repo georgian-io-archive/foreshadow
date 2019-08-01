@@ -5,12 +5,13 @@ import warnings
 import numpy as np
 import pandas as pd
 import scipy
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.base import BaseEstimator
 from sklearn.utils.fixes import signature
 
-from .serializers import ConcreteSerializerMixin
-from . import logging
 from foreshadow.utils import check_df, is_transformer
+
+from . import logging
+from .serializers import ConcreteSerializerMixin
 
 
 def make_pandas_transformer(transformer):  # noqa: C901
@@ -101,8 +102,10 @@ def make_pandas_transformer(transformer):  # noqa: C901
             try:
                 super(DFTransformer, self).__init__(*args, **kwargs)
             except TypeError as e:
-                raise type(e)(str(e) + ". Init for transformer: '{}' "
-                                          "called".format(transformer))
+                raise type(e)(
+                    str(e) + ". Init for transformer: '{}' "
+                    "called".format(transformer)
+                )
 
             # TODO: remove this when _Empty is removed
             self.__empty_fit = False

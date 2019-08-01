@@ -5,13 +5,13 @@ from copy import deepcopy
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from foreshadow.intents import GenericIntent
-from foreshadow.intents.registry import registry_eval
 from foreshadow.core import (
     ParallelProcessor,
     SerializablePipeline,
     SmartTransformer,
 )
+from foreshadow.transformers import GenericIntent
+from foreshadow.transformers.concrete.intents.registry import registry_eval
 from foreshadow.utils import PipelineStep, check_df, get_transformer
 
 

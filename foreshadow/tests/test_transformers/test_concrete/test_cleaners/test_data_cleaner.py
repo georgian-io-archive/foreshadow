@@ -5,7 +5,7 @@ def test_data_cleaner_fit():
     """Test basic fit call."""
     import pandas as pd
     import numpy as np
-    from foreshadow.cleaners import DataCleaner
+    from foreshadow.core.preparersteps import DataCleaner
     from foreshadow.core.column_sharer import ColumnSharer
 
     data = pd.DataFrame(
@@ -52,7 +52,7 @@ def test_data_cleaner_fit():
 def test_financials():
     """Test financial column cleaned correctly."""
     import pandas as pd
-    from foreshadow.cleaners import DataCleaner
+    from foreshadow.core.preparersteps import DataCleaner
     from foreshadow.core.column_sharer import ColumnSharer
     import numpy as np
 
@@ -78,7 +78,7 @@ def test_financials():
 def test_json():
     """Test json input cleaned correctly."""
     import pandas as pd
-    from foreshadow.cleaners import DataCleaner
+    from foreshadow.core.preparersteps import DataCleaner
     from foreshadow.core.column_sharer import ColumnSharer
     import numpy as np
 
@@ -121,7 +121,7 @@ def test_json():
 def test_drop():
     """Test drop called when expected to."""
     import pandas as pd
-    from foreshadow.cleaners import DataCleaner
+    from foreshadow.core.preparersteps import DataCleaner
     from foreshadow.core.column_sharer import ColumnSharer
 
     columns = ["financials"]
@@ -138,7 +138,7 @@ def test_numerical_input():
     """Test numerical input."""
     import numpy as np
     import pandas as pd
-    from foreshadow.cleaners import DataCleaner
+    from foreshadow.core.preparersteps import DataCleaner
     from foreshadow.core.column_sharer import ColumnSharer
 
     columns = ["financials"]
@@ -154,7 +154,7 @@ def test_numerical_input_fittransform():
     """Test numerical input."""
     import numpy as np
     import pandas as pd
-    from foreshadow.cleaners import DataCleaner
+    from foreshadow.core.preparersteps import DataCleaner
     from foreshadow.core.column_sharer import ColumnSharer
 
     columns = ["financials"]

@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats as ss
 
+from foreshadow.core import SerializablePipeline, SmartTransformer
 from foreshadow.transformers.concrete import (
     BoxCox,
     ConvertFinancial,
@@ -29,7 +30,6 @@ from foreshadow.transformers.concrete import (
     ToString,
     UncommonRemover,
 )
-from foreshadow.core import SerializablePipeline, SmartTransformer
 from foreshadow.utils import check_df
 
 

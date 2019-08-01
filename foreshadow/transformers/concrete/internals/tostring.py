@@ -1,6 +1,7 @@
 """To String."""
 
 from sklearn.base import BaseEstimator, TransformerMixin
+
 from foreshadow.core import make_pandas_transformer
 
 

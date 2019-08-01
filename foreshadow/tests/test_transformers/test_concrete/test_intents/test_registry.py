@@ -2,8 +2,10 @@ import pytest
 
 
 def test_unregister():
-    from foreshadow.intents.base import BaseIntent
-    from foreshadow.intents.registry import _unregister_intent
+    from foreshadow.transformers.concrete.intents.base import BaseIntent
+    from foreshadow.transformers.concrete.intents.registry import (
+        _unregister_intent,
+    )
 
     class TestIntent(BaseIntent):
         dtype = "TEST"
@@ -52,7 +54,9 @@ def test_unregister():
 
 
 def test_unregister_invalid_input():
-    from foreshadow.intents.registry import _unregister_intent
+    from foreshadow.transformers.concrete.intents.registry import (
+        _unregister_intent,
+    )
 
     with pytest.raises(ValueError) as e:
         _unregister_intent(123)
@@ -61,7 +65,9 @@ def test_unregister_invalid_input():
 
 
 def test_unregister_intent_does_not_exist():
-    from foreshadow.intents.registry import _unregister_intent
+    from foreshadow.transformers.concrete.intents.registry import (
+        _unregister_intent,
+    )
 
     with pytest.raises(ValueError) as e1:
         _unregister_intent("IntentDoesNotExist")
@@ -76,8 +82,11 @@ def test_unregister_intent_does_not_exist():
 
 
 def test_registry_eval():
-    from foreshadow.intents.base import BaseIntent
-    from foreshadow.intents.registry import _unregister_intent, registry_eval
+    from foreshadow.transformers.concrete.intents.base import BaseIntent
+    from foreshadow.transformers.concrete.intents.registry import (
+        _unregister_intent,
+        registry_eval,
+    )
 
     class TestIntent(BaseIntent):
         dtype = "TEST"
@@ -98,8 +107,10 @@ def test_registry_eval():
 
 
 def test_samename_subclass():
-    from foreshadow.intents.base import BaseIntent
-    from foreshadow.intents.registry import _unregister_intent
+    from foreshadow.transformers.concrete.intents.base import BaseIntent
+    from foreshadow.transformers.concrete.intents.registry import (
+        _unregister_intent,
+    )
 
     class TestIntent(BaseIntent):
         dtype = "TEST"
@@ -138,7 +149,7 @@ def test_samename_subclass():
 
 
 def test_invalid_transfomer_template_defenition_length():
-    from foreshadow.intents.base import BaseIntent
+    from foreshadow.transformers.concrete.intents.base import BaseIntent
     from foreshadow.transformers.smart import Scaler
     import sklearn
 
@@ -179,7 +190,7 @@ def test_invalid_transfomer_template_defenition_length():
 
 
 def test_invalid_transfomer_template_defenition_bad_defenition():
-    from foreshadow.intents.base import BaseIntent
+    from foreshadow.transformers.concrete.intents.base import BaseIntent
 
     with pytest.raises(ValueError) as e:
 
@@ -218,12 +229,14 @@ def test_invalid_transfomer_template_defenition_bad_defenition():
 
 
 def test_valid_intent_registration():
-    from foreshadow.intents.base import (
+    from foreshadow.transformers.concrete.intents.base import (
         BaseIntent,
         PipelineTemplateEntry,
         TransformerEntry,
     )
-    from foreshadow.intents.registry import _unregister_intent
+    from foreshadow.transformers.concrete.intents.registry import (
+        _unregister_intent,
+    )
     from foreshadow.transformers.smart import Scaler
     import sklearn
 

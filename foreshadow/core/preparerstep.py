@@ -5,9 +5,9 @@ from inspect import signature
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from . import logging
-from .pipeline import DynamicPipeline
+from .notransform import NoTransform
 from .parallelprocessor import ParallelProcessor
-from foreshadow.transformers.internals import NoTransform
+from .pipeline import DynamicPipeline
 
 
 GroupProcess = namedtuple(
@@ -246,9 +246,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
     """
 
-    def __init__(
-        self, column_sharer=None, **kwargs
-    ):
+    def __init__(self, column_sharer=None, **kwargs):
         """Set the original pipeline steps internally.
 
         Takes a list of desired SmartTransformer steps and stores them as

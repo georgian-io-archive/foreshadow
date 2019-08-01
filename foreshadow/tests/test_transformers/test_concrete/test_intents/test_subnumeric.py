@@ -1,7 +1,7 @@
 def test_subnumeric_is_intent():
     import numpy as np
     import pandas as pd
-    from foreshadow.intents import FinancialIntent
+    from foreshadow.transformers.concrete.intents import FinancialIntent
 
     X = np.array(
         [

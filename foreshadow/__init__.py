@@ -5,10 +5,11 @@
 # from foreshadow.preprocessor import Preprocessor
 # from foreshadow import console
 
+from foreshadow import console
+
 # This is temporary
 from foreshadow.foreshadow import Foreshadow
 from foreshadow.preprocessor import Preprocessor
-from foreshadow import console
 
 
 __doc__ = """

@@ -1,15 +1,14 @@
-"""Cleaner module for cleaning data as step in Foreshadow workflow."""
+"""Cleaner module for handling the cleaning and shaping of data."""
 from collections import namedtuple
 
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from foreshadow.core import logging
+from foreshadow.core import SmartTransformer, logging
+from foreshadow.core.notransform import NoTransform
 from foreshadow.core.preparerstep import PreparerStep
 from foreshadow.exceptions import InvalidDataFrame
 from foreshadow.metrics.internals import avg_col_regex, regex_rows
-from foreshadow.core import SmartTransformer
-from foreshadow.transformers.internals.notransform import NoTransform
 from foreshadow.utils.testing import dynamic_import
 from foreshadow.utils.validation import check_df
 
@@ -91,10 +90,17 @@ class SmartCleaner(SmartTransformer):
             Best data cleaning transformer.
 
         """
-        from foreshadow.cleaners.internals import __all__ as cleaners
+        from foreshadow.transformers.concrete.cleaners import (
+            __all__ as cleaners,
+        )
 
         cleaners = [
-            (dynamic_import(cleaner, "foreshadow.cleaners.internals"), cleaner)
+            (
+                dynamic_import(
+                    cleaner, "foreshadow.transformers.concrete.cleaners"
+                ),
+                cleaner,
+            )
             for cleaner in cleaners
             if cleaner.lower().find("cleaner") != -1
         ]
@@ -152,11 +158,15 @@ class SmartFlatten(SmartTransformer):
             Best data flattening transformer
 
         """
-        from foreshadow.cleaners.internals import __all__ as flatteners
+        from foreshadow.transformers.concrete.cleaners import (
+            __all__ as flatteners,
+        )
 
         flatteners = [
             (
-                dynamic_import(flattener, "foreshadow.cleaners.internals"),
+                dynamic_import(
+                    flattener, "foreshadow.transformers.concrete.cleaners"
+                ),
                 flattener,
             )
             for flattener in flatteners
@@ -224,8 +234,6 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
                 subclass's metric computation. This implies an OVR model.
             default: Function that returns the default value for a row if
                 the transformation failed. Accepts the row as input.
-            column_sharer: An instance of 'foreshadow.core.ColumnSharer' to
-                be used to share information between PreparerSteps.
 
         Raises:
             ValueError: If not a list, int, or None specifying expected

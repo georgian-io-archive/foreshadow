@@ -1,8 +1,8 @@
 """Resolver module that computes the intents for input data."""
 
 from foreshadow.config import get_intents
-from .preparerstep import PreparerStep
-from .smarttransformer import SmartTransformer
+from foreshadow.core.preparerstep import PreparerStep
+from foreshadow.core.smarttransformer import SmartTransformer
 
 
 class IntentResolver(PreparerStep):

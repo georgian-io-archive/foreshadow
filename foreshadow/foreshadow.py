@@ -7,11 +7,11 @@ from copy import deepcopy
 from sklearn.base import BaseEstimator
 from sklearn.model_selection._search import BaseSearchCV
 
+from foreshadow.core import SerializablePipeline
 from foreshadow.estimators.auto import AutoEstimator
 from foreshadow.estimators.meta import MetaEstimator
 from foreshadow.optimizers.param_mapping import param_mapping
 from foreshadow.preprocessor import Preprocessor
-from foreshadow.core import SerializablePipeline
 from foreshadow.utils import check_df
 
 

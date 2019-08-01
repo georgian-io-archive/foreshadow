@@ -7,6 +7,7 @@ from sklearn.feature_extraction.text import (
     VectorizerMixin,
 )
 from sklearn.utils import check_array
+
 from foreshadow.core import make_pandas_transformer
 
 

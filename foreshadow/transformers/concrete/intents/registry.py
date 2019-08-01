@@ -4,8 +4,8 @@ from abc import ABCMeta
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from foreshadow.intents import base
 from foreshadow.core import SmartTransformer
+from foreshadow.transformers.concrete.intents import base
 
 
 _registry = {}

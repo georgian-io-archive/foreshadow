@@ -1,6 +1,6 @@
 """Internal SmartTransformer definitions."""
 
-from foreshadow.transformers.smart.smart import (
+from .smart import (
     CategoricalEncoder,
     FinancialCleaner,
     MultiImputer,

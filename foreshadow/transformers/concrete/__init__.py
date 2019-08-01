@@ -1,7 +1,9 @@
 """All the concrete transformers provided by foreshadow."""
 
-from foreshadow.transformers.concrete.externals import *
-from foreshadow.transformers.concrete.internals import *
+from .cleaners import *
+from .externals import *
+from .intents import *
+from .internals import *
 
 
 __all__ = [str(s) for s in globals()]

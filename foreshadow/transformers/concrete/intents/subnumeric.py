@@ -2,14 +2,15 @@
 
 import re
 
-from foreshadow.intents.base import PipelineTemplateEntry
-from foreshadow.intents.general import NumericIntent
 from foreshadow.transformers.concrete import DropFeature
+from foreshadow.transformers.concrete.intents.base import PipelineTemplateEntry
 from foreshadow.transformers.smart import (
     FinancialCleaner,
     Scaler,
     SimpleImputer,
 )
+
+from .general import NumericIntent
 
 
 class FinancialIntent(NumericIntent):

@@ -46,6 +46,5 @@ __all__ = [
     "FixedLabelEncoder",
     "FixedTfidfVectorizer",
     "ToString",
-    "UncommonRemover"
+    "UncommonRemover",
 ]
-

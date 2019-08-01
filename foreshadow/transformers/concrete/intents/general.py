@@ -5,11 +5,13 @@ import numpy as np
 import pandas as pd
 from pandas.api.types import is_numeric_dtype, is_string_dtype
 
-from foreshadow.intents.base import BaseIntent, PipelineTemplateEntry
 from foreshadow.transformers.concrete import DropFeature
+from foreshadow.transformers.concrete.intents.base import (
+    GenericIntent,
+    PipelineTemplateEntry,
+)
 from foreshadow.transformers.smart import (
     CategoricalEncoder,
-    MultiImputer,
     Scaler,
     SimpleImputer,
     TextEncoder,
@@ -58,46 +60,6 @@ def _standard_col_summary(df):
     mode, top10 = _mode_freq(data)
 
     return OrderedDict([("nan", nan_num), ("mode", mode), ("top10", top10)])
-
-
-class GenericIntent(BaseIntent):
-    """See base class.
-
-    Serves as root of Intent tree. In the case that no other intent applies
-    this intent will serve as a placeholder.
-
-    """
-
-    children = ["TextIntent", "NumericIntent", "CategoricalIntent"]
-    """Match to CategoricalIntent over NumericIntent"""
-
-    single_pipeline_template = []
-    """No transformers"""
-
-    multi_pipeline_template = [
-        PipelineTemplateEntry("multi_impute", MultiImputer, False)
-    ]
-    """Perform multi imputation over the entire DataFrame."""
-
-    @classmethod
-    def is_intent(cls, df):
-        """Return true by default such that a column must match this.
-
-        .. # noqa: I101
-        .. # noqa: I201
-
-        """
-        return True
-
-    @classmethod
-    def column_summary(cls, df):
-        """No statistics can be computed for a general column.
-
-        .. # noqa: I101
-        .. # noqa: I201
-
-        """
-        return {}
 
 
 class NumericIntent(GenericIntent):

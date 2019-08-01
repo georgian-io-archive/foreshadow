@@ -73,11 +73,9 @@ def get_transformer(class_name, source_lib=None):
         sources = OrderedDict(
             (source, import_module(source))
             for source in [
-                "foreshadow.newintents.intents",
                 "foreshadow.transformers.concrete",
                 "foreshadow.transformers.smart",
                 "foreshadow.core",
-                "foreshadow.cleaners.internals",
             ]
         )
 

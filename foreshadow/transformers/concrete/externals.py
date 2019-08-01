@@ -15,8 +15,9 @@ from sklearn.preprocessing import (
     StandardScaler,
 )
 
-from foreshadow.utils import is_transformer
 from foreshadow.core import make_pandas_transformer
+from foreshadow.utils import is_transformer
+
 
 no_serialize_params = {"OneHotEncoder": ["cols"], "HashingEncoder": ["cols"]}
 
