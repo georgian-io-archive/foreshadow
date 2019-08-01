@@ -1,6 +1,9 @@
 """Core components to foreshadow."""
 
-from foreshadow.core.preparersteps.resolver import IntentResolver, Resolver  # noqa: F401
+from foreshadow.core.preparersteps.resolver import (  # noqa: F401, E501
+    IntentResolver,
+    Resolver,
+)
 
 from .column_sharer import ColumnSharer  # noqa: F401
 from .data_preparer import DataPreparer  # noqa: F401

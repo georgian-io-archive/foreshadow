@@ -35,7 +35,6 @@ def _get_modules(classes, globals_, mname):  # TODO auto import all
         classes: A list of classes
         globals_: The globals in the callee's context
         mname: The module name
-        wrap: True to wrap the transformers.
 
     Returns:
         The list of wrapped transformers.

@@ -1,13 +1,6 @@
 """An AutoML package to streamline the data science work flow."""
 
-# # Make sure to remove temporary F401
-# from foreshadow.foreshadow import Foreshadow
-# from foreshadow.preprocessor import Preprocessor
-# from foreshadow import console
-
 from foreshadow import console
-
-# This is temporary
 from foreshadow.foreshadow import Foreshadow
 from foreshadow.preprocessor import Preprocessor
 
@@ -34,9 +27,5 @@ def get_version():
 
 
 __version__ = get_version()
-
-# __all__ = ["Foreshadow", "Preprocessor", "console", "__version__"]
-
 __all__ = ["Foreshadow", "Preprocessor", "console", "__version__"]
-
 del get_version
