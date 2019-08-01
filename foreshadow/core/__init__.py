@@ -1,17 +1,21 @@
 """Core components to foreshadow."""
 
-from foreshadow.core.column_sharer import ColumnSharer
-from foreshadow.core.preparerstep import PreparerStep
-from foreshadow.core.pipeline import DynamicPipeline, SerializablePipeline
-from foreshadow.core.smarttransformer import SmartTransformer
-from foreshadow.core.wrapper import make_pandas_transformer
-from foreshadow.core.parallelprocessor import ParallelProcessor
-from foreshadow.core.serializers import (
+from .column_sharer import ColumnSharer
+from .preparerstep import PreparerStep
+from .pipeline import DynamicPipeline, SerializablePipeline
+from .smarttransformer import SmartTransformer
+from .wrapper import make_pandas_transformer
+from .parallelprocessor import ParallelProcessor
+from .serializers import (
     BaseTransformerSerializer,
     ConcreteSerializerMixin,
     PipelineSerializerMixin,
 )
-from foreshadow.core.data_preparer import DataPreparer
+from .data_preparer import DataPreparer
+from .resolver import (
+    IntentResolver,
+    Resolver
+)
 
 
 __all__ = [
@@ -26,4 +30,6 @@ __all__ = [
     "SmartTransformer",
     "SerializablePipeline",
     "DynamicPipeline",
+    "IntentResolver",
+    "Resolver",
 ]

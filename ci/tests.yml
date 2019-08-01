@@ -18,5 +18,5 @@ steps:
       checkCoverage: true
       coverageFailOption: 'fixed'
       coverageType: 'branches'
-      coverageThreshold: '90'
+      coverageThreshold: '75'
     displayName: 'Check build quality'

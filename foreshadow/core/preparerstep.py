@@ -236,7 +236,6 @@ class PreparerStep(BaseEstimator, TransformerMixin):
     usable format for ParallelProcessor and given mismatched columns,
     can handle that with the flag use_single_pipeline set to True.
 
-
     The transformer_list represents the mapping from columns to
     transformers, in the form of ['name', 'transformer', ['cols']],
     where the [cols] are the cols for transformer 'transformer. These
@@ -248,7 +247,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
     """
 
     def __init__(
-        self, use_single_pipeline=False, column_sharer=None, **kwargs
+        self, column_sharer=None, **kwargs
     ):
         """Set the original pipeline steps internally.
 
@@ -257,19 +256,13 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
         Args:
             column_sharer: ColumnSharer instance to be shared across all steps.
-            use_single_pipeline: Creates pipelines using SinglePipeline
+            use_single_pipeline: Creates pipelines using SingleInputPipeline
                 class instead of normal Pipelines.  .. #noqa: I102
             **kwargs: kwargs to PIpeline constructor.
 
         """
         self.column_sharer = column_sharer
         self._parallel_process = None
-        self._use_single_pipeline = use_single_pipeline  # TODO right now,
-        #  TODO this handles the case where a transformer outputs multiple
-        #   columns and another transformer only accepts single inputs. We
-        #   should make sure to define inputs and outputs for each
-        #   transformer so that the Dynamic pipeline can match these
-        #   requirements dynamically, at run time.
         super().__init__(**kwargs)
 
     @staticmethod

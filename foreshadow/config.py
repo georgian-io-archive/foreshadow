@@ -11,13 +11,10 @@ CONFIG_FILE_NAME = "config.yml"
 
 DEFAULT_CONFIG = {
     "cleaner": [],
-    "engineerer": {},
-    "preprocessor": {
-        "numerical": ["Imputer", "Scaler"],
-        "categorical": ["CategoricalEncoder"],
-        "text": ["TextEncoder"],
-    },
-    "reducer": {},
+    "resolver": ["Numeric", "Categoric", "Text"],
+    "Numeric": {"preprocessor": ["Imputer", "Scaler"]},
+    "Categoric": {"preprocessor": ["CategoricalEncoder"]},
+    "Text": {"preprocessor": ["TextEncoder"]},
 }
 
 _cfg = {}
@@ -61,6 +58,16 @@ def reset_config():
     _cfg = {}
 
 
+def get_intents():
+    """Get the intents defined in the config.
+
+    Returns:
+        list: A list of strings for the specific configuration.
+
+    """
+    return resolve_config()["resolver"]
+
+
 def resolve_config():
     """Resolve the configuration to actual classes.
 
@@ -78,8 +85,6 @@ def resolve_config():
     local_path = os.path.abspath("")
     local = get_config(local_path)
 
-    # import pdb; pdb.set_trace()
-
     global _cfg
     if local_path in _cfg:
         return _cfg.get(local_path)
@@ -88,20 +93,22 @@ def resolve_config():
     _resolved = {**default, **user, **local}
 
     resolved = {}
-    for step, data in _resolved.items():
+    # key is cleaner, resolver, or intent
+    # all individual steps are converted to classes
+    for key, data in _resolved.items():
         if not len(data):
-            resolved[step] = data
+            resolved[key] = data
         elif isinstance(data, list):
-            resolved[step] = [
+            resolved[key] = [
                 get_transformer(transformer) for transformer in data
             ]
         elif isinstance(data, dict):
-            resolved[step] = {
-                intent: [
+            resolved[key] = {
+                step: [
                     get_transformer(transformer)
                     for transformer in transformer_list
                 ]
-                for intent, transformer_list in data.items()
+                for step, transformer_list in data.items()
             }
 
     _cfg[local_path] = resolved

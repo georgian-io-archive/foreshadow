@@ -24,9 +24,14 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
     Once in a pipeline this class can be continuously re-fit in order to adapt
     to different data sets.
 
-    Contains a function _get_tranformer that must be overridden by an
+    Contains a function pick_tranformer that must be overridden by an
     implementing class that returns a scikit-learn transformer object to be
     used.
+
+    Note that by default the return value of pick_tranformer has multiple
+    validation checks make sure that it will work with the rest of the system.
+    To simply check that the return value is any "transformer", set the
+    `validate_wrapped` class attribute in subclasses.
 
     Used and implements itself identically to a transformer.
 
@@ -44,6 +49,8 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             to the overridden transformer
 
     """
+
+    validate_wrapped = True
 
     def __init__(
         self,

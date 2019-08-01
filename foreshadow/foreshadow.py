@@ -9,7 +9,7 @@ from sklearn.model_selection._search import BaseSearchCV
 
 from foreshadow.estimators.auto import AutoEstimator
 from foreshadow.estimators.meta import MetaEstimator
-from foreshadow.optimizers.param_mapping import _param_mapping
+from foreshadow.optimizers.param_mapping import param_mapping
 from foreshadow.preprocessor import Preprocessor
 from foreshadow.core import SerializablePipeline
 from foreshadow.utils import check_df
@@ -198,7 +198,7 @@ class Foreshadow(BaseEstimator):
 
         if self.optimizer is not None:
             # Calculate parameter search space
-            param_ranges = _param_mapping(deepcopy(self.pipeline), X_df, y_df)
+            param_ranges = param_mapping(deepcopy(self.pipeline), X_df, y_df)
 
             self.opt_instance = self.optimizer(self.pipeline, param_ranges)
             self.opt_instance.fit(X_df, y_df)

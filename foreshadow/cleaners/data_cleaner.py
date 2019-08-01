@@ -27,7 +27,7 @@ class DataCleaner(PreparerStep):
             **kwargs: kwargs to PreparerStep constructor.
 
         """
-        super().__init__(use_single_pipeline=True, **kwargs)
+        super().__init__(**kwargs)
 
     def get_mapping(self, X):
         """Return the mapping of transformations for the DataCleaner step.

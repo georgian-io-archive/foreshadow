@@ -1,4 +1,4 @@
-from unittest.mock import PropertyMock, patch
+"""Test the Foreshadow class."""
 
 import pytest
 
@@ -6,8 +6,8 @@ from foreshadow.utils.testing import get_file_path
 
 
 def test_foreshadow_defaults():
-    from foreshadow import Foreshadow
-    from foreshadow import Preprocessor
+    from foreshadow.foreshadow import Foreshadow
+    from foreshadow.preprocessor import Preprocessor
     from foreshadow.estimators import AutoEstimator
 
     foreshadow = Foreshadow()
@@ -23,15 +23,15 @@ def test_foreshadow_defaults():
 
 
 def test_foreshadow_X_preprocessor_false():
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
 
     foreshadow = Foreshadow(X_preprocessor=False)
     assert foreshadow.X_preprocessor is None
 
 
 def test_foreshadow_X_preprocessor_custom():
-    from foreshadow import Foreshadow
-    from foreshadow import Preprocessor
+    from foreshadow.foreshadow import Foreshadow
+    from foreshadow.preprocessor import Preprocessor
 
     preprocessor = Preprocessor()
     foreshadow = Foreshadow(X_preprocessor=preprocessor)
@@ -39,7 +39,7 @@ def test_foreshadow_X_preprocessor_custom():
 
 
 def test_foreshadow_X_preprocessor_error():
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
 
     preprocessor = "Invalid"
     with pytest.raises(ValueError) as e:
@@ -49,15 +49,15 @@ def test_foreshadow_X_preprocessor_error():
 
 
 def test_foreshadow_y_preprocessor_false():
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
 
     foreshadow = Foreshadow(y_preprocessor=False)
     assert foreshadow.y_preprocessor is None
 
 
 def test_foreshadow_y_preprocessor_custom():
-    from foreshadow import Foreshadow
-    from foreshadow import Preprocessor
+    from foreshadow.foreshadow import Foreshadow
+    from foreshadow.preprocessor import Preprocessor
 
     preprocessor = Preprocessor()
     foreshadow = Foreshadow(y_preprocessor=preprocessor)
@@ -65,7 +65,7 @@ def test_foreshadow_y_preprocessor_custom():
 
 
 def test_foreshadow_y_preprocessor_error():
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
 
     preprocessor = "Invalid"
     with pytest.raises(ValueError) as e:
@@ -75,7 +75,7 @@ def test_foreshadow_y_preprocessor_error():
 
 
 def test_foreshadow_estimator_custom():
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
     from sklearn.base import BaseEstimator
 
     estimator = BaseEstimator()
@@ -84,7 +84,7 @@ def test_foreshadow_estimator_custom():
 
 
 def test_foreshadow_estimator_error():
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
 
     estimator = "Invalid"
     with pytest.raises(ValueError) as e:
@@ -94,7 +94,7 @@ def test_foreshadow_estimator_error():
 
 
 def test_foreshadow_optimizer_custom():
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
     from sklearn.model_selection._search import BaseSearchCV
     from sklearn.base import BaseEstimator
 
@@ -108,7 +108,7 @@ def test_foreshadow_optimizer_custom():
 
 
 def test_foreshadow_optimizer_error_invalid():
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
 
     optimizer = "Invalid"
     with pytest.raises(ValueError) as e:
@@ -118,7 +118,7 @@ def test_foreshadow_optimizer_error_invalid():
 
 
 def test_foreshadow_optimizer_error_wrongclass():
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
 
     optimizer = Foreshadow
     with pytest.raises(ValueError) as e:
@@ -128,7 +128,7 @@ def test_foreshadow_optimizer_error_wrongclass():
 
 
 def test_foreshadow_warns_on_set_estimator_optimizer():
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
     from sklearn.model_selection._search import BaseSearchCV
 
     class DummySearch(BaseSearchCV):
@@ -143,19 +143,13 @@ def test_foreshadow_warns_on_set_estimator_optimizer():
     )
 
 
-# patch to override type verification
-@patch(
-    "foreshadow.foreshadow.Foreshadow.X_preprocessor",
-    create=True,
-    new_callable=PropertyMock,
-)
-def test_foreshadow_custom_fit_estimate(X_preprocessor):
+def test_foreshadow_custom_fit_estimate(mocker):
     import numpy as np
     from sklearn.pipeline import Pipeline
     from sklearn.linear_model import LogisticRegression
     from sklearn.preprocessing import OneHotEncoder
     from sklearn.model_selection import train_test_split
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
 
     np.random.seed(0)
 
@@ -168,8 +162,10 @@ def test_foreshadow_custom_fit_estimate(X_preprocessor):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
 
     # Let foreshadow set to defaults, we will overwrite them
+    X_preprocessor = mocker.PropertyMock(return_value=X_pipeline)
+    mocker.patch.object(Foreshadow, "X_preprocessor", X_preprocessor)
     foreshadow = Foreshadow(y_preprocessor=False, estimator=estimator)
-    X_preprocessor.return_value = X_pipeline
+
     foreshadow.fit(X_train, y_train)
     foreshadow_predict = foreshadow.predict(X_test)
     foreshadow_predict_proba = foreshadow.predict_proba(X_test)
@@ -196,18 +192,13 @@ def test_foreshadow_custom_fit_estimate(X_preprocessor):
     assert np.allclose(foreshadow_score, expected_score)
 
 
-@patch(
-    "foreshadow.foreshadow.Foreshadow.y_preprocessor",
-    create=True,
-    new_callable=PropertyMock,
-)
-def test_foreshadow_y_preprocessor(y_preprocessor):
+def test_foreshadow_y_preprocessor(mocker):
     import numpy as np
     from sklearn.pipeline import Pipeline
     from sklearn.linear_model import LinearRegression
     from sklearn.preprocessing import StandardScaler
     from sklearn.model_selection import train_test_split
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
 
     np.random.seed(0)
 
@@ -220,8 +211,9 @@ def test_foreshadow_y_preprocessor(y_preprocessor):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
 
     # Let foreshadow set to defaults, we will overwrite them
-    foreshadow = Foreshadow(X_preprocessor=False, estimator=estimator)
-    y_preprocessor.return_value = y_pipeline
+    y_preprocessor = mocker.PropertyMock(return_value=y_pipeline)
+    mocker.patch.object(Foreshadow, "y_preprocessor", y_preprocessor)
+    foreshadow = Foreshadow(y_preprocessor=False, estimator=estimator)
     foreshadow.fit(X_train, y_train)
     foreshadow_predict = foreshadow.predict(X_test)
     foreshadow_score = foreshadow.score(X_test, y_test)
@@ -249,7 +241,7 @@ def test_foreshadow_without_x_processor():
     import numpy as np
     from sklearn.linear_model import LinearRegression
     from sklearn.model_selection import train_test_split
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
 
     np.random.seed(0)
     estimator = LinearRegression()
@@ -294,7 +286,7 @@ def test_foreshadow_predict_before_fit():
     import numpy as np
     from sklearn.linear_model import LinearRegression
     from sklearn.model_selection import train_test_split
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
 
     np.random.seed(0)
     estimator = LinearRegression()
@@ -316,7 +308,7 @@ def test_foreshadow_predict_diff_cols():
     import numpy as np
     from sklearn.linear_model import LinearRegression
     from sklearn.model_selection import train_test_split
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
 
     np.random.seed(0)
     estimator = LinearRegression()
@@ -337,13 +329,12 @@ def test_foreshadow_predict_diff_cols():
     )
 
 
-@patch("foreshadow.preprocessor.Preprocessor")
-def test_foreshadow_param_optimize_fit(mock_p):
+def test_foreshadow_param_optimize_fit(mocker):
     import pandas as pd
     from sklearn.base import BaseEstimator, TransformerMixin
     from sklearn.model_selection._search import BaseSearchCV
 
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
 
     boston_path = get_file_path("data", "boston_housing.csv")
     data = pd.read_csv(boston_path)
@@ -363,7 +354,9 @@ def test_foreshadow_param_optimize_fit(mock_p):
         def fit(self, X, y):
             return self
 
-    mock_p.return_value = DummyPreprocessor()
+    mocker.patch(
+        "foreshadow.preprocessor.Preprocessor", return_value=DummyPreprocessor
+    )
 
     fs = Foreshadow(estimator=DummyRegressor(), optimizer=DummySearch)
     x = data.drop(["medv"], axis=1, inplace=False)
@@ -393,9 +386,9 @@ def test_foreshadow_param_optimize():  # TODO: Make this test faster
     from sklearn.pipeline import Pipeline
     from sklearn.model_selection import GridSearchCV
 
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
     from foreshadow.preprocessor import Preprocessor
-    from foreshadow.optimizers.param_mapping import _param_mapping
+    from foreshadow.optimizers.param_mapping import param_mapping
 
     boston_path = get_file_path("data", "boston_housing.csv")
     test_json_path = get_file_path("configs", "optimizer_test.json")
@@ -418,7 +411,7 @@ def test_foreshadow_param_optimize():  # TODO: Make this test faster
 
     x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
 
-    results = _param_mapping(fs.pipeline, x_train, y_train)
+    results = param_mapping(fs.pipeline, x_train, y_train)
 
     # (If you change default configs) or file structure, you will need to
     # verify the outputs are correct manually and regenerate the pickle
@@ -437,9 +430,9 @@ def test_foreshadow_param_optimize_no_config():
     from sklearn.model_selection import GridSearchCV
     from sklearn.pipeline import Pipeline
 
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
     from foreshadow.preprocessor import Preprocessor
-    from foreshadow.optimizers.param_mapping import _param_mapping
+    from foreshadow.optimizers.param_mapping import param_mapping
 
     boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path("configs", "search_space_no_cfg.pkl")
@@ -457,7 +450,7 @@ def test_foreshadow_param_optimize_no_config():
 
     x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
 
-    results = _param_mapping(fs.pipeline, x_train, y_train)
+    results = param_mapping(fs.pipeline, x_train, y_train)
 
     truth = pickle.load(open(test_path, "rb"))
 
@@ -473,9 +466,9 @@ def test_foreshadow_param_optimize_no_combinations():
     from sklearn.model_selection import GridSearchCV
     from sklearn.pipeline import Pipeline
 
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
     from foreshadow.preprocessor import Preprocessor
-    from foreshadow.optimizers.param_mapping import _param_mapping
+    from foreshadow.optimizers.param_mapping import param_mapping
 
     boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path("configs", "search_space_no_combo.pkl")
@@ -495,7 +488,7 @@ def test_foreshadow_param_optimize_no_combinations():
 
     x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
 
-    results = _param_mapping(fs.pipeline, x_train, y_train)
+    results = param_mapping(fs.pipeline, x_train, y_train)
 
     truth = pickle.load(open(test_path, "rb"))
 
@@ -512,9 +505,9 @@ def test_foreshadow_param_optimize_invalid_array_idx():
     from sklearn.model_selection import GridSearchCV
     from sklearn.pipeline import Pipeline
 
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
     from foreshadow.preprocessor import Preprocessor
-    from foreshadow.optimizers.param_mapping import _param_mapping
+    from foreshadow.optimizers.param_mapping import param_mapping
 
     boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path("configs", "invalid_optimizer_config.json")
@@ -536,7 +529,7 @@ def test_foreshadow_param_optimize_invalid_array_idx():
     x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
 
     with pytest.raises(ValueError) as e:
-        _param_mapping(fs.pipeline, x_train, y_train)
+        param_mapping(fs.pipeline, x_train, y_train)
 
     assert str(e.value).startswith("Attempted to index list")
 
@@ -548,9 +541,9 @@ def test_foreshadow_param_optimize_invalid_dict_key():
     from sklearn.model_selection import GridSearchCV
     from sklearn.pipeline import Pipeline
 
-    from foreshadow import Foreshadow
+    from foreshadow.foreshadow import Foreshadow
     from foreshadow.preprocessor import Preprocessor
-    from foreshadow.optimizers.param_mapping import _param_mapping
+    from foreshadow.optimizers.param_mapping import param_mapping
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
@@ -573,7 +566,7 @@ def test_foreshadow_param_optimize_invalid_dict_key():
     x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
 
     with pytest.raises(ValueError) as e:
-        _param_mapping(fs.pipeline, x_train, y_train)
+        param_mapping(fs.pipeline, x_train, y_train)
 
     assert str(e.value) == "Invalid JSON Key fake in {}"
 
@@ -585,7 +578,7 @@ def test_core_foreshadow_example_regression():
     from sklearn.linear_model import LinearRegression
     from sklearn.metrics import r2_score
     from sklearn.model_selection import train_test_split
-    import foreshadow as fs
+    from foreshadow.foreshadow import Foreshadow
 
     np.random.seed(0)
     boston = load_boston()
@@ -595,7 +588,7 @@ def test_core_foreshadow_example_regression():
         bostonX_df, bostony_df, test_size=0.2
     )
 
-    model = fs.Foreshadow(estimator=LinearRegression())
+    model = Foreshadow(estimator=LinearRegression())
     model.fit(X_train, y_train)
     score = r2_score(y_test, model.predict(X_test))
     print("Boston score: %f" % score)
@@ -608,7 +601,7 @@ def test_core_foreshadow_example_classification():
     from sklearn.linear_model import LogisticRegression
     from sklearn.metrics import f1_score
     from sklearn.model_selection import train_test_split
-    import foreshadow as fs
+    from foreshadow.foreshadow import Foreshadow
 
     np.random.seed(0)
     iris = load_iris()
@@ -618,7 +611,7 @@ def test_core_foreshadow_example_classification():
         irisX_df, irisy_df, test_size=0.2
     )
 
-    model = fs.Foreshadow(estimator=LogisticRegression())
+    model = Foreshadow(estimator=LogisticRegression())
     model.fit(X_train, y_train)
     score = f1_score(y_test, model.predict(X_test), average="weighted")
     print("Iris score: %f" % score)

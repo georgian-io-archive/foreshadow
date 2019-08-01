@@ -11,7 +11,7 @@ from foreshadow.preprocessor import Preprocessor
 config_dict = {"StandardScaler.with_std": [True, False]}
 
 
-def _param_mapping(pipeline, X_df, y_df):
+def param_mapping(pipeline, X_df, y_df):
     """Generate parameter search space.
 
     Generated using an unfit pipeline and sample X and Y data. This pulls
