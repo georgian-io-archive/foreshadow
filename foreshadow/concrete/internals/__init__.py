@@ -1,5 +1,4 @@
 """Custom foreshadow defined transformers."""
-# TODO flake fails here, figure out why.
 from foreshadow.concrete.internals.boxcox import BoxCox  # noqa: F401
 from foreshadow.concrete.internals.cleaners import *  # noqa: F403, F401
 from foreshadow.concrete.internals.cleaners import __all__ as c_all
@@ -27,6 +26,10 @@ from foreshadow.concrete.internals.uncommonremover import (  # noqa: F403, F401
     UncommonRemover,
 )
 
+
+# TODO flake fails here, figure out why.
+#  hypothesis: flake8 uses the __repr__ which is modified to be
+#  DFTransformer.HTMLRemover etc.
 
 __all__ = [
     "BoxCox",
