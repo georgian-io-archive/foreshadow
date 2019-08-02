@@ -37,6 +37,8 @@ def test_foreshadow_X_preparer_custom():
     dp = DataPreparer(column_sharer=ColumnSharer())
     foreshadow = Foreshadow(X_preparer=dp)
     assert type(foreshadow.X_preparer) == dp
+    # TODO(@Adithya) how would this have passed before?
+    #  What is it testing?
 
 
 def test_foreshadow_X_preparer_error():
@@ -461,7 +463,7 @@ def test_foreshadow_param_optimize_no_config():
     assert results[0].keys() == truth[0].keys()
 
 
-@pytest.mark.skip("borken until parameter optimization is implemented")
+@pytest.mark.skip("broken until parameter optimization is implemented")
 def test_foreshadow_param_optimize_no_combinations():
     import pickle
 
@@ -472,8 +474,7 @@ def test_foreshadow_param_optimize_no_combinations():
     from sklearn.pipeline import Pipeline
 
     from foreshadow.foreshadow import Foreshadow
-    from foreshadow.preprocessor import DataPreparer
-    from foreshadow.optimizers.param_mapping import param_mapping
+    from foreshadow.preparer import DataPreparer, ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path("configs", "search_space_no_combo.pkl")
@@ -481,7 +482,8 @@ def test_foreshadow_param_optimize_no_combinations():
     data = pd.read_csv(boston_path)
 
     fs = Foreshadow(
-        DataPreparer(from_json={}), False, LinearRegression(), GridSearchCV
+        DataPreparer(column_sharer=ColumnSharer(),
+                     from_json={}), False, LinearRegression(), GridSearchCV
     )
 
     fs.pipeline = Pipeline(
@@ -500,7 +502,7 @@ def test_foreshadow_param_optimize_no_combinations():
     assert results[0].keys() == truth[0].keys()
 
 
-@pytest.mark.skip("borken until parameter optimization is implemented")
+@pytest.mark.skip("broken until parameter optimization is implemented")
 def test_foreshadow_param_optimize_invalid_array_idx():
     import json
 
@@ -512,8 +514,7 @@ def test_foreshadow_param_optimize_invalid_array_idx():
     from sklearn.pipeline import Pipeline
 
     from foreshadow.foreshadow import Foreshadow
-    from foreshadow.preprocessor import DataPreparer
-    from foreshadow.optimizers.param_mapping import param_mapping
+    from foreshadow.preparer import DataPreparer, ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path("configs", "invalid_optimizer_config.json")
@@ -522,7 +523,8 @@ def test_foreshadow_param_optimize_invalid_array_idx():
     cfg = json.load(open(test_path, "r"))
 
     fs = Foreshadow(
-        DataPreparer(from_json=cfg), False, LinearRegression(), GridSearchCV
+        DataPreparer(ColumnSharer(), from_json=cfg), False, LinearRegression(),
+        GridSearchCV
     )
 
     fs.pipeline = Pipeline(
@@ -540,7 +542,7 @@ def test_foreshadow_param_optimize_invalid_array_idx():
     assert str(e.value).startswith("Attempted to index list")
 
 
-@pytest.mark.skip("borken until parameter optimization is implemented")
+@pytest.mark.skip("broken until parameter optimization is implemented")
 def test_foreshadow_param_optimize_invalid_dict_key():
     import pandas as pd
     from sklearn.linear_model import LinearRegression
@@ -549,15 +551,15 @@ def test_foreshadow_param_optimize_invalid_dict_key():
     from sklearn.pipeline import Pipeline
 
     from foreshadow.foreshadow import Foreshadow
-    from foreshadow.preprocessor import DataPreparer
-    from foreshadow.optimizers.param_mapping import param_mapping
+    from foreshadow.preparer import DataPreparer, ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
     data = pd.read_csv(boston_path)
 
     fs = Foreshadow(
-        DataPreparer(from_json={"combinations": [{"fake.fake": "[1,2]"}]}),
+        DataPreparer(column_sharer=ColumnSharer(),
+                     from_json={"combinations": [{"fake.fake": "[1,2]"}]}),
         False,
         LinearRegression(),
         GridSearchCV,
@@ -578,7 +580,7 @@ def test_foreshadow_param_optimize_invalid_dict_key():
     assert str(e.value) == "Invalid JSON Key fake in {}"
 
 
-def test_core_foreshadow_example_regression():
+def test_core_foreshadow_example_regression():  # not sure why this is failing
     import numpy as np
     import pandas as pd
     from sklearn.datasets import load_boston
@@ -601,7 +603,8 @@ def test_core_foreshadow_example_regression():
     print("Boston score: %f" % score)
 
 
-def test_core_foreshadow_example_classification():
+def test_core_foreshadow_example_classification():  # not sure why this is
+    # failing
     import numpy as np
     import pandas as pd
     from sklearn.datasets import load_iris

@@ -1,3 +1,7 @@
+import pytest
+
+
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_generic_intent_is_intent():
     import pandas as pd
     from foreshadow.concrete import GenericIntent
@@ -7,6 +11,7 @@ def test_generic_intent_is_intent():
     assert GenericIntent.is_intent(X)
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_generic_intent_column_summary():
     import pandas as pd
     from foreshadow.concrete import GenericIntent
@@ -16,6 +21,7 @@ def test_generic_intent_column_summary():
     assert not GenericIntent.column_summary(X)
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_numeric_intent_is_intent():
     import pandas as pd
     from foreshadow.concrete import NumericIntent
@@ -27,6 +33,7 @@ def test_numeric_intent_is_intent():
     assert NumericIntent.is_intent(X1)
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_mode_freq():
     import numpy as np
     import pandas as pd
@@ -63,6 +70,7 @@ def test_mode_freq():
     )
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_outliers():
     import numpy as np
     import pandas as pd
@@ -84,6 +92,7 @@ def test_outliers():
     assert np.array_equal(_outliers(X).values, expected_arr)
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_numeric_intent_column_summary():
     import numpy as np
     import pandas as pd
@@ -138,6 +147,7 @@ def test_numeric_intent_column_summary():
     assert NumericIntent.column_summary(X) == expected_dict
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_categorical_intent_is_intent_numeric():
     import pandas as pd
     from foreshadow.concrete import CategoricalIntent
@@ -149,6 +159,7 @@ def test_categorical_intent_is_intent_numeric():
     assert not CategoricalIntent.is_intent(X1)
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_categorical_intent_is_intent_string():
     import pandas as pd
     from foreshadow.concrete import CategoricalIntent
@@ -158,6 +169,7 @@ def test_categorical_intent_is_intent_string():
     assert CategoricalIntent.is_intent(X)
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_standard_intent_column_summary():
     import numpy as np
     import pandas as pd
@@ -175,6 +187,7 @@ def test_standard_intent_column_summary():
     assert _standard_col_summary(X) == expected_dict
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_standard_intent_column_summary_calls():
     import numpy as np
     import pandas as pd

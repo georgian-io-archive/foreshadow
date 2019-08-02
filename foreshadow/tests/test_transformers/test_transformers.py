@@ -49,7 +49,7 @@ def test_transformer_naming_default():
 
 
 def test_transformer_parallel_invalid():
-    from foreshadow.core import ParallelProcessor
+    from foreshadow.preparer import ParallelProcessor
 
     class InvalidTransformer:
         pass
@@ -68,7 +68,7 @@ def test_transformer_parallel_invalid():
 
 def test_transformer_parallel_empty():
     import pandas as pd
-    from foreshadow.core import ParallelProcessor
+    from foreshadow.preparer import ParallelProcessor
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
@@ -97,7 +97,7 @@ def test_transformer_parallel_empty():
 def test_transformer_parallel():
     import pandas as pd
 
-    from foreshadow.core import ParallelProcessor
+    from foreshadow.preparer import ParallelProcessor
     from foreshadow.concrete import StandardScaler
 
     boston_path = get_file_path("data", "boston_housing.csv")
@@ -139,7 +139,7 @@ def test_transformer_pipeline():
     np.random.seed(1337)
 
     from foreshadow.concrete import StandardScaler as CustomScaler
-    from foreshadow.core import ParallelProcessor
+    from foreshadow.preparer import ParallelProcessor
 
     from sklearn.preprocessing import StandardScaler
     from sklearn.pipeline import FeatureUnion
@@ -194,7 +194,7 @@ def smart_child():
         Always returns StandardScaler.
 
     """
-    from foreshadow.core import SmartTransformer
+    from foreshadow.smart import SmartTransformer
     from foreshadow.concrete import StandardScaler
 
     class TestSmartTransformer(SmartTransformer):
@@ -206,7 +206,7 @@ def smart_child():
 
 def test_smarttransformer_instantiate():
     """Instantiating a SmartTransformer should fail"""
-    from foreshadow.core import SmartTransformer
+    from foreshadow.smart import SmartTransformer
 
     # Note: cannot use fixture since this is not a subclass of SmartTransformer
     with pytest.raises(TypeError) as e:

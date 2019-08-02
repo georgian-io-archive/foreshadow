@@ -89,7 +89,7 @@ def test_log_and_gui(mock_open, caplog, level, schema, outfile):
     # will use the previous call's gui_fn, meaning first_write will already
     # be set to False
     logging.gui_fn.outfile = outfile
-    path = "foreshadow.core.gui"
+    path = "foreshadow.logging.gui"
     schema = dynamic_import(schema, path)()
     schema_fields = schema.declared_fields
     details = {}
@@ -141,10 +141,10 @@ def test_simple(mock_open, caplog, level):
 
     """
     from foreshadow.utils.testing import dynamic_import
-    from foreshadow.logging import logging as logging
+    from foreshadow.logging import logging
 
     logging.set_level(level)
-    log = dynamic_import(level, "foreshadow.core.logging")
+    log = dynamic_import(level, "foreshadow.logging.logging")
     msg = "test"
     log(msg)
     assert caplog.record_tuples[0][2] == msg

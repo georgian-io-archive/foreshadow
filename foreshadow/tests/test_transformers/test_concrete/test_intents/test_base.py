@@ -1,6 +1,7 @@
 import pytest
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_call_classmethod_from_BaseIntent():
     from foreshadow.concrete import BaseIntent
 
@@ -22,6 +23,7 @@ def test_call_classmethod_from_BaseIntent():
     assert "cannot be called on BaseIntent" in str(e4.value)
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_mock_subclass_missing_abstract_methods():
     from foreshadow.concrete import BaseIntent
 
@@ -33,6 +35,7 @@ def test_mock_subclass_missing_abstract_methods():
     assert "has not implemented abstract methods" in str(e.value)
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_mock_subclass_missing_children():
     from foreshadow.concrete import BaseIntent
 
@@ -52,6 +55,7 @@ def test_mock_subclass_missing_children():
     assert "Subclass must define" in str(e.value)
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_mock_subclass_missing_single_pipeline_template():
     from foreshadow.concrete import BaseIntent
 
@@ -72,6 +76,7 @@ def test_mock_subclass_missing_single_pipeline_template():
     assert "Subclass must define" in str(e.value)
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_mock_subclass_missing_multi_pipeline_template():
     from foreshadow.concrete import BaseIntent
 
@@ -93,6 +98,7 @@ def test_mock_subclass_missing_multi_pipeline_template():
     assert "Subclass must define" in str(e.value)
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_valid_mock_subclass():
     from foreshadow.concrete import (
         _unregister_intent,
@@ -117,6 +123,7 @@ def test_valid_mock_subclass():
     _unregister_intent(TestIntent.__name__)
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_to_string():
     from foreshadow.concrete import (
         _unregister_intent,
@@ -207,6 +214,7 @@ def test_to_string():
     _unregister_intent(class_list)
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_priority_traverse():
     from foreshadow.concrete import (
         _unregister_intent,

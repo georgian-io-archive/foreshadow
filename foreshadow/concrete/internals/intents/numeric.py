@@ -8,6 +8,7 @@ from foreshadow.metrics import (
     is_numeric,
     is_string,
 )
+import pandas as pd
 
 
 class Numeric(BaseIntent):

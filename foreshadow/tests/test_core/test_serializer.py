@@ -23,7 +23,7 @@ def base_serializer_setup(mocker):
             test_deserialize mock
 
     """
-    from foreshadow.core.serializers import BaseTransformerSerializer
+    from foreshadow.serializers import BaseTransformerSerializer
 
     class TestSerializable(BaseTransformerSerializer):
         OPTIONS = ["test"]
@@ -104,7 +104,7 @@ def concrete_serializer(request, mocker):
     """
     from importlib import import_module
 
-    from foreshadow.core.serializers import ConcreteSerializerMixin
+    from foreshadow.serializers import ConcreteSerializerMixin
 
     module, tf_class_name, data = request.param
 
@@ -175,7 +175,7 @@ def test_concrete_disk_ser(concrete_serializer, mocker):
     mocker.patch("builtins.open", m, create=True)
     test_path = "./test/path"
     mocker.patch(
-        ("foreshadow.core.serializers._pickle_cache_path"),
+        ("foreshadow.serializers._pickle_cache_path"),
         return_value=test_path,
     )
     ser = concrete_serializer.serialize(method="disk")
@@ -248,20 +248,20 @@ def test_concrete_json(file_ser_method, concrete_serializer, tmp_path):
 
 
 def test_pipeline_serializable_dict_ser(concrete_serializer, mocker):
-    from foreshadow.core.serializers import PipelineSerializerMixin
+    from foreshadow.serializers import PipelineSerializerMixin
 
     p = PipelineSerializerMixin()
     mocker.patch(
-        "foreshadow.core.serializers.PipelineSerializerMixin.get_params",
+        "foreshadow.serializers.PipelineSerializerMixin.get_params",
         return_value={"steps": [("test", concrete_serializer)]},
         create=True,
     )
     mocker.patch(
-        "foreshadow.core.serializers.get_transformer",
+        "foreshadow.serializers.get_transformer",
         return_value=concrete_serializer.__class__,
     )
     mocker.patch(
-        "foreshadow.core.serializers.PipelineSerializerMixin.__init__",
+        "foreshadow.serializers.PipelineSerializerMixin.__init__",
         return_value=None,
     )
 
@@ -272,10 +272,10 @@ def test_pipeline_serializable_dict_ser(concrete_serializer, mocker):
 
 
 def test_deserialize_function(concrete_serializer, mocker):
-    from foreshadow.core.serializers import deserialize
+    from foreshadow.serializers import deserialize
 
     mocker.patch(
-        "foreshadow.core.serializers.get_transformer",
+        "foreshadow.serializers.get_transformer",
         return_value=concrete_serializer.__class__,
     )
     ser = concrete_serializer.serialize()
@@ -285,11 +285,11 @@ def test_deserialize_function(concrete_serializer, mocker):
 
 
 def test_concrete_custom_class(concrete_serializer, mocker):
-    from foreshadow.core.serializers import deserialize
-    from foreshadow.core.serializers import _pickle_inline_repr
+    from foreshadow.serializers import deserialize
+    from foreshadow.serializers import _pickle_inline_repr
 
     mocker.patch(
-        "foreshadow.core.serializers.ConcreteSerializerMixin.pickle_class_def",
+        "foreshadow.serializers.ConcreteSerializerMixin.pickle_class_def",
         return_value={
             "_pickled_class": _pickle_inline_repr(
                 concrete_serializer.__class__

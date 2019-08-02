@@ -33,6 +33,7 @@ from foreshadow.concrete.internals.notransform import NoTransform
 from foreshadow.concrete.internals.intents import Categoric
 from foreshadow.concrete.internals.intents import Numeric
 from foreshadow.concrete.internals.intents import Text
+from foreshadow.concrete.internals.intents import BaseIntent
 
 
 __all__ = [
@@ -55,4 +56,5 @@ __all__ = [
     "Categoric",
     "Text",
     "Numeric",
+    "BaseIntent",
 ]

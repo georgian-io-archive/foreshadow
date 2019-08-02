@@ -8,6 +8,7 @@ from foreshadow.metrics import (
 )
 from collections import namedtuple
 import pandas as pd
+from foreshadow.utils import check_df
 
 
 CleanerReturn = namedtuple("CleanerReturn", ["row", "match_lens"])

@@ -1,6 +1,7 @@
 import pytest
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_unregister():
     from foreshadow.concrete import BaseIntent
     from foreshadow.concrete import (
@@ -53,6 +54,7 @@ def test_unregister():
     _unregister_intent([TestIntent1.__name__, TestIntent.__name__])
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_unregister_invalid_input():
     from foreshadow.concrete import (
         _unregister_intent,
@@ -64,6 +66,7 @@ def test_unregister_invalid_input():
     assert str(e.value) == "Input must be either a string or a list of strings"
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_unregister_intent_does_not_exist():
     from foreshadow.concrete import (
         _unregister_intent,
@@ -81,6 +84,7 @@ def test_unregister_intent_does_not_exist():
     assert err_str in str(e2.value)
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_registry_eval():
     from foreshadow.concrete import BaseIntent
     from foreshadow.concrete import (
@@ -106,6 +110,7 @@ def test_registry_eval():
     _unregister_intent(TestIntent.__name__)
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_samename_subclass():
     from foreshadow.concrete import BaseIntent
     from foreshadow.concrete import (
@@ -148,6 +153,7 @@ def test_samename_subclass():
     )
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_invalid_transfomer_template_defenition_length():
     from foreshadow.concrete import BaseIntent
     from foreshadow.smart import Scaler
@@ -189,6 +195,7 @@ def test_invalid_transfomer_template_defenition_length():
     assert str(e2.value) == ("Malformed transformer entry in template")
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_invalid_transfomer_template_defenition_bad_defenition():
     from foreshadow.concrete import BaseIntent
 
@@ -228,6 +235,7 @@ def test_invalid_transfomer_template_defenition_bad_defenition():
     assert str(e2.value) == ("Malformed transformer entry in template")
 
 
+@pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_valid_intent_registration():
     from foreshadow.concrete import (
         BaseIntent,

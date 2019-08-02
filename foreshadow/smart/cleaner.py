@@ -3,6 +3,7 @@
 from .smart import SmartTransformer
 from foreshadow.utils import dynamic_import
 from foreshadow.concrete.internals import NoTransform
+from foreshadow.logging import logging
 
 
 class Cleaner(SmartTransformer):

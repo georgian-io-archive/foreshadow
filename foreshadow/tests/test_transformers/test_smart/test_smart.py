@@ -20,7 +20,7 @@ def test_smart_scaler_normal():
     import scipy.stats as ss
 
     from foreshadow.smart import Scaler
-    from foreshadow.concrete import StandardScaler
+    from foreshadow.concrete.externals import StandardScaler
 
     np.random.seed(0)
     normal_data = ss.norm.rvs(size=100)
@@ -35,7 +35,7 @@ def test_smart_scaler_unifrom():
     import scipy.stats as ss
 
     from foreshadow.smart import Scaler
-    from foreshadow.concrete import MinMaxScaler
+    from foreshadow.concrete.externals import MinMaxScaler
 
     np.random.seed(0)
     uniform_data = ss.uniform.rvs(size=100)
@@ -60,7 +60,7 @@ def test_smart_encoder_less_than_30_levels():
     import numpy as np
 
     from foreshadow.smart import CategoricalEncoder
-    from foreshadow.concrete import OneHotEncoder
+    from foreshadow.concrete.externals import OneHotEncoder
 
     np.random.seed(0)
     leq_30_random_data = np.random.choice(30, size=500)
@@ -74,7 +74,7 @@ def test_smart_encoder_more_than_30_levels():
     import numpy as np
 
     from foreshadow.smart import CategoricalEncoder
-    from foreshadow.concrete import HashingEncoder
+    from foreshadow.concrete.externals import HashingEncoder
 
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
@@ -88,7 +88,7 @@ def test_smart_encoder_more_than_30_levels_that_reduces():
     import numpy as np
 
     from foreshadow.smart import CategoricalEncoder
-    from foreshadow.concrete import OneHotEncoder
+    from foreshadow.concrete.externals import OneHotEncoder
 
     np.random.seed(0)
     gt_30_random_data = np.concatenate(
@@ -106,7 +106,7 @@ def test_smart_encoder_y_var():
     import pandas as pd
 
     from foreshadow.smart import CategoricalEncoder
-    from foreshadow.concrete import (
+    from foreshadow.concrete.internals import (
         FixedLabelEncoder as LabelEncoder,
     )
 
@@ -219,10 +219,11 @@ def test_smart_impute_multiple_none():
 
 
 def test_preprocessor_hashencoder_no_name_collision():
+    # This test is expected to only do up to DataCleaning right now.
     import uuid
     import numpy as np
     import pandas as pd
-    from foreshadow.preprocessor import Preprocessor
+    from foreshadow.preparer import DataPreparer, ColumnSharer
 
     cat1 = [str(uuid.uuid4()) for _ in range(40)]
     cat2 = [str(uuid.uuid4()) for _ in range(40)]
@@ -234,8 +235,8 @@ def test_preprocessor_hashencoder_no_name_collision():
         }
     )
 
-    processor = Preprocessor()
-    output = processor.fit_transform(input)
+    dp = DataPreparer(column_sharer=ColumnSharer())
+    output = dp.fit_transform(input)
     # since the number of categories for each column are above 30,
     # HashingEncoder will be used with 30 components. The transformed output
     # should have in total 60 unique names.
@@ -245,7 +246,7 @@ def test_preprocessor_hashencoder_no_name_collision():
 def test_smart_encoder_delimmited():
     import pandas as pd
     from foreshadow.smart import CategoricalEncoder
-    from foreshadow.concrete import DummyEncoder
+    from foreshadow.concrete.internals import DummyEncoder
 
     data = pd.DataFrame({"test": ["a", "a,b,c", "a,b", "a,c"]})
     smart_coder = CategoricalEncoder()
@@ -255,7 +256,7 @@ def test_smart_encoder_delimmited():
 def test_smart_encoder_more_than_30_levels_with_overwritten_cutoff():
     import numpy as np
     from foreshadow.smart import CategoricalEncoder
-    from foreshadow.concrete import OneHotEncoder
+    from foreshadow.concrete.externals import OneHotEncoder
 
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
@@ -317,13 +318,13 @@ def test_smart_financial_cleaner_eu():
     assert np.all((out == expected) | (pd.isnull(out) == pd.isnull(expected)))
 
 
-def test_smart_text():
+def test_smart_text():  # not sure why this is broken.
     import numpy as np
     import pandas as pd
 
     from foreshadow.smart import TextEncoder
-    from foreshadow.concrete import FixedTfidfVectorizer
-    from foreshadow.concrete import HTMLRemover
+    from foreshadow.concrete.internals import FixedTfidfVectorizer
+    from foreshadow.concrete.internals import HTMLRemover
 
     X1 = pd.DataFrame(["abc", "def", "1321", "tester"])
     tf1 = TextEncoder().fit(X1)
