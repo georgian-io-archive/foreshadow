@@ -1,3 +1,4 @@
+"""Intents package used by IntentMapper PreparerStep."""
 from foreshadow.intents.base import BaseIntent
 from foreshadow.intents.categorical import Categoric
 from foreshadow.intents.numeric import Numeric

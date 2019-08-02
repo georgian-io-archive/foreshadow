@@ -32,9 +32,6 @@ def get_cache_path():
     Note:
         This function also makes the directory if it does not already exist.
 
-    Args:
-        path (str): A path to override the cache save directory path.
-
     Returns:
         str; The path to the cache directory.
 
