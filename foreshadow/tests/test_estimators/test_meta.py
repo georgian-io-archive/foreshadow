@@ -31,9 +31,7 @@ def test_metaestimator_predict_proba():
     from sklearn.model_selection import train_test_split
 
     from foreshadow.estimators import MetaEstimator
-    from foreshadow.transformers.concrete import (
-        FixedLabelEncoder as LabelEncoder,
-    )
+    from foreshadow.concrete import FixedLabelEncoder as LabelEncoder
 
     np.random.seed(0)
 
@@ -57,9 +55,7 @@ def test_metaestimator_score():
     from sklearn.model_selection import train_test_split
 
     from foreshadow.estimators import MetaEstimator
-    from foreshadow.transformers.concrete import (
-        FixedLabelEncoder as LabelEncoder,
-    )
+    from foreshadow.concrete import FixedLabelEncoder as LabelEncoder
 
     np.random.seed(0)
 

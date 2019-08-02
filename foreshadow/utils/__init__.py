@@ -6,6 +6,7 @@ from foreshadow.utils.common import (
     get_config_path,
     get_transformer,
 )
+from foreshadow.utils.testing import dynamic_import
 from foreshadow.utils.validation import (
     PipelineStep,
     check_df,
@@ -28,4 +29,5 @@ __all__ = [
     "check_transformer_imports",
     "is_transformer",
     "is_wrapped",
+    "dynamic_import",
 ]

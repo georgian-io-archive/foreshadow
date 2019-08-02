@@ -1,27 +1,8 @@
-"""Intent slotting for columns."""
-from foreshadow.intents.base import (
-    BaseIntent,
-    PipelineTemplateEntry,
-    TransformerEntry,
-)
-from foreshadow.intents.general import (
-    CategoricalIntent,
-    GenericIntent,
-    NumericIntent,
-    TextIntent,
-)
-from foreshadow.intents.registry import registry_eval
-from foreshadow.intents.subnumeric import FinancialIntent
+"""Intents package used by IntentMapper PreparerStep."""
+from .base import BaseIntent
+from .categorical import Categoric
+from .numeric import Numeric
+from .text import Text
 
 
-__all__ = [
-    "BaseIntent",
-    "PipelineTemplateEntry",
-    "TransformerEntry",
-    "CategoricalIntent",
-    "GenericIntent",
-    "NumericIntent",
-    "registry_eval",
-    "FinancialIntent",
-    "TextIntent",
-]
+__all__ = ["Categoric", "Numeric", "Text", "BaseIntent"]
