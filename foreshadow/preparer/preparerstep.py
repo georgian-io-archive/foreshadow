@@ -406,9 +406,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             columns to a single smart transformer (for instance,
             for dimensionality reduction).
 
-        dim 3: The number of inputs to each SmartTransformer. Defines the
-        width of the input space (the number of columns being passed).
-
+        To have a None step, pass in [None].
 
         This data structure is constructed by using PreparerMapping, to
         more easily align with user configuration and serialization. The outer

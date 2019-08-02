@@ -1,7 +1,7 @@
 """Steps for DataPreparer object."""
 
-from foreshadow.preparer.steps.cleaner import CleanerMapper
-from foreshadow.preparer.steps.mapper import IntentMapper
+from .cleaner import CleanerMapper
+from .mapper import IntentMapper
 
 
 __all__ = ["CleanerMapper", "IntentMapper"]

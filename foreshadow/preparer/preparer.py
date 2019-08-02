@@ -2,8 +2,8 @@
 
 from sklearn.pipeline import Pipeline
 
-from foreshadow.intents import IntentMapper
 from foreshadow.preparer.pipeline import PipelineSerializerMixin
+from foreshadow.preparer.steps import IntentMapper
 from foreshadow.preparer.steps.cleaner import CleanerMapper
 
 
