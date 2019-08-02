@@ -148,16 +148,16 @@ def check_transformer_imports(printout=True):
             transformers
 
     """
-    import foreshadow.transformers.concrete as conc
+    import foreshadow.concrete as conc
 
     if printout:
         print(
             "Loaded {} transformer plugins:\n{}".format(
-                len(conc.classes), conc.classes
+                len(conc.__all__), conc.__all__
             )
         )
 
-    return conc.classes
+    return conc.__all__
 
 
 def is_transformer(value, method="isinstance"):

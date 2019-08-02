@@ -26,14 +26,11 @@ def get_config_path():
     return ret_path
 
 
-def get_cache_path(path=None):
+def get_cache_path():
     """Get the cache path which is in the config directory.
 
     Note:
         This function also makes the directory if it does not already exist.
-
-    Args:
-        path (str): A path to override the cache save directory path.
 
     Returns:
         str; The path to the cache directory.
@@ -73,10 +70,9 @@ def get_transformer(class_name, source_lib=None):
         sources = OrderedDict(
             (source, import_module(source))
             for source in [
-                "foreshadow.newintents.intents",
-                "foreshadow.transformers.concrete",
-                "foreshadow.transformers.smart",
-                "foreshadow.transformers.core",
+                "foreshadow.concrete",
+                "foreshadow.smart",
+                "foreshadow.intents",
             ]
         )
 
