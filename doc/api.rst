@@ -9,9 +9,9 @@ Foreshadow
    :members:
    :undoc-members:
 
-Preprocessor
+dp
 ------------
-.. automodule:: foreshadow.preprocessor
+.. automodule:: foreshadow.dp
    :members:
    :undoc-members:
 

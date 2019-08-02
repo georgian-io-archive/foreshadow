@@ -13,7 +13,7 @@ def test_gui_event(mock_open, event_data):
         event_data: the data to load
 
     """
-    from foreshadow.core.gui import GuiEvent
+    from foreshadow.logging.gui import GuiEvent
     from datetime import datetime
 
     schema = GuiEvent()
@@ -54,7 +54,7 @@ def test_metric_schema(mock_open, metric_data, expected):
         expected: expected output from schema.load
 
     """
-    from foreshadow.core.gui import MetricSchema
+    from foreshadow.logging.gui import MetricSchema
 
     schema = MetricSchema()
     data = schema.load(metric_data).data
@@ -82,7 +82,7 @@ def test_smart_decision(mock_open, event_data):
         event_data: the data to load
 
     """
-    from foreshadow.core.gui import SmartDecisionSchema
+    from foreshadow.logging.gui import SmartDecisionSchema
 
     schema = SmartDecisionSchema()
     data = schema.load(event_data).data

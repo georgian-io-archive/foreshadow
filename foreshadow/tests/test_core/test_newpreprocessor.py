@@ -13,8 +13,8 @@ def test_preprocessor_none_config(mocker):
     """
     import numpy as np
     import pandas as pd
-    from foreshadow.core.column_sharer import ColumnSharer
-    from foreshadow.core.newpreprocessor import Preprocessor
+    from foreshadow.preparer import ColumnSharer
+    from foreshadow.preparer import Preprocessor
 
     from sklearn.base import BaseEstimator, TransformerMixin
 
@@ -32,12 +32,12 @@ def test_preprocessor_none_config(mocker):
     }
 
     mocker.patch(
-        "foreshadow.core.newpreprocessor.resolve_config",
+        "foreshadow.preparer.resolve_config",
         return_value=dummy_config,
         create=True,
     )
     mocker.patch(
-        "foreshadow.core.newpreprocessor.Resolver.pick_transformer",
+        "foreshadow.preparer.Resolver.pick_transformer",
         return_value=DummyIntent(),
         create=True,
     )
@@ -61,12 +61,12 @@ def test_preprocessor_numbers(mocker):
     """
     import numpy as np
     import pandas as pd
-    from foreshadow.core.column_sharer import ColumnSharer
-    from foreshadow.core.newpreprocessor import Preprocessor
+    from foreshadow.preparer import ColumnSharer
+    from foreshadow.preparer import Preprocessor
 
     from sklearn.base import BaseEstimator, TransformerMixin
 
-    from foreshadow.transformers.concrete import StandardScaler
+    from foreshadow.concrete import StandardScaler
 
     class DummyIntent(BaseEstimator, TransformerMixin):
         def fit(self, X, y=None, **fit_params):
@@ -82,19 +82,19 @@ def test_preprocessor_numbers(mocker):
     }
 
     mocker.patch(
-        "foreshadow.core.newpreprocessor.resolve_config",
+        "foreshadow.preparer.steps.preprocessor.resolve_config",
         return_value=dummy_config,
         create=True,
     )
     mocker.patch(
-        "foreshadow.core.newpreprocessor.Resolver.pick_transformer",
+        "foreshadow.smart.intentresolver.IntentResolver.pick_transformer",
         return_value=DummyIntent(),
         create=True,
     )
 
     data = pd.DataFrame({"financials": np.arange(10)})
     cs = ColumnSharer()
-    p = Preprocessor(cs)
+    p = Preprocessor(column_sharer=cs)
     p = p.fit(data)
     tf_data = p.transform(data)
 
