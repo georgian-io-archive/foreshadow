@@ -14,6 +14,9 @@ class Preprocessor(PreparerStep):
 
     """
 
+    # TODO: create column_sharer if not exists in PreparerStep, this is pending
+    # Chris's merge so I can take advantage of new core API
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, use_single_pipeline=True, **kwargs)
 
@@ -28,10 +31,15 @@ class Preprocessor(PreparerStep):
                 intent = self.column_sharer["intent", c]
 
             transformers_class_list = resolve_config()[intent]["preprocessor"]
-            transformer_list = [
-                tc()  # TODO: Allow kwargs in config
-                for tc in transformers_class_list
-            ]
+            if (transformers_class_list is not None) or (
+                len(transformers_class_list) > 0
+            ):
+                transformer_list = [
+                    tc()  # TODO: Allow kwargs in config
+                    for tc in transformers_class_list
+                ]
+            else:
+                transformer_list = None  # None or []
 
             mapping[i] = {"inputs": ([c],), "steps": transformer_list}
 

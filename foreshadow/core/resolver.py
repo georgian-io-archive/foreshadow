@@ -78,6 +78,8 @@ class Resolver(SmartTransformer):
             **kwargs: params to resolve
 
         """
+        # Override the SmartTransformer resolve method to allow the setting of
+        # column info sharer data when resolving.
         super().resolve(X, *args, **kwargs)
         column_name = X.columns[0]
         self.column_sharer[
