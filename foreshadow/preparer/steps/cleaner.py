@@ -1,5 +1,4 @@
 """Cleaner module for handling the cleaning and shaping of data."""
-from collections import namedtuple
 
 from foreshadow.preparer.preparerstep import PreparerStep
 from foreshadow.smart import Cleaner, Flatten

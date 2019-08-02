@@ -606,7 +606,9 @@ def test_preprocessor_make_pipeline():
         .steps[1][PipelineStep["CLASS"]]
         .transformer_list[0][PipelineStep["CLASS"]]
         .steps
-    ) == str(registry_eval("TestGenericIntent").multi_pipeline())  # noqa: F821
+    ) == str(
+        registry_eval("TestGenericIntent").multi_pipeline()  # noqa: F821
+    )
 
     assert (
         dp.pipeline.steps[1][PipelineStep["CLASS"]].steps[2][

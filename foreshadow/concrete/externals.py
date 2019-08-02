@@ -9,7 +9,7 @@ from category_encoders import HashingEncoder, OneHotEncoder  # noqa: F401
 from sklearn.decomposition import PCA  # noqa: F401
 from sklearn.feature_extraction.text import (  # noqa: F401
     TfidfTransformer,
-    TfidfVectorizer
+    TfidfVectorizer,
 )
 from sklearn.preprocessing import (  # noqa: F401
     Imputer,
@@ -43,8 +43,11 @@ def _get_modules(classes, globals_, mname):  # TODO auto import all
         The list of wrapped transformers.
 
     """
-    transformers = [cls for cls in classes if
-                    is_transformer(cls, method="issubclass")]  # noqa: F821
+    transformers = [
+        cls
+        for cls in classes
+        if is_transformer(cls, method="issubclass")  # noqa: F821
+    ]
 
     for t in transformers:
         copied_t = type(t.__name__, (t, *t.__bases__), dict(t.__dict__))
