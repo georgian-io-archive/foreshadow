@@ -39,8 +39,8 @@ print(classification_report(y_test, y_pred))
 print("Accuracy = %f" % accuracy_score(y_test, y_pred))
 
 # Serialize the pipeline
-x_proc = model.X_preprocessor.serialize()
-y_proc = model.y_preprocessor.serialize()
+x_proc = model.X_preparer.serialize()
+y_proc = model.y_preparer.serialize()
 
 # Write the serialized pipelines to file
 json.dump(x_proc, open("adult_x_proc_searched.json", "w"), indent=4)

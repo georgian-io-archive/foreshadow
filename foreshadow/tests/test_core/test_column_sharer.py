@@ -15,7 +15,7 @@ def test_column_sharer_create(args, kwargs):
 
     """
     from collections import MutableMapping
-    from foreshadow.core.column_sharer import ColumnSharer
+    from foreshadow.preparer.column_sharer import ColumnSharer
 
     cs = ColumnSharer(*args, **kwargs)
     assert isinstance(cs, MutableMapping)
@@ -37,7 +37,7 @@ def test_column_sharer_convert_key(key, expected):
         expected: error if error, result if result.
 
     """
-    from foreshadow.core.column_sharer import ColumnSharer
+    from foreshadow.preparer.column_sharer import ColumnSharer
 
     cs = ColumnSharer()
     try:  # assume expected is an error
@@ -69,7 +69,7 @@ def test_column_sharer_getitem(key, item_to_set, expected):
         expected: the expected result or error
 
     """
-    from foreshadow.core.column_sharer import ColumnSharer
+    from foreshadow.preparer.column_sharer import ColumnSharer
 
     cs = ColumnSharer()
     if len(key) == 1:
@@ -117,7 +117,7 @@ def test_column_sharer_checkkey(capsys, key, expected):
         expected: the expected result or error
 
     """
-    from foreshadow.core.column_sharer import ColumnSharer
+    from foreshadow.preparer.column_sharer import ColumnSharer
 
     cs = ColumnSharer()
     cs.check_key(key)
@@ -144,7 +144,7 @@ def test_column_sharer_delitem(key, expected):
         expected: the expected result or error
 
     """
-    from foreshadow.core.column_sharer import ColumnSharer
+    from foreshadow.preparer.column_sharer import ColumnSharer
 
     cs = ColumnSharer()
     cs.store["domain"] = {"test": True}
@@ -182,7 +182,7 @@ def test_column_sharer_iter(store):
         store: the internal dictionary to use.
 
     """
-    from foreshadow.core.column_sharer import ColumnSharer
+    from foreshadow.preparer.column_sharer import ColumnSharer
 
     cs = ColumnSharer()
     cs.store = store
@@ -221,7 +221,7 @@ def test_column_sharer_setitem(capsys, key, item_to_set, expected, warning):
         warning: True to check if should raise warning. False to not.
 
     """
-    from foreshadow.core.column_sharer import ColumnSharer
+    from foreshadow.preparer.column_sharer import ColumnSharer
 
     cs = ColumnSharer()
     if len(key) == 1:
@@ -267,7 +267,7 @@ def test_column_sharer_len(store, expected):
         store: the internal dictionary to use.
 
     """
-    from foreshadow.core.column_sharer import ColumnSharer
+    from foreshadow.preparer.column_sharer import ColumnSharer
 
     cs = ColumnSharer()
     cs.store = store
