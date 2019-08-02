@@ -1,8 +1,9 @@
 """SmartFlattener for the CleanerMapper step in DataPreparer."""
-from .smart import SmartTransformer
-from foreshadow.utils import dynamic_import
 import foreshadow.logging as logging
 from foreshadow.concrete.internals import NoTransform
+from foreshadow.utils import dynamic_import
+
+from .smart import SmartTransformer
 
 
 class Flatten(SmartTransformer):
@@ -23,15 +24,11 @@ class Flatten(SmartTransformer):
             Best data flattening transformer
 
         """
-        from foreshadow.concrete.internals import (
-            __all__ as flatteners,
-        )
+        from foreshadow.concrete.internals import __all__ as flatteners
 
         flatteners = [
             (
-                dynamic_import(
-                    flattener, "foreshadow.concrete.internals"
-                ),
+                dynamic_import(flattener, "foreshadow.concrete.internals"),
                 flattener,
             )
             for flattener in flatteners

@@ -4,9 +4,7 @@ import pytest
 @pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_unregister():
     from foreshadow.concrete import BaseIntent
-    from foreshadow.concrete import (
-        _unregister_intent,
-    )
+    from foreshadow.concrete import _unregister_intent
 
     class TestIntent(BaseIntent):
         dtype = "TEST"
@@ -56,9 +54,7 @@ def test_unregister():
 
 @pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_unregister_invalid_input():
-    from foreshadow.concrete import (
-        _unregister_intent,
-    )
+    from foreshadow.concrete import _unregister_intent
 
     with pytest.raises(ValueError) as e:
         _unregister_intent(123)
@@ -68,9 +64,7 @@ def test_unregister_invalid_input():
 
 @pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_unregister_intent_does_not_exist():
-    from foreshadow.concrete import (
-        _unregister_intent,
-    )
+    from foreshadow.concrete import _unregister_intent
 
     with pytest.raises(ValueError) as e1:
         _unregister_intent("IntentDoesNotExist")
@@ -87,10 +81,7 @@ def test_unregister_intent_does_not_exist():
 @pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_registry_eval():
     from foreshadow.concrete import BaseIntent
-    from foreshadow.concrete import (
-        _unregister_intent,
-        registry_eval,
-    )
+    from foreshadow.concrete import _unregister_intent, registry_eval
 
     class TestIntent(BaseIntent):
         dtype = "TEST"
@@ -113,9 +104,7 @@ def test_registry_eval():
 @pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_samename_subclass():
     from foreshadow.concrete import BaseIntent
-    from foreshadow.concrete import (
-        _unregister_intent,
-    )
+    from foreshadow.concrete import _unregister_intent
 
     class TestIntent(BaseIntent):
         dtype = "TEST"
@@ -242,9 +231,7 @@ def test_valid_intent_registration():
         PipelineTemplateEntry,
         TransformerEntry,
     )
-    from foreshadow.concrete import (
-        _unregister_intent,
-    )
+    from foreshadow.concrete import _unregister_intent
     from foreshadow.smart import Scaler
     import sklearn
 

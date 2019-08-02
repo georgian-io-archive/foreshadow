@@ -1,9 +1,10 @@
 """SmartCleaner for DataPreparer step."""
 
-from .smart import SmartTransformer
-from foreshadow.utils import dynamic_import
 from foreshadow.concrete.internals import NoTransform
 from foreshadow.logging import logging
+from foreshadow.utils import dynamic_import
+
+from .smart import SmartTransformer
 
 
 class Cleaner(SmartTransformer):
@@ -31,17 +32,10 @@ class Cleaner(SmartTransformer):
             Best data cleaning transformer.
 
         """
-        from foreshadow.concrete.internals import (
-            __all__ as cleaners,
-        )
+        from foreshadow.concrete.internals import __all__ as cleaners
 
         cleaners = [
-            (
-                dynamic_import(
-                    cleaner, "foreshadow.concrete.internals"
-                ),
-                cleaner,
-            )
+            (dynamic_import(cleaner, "foreshadow.concrete.internals"), cleaner)
             for cleaner in cleaners
             if cleaner.lower().find("cleaner") != -1
         ]

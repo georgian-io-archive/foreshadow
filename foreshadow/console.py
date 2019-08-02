@@ -1,5 +1,5 @@
-# """Foreshadow console wrapper."""
-#
+"""Foreshadow console wrapper."""
+# flake8: noqa
 # import argparse
 # import json
 # import sys

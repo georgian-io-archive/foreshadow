@@ -1,13 +1,10 @@
 """Text intent."""
 
 from functools import partial
+
+from foreshadow.metrics import is_numeric, is_string, num_valid, unique_heur
+
 from .base import BaseIntent
-from foreshadow.metrics import (
-    num_valid,
-    unique_heur,
-    is_numeric,
-    is_string,
-)
 
 
 class Text(BaseIntent):
@@ -22,21 +19,27 @@ class Text(BaseIntent):
 
     def fit(self, X, y=None, **fit_params):
         """Empty fit.
+
         Args:
             X: The input data
             y: The response variable
             **fit_params: Additional parameters for the fit
+
         Returns:
             self
+
         """
         return self
 
     def transform(self, X, y=None):
         """Convert a column to a text form.
+
         Args:
             X: The input data
             y: The response variable
+
         Returns:
             A column with all rows converted to text.
+
         """
         return X.astype(str)

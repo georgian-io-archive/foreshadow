@@ -3,8 +3,9 @@ import re
 
 import pandas as pd
 
-from .base import BaseCleaner
 from foreshadow.utils.validation import check_df
+
+from .base import BaseCleaner
 
 
 def drop_transform(text):

@@ -4,8 +4,9 @@ from inspect import signature
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from foreshadow.logging import logging
 from foreshadow.concrete.internals.notransform import NoTransform
+from foreshadow.logging import logging
+
 from .parallelprocessor import ParallelProcessor
 from .pipeline import DynamicPipeline
 

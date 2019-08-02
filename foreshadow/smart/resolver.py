@@ -1,7 +1,8 @@
-"SmartResolver for ResolverMapper step."
+"""martResolver for ResolverMapper step."""
+
+from foreshadow.config import get_intents
 
 from .smart import SmartTransformer
-from foreshadow.config import get_intents
 
 
 class Resolver(SmartTransformer):

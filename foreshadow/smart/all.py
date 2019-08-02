@@ -12,28 +12,29 @@ import numpy as np
 import pandas as pd
 import scipy.stats as ss
 
-from foreshadow.preparer import SerializablePipeline
-from .smart import SmartTransformer
-from foreshadow.utils import check_df
 from foreshadow.concrete.externals import (
+    HashingEncoder,
+    MinMaxScaler,
+    OneHotEncoder,
     RobustScaler,
     StandardScaler,
-    MinMaxScaler,
     TfidfVectorizer,
-    OneHotEncoder,
-    HashingEncoder
 )
 from foreshadow.concrete.internals import (
-    ToString,
-    HTMLRemover,
-    PrepareFinancial,
-    ConvertFinancial,
     BoxCox,
-    UncommonRemover,
+    ConvertFinancial,
     DummyEncoder,
     FancyImputer,
-    FixedLabelEncoder as LabelEncoder
+    FixedLabelEncoder as LabelEncoder,
+    HTMLRemover,
+    PrepareFinancial,
+    ToString,
+    UncommonRemover,
 )
+from foreshadow.preparer import SerializablePipeline
+from foreshadow.utils import check_df
+
+from .smart import SmartTransformer
 
 
 # TODO: split this file up

@@ -173,9 +173,7 @@ def test_categorical_intent_is_intent_string():
 def test_standard_intent_column_summary():
     import numpy as np
     import pandas as pd
-    from foreshadow.concrete import (
-        _standard_col_summary,
-    )
+    from foreshadow.concrete import _standard_col_summary
 
     X = pd.DataFrame(["test"] * 5 + ["hi"] * 10 + [np.nan] * 5)
     expected_dict = {
@@ -191,10 +189,7 @@ def test_standard_intent_column_summary():
 def test_standard_intent_column_summary_calls():
     import numpy as np
     import pandas as pd
-    from foreshadow.concrete import (
-        CategoricalIntent,
-        TextIntent,
-    )
+    from foreshadow.concrete import CategoricalIntent, TextIntent
 
     X = pd.DataFrame(["test"] * 5 + ["hi"] * 10 + [np.nan] * 5)
 

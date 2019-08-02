@@ -106,9 +106,7 @@ def test_smart_encoder_y_var():
     import pandas as pd
 
     from foreshadow.smart import CategoricalEncoder
-    from foreshadow.concrete.internals import (
-        FixedLabelEncoder as LabelEncoder,
-    )
+    from foreshadow.concrete.internals import FixedLabelEncoder as LabelEncoder
 
     y_df = pd.DataFrame({"A": np.array([1, 2, 10] * 3)})
     smart_coder = CategoricalEncoder(y_var=True)

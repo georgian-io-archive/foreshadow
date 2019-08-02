@@ -5,15 +5,14 @@ from copy import deepcopy
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
+from foreshadow.logging import logging
+from foreshadow.preparer.pipeline import SerializablePipeline
 from foreshadow.utils import (
     check_df,
     get_transformer,
     is_transformer,
     is_wrapped,
 )
-
-from foreshadow.logging import logging
-from foreshadow.preparer.pipeline import SerializablePipeline
 
 
 class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):

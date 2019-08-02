@@ -426,7 +426,7 @@ def test_foreshadow_param_optimize():  # TODO: Make this test faster
     assert results[0].keys() == truth[0].keys()
 
 
-@pytest.mark.skip('broken until parameter optimization is implemented.')
+@pytest.mark.skip("broken until parameter optimization is implemented.")
 def test_foreshadow_param_optimize_no_config():
     import pickle
 
@@ -482,8 +482,10 @@ def test_foreshadow_param_optimize_no_combinations():
     data = pd.read_csv(boston_path)
 
     fs = Foreshadow(
-        DataPreparer(column_sharer=ColumnSharer(),
-                     from_json={}), False, LinearRegression(), GridSearchCV
+        DataPreparer(column_sharer=ColumnSharer(), from_json={}),
+        False,
+        LinearRegression(),
+        GridSearchCV,
     )
 
     fs.pipeline = Pipeline(
@@ -495,7 +497,7 @@ def test_foreshadow_param_optimize_no_combinations():
 
     x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
 
-    results = param_mapping(fs.pipeline, x_train, y_train)
+    results = param_mapping(fs.pipeline, x_train, y_train)  # noqa: F821
 
     truth = pickle.load(open(test_path, "rb"))
 
@@ -523,8 +525,10 @@ def test_foreshadow_param_optimize_invalid_array_idx():
     cfg = json.load(open(test_path, "r"))
 
     fs = Foreshadow(
-        DataPreparer(ColumnSharer(), from_json=cfg), False, LinearRegression(),
-        GridSearchCV
+        DataPreparer(ColumnSharer(), from_json=cfg),
+        False,
+        LinearRegression(),
+        GridSearchCV,
     )
 
     fs.pipeline = Pipeline(
@@ -537,7 +541,7 @@ def test_foreshadow_param_optimize_invalid_array_idx():
     x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
 
     with pytest.raises(ValueError) as e:
-        param_mapping(fs.pipeline, x_train, y_train)
+        param_mapping(fs.pipeline, x_train, y_train)  # noqa: F821
 
     assert str(e.value).startswith("Attempted to index list")
 
@@ -558,8 +562,10 @@ def test_foreshadow_param_optimize_invalid_dict_key():
     data = pd.read_csv(boston_path)
 
     fs = Foreshadow(
-        DataPreparer(column_sharer=ColumnSharer(),
-                     from_json={"combinations": [{"fake.fake": "[1,2]"}]}),
+        DataPreparer(
+            column_sharer=ColumnSharer(),
+            from_json={"combinations": [{"fake.fake": "[1,2]"}]},
+        ),
         False,
         LinearRegression(),
         GridSearchCV,
@@ -575,7 +581,7 @@ def test_foreshadow_param_optimize_invalid_dict_key():
     x_train, _, y_train, _ = train_test_split(x, y, test_size=0.25)
 
     with pytest.raises(ValueError) as e:
-        param_mapping(fs.pipeline, x_train, y_train)
+        param_mapping(fs.pipeline, x_train, y_train)  # noqa: F821
 
     assert str(e.value) == "Invalid JSON Key fake in {}"
 

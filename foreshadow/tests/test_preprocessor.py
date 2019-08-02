@@ -3,7 +3,7 @@ import pytest
 from foreshadow.utils.testing import get_file_path
 
 
-#TODO fix this
+# TODO fix this
 @pytest.fixture(autouse=True)
 def patch_intents(mocker):
     from copy import deepcopy
@@ -146,8 +146,10 @@ def test_preprocessor_init_json_intent_map():
         "configs", "override_column_intent_pipeline.json"
     )
 
-    proc = DataPreparer(column_sharer=ColumnSharer(),
-                        from_json=json.load(open((test_path), "r")))
+    proc = DataPreparer(
+        column_sharer=ColumnSharer(),
+        from_json=json.load(open((test_path), "r")),
+    )
 
     assert "crim" in proc._intent_map.keys()
     assert proc._intent_map["crim"].__name__ == "TestGenericIntent"
@@ -159,10 +161,10 @@ def test_preprocessor_intent_dependency_order():
 
     proc = DataPreparer(column_sharer=ColumnSharer())
     proc._intent_map = {
-        "1": registry_eval("TestIntentOne"),
-        "2": registry_eval("TestIntentTwo"),
-        "3": registry_eval("TestIntentThree"),
-        "4": registry_eval("TestGenericIntent"),
+        "1": registry_eval("TestIntentOne"),  # noqa: F821
+        "2": registry_eval("TestIntentTwo"),  # noqa: F821
+        "3": registry_eval("TestIntentThree"),  # noqa: F821
+        "4": registry_eval("TestGenericIntent"),  # noqa: F821
     }
 
     proc._build_dependency_order()
@@ -196,15 +198,15 @@ def test_preprocessor_init_json_pipeline_map():
         "configs", "override_column_intent_pipeline.json"
     )
 
-    dp = DataPreparer(column_sharer=ColumnSharer(),
-                        from_json=json.load(open((test_path), "r")))
+    dp = DataPreparer(
+        column_sharer=ColumnSharer(),
+        from_json=json.load(open((test_path), "r")),
+    )
 
     assert "crim" in dp._pipeline_map.keys()
     assert type(dp._pipeline_map["crim"]).__name__ == "SerializablePipeline"
     assert len(dp._pipeline_map["crim"].steps) == 1
-    assert (
-        dp._pipeline_map["crim"].steps[0][PipelineStep["NAME"]] == "Scaler"
-    )
+    assert dp._pipeline_map["crim"].steps[0][PipelineStep["NAME"]] == "Scaler"
 
     transformer = dp._pipeline_map["crim"].steps[0][PipelineStep["CLASS"]]
 
@@ -213,7 +215,7 @@ def test_preprocessor_init_json_pipeline_map():
     assert not transformer.with_mean
 
 
-@pytest.mark.skip('broken until serialization')
+@pytest.mark.skip("broken until serialization")
 def test_preprocessor_init_json_multi_pipeline():
     """Loads config from JSON and checks to ensure _multi_column_map was
     populated
@@ -226,8 +228,9 @@ def test_preprocessor_init_json_multi_pipeline():
 
     test_path = get_file_path("configs", "override_multi_pipeline.json")
 
-    proc = DataPreparer(column_sharer=ColumnSharer(),
-                        from_json=json.load(open(test_path,"r")))
+    proc = DataPreparer(
+        column_sharer=ColumnSharer(), from_json=json.load(open(test_path, "r"))
+    )
 
     assert len(proc._multi_column_map) == 1
 
@@ -264,8 +267,10 @@ def test_preprocessor_init_json_intent_override_multi():
 
     test_path = get_file_path("configs", "override_intent_pipeline_multi.json")
 
-    proc = DataPreparer(column_sharer=ColumnSharer(),
-                        from_json=json.load(open((test_path), "r")))
+    proc = DataPreparer(
+        column_sharer=ColumnSharer(),
+        from_json=json.load(open((test_path), "r")),
+    )
 
     assert "TestNumericIntent" in proc._intent_pipelines.keys()
 
@@ -305,8 +310,10 @@ def test_preprocessor_init_json_intent_override_single():
         "configs", "override_intent_pipeline_single.json"
     )
 
-    dp = DataPreparer(column_sharer=ColumnSharer(),
-                        from_json=json.load(open((test_path), "r")))
+    dp = DataPreparer(
+        column_sharer=ColumnSharer(),
+        from_json=json.load(open((test_path), "r")),
+    )
 
     assert "TestNumericIntent" in dp._intent_pipelines.keys()
 
@@ -351,7 +358,7 @@ def test_preprocessor_fit_map_intents_default():
     assert dp._intent_map["crim"].__name__ == "TestNumericIntent"
 
 
-@pytest.mark.skip('broken until serialization')
+@pytest.mark.skip("broken until serialization")
 def test_preprocessor_fit_map_intents_override():
     """Loads config from JSON and fits preprocessor and ensures
     config intent maps override auto-detect
@@ -370,9 +377,10 @@ def test_preprocessor_fit_map_intents_override():
 
     df = pd.read_csv(boston_path)
 
-    proc_override = DataPreparer(column_sharer=ColumnSharer(),
-                                 from_json=json.load(
-                                     open((test_path), "r")))
+    proc_override = DataPreparer(
+        column_sharer=ColumnSharer(),
+        from_json=json.load(open((test_path), "r")),
+    )
 
     proc_override.fit(df.copy(deep=True))
 
@@ -398,19 +406,16 @@ def test_preprocessor_fit_create_single_pipeline_default():
 
     for c in cols:
         assert c in dp._pipeline_map
-        assert (
-            type(dp._pipeline_map[c]).__name__
-            == "SerializablePipeline"
-        )
+        assert type(dp._pipeline_map[c]).__name__ == "SerializablePipeline"
 
-    numeric = registry_eval("TestNumericIntent")
+    numeric = registry_eval("TestNumericIntent")  # noqa: F821
 
-    assert str(list(zip(*proc_default._pipeline_map["crim"].steps))[1]) == str(
+    assert str(list(zip(*dp._pipeline_map["crim"].steps))[1]) == str(
         list(zip(*numeric.single_pipeline()))[1]
     )
 
 
-@pytest.mark.skip('broken until DataPreparer can be serialized')
+@pytest.mark.skip("broken until DataPreparer can be serialized")
 def test_preprocessor_fit_create_single_pipeline_override_column():
     """Loads config from JSON and fits preprocessor
     and ensures pipeline maps are overridden
@@ -430,22 +435,17 @@ def test_preprocessor_fit_create_single_pipeline_override_column():
     df = pd.read_csv(boston_path)
     cols = list(df)
 
-    dp = DataPreparer(column_sharer=ColumnSharer(),
-                      from_json=json.load(open((test_path),
-                                                              "r")))
+    dp = DataPreparer(
+        column_sharer=ColumnSharer(),
+        from_json=json.load(open((test_path), "r")),
+    )
     dp.fit(df.copy(deep=True))
 
     for c in cols:
         assert c in dp._pipeline_map
-        assert (
-            type(dp._pipeline_map[c]).__name__
-            == "SerializablePipeline"
-        )
+        assert type(dp._pipeline_map[c]).__name__ == "SerializablePipeline"
 
-    assert (
-        dp._pipeline_map["crim"].steps[0][PipelineStep["NAME"]]
-        == "Scaler"
-    )
+    assert dp._pipeline_map["crim"].steps[0][PipelineStep["NAME"]] == "Scaler"
 
 
 @pytest.mark.skip("broken until DataPreparer can be serialized.")
@@ -484,7 +484,7 @@ def test_preprocessor_fit_create_single_pipeline_override_intent():
     )
 
 
-@pytest.mark.skip('broken until serialization')
+@pytest.mark.skip("broken until serialization")
 def test_preprocessor_make_empty_pipeline():
     import json
 
@@ -497,8 +497,9 @@ def test_preprocessor_make_empty_pipeline():
     df = pd.read_csv(boston_path)
     orig = df.copy(deep=True)
 
-    dp = DataPreparer(column_sharer=ColumnSharer(),
-                        from_json=json.load(open(test_path, "r")))
+    dp = DataPreparer(
+        column_sharer=ColumnSharer(), from_json=json.load(open(test_path, "r"))
+    )
     dp.fit(df)
     out = dp.transform(df)
 
@@ -508,7 +509,7 @@ def test_preprocessor_make_empty_pipeline():
     assert out.equals(orig)
 
 
-@pytest.mark.skip('broken until serialization')
+@pytest.mark.skip("broken until serialization")
 def test_preprocessor_make_pipeline():
     """Loads config from JSON that utilizes all
     functionality of system and verifies successful pipeline completion
@@ -524,8 +525,9 @@ def test_preprocessor_make_pipeline():
     test_path = get_file_path("configs", "complete_pipeline_test.json")
 
     df = pd.read_csv(boston_path)
-    dp = DataPreparer(column_sharer=ColumnSharer(),
-                      from_json=json.load(open(test_path, "r")))
+    dp = DataPreparer(
+        column_sharer=ColumnSharer(), from_json=json.load(open(test_path, "r"))
+    )
 
     dp.fit(df)
 
@@ -604,7 +606,7 @@ def test_preprocessor_make_pipeline():
         .steps[1][PipelineStep["CLASS"]]
         .transformer_list[0][PipelineStep["CLASS"]]
         .steps
-    ) == str(registry_eval("TestGenericIntent").multi_pipeline())
+    ) == str(registry_eval("TestGenericIntent").multi_pipeline())  # noqa: F821
 
     assert (
         dp.pipeline.steps[1][PipelineStep["CLASS"]].steps[2][
@@ -621,7 +623,7 @@ def test_preprocessor_make_pipeline():
     )
 
 
-@pytest.mark.skip('broken until serialization')
+@pytest.mark.skip("broken until serialization")
 def test_preprocessor_fit_transform():  # TODO figure out what this test is
     import json
 
@@ -638,8 +640,9 @@ def test_preprocessor_fit_transform():  # TODO figure out what this test is
     df = pd.read_csv(boston_path)
 
     truth = pd.read_csv(boston_preprocessed_path, index_col=0)
-    dp = DataPreparer(column_sharer=ColumnSharer(),
-                        from_json=json.load(open(test_path, "r")))
+    dp = DataPreparer(
+        column_sharer=ColumnSharer(), from_json=json.load(open(test_path, "r"))
+    )
     dp.fit(df)
     out = dp.transform(df)
 
@@ -671,8 +674,7 @@ def test_preprocessor_inverse_transform():
             }
         }
     }
-    dp = DataPreparer(column_sharer=ColumnSharer(),
-                        from_json=js)
+    dp = DataPreparer(column_sharer=ColumnSharer(), from_json=js)
     col = df[["medv"]]
     dp.fit(col)
 
@@ -680,7 +682,7 @@ def test_preprocessor_inverse_transform():
     assert np.allclose(dp.inverse_transform(dp.transform(col)), col.values)
 
 
-@pytest.mark.skip('broken until pytest fixture fixed')
+@pytest.mark.skip("broken until pytest fixture fixed")
 def test_preprocessor_inverse_transform_unfit():
     import pandas as pd
     from foreshadow.preparer import DataPreparer, ColumnSharer
@@ -693,7 +695,7 @@ def test_preprocessor_inverse_transform_unfit():
     assert str(e.value) == "Pipeline not fit, cannot transform."
 
 
-@pytest.mark.skip('broken until serialization')
+@pytest.mark.skip("broken until serialization")
 def test_preprocessor_inverse_transform_multicol():
     import pandas as pd
     from foreshadow.preparer import DataPreparer, ColumnSharer
@@ -728,7 +730,7 @@ def test_preprocessor_inverse_transform_multicol():
     assert str(e.value) == "Pipeline does not support inverse transform!"
 
 
-@pytest.mark.skip('broken until serialization')
+@pytest.mark.skip("broken until serialization")
 def test_preprocessor_get_params():  # TODO figure out what this test is
     import json
     import pickle
@@ -745,8 +747,10 @@ def test_preprocessor_get_params():  # TODO figure out what this test is
     # (If you change default configs) or file structure, you will need to
     # verify the outputs are correct manually and regenerate the pickle
     # truth file.
-    proc = DataPreparer(column_sharer=ColumnSharer(),
-                        from_json=json.load(open(test_path2, "r")))
+    proc = DataPreparer(
+        column_sharer=ColumnSharer(),
+        from_json=json.load(open(test_path2, "r")),
+    )
     proc.fit(df)
 
     # (If you change default configs) or file structure, you will need to
@@ -775,8 +779,10 @@ def test_preprocessor_set_params():  # TODO figure out what this test is
     # verify the outputs are correct manually and regenerate the pickle
     # truth file.
     params = pickle.load(open(test_path, "rb"))
-    proc = DataPreparer(column_sharer=ColumnSharer(),
-                        from_json=json.load(open(test_path2, "r")))
+    proc = DataPreparer(
+        column_sharer=ColumnSharer(),
+        from_json=json.load(open(test_path2, "r")),
+    )
 
     proc.fit(df)
     proc.set_params(**params)
@@ -793,8 +799,10 @@ def test_preprocessor_malformed_json_transformer():
     test_path = get_file_path("configs", "malformed_transformer.json")
 
     with pytest.raises(ValueError) as e:
-        DataPreparer(column_sharer=ColumnSharer(),
-                     from_json=json.load(open((test_path), "r")))
+        DataPreparer(
+            column_sharer=ColumnSharer(),
+            from_json=json.load(open((test_path), "r")),
+        )
 
     assert "Malformed transformer" in str(e.value)
 
@@ -807,8 +815,10 @@ def test_preprocessor_invalid_json_transformer_class():
     test_path = get_file_path("configs", "invalid_transformer_class.json")
 
     with pytest.raises(ValueError) as e:
-        DataPreparer(column_sharer=ColumnSharer(),
-                     from_json=json.load(open((test_path), "r")))
+        DataPreparer(
+            column_sharer=ColumnSharer(),
+            from_json=json.load(open((test_path), "r")),
+        )
 
     assert str(e.value).startswith("Could not import defined transformer")
 
@@ -822,8 +832,10 @@ def test_preprocessor_invalid_json_transformer_params():
     test_path = get_file_path("configs", "invalid_transformer_params.json")
 
     with pytest.raises(ValueError) as e:
-        DataPreparer(column_sharer=ColumnSharer(),
-                     from_json=json.load(open((test_path), "r")))
+        DataPreparer(
+            column_sharer=ColumnSharer(),
+            from_json=json.load(open((test_path), "r")),
+        )
 
     assert str(e.value).startswith(
         "Params {'BAD': 'INVALID'} invalid for transfomer Imputer"
@@ -841,7 +853,7 @@ def test_preprocessor_get_param_no_pipeline():
     assert param == {"from_json": None}
 
 
-@pytest.mark.skip('broken until serialization')
+@pytest.mark.skip("broken until serialization")
 def test_preprocessor_set_param_no_pipeline():
     from foreshadow.preparer import DataPreparer
     from foreshadow.preparer import ColumnSharer
@@ -854,7 +866,7 @@ def test_preprocessor_set_param_no_pipeline():
     assert params == nparam
 
 
-@pytest.mark.skip('broken until intent are swapped in.')
+@pytest.mark.skip("broken until intent are swapped in.")
 def test_preprocessor_transform_no_pipeline():
     import pandas as pd
     from foreshadow.preparer import DataPreparer, ColumnSharer
@@ -869,7 +881,7 @@ def test_preprocessor_transform_no_pipeline():
     assert str(e.value) == "Pipeline not fit!"
 
 
-@pytest.mark.skip('broken until serialization')
+@pytest.mark.skip("broken until serialization")
 def test_preprocessor_serialize():
     import json
 
@@ -883,15 +895,17 @@ def test_preprocessor_serialize():
     df = pd.read_csv(boston_path)
 
     truth = json.load(open(test_path, "r"))
-    dp = DataPreparer(column_sharer=ColumnSharer(),
-                        from_json=json.load(open(test_path2, "r")))
+    dp = DataPreparer(
+        column_sharer=ColumnSharer(),
+        from_json=json.load(open(test_path2, "r")),
+    )
     dp.fit(df)
     out = dp.serialize()
 
     assert json.loads(json.dumps(truth)) == json.loads(json.dumps(out))
 
 
-@pytest.mark.skip('broken until serialization')
+@pytest.mark.skip("broken until serialization")
 def test_preprocessor_continuity():
     import pandas as pd
     from foreshadow.preparer import DataPreparer, ColumnSharer
@@ -903,12 +917,12 @@ def test_preprocessor_continuity():
     dp = DataPreparer(column_sharer=ColumnSharer())
     dp.fit(df)
     ser = dp.serialize()
-    _ = DataPreparer(column_sharer=ColumnSharer(),from_json=ser)
+    _ = DataPreparer(column_sharer=ColumnSharer(), from_json=ser)
 
     assert ser == dp.serialize()
 
 
-@pytest.mark.skip('broken until serialization')
+@pytest.mark.skip("broken until serialization")
 def test_preprocessor_y_var_filtering():
     import pandas as pd
     from foreshadow.preparer import DataPreparer, ColumnSharer
@@ -925,7 +939,7 @@ def test_preprocessor_y_var_filtering():
     assert y_df.equals(df_out)
 
 
-@pytest.mark.skip('broken until serialization')
+@pytest.mark.skip("broken until serialization")
 def test_preprocessor_summarize():
     import json
     import pandas as pd
@@ -935,8 +949,9 @@ def test_preprocessor_summarize():
     test_path = get_file_path("configs", "complete_pipeline_test.json")
 
     df = pd.read_csv(boston_path)
-    dp = DataPreparer(column_sharer=ColumnSharer(),
-                        from_json=json.load(open(test_path, "r")))
+    dp = DataPreparer(
+        column_sharer=ColumnSharer(), from_json=json.load(open(test_path, "r"))
+    )
     dp.fit(df)
 
     expected = {

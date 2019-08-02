@@ -100,9 +100,7 @@ def test_mock_subclass_missing_multi_pipeline_template():
 
 @pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_valid_mock_subclass():
-    from foreshadow.concrete import (
-        _unregister_intent,
-    )
+    from foreshadow.concrete import _unregister_intent
     from foreshadow.concrete import BaseIntent
 
     class TestIntent(BaseIntent):
@@ -125,9 +123,7 @@ def test_valid_mock_subclass():
 
 @pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_to_string():
-    from foreshadow.concrete import (
-        _unregister_intent,
-    )
+    from foreshadow.concrete import _unregister_intent
     from foreshadow.concrete import BaseIntent
 
     class TestIntent(BaseIntent):
@@ -216,9 +212,7 @@ def test_to_string():
 
 @pytest.mark.skip("to be removed and replaced with new intent equiv.")
 def test_priority_traverse():
-    from foreshadow.concrete import (
-        _unregister_intent,
-    )
+    from foreshadow.concrete import _unregister_intent
     from foreshadow.concrete import BaseIntent
 
     class TestIntent(BaseIntent):

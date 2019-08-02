@@ -1,9 +1,9 @@
 """Metrics used across Foreshadow for smart decision making."""
 
 import pandas as pd
-from foreshadow.logging import logging
 from pandas.api.types import is_numeric_dtype, is_string_dtype
 
+from foreshadow.logging import logging
 from foreshadow.utils import check_series
 
 
@@ -291,4 +291,3 @@ def is_string(X):
     """
     X = check_series(X)
     return is_string_dtype(X)
-

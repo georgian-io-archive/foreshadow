@@ -3,6 +3,7 @@
 from sklearn.pipeline import Pipeline
 
 from foreshadow.preparer.pipeline import PipelineSerializerMixin
+
 from .steps import ResolverMapper
 
 
@@ -52,15 +53,13 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
 
         self.column_sharer = column_sharer
         # TODO look at fixing structure so we don't have to import inside init.
-        cleaner_kwargs_ = _none_to_dict("cleaner_kwargs",
-                                        cleaner_kwargs,
-                                        column_sharer,
-                                        )
-        self.y_var=y_var
-        intent_kwargs_ = _none_to_dict("intent_kwargs",
-                                       intent_kwargs,
-                                       column_sharer,
-                                       )
+        cleaner_kwargs_ = _none_to_dict(
+            "cleaner_kwargs", cleaner_kwargs, column_sharer
+        )
+        self.y_var = y_var
+        intent_kwargs_ = _none_to_dict(
+            "intent_kwargs", intent_kwargs, column_sharer
+        )
         # engineerer_kwargs_ = _none_to_dict(
         # engineerer_kwargs=engineerer_kwargs
         # )
@@ -73,7 +72,7 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         super().__init__(
             steps=[
                 ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
-                ('intent', ResolverMapper(intent_kwargs_)),
+                ("intent", ResolverMapper(intent_kwargs_)),
                 # ('feature_engineerer', engineerer_kwargs_),
                 # ('feature_preprocessor', preprocessor_kwargs_),
                 # ('feature_reducer', reducer_kwargs_,),

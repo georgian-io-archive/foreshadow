@@ -175,8 +175,7 @@ def test_concrete_disk_ser(concrete_serializer, mocker):
     mocker.patch("builtins.open", m, create=True)
     test_path = "./test/path"
     mocker.patch(
-        ("foreshadow.serializers._pickle_cache_path"),
-        return_value=test_path,
+        ("foreshadow.serializers._pickle_cache_path"), return_value=test_path
     )
     ser = concrete_serializer.serialize(method="disk")
 

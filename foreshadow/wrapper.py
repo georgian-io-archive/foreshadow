@@ -8,9 +8,9 @@ import scipy
 from sklearn.base import BaseEstimator
 from sklearn.utils.fixes import signature
 
+from foreshadow.logging import logging
 from foreshadow.utils import check_df, is_transformer
 
-from foreshadow.logging import logging
 from .serializers import ConcreteSerializerMixin
 
 

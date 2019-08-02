@@ -22,11 +22,7 @@ def test_intent_ordering_confidence():
     import pandas as pd
     import numpy as np
 
-    from foreshadow.concrete import (
-        Numeric,
-        Categoric,
-        Text,
-    )
+    from foreshadow.concrete import Numeric, Categoric, Text
 
     validation_data = {
         Numeric: pd.DataFrame(np.arange(100)),

@@ -5,18 +5,21 @@ the module :mod:`foreshadow.transformers.concrete`
 
 """
 
-from category_encoders import HashingEncoder, OneHotEncoder
-from sklearn.decomposition import PCA
-from sklearn.feature_extraction.text import TfidfTransformer, TfidfVectorizer
-from sklearn.preprocessing import (
+from category_encoders import HashingEncoder, OneHotEncoder  # noqa: F401
+from sklearn.decomposition import PCA  # noqa: F401
+from sklearn.feature_extraction.text import (  # noqa: F401
+    TfidfTransformer,
+    TfidfVectorizer
+)
+from sklearn.preprocessing import (  # noqa: F401
     Imputer,
     MinMaxScaler,
     RobustScaler,
     StandardScaler,
 )
 
-from foreshadow.wrapper import make_pandas_transformer
 from foreshadow.utils import is_transformer
+from foreshadow.wrapper import make_pandas_transformer
 
 
 no_serialize_params = {"OneHotEncoder": ["cols"], "HashingEncoder": ["cols"]}
@@ -40,29 +43,15 @@ def _get_modules(classes, globals_, mname):  # TODO auto import all
         The list of wrapped transformers.
 
     """
-    # noqa: D202
-    def no_wrap(t):
-        """Return original function pointer.
-
-        Don't wrap the transformer.
-
-        Args:
-            t: input transformer
-
-        Returns:
-            t, unwrapped.
-
-        """
-        return t
-
-    transformers = [
-        cls for cls in classes if is_transformer(cls, method="issubclass")
-    ]
+    transformers = [cls for cls in classes if
+                    is_transformer(cls, method="issubclass")]  # noqa: F821
 
     for t in transformers:
         copied_t = type(t.__name__, (t, *t.__bases__), dict(t.__dict__))
         copied_t.__module__ = mname
-        globals_[copied_t.__name__] = make_pandas_transformer(copied_t)
+        globals_[copied_t.__name__] = make_pandas_transformer(  # noqa: F821
+            copied_t  # noqa: F821
+        )
 
     return [t.__name__ for t in transformers]
 
@@ -97,3 +86,4 @@ del make_pandas_transformer
 del is_transformer
 del _get_classes
 del _get_modules
+del classes
