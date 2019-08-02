@@ -6,10 +6,10 @@ import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from foreshadow.wrapper import make_pandas_transformer
+from foreshadow.wrapper import pandas_wrap
 
 
-@make_pandas_transformer
+@pandas_wrap
 class PrepareFinancial(BaseEstimator, TransformerMixin):
     """Clean data in preparation for a financial transformer.
 

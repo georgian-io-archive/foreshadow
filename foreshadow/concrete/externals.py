@@ -19,7 +19,7 @@ from sklearn.preprocessing import (  # noqa: F401
 )
 
 from foreshadow.utils import is_transformer
-from foreshadow.wrapper import make_pandas_transformer
+from foreshadow.wrapper import pandas_wrap
 
 
 no_serialize_params = {"OneHotEncoder": ["cols"], "HashingEncoder": ["cols"]}
@@ -47,14 +47,15 @@ def _get_modules(classes, globals_, mname):  # TODO auto import all
         cls
         for cls in classes
         if is_transformer(cls, method="issubclass")  # noqa: F821
-    ]
+    ]  # flake does not detect due to del.
 
     for t in transformers:
         copied_t = type(t.__name__, (t, *t.__bases__), dict(t.__dict__))
         copied_t.__module__ = mname
-        globals_[copied_t.__name__] = make_pandas_transformer(  # noqa: F821
+        globals_[copied_t.__name__] = pandas_wrap(  # noqa: F821
             copied_t  # noqa: F821
         )
+        # flake does not detect due to del.
 
     return [t.__name__ for t in transformers]
 
@@ -71,22 +72,11 @@ def _get_classes():
     return [c for c in globals().values() if inspect.isclass(c)]
 
 
-classes = _get_modules(_get_classes(), globals(), __name__)
-_all__ = [
-    "HashingEncoder",
-    "OneHotEncoder",
-    "PCA",
-    "TfidfVectorizer",
-    "TfidfTransformer",
-    "Imputer",
-    "MinMaxScaler",
-    "RobustScaler",
-    "StandardScaler",
-    "no_serialize_params",
+__all__ = _get_modules(_get_classes(), globals(), __name__) + [
+    "no_serialize_params"
 ]
 
-del make_pandas_transformer
+del pandas_wrap
 del is_transformer
 del _get_classes
 del _get_modules
-del classes

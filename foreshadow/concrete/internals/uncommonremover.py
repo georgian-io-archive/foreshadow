@@ -4,10 +4,10 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 
 from foreshadow.utils import check_df
-from foreshadow.wrapper import make_pandas_transformer
+from foreshadow.wrapper import pandas_wrap
 
 
-@make_pandas_transformer
+@pandas_wrap
 class UncommonRemover(BaseEstimator, TransformerMixin):
     """Merge uncommon values in a categorical column to an other value.
 

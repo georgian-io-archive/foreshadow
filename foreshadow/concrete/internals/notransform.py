@@ -1,10 +1,10 @@
 """No Transform class through acts as a pass through for DataFrame and flag."""
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from foreshadow.wrapper import make_pandas_transformer
+from foreshadow.wrapper import pandas_wrap
 
 
-@make_pandas_transformer
+@pandas_wrap
 class NoTransform(BaseEstimator, TransformerMixin):
     """Transformer that performs _Empty transformation."""
 

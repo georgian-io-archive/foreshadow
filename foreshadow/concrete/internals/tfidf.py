@@ -8,10 +8,10 @@ from sklearn.feature_extraction.text import (
 )
 from sklearn.utils import check_array
 
-from foreshadow.wrapper import make_pandas_transformer
+from foreshadow.wrapper import pandas_wrap
 
 
-@make_pandas_transformer
+@pandas_wrap
 class FixedTfidfVectorizer(BaseEstimator, VectorizerMixin):
     """Fix TfidfVectorizer input format to fit transformer standard."""
 

@@ -9,10 +9,11 @@ from sklearn.utils.validation import check_memory  # noqa: F401
 
 from foreshadow.serializers import PipelineSerializerMixin
 
-from .parallelprocessor import ParallelProcessor  # noqa: F401
+from .parallelprocessor import ParallelProcessor  # noqa: F401 see below.
 
 
 # Above imports used in runtime override.
+# We need F401 as flake will not see us using the imports in exec'd code.
 
 
 class SerializablePipeline(Pipeline, PipelineSerializerMixin):

@@ -26,7 +26,7 @@ def get_config_path():
     return ret_path
 
 
-def get_cache_path(path=None):
+def get_cache_path():
     """Get the cache path which is in the config directory.
 
     Note:
@@ -73,9 +73,9 @@ def get_transformer(class_name, source_lib=None):
         sources = OrderedDict(
             (source, import_module(source))
             for source in [
-                "foreshadow.concrete.internals",
-                "foreshadow.concrete.externals",
+                "foreshadow.concrete",
                 "foreshadow.smart",
+                "foreshadow.intents",
             ]
         )
 

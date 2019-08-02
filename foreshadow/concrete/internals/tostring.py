@@ -2,10 +2,10 @@
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from foreshadow.wrapper import make_pandas_transformer
+from foreshadow.wrapper import pandas_wrap
 
 
-@make_pandas_transformer
+@pandas_wrap
 class ToString(BaseEstimator, TransformerMixin):
     """Convert passed in data to string format."""
 

@@ -20,7 +20,7 @@ slow = pytest.mark.skipif(
 
 @slow
 def test_integration_binary_classification():
-    from foreshadow.foreshadow import Foreshadow  # TODO: FIXME
+    import foreshadow as fs
     import pandas as pd
     import numpy as np
     from sklearn.datasets import load_breast_cancer
@@ -36,7 +36,7 @@ def test_integration_binary_classification():
     X_train, X_test, y_train, y_test = train_test_split(
         cancerX_df, cancery_df, test_size=0.2
     )
-    shadow = Foreshadow(estimator=LogisticRegression())
+    shadow = fs.Foreshadow(estimator=LogisticRegression())
     shadow.fit(X_train, y_train)
 
     baseline = 0.9824561403508771
@@ -47,7 +47,7 @@ def test_integration_binary_classification():
 
 @slow
 def test_integration_multiclass_classification():
-    from foreshadow.foreshadow import Foreshadow  # TODO: FIXME
+    import foreshadow as fs
     import numpy as np
     import pandas as pd
     from sklearn.datasets import load_iris
@@ -63,7 +63,7 @@ def test_integration_multiclass_classification():
     X_train, X_test, y_train, y_test = train_test_split(
         irisX_df, irisy_df, test_size=0.2
     )
-    shadow = Foreshadow(estimator=LogisticRegression())
+    shadow = fs.Foreshadow(estimator=LogisticRegression())
     shadow.fit(X_train, y_train)
 
     baseline = 0.9666666666666667
@@ -74,7 +74,7 @@ def test_integration_multiclass_classification():
 
 @slow
 def test_integration_regression():
-    from foreshadow.foreshadow import Foreshadow  # TODO: FIXME
+    import foreshadow as fs
     import pandas as pd
     from sklearn.datasets import load_boston
     from sklearn.model_selection import train_test_split
@@ -87,7 +87,7 @@ def test_integration_regression():
     X_train, X_test, y_train, y_test = train_test_split(
         bostonX_df, bostony_df, test_size=0.2
     )
-    shadow = Foreshadow(estimator=LinearRegression())
+    shadow = fs.Foreshadow(estimator=LinearRegression())
     shadow.fit(X_train, y_train)
 
     baseline = 0.6953024611269096

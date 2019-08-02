@@ -1,6 +1,6 @@
 """SmartFlattener for the CleanerMapper step in DataPreparer."""
-import foreshadow.logging as logging
 from foreshadow.concrete.internals import NoTransform
+from foreshadow.logging import logging
 from foreshadow.utils import dynamic_import
 
 from .smart import SmartTransformer

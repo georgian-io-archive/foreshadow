@@ -5,8 +5,8 @@ def test_data_cleaner_fit():
     """Test basic fit call."""
     import pandas as pd
     import numpy as np
-    from foreshadow.preparer.steps import CleanerMapper
-    from foreshadow.preparer.column_sharer import ColumnSharer
+    from foreshadow.preparer import CleanerMapper
+    from foreshadow.preparer import ColumnSharer
 
     data = pd.DataFrame(
         {
@@ -44,6 +44,8 @@ def test_data_cleaner_fit():
             "financials",
         ],
     )
+    print(data.values)
+    print(check.values)
     assert np.all(
         np.equal(data.values[data.notna()], check.values[check.notna()])
     )
@@ -52,8 +54,8 @@ def test_data_cleaner_fit():
 def test_financials():
     """Test financial column cleaned correctly."""
     import pandas as pd
-    from foreshadow.preparer.steps import CleanerMapper
-    from foreshadow.preparer.column_sharer import ColumnSharer
+    from foreshadow.preparer import CleanerMapper
+    from foreshadow.preparer import ColumnSharer
     import numpy as np
 
     data = pd.DataFrame(
@@ -78,8 +80,8 @@ def test_financials():
 def test_json():
     """Test json input cleaned correctly."""
     import pandas as pd
-    from foreshadow.preparer.steps import CleanerMapper
-    from foreshadow.preparer.column_sharer import ColumnSharer
+    from foreshadow.preparer import CleanerMapper
+    from foreshadow.preparer import ColumnSharer
     import numpy as np
 
     data = pd.DataFrame(
@@ -121,8 +123,8 @@ def test_json():
 def test_drop():
     """Test drop called when expected to."""
     import pandas as pd
-    from foreshadow.preparer.steps import CleanerMapper
-    from foreshadow.preparer.column_sharer import ColumnSharer
+    from foreshadow.preparer import CleanerMapper
+    from foreshadow.preparer import ColumnSharer
 
     columns = ["financials"]
     data = pd.DataFrame({"financials": ["", "", "", ""]}, columns=columns)
@@ -138,8 +140,8 @@ def test_numerical_input():
     """Test numerical input."""
     import numpy as np
     import pandas as pd
-    from foreshadow.preparer.steps import CleanerMapper
-    from foreshadow.preparer.column_sharer import ColumnSharer
+    from foreshadow.preparer import CleanerMapper
+    from foreshadow.preparer import ColumnSharer
 
     columns = ["financials"]
     data = pd.DataFrame({"financials": np.arange(10)}, columns=columns)
@@ -154,8 +156,8 @@ def test_numerical_input_fittransform():
     """Test numerical input."""
     import numpy as np
     import pandas as pd
-    from foreshadow.preparer.steps import CleanerMapper
-    from foreshadow.preparer.column_sharer import ColumnSharer
+    from foreshadow.preparer import CleanerMapper
+    from foreshadow.preparer import ColumnSharer
 
     columns = ["financials"]
     data = pd.DataFrame({"financials": np.arange(10)}, columns=columns)

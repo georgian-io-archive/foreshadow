@@ -1,10 +1,10 @@
 """Resolver module that computes the intents for input data."""
 
 from foreshadow.preparer.preparerstep import PreparerStep
-from foreshadow.smart import Resolver
+from foreshadow.smart import IntentResolver
 
 
-class ResolverMapper(PreparerStep):
+class IntentMapper(PreparerStep):
     """Apply intent resolution to each column.
 
     Params:
@@ -28,7 +28,7 @@ class ResolverMapper(PreparerStep):
         """
         return self.separate_cols(
             transformers=[
-                [Resolver(column_sharer=self.column_sharer)] for c in X
+                [IntentResolver(column_sharer=self.column_sharer)] for c in X
             ],
             cols=X.columns,
         )

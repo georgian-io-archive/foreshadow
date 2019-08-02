@@ -20,7 +20,7 @@ def test_smart_scaler_normal():
     import scipy.stats as ss
 
     from foreshadow.smart import Scaler
-    from foreshadow.concrete.externals import StandardScaler
+    from foreshadow.concrete import StandardScaler
 
     np.random.seed(0)
     normal_data = ss.norm.rvs(size=100)
@@ -35,7 +35,7 @@ def test_smart_scaler_unifrom():
     import scipy.stats as ss
 
     from foreshadow.smart import Scaler
-    from foreshadow.concrete.externals import MinMaxScaler
+    from foreshadow.concrete import MinMaxScaler
 
     np.random.seed(0)
     uniform_data = ss.uniform.rvs(size=100)
@@ -60,7 +60,7 @@ def test_smart_encoder_less_than_30_levels():
     import numpy as np
 
     from foreshadow.smart import CategoricalEncoder
-    from foreshadow.concrete.externals import OneHotEncoder
+    from foreshadow.concrete import OneHotEncoder
 
     np.random.seed(0)
     leq_30_random_data = np.random.choice(30, size=500)
@@ -74,7 +74,7 @@ def test_smart_encoder_more_than_30_levels():
     import numpy as np
 
     from foreshadow.smart import CategoricalEncoder
-    from foreshadow.concrete.externals import HashingEncoder
+    from foreshadow.concrete import HashingEncoder
 
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
@@ -88,7 +88,7 @@ def test_smart_encoder_more_than_30_levels_that_reduces():
     import numpy as np
 
     from foreshadow.smart import CategoricalEncoder
-    from foreshadow.concrete.externals import OneHotEncoder
+    from foreshadow.concrete import OneHotEncoder
 
     np.random.seed(0)
     gt_30_random_data = np.concatenate(
@@ -106,7 +106,7 @@ def test_smart_encoder_y_var():
     import pandas as pd
 
     from foreshadow.smart import CategoricalEncoder
-    from foreshadow.concrete.internals import FixedLabelEncoder as LabelEncoder
+    from foreshadow.concrete import FixedLabelEncoder as LabelEncoder
 
     y_df = pd.DataFrame({"A": np.array([1, 2, 10] * 3)})
     smart_coder = CategoricalEncoder(y_var=True)
@@ -244,7 +244,7 @@ def test_preprocessor_hashencoder_no_name_collision():
 def test_smart_encoder_delimmited():
     import pandas as pd
     from foreshadow.smart import CategoricalEncoder
-    from foreshadow.concrete.internals import DummyEncoder
+    from foreshadow.concrete import DummyEncoder
 
     data = pd.DataFrame({"test": ["a", "a,b,c", "a,b", "a,c"]})
     smart_coder = CategoricalEncoder()
@@ -254,7 +254,7 @@ def test_smart_encoder_delimmited():
 def test_smart_encoder_more_than_30_levels_with_overwritten_cutoff():
     import numpy as np
     from foreshadow.smart import CategoricalEncoder
-    from foreshadow.concrete.externals import OneHotEncoder
+    from foreshadow.concrete import OneHotEncoder
 
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
@@ -321,8 +321,8 @@ def test_smart_text():  # not sure why this is broken.
     import pandas as pd
 
     from foreshadow.smart import TextEncoder
-    from foreshadow.concrete.internals import FixedTfidfVectorizer
-    from foreshadow.concrete.internals import HTMLRemover
+    from foreshadow.concrete import FixedTfidfVectorizer
+    from foreshadow.concrete import HTMLRemover
 
     X1 = pd.DataFrame(["abc", "def", "1321", "tester"])
     tf1 = TextEncoder().fit(X1)

@@ -542,7 +542,7 @@ def test_sparse_matrix_conversion():
     ],
 )
 def test_make_pandas_transformer_fit(transformer, input_csv):
-    """Test make_pandas_transformer has initial transformer fit functionality.
+    """Test pandas_wrap has initial transformer fit functionality.
 
         Args:
             transformer: wrapped transformer class name
@@ -685,7 +685,7 @@ def test_make_pandas_transformer_fit_transform(
     ],
 )
 def test_make_pandas_transformer_init(transformer, sk_path):
-    """Test make_pandas_transformer has initial transformer init functionality.
+    """Test pandas_wrap has initial transformer init functionality.
 
     Should be able to accept any parameters from the sklearn transformer and
     initialize on the wrapped instance. They should also posses the is_wrapped

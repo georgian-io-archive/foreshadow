@@ -9,12 +9,11 @@ from sklearn.base import BaseEstimator
 from sklearn.utils.fixes import signature
 
 from foreshadow.logging import logging
+from foreshadow.serializers import ConcreteSerializerMixin
 from foreshadow.utils import check_df, is_transformer
 
-from .serializers import ConcreteSerializerMixin
 
-
-def make_pandas_transformer(transformer):  # noqa: C901
+def pandas_wrap(transformer):  # noqa: C901
     """Wrap a scikit-learn transformer to support pandas DataFrames.
 
     Args:

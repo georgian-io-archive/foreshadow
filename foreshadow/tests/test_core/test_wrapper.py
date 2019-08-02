@@ -16,12 +16,12 @@ def test_transformer_wrapper_init():
 
 def test_transformer_wrapper_no_init():
     from sklearn.base import BaseEstimator, TransformerMixin
-    from foreshadow.wrapper import make_pandas_transformer
+    from foreshadow.wrapper import pandas_wrap
 
     class NewTransformer(BaseEstimator, TransformerMixin):
         pass
 
-    trans = make_pandas_transformer(NewTransformer)
+    trans = pandas_wrap(NewTransformer)
     _ = trans()
 
     assert hasattr(trans.__init__, "__defaults__")

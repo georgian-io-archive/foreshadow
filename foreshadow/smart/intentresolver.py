@@ -1,11 +1,11 @@
-"""martResolver for ResolverMapper step."""
+"""SmartResolver for ResolverMapper step."""
 
 from foreshadow.config import get_intents
 
 from .smart import SmartTransformer
 
 
-class Resolver(SmartTransformer):
+class IntentResolver(SmartTransformer):
     """Determine the intent for a particular column.
 
     Params:

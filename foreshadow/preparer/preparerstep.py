@@ -137,9 +137,12 @@ def _check_parallelizable_batch(group_process, group_number):
     """
     if group_process.single_input is not None:
         inputs = group_process.single_input
-        steps = [
-            (step.__class__.__name__, step) for step in group_process.steps
-        ]
+        if group_process.steps is not None:
+            steps = [
+                (step.__class__.__name__, step) for step in group_process.steps
+            ]
+        else:
+            steps = None
         # if we enter here, this step has the same columns across
         # all steps. This means that we can create one Pipeline for
         # this group of columns and let it run parallel to
