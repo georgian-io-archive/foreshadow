@@ -3,8 +3,11 @@
 import os
 
 import yaml
+import json
 
 from foreshadow.utils import get_config_path, get_transformer
+
+from collections import MutableMapping
 
 
 CONFIG_FILE_NAME = "config.yml"
@@ -12,17 +15,19 @@ CONFIG_FILE_NAME = "config.yml"
 # TODO write a singleton object for this dictionary
 
 DEFAULT_CONFIG = {
-    "cleaner": [],
-    "resolver": ["Numeric", "Categoric", "Text"],
-    "Numeric": {"preprocessor": ["Imputer", "Scaler"]},
-    "Categoric": {"preprocessor": ["CategoricalEncoder"]},
-    "Text": {"preprocessor": ["TextEncoder"]},
+    "Cleaner": {
+        'Flatteners': ['StandardJsonFlattener'],
+        'Cleaners': ['YYYYMMDDDateCleaner', 'DropCleaner', 'DollarFinancialCleaner']
+    },
+    "Tiebreak": ["Numeric", "Categoric", "Text"],
+    "Numeric": {"Preprocessor": ["Imputer", "Scaler"]},
+    "Categoric": {"Preprocessor": ["CategoricalEncoder"]},
+    "Text": {"Preprocessor": ["TextEncoder"]},
 }
 
 _cfg = {}
 
-
-def get_config(base):
+def load_config(base):
     """Try to load configuration data from specific folder path.
 
     Args:
@@ -47,62 +52,84 @@ def get_config(base):
             else:
                 return data
 
+class ConfigStore(MutableMapping):
+    """Defines a single-instance config store with convenience methods."""
 
-def reset_config():
-    """Reset internal configuration.
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-    Note:
-        This is useful in an IDLE setting when the configuration file might
-        have been modified but you don't want to reload the system.
+        self.system_config = DEFAULT_CONFIG
+        self.user_config = load_config(get_config_path())
+        self._cfg_list = {} # key is path
 
-    """
-    global _cfg
-    _cfg = {}
+    def _resolve_config(self):
+        """Resolves config at init time."""
+        local_path = os.path.abspath("")
+        local_config = load_config(local_path)
 
+        # global _cfg
+        # if local_path in _cfg:
+        #     return _cfg.get(local_path)
 
-def resolve_config():
-    """Resolve the configuration to actual classes.
+        # Expand the dictionaries in order of precedence
+        resolved_strs = {
+            **self.system_config,
+            **self.user_config,
+            **local_config
+        }
 
-    Note:
-        The order is resolution is as follows in increasing precedence order:
-        framework, user, local.
+        resolved_hash = hash(json.dumps(resolved_strs, sort_keys=True))
 
-    Returns:
-        A dictionary with the same keys as `foreshadow.config.DEFAULT_CONFIG`
-        with the correct overrides.
-
-    """
-    default = DEFAULT_CONFIG
-    user = get_config(get_config_path())
-    local_path = os.path.abspath("")
-    local = get_config(local_path)
-
-    global _cfg
-    if local_path in _cfg:
-        return _cfg.get(local_path)
-
-    # Expand the dictionaries in order of precedence
-    _resolved = {**default, **user, **local}
-
-    resolved = {}
-    # key is cleaner, resolver, or intent
-    # all individual steps are converted to classes
-    for key, data in _resolved.items():
-        if not len(data):
-            resolved[key] = data
-        elif isinstance(data, list):
-            resolved[key] = [
-                get_transformer(transformer) for transformer in data
-            ]
-        elif isinstance(data, dict):
-            resolved[key] = {
-                step: [
-                    get_transformer(transformer)
-                    for transformer in transformer_list
+        resolved = {}
+        # key is cleaner, resolver, or intent
+        # all individual steps are converted to classes
+        for key, data in resolved_strs.items():
+            if not len(data):
+                resolved[key] = data
+            elif isinstance(data, list):
+                resolved[key] = [
+                    get_transformer(transformer) for transformer in data
                 ]
-                for step, transformer_list in data.items()
-            }
+            elif isinstance(data, dict):
+                resolved[key] = {
+                    step: [
+                        get_transformer(transformer)
+                        for transformer in transformer_list
+                    ]
+                    for step, transformer_list in data.items()
+                }
 
-    _cfg[local_path] = resolved
+        self._cfg_list[resolved_hash] = resolved
 
-    return resolved
+        # _cfg[local_path] = resolved
+
+
+
+    def __delitem__(self, key):
+        pass
+
+    def __getitem__(self, key):
+        pass
+
+    def __iter__(self):
+        pass
+
+    def __len__(self):
+        pass
+
+    def __setitem__(self):
+        pass
+
+# def reset_config():
+#     """Reset internal configuration.
+# 
+#     Note:
+#         This is useful in an IDLE setting when the configuration file might
+#         have been modified but you don't want to reload the system.
+# 
+#     """
+#     global _cfg
+#     _cfg = {}
+
+if __name__ == '__main__':
+    pass
