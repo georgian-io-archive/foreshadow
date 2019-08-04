@@ -1,15 +1,14 @@
 """Feature engineering module as a step in Foreshadow workflow."""
 from collections import defaultdict
 
-from foreshadow.core.preparerstep import PreparerStep
-from foreshadow.transformers.core import SmartTransformer
-from foreshadow.transformers.core.notransform import NoTransform
+from foreshadow.preparer.preparerstep import PreparerStep
+from foreshadow.smart.feature_engineerer import FeatureEngineerer
 
 
-class FeatureEngineerer(PreparerStep):
+class FeatureEngineererMapper(PreparerStep):
     """Determine and perform best data cleaning step."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """Define the single step for FeatureEngineering, using SmartFeatureEngineerer.
 
         Args:
@@ -17,7 +16,7 @@ class FeatureEngineerer(PreparerStep):
             **kwargs: kwargs to PreparerStep constructor.
 
         """
-        super().__init__(*args, use_single_pipeline=False, **kwargs)
+        super().__init__(**kwargs)
 
     def get_mapping(self, X):
         """Maps the columns of the data frame by domain-tag then by Intent
@@ -45,36 +44,14 @@ class FeatureEngineerer(PreparerStep):
         in columns_by_domain_and_intent, which is ${domain}_${intent}?
         """
 
-        return {
-            i: {
-                "inputs": (cols,),
-                "steps": [
-                    SmartFeatureEngineerer(column_sharer=self.column_sharer)
-                ],
-            }
-            for i, cols in enumerate(
-                list(columns_by_domain_and_intent.values())
-            )
-        }
+        columns_by_domain_and_intent = list(
+            columns_by_domain_and_intent.values()
+        )
 
-
-class SmartFeatureEngineerer(SmartTransformer):
-    """Intelligently decide which feature engineering function
-    should be applied."""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    def pick_transformer(self, X, y=None, **fit_params):
-        """Get best transformer for a given set of columns.
-
-        Args:
-            X: input DataFrame
-            y: input labels
-            **fit_params: fit_params
-
-        Returns:
-            Best feature engineering transformer.
-
-        """
-        return NoTransform(column_sharer=self.column_sharer)
+        return self.separate_cols(
+            transformers=[
+                [FeatureEngineerer(column_sharer=self.column_sharer)]
+                for col_group in columns_by_domain_and_intent
+            ],
+            cols=columns_by_domain_and_intent,
+        )

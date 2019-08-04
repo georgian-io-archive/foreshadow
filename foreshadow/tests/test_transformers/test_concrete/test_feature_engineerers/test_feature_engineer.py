@@ -1,17 +1,14 @@
 """Test feature_engineerer.py"""
+import numpy as np
 import pandas as pd
 
-from foreshadow.core.column_sharer import ColumnSharer
-from foreshadow.feature_engineerers import (
-    FeatureEngineerer,
-    SmartFeatureEngineerer,
-)
+from foreshadow.preparer import ColumnSharer, FeatureEngineererMapper
+from foreshadow.preparer.preparerstep import PreparerMapping
+from foreshadow.smart.feature_engineerer import FeatureEngineerer
 
 
 def test_feature_engineerer_fit():
     """Test basic fit call."""
-    import numpy as np
-
     data = pd.DataFrame(
         {
             "age": [10, 20, 33, 44],
@@ -29,9 +26,9 @@ def test_feature_engineerer_fit():
     cs["intent", "weights"] = "Numeric"
     cs["intent", "financials"] = "Numeric"
 
-    dc = FeatureEngineerer(cs)
-    dc.fit(data)
-    transformed_data = dc.transform(data)
+    fem = FeatureEngineererMapper(column_sharer=cs)
+    fem.fit(data)
+    transformed_data = fem.transform(data)
     assert np.all(
         np.equal(
             data.values[data.notna()],
@@ -42,9 +39,6 @@ def test_feature_engineerer_fit():
 
 def test_feature_engineerer_get_mapping():
     """Test basic fit call."""
-    import pdb
-
-    pdb.set_trace()
     data = pd.DataFrame(
         {
             "age": [10, 20, 33, 44],
@@ -53,6 +47,7 @@ def test_feature_engineerer_get_mapping():
         },
         columns=["age", "weights", "financials"],
     )
+
     print(data)
     cs = ColumnSharer()
     cs["domain", "age"] = "personal"
@@ -63,14 +58,16 @@ def test_feature_engineerer_get_mapping():
     cs["intent", "weights"] = "Numeric"
     cs["intent", "financials"] = "Numeric"
 
-    dc = FeatureEngineerer(cs)
-    column_mapping = dc.get_mapping(data)
-    check = {
-        0: {
-            "inputs": (["age", "weights"],),
-            "steps": [SmartFeatureEngineerer()],
-        },
-        1: {"inputs": (["financials"],), "steps": [SmartFeatureEngineerer()]},
-    }
-    print(column_mapping)
-    assert str(column_mapping) == str(check)
+    fem = FeatureEngineererMapper(column_sharer=cs)
+    column_mapping = fem.get_mapping(data)
+
+    check_pm = PreparerMapping()
+    check_pm.add(["age", "weights"], [FeatureEngineerer()])
+    check_pm.add(["financials"], [FeatureEngineerer()])
+
+    import pdb
+
+    pdb.set_trace()
+    for key in column_mapping.store:
+        assert key in check_pm.store
+        assert str(column_mapping.store[key]) == str(check_pm.store[key])
