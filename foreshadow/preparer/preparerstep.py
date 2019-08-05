@@ -289,9 +289,6 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             ValueError: input does not matched defined format.
 
         """
-        import pdb
-
-        pdb.set_trace()
         if len(transformers) != len(cols):
             raise ValueError(
                 "number of transformer steps: '{}' "

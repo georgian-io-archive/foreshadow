@@ -82,9 +82,6 @@ class FeatureReducerMapper(PreparerStep):
         parallelize_smart_steps and/or the class ParallelProcessor
         to inject this column list freshing operation.
         """
-        import pdb
-
-        pdb.set_trace()
 
         def group_by(iterable, column_sharer_key):
             result = defaultdict(list)
