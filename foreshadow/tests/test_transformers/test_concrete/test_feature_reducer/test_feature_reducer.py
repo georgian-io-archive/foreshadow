@@ -2,8 +2,9 @@
 import numpy as np
 import pandas as pd
 
-from foreshadow.core.column_sharer import ColumnSharer
-from foreshadow.feature_reducer import FeatureReducer, SmartFeatureReducer
+from foreshadow.preparer import ColumnSharer, FeatureReducerMapper
+from foreshadow.preparer.preparerstep import PreparerMapping
+from foreshadow.smart import FeatureReducer
 
 
 def test_feature_reducer_fit_no_ops():
@@ -11,12 +12,16 @@ def test_feature_reducer_fit_no_ops():
         {
             "age": [10, 20, 33, 44],
             "weights": [20, 30, 50, 60],
-            "financials": ["$1.00", "$550.01", "$1234", "$12353.3345"],
+            "occupation": ["engineer", "artist", "doctor", "inspector"],
         },
-        columns=["age", "weights", "financials"],
+        columns=["age", "weights", "occupation"],
     )
     cs = ColumnSharer()
-    fr = FeatureReducer(cs)
+    cs["intent", "age"] = "Numeric"
+    cs["intent", "weights"] = "Numeric"
+    cs["intent", "occupation"] = "Categorical"
+
+    fr = FeatureReducerMapper(column_sharer=cs)
     fr.fit(data)
     transformed_data = fr.transform(data)
     assert np.all(
@@ -41,10 +46,13 @@ def test_feature_reducer_get_mapping_by_intent():
     cs["intent", "weights"] = "Numeric"
     cs["intent", "occupation"] = "Categorical"
 
-    fr = FeatureReducer(cs)
+    fr = FeatureReducerMapper(column_sharer=cs)
     column_mapping = fr.get_mapping(data)
-    check = {
-        0: {"inputs": (["age", "weights"],), "steps": [SmartFeatureReducer()]},
-        1: {"inputs": (["occupation"],), "steps": [SmartFeatureReducer()]},
-    }
-    assert str(column_mapping) == str(check)
+
+    check = PreparerMapping()
+    check.add(["age", "weights"], [FeatureReducer()])
+    check.add(["occupation"], [FeatureReducer()])
+
+    for key in column_mapping.store:
+        assert key in check.store
+        assert str(column_mapping.store[key]) == str(check.store[key])

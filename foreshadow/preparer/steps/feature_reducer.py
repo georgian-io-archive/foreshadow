@@ -1,21 +1,19 @@
 """Feature Reducer module in Foreshadow workflow."""
 from collections import defaultdict
 
-from foreshadow.core.preparerstep import PreparerStep
-from foreshadow.transformers.core import SmartTransformer
-from foreshadow.transformers.core.notransform import NoTransform
+from foreshadow.preparer.preparerstep import PreparerStep
+from foreshadow.smart import FeatureReducer
 
 
-class FeatureReducer(PreparerStep):
-    def __init__(self, *args, **kwargs):
+class FeatureReducerMapper(PreparerStep):
+    def __init__(self, **kwargs):
         """Define the single step for FeatureReducer, using SmartReducer.
 
         Args:
-            *args: args to PreparerStep initializer.
             **kwargs: kwargs to PreparerStep initializer.
 
         """
-        super().__init__(*args, use_single_pipeline=True, **kwargs)
+        super().__init__(**kwargs)
 
     def get_mapping(self, X):
         """Return the mapping of transformations for the FeatureReducer step.
@@ -84,6 +82,9 @@ class FeatureReducer(PreparerStep):
         parallelize_smart_steps and/or the class ParallelProcessor
         to inject this column list freshing operation.
         """
+        import pdb
+
+        pdb.set_trace()
 
         def group_by(iterable, column_sharer_key):
             result = defaultdict(list)
@@ -92,39 +93,17 @@ class FeatureReducer(PreparerStep):
             return result
 
         columns = X.columns.values.tolist()
-        columns_by_intent = group_by(columns, "intent")
+        columns_by_intent = list(group_by(columns, "intent").values())
 
         """Not sure where the drop_feature functionality would apply.
         Would reducer produce empty columns? If yes, the concrete reducer
         should check and apply drop column functionality before return.
         """
-        column_mapping = {
-            i: {
-                "inputs": (cols,),
-                "steps": [
-                    SmartFeatureReducer(column_sharer=self.column_sharer)
-                ],
-            }
-            for i, cols in enumerate(list(columns_by_intent.values()))
-        }
 
-        return column_mapping
-
-
-class SmartFeatureReducer(SmartTransformer):
-    """Intelligently decide which feature reduction function
-    should be applied."""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    def pick_transformer(self, X, y=None, **fit_params):
-        """Get best transformer for a given set of columns.
-        Args:
-            X: input DataFrame
-            y: input labels
-            **fit_params: fit_params
-        Returns:
-            Best feature engineering transformer.
-        """
-        return NoTransform(column_sharer=self.column_sharer)
+        return self.separate_cols(
+            transformers=[
+                [FeatureReducer(column_sharer=self.column_sharer)]
+                for col_group in columns_by_intent
+            ],
+            cols=columns_by_intent,
+        )
