@@ -24,7 +24,7 @@ def test_data_preparer_init(cleaner_kwargs, expected_error):
 
     """
     from foreshadow.preparer import DataPreparer
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.columnsharer import ColumnSharer
 
     cs = ColumnSharer()
     if expected_error is not None:
@@ -44,7 +44,7 @@ def test_data_preparer_fit(cleaner_kwargs):
 
     """
     from foreshadow.preparer import DataPreparer
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.columnsharer import ColumnSharer
     import pandas as pd
 
     boston_path = get_file_path("data", "boston_housing.csv")

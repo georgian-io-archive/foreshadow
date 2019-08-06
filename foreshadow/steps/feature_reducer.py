@@ -1,11 +1,12 @@
 """Feature Reducer module in Foreshadow workflow."""
 from collections import defaultdict
 
-from foreshadow.preparer.preparerstep import PreparerStep
-from foreshadow.smart import FeatureReducer
+from .preparerstep import PreparerStep
+from .autointentmap import AutoIntentMixin
+from foreshadow.smart import FeatureReducer as _FeatureReducer
 
 
-class FeatureReducerMapper(PreparerStep):
+class FeatureReducerMapper(PreparerStep, AutoIntentMixin):
     def __init__(self, **kwargs):
         """Define the single step for FeatureReducer, using SmartReducer.
 
@@ -82,6 +83,7 @@ class FeatureReducerMapper(PreparerStep):
         parallelize_smart_steps and/or the class ParallelProcessor
         to inject this column list freshing operation.
         """
+        self.check_resolve(X)
 
         def group_by(iterable, column_sharer_key):
             result = defaultdict(list)
@@ -99,7 +101,7 @@ class FeatureReducerMapper(PreparerStep):
 
         return self.separate_cols(
             transformers=[
-                [FeatureReducer(column_sharer=self.column_sharer)]
+                [_FeatureReducer(column_sharer=self.column_sharer)]
                 for col_group in columns_by_intent
             ],
             cols=columns_by_intent,

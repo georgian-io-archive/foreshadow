@@ -5,8 +5,8 @@ def test_data_cleaner_fit():
     """Test basic fit call."""
     import pandas as pd
     import numpy as np
-    from foreshadow.preparer import CleanerMapper
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.steps import CleanerMapper
+    from foreshadow.columnsharer import ColumnSharer
 
     data = pd.DataFrame(
         {
@@ -55,7 +55,7 @@ def test_financials():
     """Test financial column cleaned correctly."""
     import pandas as pd
     from foreshadow.preparer import CleanerMapper
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.columnsharer import ColumnSharer
     import numpy as np
 
     data = pd.DataFrame(
@@ -81,7 +81,7 @@ def test_json():
     """Test json input cleaned correctly."""
     import pandas as pd
     from foreshadow.preparer import CleanerMapper
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.columnsharer import ColumnSharer
     import numpy as np
 
     data = pd.DataFrame(
@@ -124,7 +124,7 @@ def test_drop():
     """Test drop called when expected to."""
     import pandas as pd
     from foreshadow.preparer import CleanerMapper
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.columnsharer import ColumnSharer
 
     columns = ["financials"]
     data = pd.DataFrame({"financials": ["", "", "", ""]}, columns=columns)
@@ -141,7 +141,7 @@ def test_numerical_input():
     import numpy as np
     import pandas as pd
     from foreshadow.preparer import CleanerMapper
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.columnsharer import ColumnSharer
 
     columns = ["financials"]
     data = pd.DataFrame({"financials": np.arange(10)}, columns=columns)
@@ -157,7 +157,7 @@ def test_numerical_input_fittransform():
     import numpy as np
     import pandas as pd
     from foreshadow.preparer import CleanerMapper
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.columnsharer import ColumnSharer
 
     columns = ["financials"]
     data = pd.DataFrame({"financials": np.arange(10)}, columns=columns)

@@ -3,6 +3,9 @@ import pprint
 from collections import MutableMapping, defaultdict
 
 
+# TODO: Make this multi processor safe using managers
+
+
 class PrettyDefaultDict(defaultdict):
     """A default dict wrapper that allows simple printing."""
 

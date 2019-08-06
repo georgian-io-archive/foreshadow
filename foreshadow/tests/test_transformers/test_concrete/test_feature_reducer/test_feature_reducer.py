@@ -1,13 +1,12 @@
 """Test feature reducer.py"""
-import numpy as np
-import pandas as pd
-
-from foreshadow.preparer import ColumnSharer, FeatureReducerMapper
-from foreshadow.preparer.preparerstep import PreparerMapping
-from foreshadow.smart import FeatureReducer
 
 
 def test_feature_reducer_fit_no_ops():
+    import numpy as np
+    import pandas as pd
+
+    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.steps import FeatureReducerMapper
     data = pd.DataFrame(
         {
             "age": [10, 20, 33, 44],
@@ -33,6 +32,12 @@ def test_feature_reducer_fit_no_ops():
 
 
 def test_feature_reducer_get_mapping_by_intent():
+    import pandas as pd
+
+    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.steps import FeatureReducerMapper
+    from foreshadow.steps.preparerstep import PreparerMapping
+    from foreshadow.smart import FeatureReducer
     data = pd.DataFrame(
         {
             "age": [10, 20, 33, 44],
