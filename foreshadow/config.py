@@ -113,6 +113,30 @@ class ConfigStore(MutableMapping):
 
         return resolved
 
+    def get_cleaners(self, flatteners=False, cleaners=False):
+        """Get cleaner setup.
+
+        Args:
+            flatteners (bool): get flatteners
+            cleaners (bool): get cleaners
+
+        Returns:
+            list: A list of all the relavent classes
+
+        Raises:
+            ValueError: Both flatteners and cleaners cannot be false
+
+        """
+        if not (flatteners or cleaners):
+            raise ValueError("Both flatteners and cleaners cannot be false.")
+
+        config = self.get_config()
+
+        flatteners = config["Cleaner"]["Flatteners"] if flatteners else []
+        cleaners = config["Cleaner"]["Cleaners"] if cleaners else []
+
+        return [*flatteners, *cleaners]
+
     def get_intents(self):
         """Get the intent resolution order.
 

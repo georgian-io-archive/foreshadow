@@ -1,7 +1,7 @@
 """SmartFlattener for the CleanerMapper step in DataPreparer."""
 from foreshadow.concrete.internals import NoTransform
+from foreshadow.config import config
 from foreshadow.logging import logging
-from foreshadow.utils import dynamic_import
 
 from .smart import SmartTransformer
 
@@ -24,20 +24,10 @@ class Flatten(SmartTransformer):
             Best data flattening transformer
 
         """
-        from foreshadow.concrete.internals import __all__ as flatteners
-
-        flatteners = [
-            (
-                dynamic_import(flattener, "foreshadow.concrete.internals"),
-                flattener,
-            )
-            for flattener in flatteners
-            if flattener.lower().find("flatten") != -1
-        ]
-
+        flatteners = config.get_cleaners(flatteners=True)
         best_score = 0
         best_flattener = None
-        for flattener, name in flatteners:
+        for flattener in flatteners:
             flattener = flattener()
             score = flattener.metric_score(X)
             if score > best_score:
