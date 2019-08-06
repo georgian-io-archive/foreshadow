@@ -9,6 +9,8 @@ from foreshadow.logging import logging
 from foreshadow.parallelprocessor import ParallelProcessor
 from foreshadow.pipeline import DynamicPipeline
 
+from ..columnsharer import ColumnSharer
+
 
 GroupProcess = namedtuple(
     "GroupProcess", ["single_input", "step_inputs", "steps"]
@@ -263,6 +265,8 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
         """
         self.column_sharer = column_sharer
+        if self.column_sharer is None:
+            self.column_sharer = ColumnSharer()
         self._parallel_process = None
         super().__init__(**kwargs)
 

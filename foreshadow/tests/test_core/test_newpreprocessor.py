@@ -14,7 +14,7 @@ def test_preprocessor_none_config(mocker):
     import numpy as np
     import pandas as pd
     from foreshadow.columnsharer import ColumnSharer
-    from foreshadow.preparer import Preprocessor
+    from foreshadow.steps import Preprocessor
 
     from sklearn.base import BaseEstimator, TransformerMixin
 
