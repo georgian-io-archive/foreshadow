@@ -1,7 +1,6 @@
 """SmartResolver for ResolverMapper step."""
 
 from foreshadow.config import config
-
 from foreshadow.smart.smart import SmartTransformer
 
 

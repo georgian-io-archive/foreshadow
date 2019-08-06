@@ -3,8 +3,7 @@
 from sklearn.pipeline import Pipeline
 
 from foreshadow.pipeline import PipelineSerializerMixin
-from .steps import IntentMapper
-from .steps.cleaner import CleanerMapper
+from foreshadow.steps import CleanerMapper, IntentMapper
 
 
 def _none_to_dict(name, val, column_sharer=None):

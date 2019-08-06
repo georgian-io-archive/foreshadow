@@ -13,7 +13,7 @@ def test_preprocessor_none_config(mocker):
     """
     import numpy as np
     import pandas as pd
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.columnsharer import ColumnSharer
     from foreshadow.preparer import Preprocessor
 
     from sklearn.base import BaseEstimator, TransformerMixin
@@ -61,8 +61,8 @@ def test_preprocessor_numbers(mocker):
     """
     import numpy as np
     import pandas as pd
-    from foreshadow.preparer import ColumnSharer
-    from foreshadow.preparer import Preprocessor
+    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.steps import Preprocessor
 
     from sklearn.base import BaseEstimator, TransformerMixin
 
@@ -82,7 +82,7 @@ def test_preprocessor_numbers(mocker):
     }
 
     mocker.patch(
-        "foreshadow.preparer.steps.preprocessor.config.get_config",
+        "foreshadow.steps.preprocessor.config.get_config",
         return_value=dummy_config,
         create=True,
     )

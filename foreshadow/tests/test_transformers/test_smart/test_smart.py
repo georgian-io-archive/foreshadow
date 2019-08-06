@@ -222,7 +222,8 @@ def test_preprocessor_hashencoder_no_name_collision():
     import uuid
     import numpy as np
     import pandas as pd
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     cat1 = [str(uuid.uuid4()) for _ in range(40)]
     cat2 = [str(uuid.uuid4()) for _ in range(40)]

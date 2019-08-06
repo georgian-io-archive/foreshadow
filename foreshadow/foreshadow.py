@@ -6,13 +6,11 @@ import warnings
 from sklearn.base import BaseEstimator
 from sklearn.model_selection._search import BaseSearchCV
 
+from foreshadow.columnsharer import ColumnSharer
 from foreshadow.estimators.auto import AutoEstimator
 from foreshadow.estimators.meta import MetaEstimator
-from foreshadow.preparer import (
-    ColumnSharer,
-    DataPreparer,
-)
 from foreshadow.pipeline import SerializablePipeline
+from foreshadow.preparer import DataPreparer
 from foreshadow.utils import check_df
 
 

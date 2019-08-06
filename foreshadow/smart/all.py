@@ -31,11 +31,11 @@ from foreshadow.concrete.internals import (
     ToString,
     UncommonRemover,
 )
-
+from foreshadow.pipeline import SerializablePipeline
 from foreshadow.utils import check_df
 
 from .smart import SmartTransformer
-from foreshadow.pipeline import SerializablePipeline
+
 
 # TODO: split this file up
 

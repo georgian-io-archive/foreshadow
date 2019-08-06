@@ -3,7 +3,7 @@
 from foreshadow.config import config
 from foreshadow.smart import IntentResolver
 
-from ..preparerstep import PreparerStep, PreparerMapping
+from .preparerstep import PreparerMapping, PreparerStep
 
 
 class Preprocessor(PreparerStep):
@@ -66,7 +66,7 @@ class Preprocessor(PreparerStep):
 #     debug()
 #     import numpy as np
 #     import pandas as pd
-#     from foreshadow.preparer import ColumnSharer
+#     from foreshadow.columnsharer import ColumnSharer
 #
 #     columns = ["financials"]
 #     data = pd.DataFrame({"financials": np.arange(10)}, columns=columns)

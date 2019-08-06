@@ -6,9 +6,9 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 from foreshadow.concrete.internals.notransform import NoTransform
 from foreshadow.logging import logging
+from foreshadow.pipeline import DynamicPipeline
 
 from .parallelprocessor import ParallelProcessor
-from foreshadow.pipeline import DynamicPipeline
 
 
 GroupProcess = namedtuple(

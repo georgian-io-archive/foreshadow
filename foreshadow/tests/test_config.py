@@ -95,7 +95,9 @@ def test_get_config_overrides(data, mocker):
 
     mock_load_config = partial(mock_load_config, d1=user, d2=local)
 
-    mocker.patch("foreshadow.config.config.system_config", return_value=framework)
+    mocker.patch(
+        "foreshadow.config.config.system_config", return_value=framework
+    )
     mocker.patch("foreshadow.config.get_config_path", return_value="USER")
     mocker.patch("os.path.abspath", return_value="LOCAL")
     mocker.patch("foreshadow.config.load_config", side_effect=mock_load_config)
