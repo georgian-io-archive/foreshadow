@@ -1,12 +1,12 @@
 """Defines the Preprocessor step in the Foreshadow DataPreparer pipeline."""
 
 from foreshadow.config import config
-from foreshadow.smart import IntentResolver
 
+from .autointentresolve import AutoIntentMixin
 from .preparerstep import PreparerMapping, PreparerStep
 
 
-class Preprocessor(PreparerStep):
+class Preprocessor(PreparerStep, AutoIntentMixin):
     """Apply preprocessing steps to each column.
 
     Params:
@@ -22,18 +22,10 @@ class Preprocessor(PreparerStep):
         super().__init__(**kwargs)
 
     def _def_get_mapping(self, X):
-        # Add code to auto create column sharer in preparerstep if it is not
-        # passed in
-
-        # TODO: This needs to get fixed in a base class
-        # ie a baseclass needs to resolve the "cache miss"
-
         pm = PreparerMapping()
         for i, c in enumerate(X.columns):
+            self.check_resolve(X)
             intent = self.column_sharer["intent", c]
-            if intent is None:
-                IntentResolver(column_sharer=self.column_sharer).fit(X)
-                intent = self.column_sharer["intent", c]
             transformers_class_list = config.get_preprocessor_steps(intent)
             if (transformers_class_list is not None) or (
                 len(transformers_class_list) > 0

@@ -3,16 +3,14 @@
 from .mapper import IntentMapper
 
 
-class IntentResolverMixin:
+class AutoIntentMixin:
     """Used for steps that need to resolve intents if not yet resolved."""
 
-    def check_resolve(self, X, y=None, **fit_params):
+    def check_resolve(self, X):
         """Check if intents have been resolved and resolve if not.
 
         Args:
             X: input DataFrame to check
-            y: labels
-            **fit_params: params to fit
 
         Raises:
             RuntimeError: If there is no self.column_sharer.
@@ -26,8 +24,8 @@ class IntentResolverMixin:
                 "PreparerStep."
             )
         columns_to_resolve = []
-        for column in X.columns[0]:
+        for column in X.columns:
             if self.column_sharer["intent", column] is None:
                 columns_to_resolve.append(column)
         mapper = IntentMapper(column_sharer=self.column_sharer)
-        X = mapper.fit_transform(X[columns_to_resolve], y=y, **fit_params)
+        X = mapper.fit_transform(X[columns_to_resolve])
