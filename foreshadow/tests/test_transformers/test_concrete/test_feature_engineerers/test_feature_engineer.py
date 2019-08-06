@@ -3,9 +3,9 @@ import numpy as np
 import pandas as pd
 
 from foreshadow.columnsharer import ColumnSharer
+from foreshadow.smart.feature_engineerer import FeatureEngineerer
 from foreshadow.steps import FeatureEngineererMapper
 from foreshadow.steps.preparerstep import PreparerMapping
-from foreshadow.smart.feature_engineerer import FeatureEngineerer
 
 
 def test_feature_engineerer_fit():

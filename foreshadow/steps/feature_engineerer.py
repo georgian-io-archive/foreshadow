@@ -1,10 +1,12 @@
 """Feature engineering module as a step in Foreshadow workflow."""
 from collections import defaultdict
 
-from .preparerstep import PreparerStep
-from foreshadow.smart.feature_engineerer import FeatureEngineerer as \
-    _FeatureEngineerer
+from foreshadow.smart.feature_engineerer import (
+    FeatureEngineerer as _FeatureEngineerer,
+)
+
 from .autointentmap import AutoIntentMixin
+from .preparerstep import PreparerStep
 
 
 class FeatureEngineererMapper(PreparerStep, AutoIntentMixin):
@@ -14,15 +16,20 @@ class FeatureEngineererMapper(PreparerStep, AutoIntentMixin):
         """Define the single step for FeatureEngineering, using SmartFeatureEngineerer.
 
         Args:
-            *args: args to PreparerStep constructor.
             **kwargs: kwargs to PreparerStep constructor.
 
         """
         super().__init__(**kwargs)
 
     def get_mapping(self, X):
-        """Maps the columns of the data frame by domain-tag then by Intent
-        stored in the ColumnSharer.
+        """Map columns by domain-tag then by Intent in the ColumnSharer.
+
+        Args:
+            X: input DataFrame
+
+        Returns:
+            Mapping.
+
         """
         self.check_resolve(X)
 

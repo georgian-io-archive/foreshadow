@@ -1,11 +1,11 @@
+"""Smart FeatureEngineerer for FeatureEngineererMapper step."""
 from foreshadow.concrete.internals.notransform import NoTransform
 
 from .smart import SmartTransformer
 
 
 class FeatureEngineerer(SmartTransformer):
-    """Intelligently decide which feature engineering function
-    should be applied."""
+    """Decide which feature engineering function should be applied."""
 
     def __init__(self, check_wrapped=True, **kwargs):
         super().__init__(check_wrapped=check_wrapped, **kwargs)
