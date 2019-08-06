@@ -120,12 +120,8 @@ def test_preprocessor_numbers(mocker):
     assert (tf_data == validate).squeeze().all()
 
 
-@pytest.mark.parametrize(
-    'column_sharer',
-    [True, False]
-
-)
-def test_preprocessor_numbers(mocker, column_sharer):
+@pytest.mark.parametrize("column_sharer", [True, False])
+def test_preprocessor_columnsharer(mocker, column_sharer):
     """Test a standard work flow with preprocessor with columnsharer.
 
     Args:
@@ -165,7 +161,7 @@ def test_preprocessor_numbers(mocker, column_sharer):
     )
     cs = None
     if column_sharer:
-        cs = dynamic_import('ColumnSharer', 'foreshadow.columnsharer')()
+        cs = dynamic_import("ColumnSharer", "foreshadow.columnsharer")()
 
     data = pd.DataFrame({"financials": np.arange(10)})
     p = Preprocessor(column_sharer=cs)

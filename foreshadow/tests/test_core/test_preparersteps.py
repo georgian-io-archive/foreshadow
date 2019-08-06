@@ -1,6 +1,7 @@
 """Test preparersteps.py."""
 
 import pytest
+
 from foreshadow.utils.testing import dynamic_import
 
 
@@ -21,12 +22,7 @@ def step():
     yield Step
 
 
-@pytest.mark.parametrize(
-    'column_sharer',
-    [
-        True, False
-    ]
-)
+@pytest.mark.parametrize("column_sharer", [True, False])
 def test_init_columnsharer(step, column_sharer):
     """Test columnsharer properly init on step.
 
@@ -39,6 +35,6 @@ def test_init_columnsharer(step, column_sharer):
     """
     cs = None
     if column_sharer:
-        cs = dynamic_import('ColumnSharer', 'foreshadow.columnsharer')()
+        cs = dynamic_import("ColumnSharer", "foreshadow.columnsharer")()
     step = step(column_sharer=cs)
     assert step.column_sharer is not None
