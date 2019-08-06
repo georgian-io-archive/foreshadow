@@ -23,9 +23,10 @@ class AutoIntentMixin:
                 "attribute and that it extends from "
                 "PreparerStep."
             )
-        columns_to_resolve = []
-        for column in X.columns:
-            if self.column_sharer["intent", column] is None:
-                columns_to_resolve.append(column)
+        columns_to_resolve = [
+            column
+            for column in X.columns
+            if self.column_sharer["intent", column] is None
+        ]
         mapper = IntentMapper(column_sharer=self.column_sharer)
         X = mapper.fit_transform(X[columns_to_resolve])
