@@ -4,9 +4,10 @@ from collections import defaultdict
 from .preparerstep import PreparerStep
 from foreshadow.smart.feature_engineerer import FeatureEngineerer as \
     _FeatureEngineerer
+from .autointentmap import AutoIntentMixin
 
 
-class FeatureEngineererMapper(PreparerStep):
+class FeatureEngineererMapper(PreparerStep, AutoIntentMixin):
     """Determine and perform best data cleaning step."""
 
     def __init__(self, **kwargs):
@@ -23,6 +24,7 @@ class FeatureEngineererMapper(PreparerStep):
         """Maps the columns of the data frame by domain-tag then by Intent
         stored in the ColumnSharer.
         """
+        self.check_resolve(X)
 
         def group_by(iterable, column_sharer_key):
             result = defaultdict(list)
