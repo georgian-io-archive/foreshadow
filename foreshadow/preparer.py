@@ -3,7 +3,12 @@
 from sklearn.pipeline import Pipeline
 
 from foreshadow.pipeline import PipelineSerializerMixin
-from foreshadow.steps import CleanerMapper, IntentMapper
+from foreshadow.steps import (
+    CleanerMapper,
+    FeatureEngineererMapper,
+    IntentMapper,
+    Preprocessor,
+)
 
 
 def _none_to_dict(name, val, column_sharer=None):
@@ -57,21 +62,28 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         intent_kwargs_ = _none_to_dict(
             "intent_kwargs", intent_kwargs, column_sharer
         )
-        # engineerer_kwargs_ = _none_to_dict(
-        # engineerer_kwargs=engineerer_kwargs
+        engineerer_kwargs_ = _none_to_dict(
+            "engineerer_kwargs", engineerer_kwargs, column_sharer
+        )
+        preprocessor_kwargs_ = _none_to_dict(
+            "preprocessor_kwargs", preprocessor_kwargs, column_sharer
+        )
+        # reducer_kwargs_ = _none_to_dict(
+        #     "reducer_kwargs", reducer_kwargs, column_sharer
         # )
-        # preprocessor_kwargs_ = _none_to_dict(
-        #     preprocessor_kwargs=preprocessor_kwargs
+        # modeler_kwargs_ = _none_to_dict(
+        #     "modeler_kwargs", modeler_kwargs, column_sharer
         # )
-        # reducer_kwargs_ = _none_to_dict(reducer_kwargs=reducer_kwargs)
-        # modeler_kwargs_ = _none_to_dict(modeler_kwargs=modeler_kwargs)
 
         super().__init__(
             steps=[
                 ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
                 ("intent", IntentMapper(**intent_kwargs_)),
-                # ('feature_engineerer', engineerer_kwargs_),
-                # ('feature_preprocessor', preprocessor_kwargs_),
+                (
+                    "feature_engineerer",
+                    FeatureEngineererMapper(**engineerer_kwargs_),
+                ),
+                ("feature_preprocessor", Preprocessor(**preprocessor_kwargs_)),
                 # ('feature_reducer', reducer_kwargs_,),
                 # ('model_selector', modeler_kwargs_)
             ]  # TODO add each of these components
