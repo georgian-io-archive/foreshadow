@@ -14,5 +14,4 @@ def test_resolver_overall():
     cs = ColumnSharer()
     ir = IntentMapper(cs)
     ir.fit(data)
-
     assert cs["intent", "financials"] == "Numeric"

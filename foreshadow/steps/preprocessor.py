@@ -2,7 +2,7 @@
 
 from foreshadow.config import config
 
-from .autointentresolve import AutoIntentMixin
+from .autointentmap import AutoIntentMixin
 from .preparerstep import PreparerMapping, PreparerStep
 
 
