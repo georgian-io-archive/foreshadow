@@ -1,8 +1,9 @@
 """Defines the Preprocessor step in the Foreshadow DataPreparer pipeline."""
 
-from foreshadow.config import resolve_config
-from ..preparerstep import PreparerStep
+from foreshadow.config import config
 from foreshadow.smart import IntentResolver
+
+from ..preparerstep import PreparerStep, PreparerMapping
 
 
 class Preprocessor(PreparerStep):
@@ -23,14 +24,17 @@ class Preprocessor(PreparerStep):
     def _def_get_mapping(self, X):
         # Add code to auto create column sharer in preparerstep if it is not
         # passed in
-        mapping = {}
+
+        # TODO: This needs to get fixed in a base class
+        # ie a baseclass needs to resolve the "cache miss"
+
+        pm = PreparerMapping()
         for i, c in enumerate(X.columns):
             intent = self.column_sharer["intent", c]
             if intent is None:
                 IntentResolver(column_sharer=self.column_sharer).fit(X)
                 intent = self.column_sharer["intent", c]
-
-            transformers_class_list = resolve_config()[intent]["preprocessor"]
+            transformers_class_list = config.get_preprocessor_steps(intent)
             if (transformers_class_list is not None) or (
                 len(transformers_class_list) > 0
             ):
@@ -40,10 +44,8 @@ class Preprocessor(PreparerStep):
                 ]
             else:
                 transformer_list = None  # None or []
-
-            mapping[i] = {"inputs": ([c],), "steps": transformer_list}
-
-        return mapping
+            pm.add([c], transformer_list)
+        return pm
 
     def get_mapping(self, X):
         """Return the mapping of transformations for the DataCleaner step.

@@ -25,8 +25,6 @@ DEFAULT_CONFIG = {
     "Text": {"Preprocessor": ["TextEncoder"]},
 }
 
-_cfg = {}
-
 def load_config(base):
     """Try to load configuration data from specific folder path.
 
@@ -62,7 +60,7 @@ class ConfigStore(MutableMapping):
         self.user_config = load_config(get_config_path())
         self._cfg_list = {} # key is path
 
-    def _resolve_config(self):
+    def get_config(self):
         """Resolves config at init time."""
         local_path = os.path.abspath("")
         local_config = load_config(local_path)
@@ -79,6 +77,9 @@ class ConfigStore(MutableMapping):
         }
 
         resolved_hash = hash(json.dumps(resolved_strs, sort_keys=True))
+
+        if resolved_hash in self._cfg_list:
+            return self._cfg_list[resolved_hash]
 
         resolved = {}
         # key is cleaner, resolver, or intent
@@ -101,35 +102,34 @@ class ConfigStore(MutableMapping):
 
         self._cfg_list[resolved_hash] = resolved
 
-        # _cfg[local_path] = resolved
+        return resolved
 
+    def get_intents(self):
+        return self.get_config()['Tiebreak']
 
+    def get_preprocessor_steps(self, intent):
+        return self.get_config()[intent]['Preprocessor']
+
+    def clear(self):
+        self._cfg_list = {}
 
     def __delitem__(self, key):
-        pass
+        del self._cfg_list[key]
 
     def __getitem__(self, key):
-        pass
+        return self._cfg_list[key]
 
     def __iter__(self):
-        pass
+        for data in self._cfg_list:
+            yield data
 
     def __len__(self):
-        pass
+        return len(self._cfg_list)
 
     def __setitem__(self):
-        pass
+        raise NotImplementedError("The config cannot be manually set.")
 
-# def reset_config():
-#     """Reset internal configuration.
-# 
-#     Note:
-#         This is useful in an IDLE setting when the configuration file might
-#         have been modified but you don't want to reload the system.
-# 
-#     """
-#     global _cfg
-#     _cfg = {}
+    def __eq__(self, other):
+        return self._cfg_list == other
 
-if __name__ == '__main__':
-    pass
+config = ConfigStore()

@@ -27,8 +27,8 @@ def test_preprocessor_none_config(mocker):
 
     dummy_config = {
         "cleaner": [],
-        "resolver": [DummyIntent],
-        "DummyIntent": {"preprocessor": None},
+        "Tiebreak": [DummyIntent],
+        "DummyIntent": {"Preprocessor": None},
     }
 
     mocker.patch(
@@ -76,13 +76,13 @@ def test_preprocessor_numbers(mocker):
             return X
 
     dummy_config = {
-        "cleaner": [],
-        "resolver": [DummyIntent],
-        "DummyIntent": {"preprocessor": [StandardScaler]},
+        "Cleaner": [],
+        "Tiebreak": [DummyIntent],
+        "DummyIntent": {"Preprocessor": [StandardScaler]},
     }
 
     mocker.patch(
-        "foreshadow.preparer.steps.preprocessor.resolve_config",
+        "foreshadow.preparer.steps.preprocessor.config.get_config",
         return_value=dummy_config,
         create=True,
     )

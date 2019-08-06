@@ -1,6 +1,6 @@
 """SmartResolver for ResolverMapper step."""
 
-from foreshadow.config import resolve_config
+from foreshadow.config import config
 
 from foreshadow.smart.smart import SmartTransformer
 
@@ -33,7 +33,7 @@ class IntentResolver(SmartTransformer):
         .. # noqa: S001
 
         """
-        intent_list = resolve_config()["resolver"]
+        intent_list = config.get_intents()
         return max(intent_list, key=lambda intent: intent.get_confidence(X))
 
     def resolve(self, X, *args, **kwargs):
