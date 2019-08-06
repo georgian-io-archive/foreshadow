@@ -22,7 +22,7 @@ class FeatureReducerMapper(PreparerStep, AutoIntentMixin):
     def get_mapping(self, X):
         """Return the mapping of transformations for the FeatureReducer step.
 
-        Current code only supports intent-based reduction at this moment.
+        Current code only supports intent-based reduction.
 
         Args:
             X: input DataFrame.
