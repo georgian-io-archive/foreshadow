@@ -7,6 +7,7 @@ def test_feature_reducer_fit_no_ops():
 
     from foreshadow.columnsharer import ColumnSharer
     from foreshadow.steps import FeatureReducerMapper
+
     data = pd.DataFrame(
         {
             "age": [10, 20, 33, 44],
@@ -38,6 +39,7 @@ def test_feature_reducer_get_mapping_by_intent():
     from foreshadow.steps import FeatureReducerMapper
     from foreshadow.steps.preparerstep import PreparerMapping
     from foreshadow.smart import FeatureReducer
+
     data = pd.DataFrame(
         {
             "age": [10, 20, 33, 44],

@@ -1,12 +1,15 @@
 """Feature Reducer module in Foreshadow workflow."""
 from collections import defaultdict
 
-from .preparerstep import PreparerStep
-from .autointentmap import AutoIntentMixin
 from foreshadow.smart import FeatureReducer as _FeatureReducer
+
+from .autointentmap import AutoIntentMixin
+from .preparerstep import PreparerStep
 
 
 class FeatureReducerMapper(PreparerStep, AutoIntentMixin):
+    """FeatureReducer step in DataPreparer."""
+
     def __init__(self, **kwargs):
         """Define the single step for FeatureReducer, using SmartReducer.
 
@@ -18,6 +21,7 @@ class FeatureReducerMapper(PreparerStep, AutoIntentMixin):
 
     def get_mapping(self, X):
         """Return the mapping of transformations for the FeatureReducer step.
+
         Current code only supports intent-based reduction at this moment.
 
         Args:
@@ -27,7 +31,6 @@ class FeatureReducerMapper(PreparerStep, AutoIntentMixin):
             Mapping in accordance with super.
 
         """
-
         """
         A longer discussion. Please correct me if I'm wrong.
         Feature reduction could look at columns in (at least) 2 ways:

@@ -1,11 +1,11 @@
+"""Smart Feature Reducer for FeatureReducerMapper step."""
 from foreshadow.concrete.internals import NoTransform
 
 from .smart import SmartTransformer
 
 
 class FeatureReducer(SmartTransformer):
-    """Intelligently decide which feature reduction function
-    should be applied."""
+    """Decide which feature reduction function should be applied."""
 
     def __init__(
         self,  # manually adding as otherwise get_params won't see it.
@@ -16,11 +16,14 @@ class FeatureReducer(SmartTransformer):
 
     def pick_transformer(self, X, y=None, **fit_params):
         """Get best transformer for a given set of columns.
+
         Args:
             X: input DataFrame
             y: input labels
             **fit_params: fit_params
+
         Returns:
             Best feature engineering transformer.
+
         """
         return NoTransform()

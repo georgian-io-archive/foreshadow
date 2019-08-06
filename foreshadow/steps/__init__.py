@@ -2,9 +2,9 @@
 
 from .cleaner import CleanerMapper
 from .feature_engineerer import FeatureEngineererMapper
+from .feature_reducer import FeatureReducerMapper
 from .mapper import IntentMapper
 from .preprocessor import Preprocessor
-from .feature_reducer import FeatureReducerMapper
 
 
 __all__ = [
