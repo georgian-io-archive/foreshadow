@@ -4,12 +4,12 @@ import pytest
 
 
 def test_get_config_does_not_exists(mocker):
-    from foreshadow.config import get_config
+    from foreshadow.config import load_config
 
     mocker.patch("os.path.exists", return_value=False)
     mocker.patch("os.path.isfile", return_value=False)
 
-    assert get_config("test") == {}
+    assert load_config("test") == {}
 
 
 @pytest.mark.parametrize(
@@ -17,7 +17,7 @@ def test_get_config_does_not_exists(mocker):
     [("test:\n  - hello".encode(), {"test": ["hello"]}), ("".encode(), {})],
 )
 def test_get_config_exists(data, mocker):
-    from foreshadow.config import get_config
+    from foreshadow.config import load_config
 
     read_data, test_data = data
 
@@ -26,23 +26,25 @@ def test_get_config_exists(data, mocker):
     m = mocker.mock_open(read_data=read_data)
     mocker.patch("builtins.open", m, create=True)
 
-    assert get_config("test") == test_data
+    assert load_config("test") == test_data
 
 
-@pytest.mark.skip("config switched")
-def test_resolve_config_only_sys():
+# @pytest.mark.skip("config switched")
+def test_get_config_only_sys():
     import pickle
 
-    from foreshadow.config import resolve_config
+    from foreshadow.config import config
     from foreshadow.utils.testing import get_file_path
 
-    resolved = resolve_config()
+    resolved = config.get_config()
 
     test_data_path = get_file_path("configs", "configs_default.pkl")
 
     # (If you change default configs) or file structure, you will need to
     # verify the outputs are correct manually and regenerate the pickle
     # truth file.
+    # with open(test_data_path, "wb") as fopen:
+    #     pickle.dump(config[cfg_hash], fopen)
 
     with open(test_data_path, "rb") as fopen:
         test_data = pickle.load(fopen)
@@ -54,36 +56,36 @@ def test_resolve_config_only_sys():
     "data",
     [
         ({}, {}, {}, "configs_empty.json"),
-        ({"cleaner": ["T1", "T2"]}, {}, {}, "configs_override1.json"),
+        ({"Cleaner": ["T1", "T2"]}, {}, {}, "configs_override1.json"),
         (
-            {"cleaner": ["T1", "T2"]},
-            {"cleaner": ["T3"]},
+            {"Cleaner": ["T1", "T2"]},
+            {"Cleaner": ["T3"]},
             {},
             "configs_override2.json",
         ),
         (
-            {"cleaner": ["T1", "T2"]},
-            {"cleaner": ["T3"]},
-            {"cleaner": ["T4"]},
+            {"Cleaner": ["T1", "T2"]},
+            {"Cleaner": ["T3"]},
+            {"Cleaner": ["T4"]},
             "configs_override3.json",
         ),
         (
-            {"cleaner": ["T1", "T2"]},
+            {"Cleaner": ["T1", "T2"]},
             {},
-            {"cleaner": ["T4"]},
+            {"Cleaner": ["T4"]},
             "configs_override4.json",
         ),
     ],
 )
-def test_resolve_config_overrides(data, mocker):
+def test_get_config_overrides(data, mocker):
     import json
 
-    from foreshadow.config import resolve_config, reset_config
+    from foreshadow.config import config
     from foreshadow.utils.testing import get_file_path
 
     from functools import partial
 
-    def test_get_config(base, d1, d2):
+    def mock_load_config(base, d1, d2):
         if base == "USER":
             return d1
         else:
@@ -91,24 +93,26 @@ def test_resolve_config_overrides(data, mocker):
 
     framework, user, local, test_data_fname = data
 
-    test_get_config = partial(test_get_config, d1=user, d2=local)
+    mock_load_config = partial(mock_load_config, d1=user, d2=local)
 
-    mocker.patch("foreshadow.config.DEFAULT_CONFIG", return_value=framework)
+    mocker.patch(
+        "foreshadow.config.config.system_config", return_value=framework
+    )
     mocker.patch("foreshadow.config.get_config_path", return_value="USER")
     mocker.patch("os.path.abspath", return_value="LOCAL")
-    mocker.patch("foreshadow.config.get_config", side_effect=test_get_config)
+    mocker.patch("foreshadow.config.load_config", side_effect=mock_load_config)
     mocker.patch("foreshadow.config.get_transformer", side_effect=lambda x: x)
 
     # Clear the config cache
-    reset_config()
+    config.clear()
 
-    resolved = resolve_config()
+    resolved = config.get_config()
 
     test_data_path = get_file_path("configs", test_data_fname)
 
     # # This shouldn't need to be done again (unless re-factor)
     # with open(test_data_path, 'w+') as fopen:
-    #     json.dump(resolved, fopen, indent=4)
+    #     json.dump(config[cfg_hash], fopen, indent=4)
 
     with open(test_data_path, "r") as fopen:
         test_data = json.load(fopen)

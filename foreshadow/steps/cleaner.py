@@ -1,6 +1,7 @@
 """Cleaner module for handling the cleaning and shaping of data."""
-from foreshadow.preparer.preparerstep import PreparerStep
 from foreshadow.smart import Cleaner, Flatten
+
+from .preparerstep import PreparerStep
 
 
 class CleanerMapper(PreparerStep):
@@ -25,9 +26,6 @@ class CleanerMapper(PreparerStep):
             Mapping in accordance with super.
 
         """
-        import pdb
-
-        pdb.set_trace()
         return self.separate_cols(
             transformers=[
                 [

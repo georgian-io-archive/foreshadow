@@ -180,9 +180,7 @@ def regex_rows(feature, cleaner):
 
     """
     f = feature
-    matched_lens = [
-        cleaner(f.get_value(i, f.columns[0])).match_lens for i in f.index
-    ]
+    matched_lens = [cleaner(f.at[i, f.columns[0]]).match_lens for i in f.index]
     return sum([min(list_lens) for list_lens in matched_lens]) / len(feature)
 
 
@@ -214,7 +212,7 @@ def avg_col_regex(feature, cleaner, mode=min):
     """
     f = feature
     matched_lens = [
-        (cleaner(f.get_value(i, f.columns[0])).match_lens, len(f.iloc[i]))
+        (cleaner(f.at[i, f.columns[0]]).match_lens, len(f.iloc[i]))
         for i in f.index
     ]
     return sum(

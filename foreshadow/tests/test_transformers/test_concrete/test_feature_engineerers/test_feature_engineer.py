@@ -2,8 +2,9 @@
 import numpy as np
 import pandas as pd
 
-from foreshadow.preparer import ColumnSharer, FeatureEngineererMapper
-from foreshadow.preparer.preparerstep import PreparerMapping
+from foreshadow.columnsharer import ColumnSharer
+from foreshadow.steps import FeatureEngineererMapper
+from foreshadow.steps.preparerstep import PreparerMapping
 from foreshadow.smart.feature_engineerer import FeatureEngineerer
 
 
@@ -48,7 +49,6 @@ def test_feature_engineerer_get_mapping():
         columns=["age", "weights", "financials"],
     )
 
-    print(data)
     cs = ColumnSharer()
     cs["domain", "age"] = "personal"
     cs["domain", "weights"] = "personal"
@@ -65,9 +65,6 @@ def test_feature_engineerer_get_mapping():
     check_pm.add(["age", "weights"], [FeatureEngineerer()])
     check_pm.add(["financials"], [FeatureEngineerer()])
 
-    import pdb
-
-    pdb.set_trace()
     for key in column_mapping.store:
         assert key in check_pm.store
         assert str(column_mapping.store[key]) == str(check_pm.store[key])

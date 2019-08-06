@@ -2,9 +2,8 @@
 
 from sklearn.pipeline import Pipeline
 
-from foreshadow.preparer.pipeline import PipelineSerializerMixin
-from foreshadow.preparer.steps import IntentMapper
-from foreshadow.preparer.steps.cleaner import CleanerMapper
+from foreshadow.pipeline import PipelineSerializerMixin
+from foreshadow.steps import CleanerMapper, IntentMapper
 
 
 def _none_to_dict(name, val, column_sharer=None):

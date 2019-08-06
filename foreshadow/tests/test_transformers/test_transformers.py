@@ -49,7 +49,7 @@ def test_transformer_naming_default():
 
 
 def test_transformer_parallel_invalid():
-    from foreshadow.preparer import ParallelProcessor
+    from foreshadow.parallelprocessor import ParallelProcessor
 
     class InvalidTransformer:
         pass
@@ -68,7 +68,7 @@ def test_transformer_parallel_invalid():
 
 def test_transformer_parallel_empty():
     import pandas as pd
-    from foreshadow.preparer import ParallelProcessor
+    from foreshadow.parallelprocessor import ParallelProcessor
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
@@ -97,7 +97,7 @@ def test_transformer_parallel_empty():
 def test_transformer_parallel():
     import pandas as pd
 
-    from foreshadow.preparer import ParallelProcessor
+    from foreshadow.parallelprocessor import ParallelProcessor
     from foreshadow.concrete import StandardScaler
 
     boston_path = get_file_path("data", "boston_housing.csv")
@@ -139,7 +139,7 @@ def test_transformer_pipeline():
     np.random.seed(1337)
 
     from foreshadow.concrete import StandardScaler as CustomScaler
-    from foreshadow.preparer import ParallelProcessor
+    from foreshadow.parallelprocessor import ParallelProcessor
 
     from sklearn.preprocessing import StandardScaler
     from sklearn.pipeline import FeatureUnion

@@ -1,8 +1,7 @@
 """SmartResolver for ResolverMapper step."""
 
-from foreshadow.config import get_intents
-
-from .smart import SmartTransformer
+from foreshadow.config import config
+from foreshadow.smart.smart import SmartTransformer
 
 
 class IntentResolver(SmartTransformer):
@@ -33,7 +32,8 @@ class IntentResolver(SmartTransformer):
         .. # noqa: S001
 
         """
-        return max(get_intents(), key=lambda intent: intent.get_confidence(X))
+        intent_list = config.get_intents()
+        return max(intent_list, key=lambda intent: intent.get_confidence(X))
 
     def resolve(self, X, *args, **kwargs):
         """Pick the appropriate transformer if necessary.
@@ -47,6 +47,8 @@ class IntentResolver(SmartTransformer):
             **kwargs: params to resolve
 
         """
+        # Override the SmartTransformer resolve method to allow the setting of
+        # column info sharer data when resolving.
         super().resolve(X, *args, **kwargs)
         column_name = X.columns[0]
         self.column_sharer[

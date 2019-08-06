@@ -6,9 +6,10 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 from foreshadow.concrete.internals.notransform import NoTransform
 from foreshadow.logging import logging
+from foreshadow.parallelprocessor import ParallelProcessor
+from foreshadow.pipeline import DynamicPipeline
 
-from .parallelprocessor import ParallelProcessor
-from .pipeline import DynamicPipeline
+from ..columnsharer import ColumnSharer
 
 
 GroupProcess = namedtuple(
@@ -264,6 +265,8 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
         """
         self.column_sharer = column_sharer
+        if self.column_sharer is None:
+            self.column_sharer = ColumnSharer()
         self._parallel_process = None
         super().__init__(**kwargs)
 

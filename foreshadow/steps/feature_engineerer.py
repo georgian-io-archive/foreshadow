@@ -1,8 +1,9 @@
 """Feature engineering module as a step in Foreshadow workflow."""
 from collections import defaultdict
 
-from foreshadow.preparer.preparerstep import PreparerStep
-from foreshadow.smart.feature_engineerer import FeatureEngineerer
+from .preparerstep import PreparerStep
+from foreshadow.smart.feature_engineerer import FeatureEngineerer as \
+    _FeatureEngineerer
 
 
 class FeatureEngineererMapper(PreparerStep):
@@ -50,7 +51,7 @@ class FeatureEngineererMapper(PreparerStep):
 
         return self.separate_cols(
             transformers=[
-                [FeatureEngineerer(column_sharer=self.column_sharer)]
+                [_FeatureEngineerer(column_sharer=self.column_sharer)]
                 for col_group in columns_by_domain_and_intent
             ],
             cols=columns_by_domain_and_intent,
