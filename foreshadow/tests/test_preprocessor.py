@@ -123,7 +123,8 @@ def patch_intents(mocker):
 def test_preprocessor_init_empty():
     """Verifies preprocessor initializes with empty values."""
 
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     proc = DataPreparer(column_sharer=ColumnSharer())
 
@@ -140,7 +141,8 @@ def test_preprocessor_init_json_intent_map():
 
     import json
 
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     test_path = get_file_path(
         "configs", "override_column_intent_pipeline.json"
@@ -157,7 +159,8 @@ def test_preprocessor_init_json_intent_map():
 
 @pytest.mark.skip("removed?")
 def test_preprocessor_intent_dependency_order():
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     proc = DataPreparer(column_sharer=ColumnSharer())
     proc._intent_map = {
@@ -191,7 +194,8 @@ def test_preprocessor_init_json_pipeline_map():
 
     import json
 
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
     from foreshadow.utils import PipelineStep
 
     test_path = get_file_path(
@@ -223,7 +227,8 @@ def test_preprocessor_init_json_multi_pipeline():
 
     import json
 
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
     from foreshadow.utils import PipelineStep
 
     test_path = get_file_path("configs", "override_multi_pipeline.json")
@@ -262,7 +267,8 @@ def test_preprocessor_init_json_intent_override_multi():
 
     import json
 
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
     from foreshadow.utils import PipelineStep
 
     test_path = get_file_path("configs", "override_intent_pipeline_multi.json")
@@ -303,7 +309,8 @@ def test_preprocessor_init_json_intent_override_single():
 
     import json
 
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
     from foreshadow.utils import PipelineStep
 
     test_path = get_file_path(
@@ -344,7 +351,8 @@ def test_preprocessor_fit_map_intents_default():
     intent maps override auto-detect
     """
     import pandas as pd
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
@@ -368,7 +376,7 @@ def test_preprocessor_fit_map_intents_override():
 
     import pandas as pd
     from foreshadow.preparer import DataPreparer
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path(
@@ -395,7 +403,7 @@ def test_preprocessor_fit_create_single_pipeline_default():
     """
     import pandas as pd
     from foreshadow.preparer import DataPreparer
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
     df = pd.read_csv(boston_path)
@@ -425,7 +433,7 @@ def test_preprocessor_fit_create_single_pipeline_override_column():
     import pandas as pd
     from foreshadow.preparer import DataPreparer
     from foreshadow.utils import PipelineStep
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path(
@@ -489,7 +497,8 @@ def test_preprocessor_make_empty_pipeline():
     import json
 
     import pandas as pd
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path("configs", "empty_pipeline_test.json")
@@ -518,7 +527,8 @@ def test_preprocessor_make_pipeline():
 
     import pandas as pd
     from collections import Counter
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
     from foreshadow.utils import PipelineStep
 
     boston_path = get_file_path("data", "boston_housing.csv")
@@ -631,7 +641,7 @@ def test_preprocessor_fit_transform():  # TODO figure out what this test is
 
     import pandas as pd
     from foreshadow.preparer import DataPreparer
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
     boston_preprocessed_path = get_file_path(
@@ -657,7 +667,8 @@ def test_preprocessor_fit_transform():  # TODO figure out what this test is
 def test_preprocessor_inverse_transform():
     import numpy as np
     import pandas as pd
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
@@ -687,7 +698,8 @@ def test_preprocessor_inverse_transform():
 @pytest.mark.skip("broken until pytest fixture fixed")
 def test_preprocessor_inverse_transform_unfit():
     import pandas as pd
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     dp = DataPreparer(column_sharer=ColumnSharer())
 
@@ -700,7 +712,8 @@ def test_preprocessor_inverse_transform_unfit():
 @pytest.mark.skip("broken until serialization")
 def test_preprocessor_inverse_transform_multicol():
     import pandas as pd
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
@@ -739,7 +752,7 @@ def test_preprocessor_get_params():  # TODO figure out what this test is
 
     import pandas as pd
     from foreshadow.preparer import DataPreparer
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path("configs", "test_params.pkl")
@@ -770,7 +783,7 @@ def test_preprocessor_set_params():  # TODO figure out what this test is
 
     import pandas as pd
     from foreshadow.preparer import DataPreparer
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path("configs", "test_params.pkl")
@@ -796,7 +809,8 @@ def test_preprocessor_set_params():  # TODO figure out what this test is
 def test_preprocessor_malformed_json_transformer():
     import json
 
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     test_path = get_file_path("configs", "malformed_transformer.json")
 
@@ -812,7 +826,8 @@ def test_preprocessor_malformed_json_transformer():
 @pytest.mark.skip("broken until serialization")
 def test_preprocessor_invalid_json_transformer_class():
     import json
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     test_path = get_file_path("configs", "invalid_transformer_class.json")
 
@@ -829,7 +844,8 @@ def test_preprocessor_invalid_json_transformer_class():
 def test_preprocessor_invalid_json_transformer_params():
     import json
 
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     test_path = get_file_path("configs", "invalid_transformer_params.json")
 
@@ -847,7 +863,7 @@ def test_preprocessor_invalid_json_transformer_params():
 @pytest.mark.skip("broken until serialization")
 def test_preprocessor_get_param_no_pipeline():
     from foreshadow.preparer import DataPreparer
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.columnsharer import ColumnSharer
 
     proc = DataPreparer(column_sharer=ColumnSharer())
     param = proc.get_params()
@@ -858,7 +874,7 @@ def test_preprocessor_get_param_no_pipeline():
 @pytest.mark.skip("broken until serialization")
 def test_preprocessor_set_param_no_pipeline():
     from foreshadow.preparer import DataPreparer
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.columnsharer import ColumnSharer
 
     dp = DataPreparer(column_sharer=ColumnSharer())
     params = dp.get_params()
@@ -871,7 +887,8 @@ def test_preprocessor_set_param_no_pipeline():
 @pytest.mark.skip("broken until intent are swapped in.")
 def test_preprocessor_transform_no_pipeline():
     import pandas as pd
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
@@ -888,7 +905,8 @@ def test_preprocessor_serialize():
     import json
 
     import pandas as pd
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path("configs", "test_serialize.json")
@@ -910,7 +928,8 @@ def test_preprocessor_serialize():
 @pytest.mark.skip("broken until serialization")
 def test_preprocessor_continuity():
     import pandas as pd
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
@@ -927,7 +946,8 @@ def test_preprocessor_continuity():
 @pytest.mark.skip("broken until serialization")
 def test_preprocessor_y_var_filtering():
     import pandas as pd
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
@@ -945,7 +965,8 @@ def test_preprocessor_y_var_filtering():
 def test_preprocessor_summarize():
     import json
     import pandas as pd
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path("configs", "complete_pipeline_test.json")

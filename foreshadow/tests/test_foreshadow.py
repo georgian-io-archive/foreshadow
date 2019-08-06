@@ -33,7 +33,7 @@ def test_foreshadow_X_preparer_false():
 def test_foreshadow_X_preparer_custom():
     from foreshadow.foreshadow import Foreshadow
     from foreshadow.preparer import DataPreparer
-    from foreshadow.preparer import ColumnSharer
+    from foreshadow.columnsharer import ColumnSharer
 
     dp = DataPreparer(column_sharer=ColumnSharer())
     foreshadow = Foreshadow(X_preparer=dp)
@@ -475,7 +475,8 @@ def test_foreshadow_param_optimize_no_combinations():
     from sklearn.pipeline import Pipeline
 
     from foreshadow.foreshadow import Foreshadow
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path("configs", "search_space_no_combo.pkl")
@@ -517,7 +518,8 @@ def test_foreshadow_param_optimize_invalid_array_idx():
     from sklearn.pipeline import Pipeline
 
     from foreshadow.foreshadow import Foreshadow
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path("configs", "invalid_optimizer_config.json")
@@ -556,7 +558,8 @@ def test_foreshadow_param_optimize_invalid_dict_key():
     from sklearn.pipeline import Pipeline
 
     from foreshadow.foreshadow import Foreshadow
-    from foreshadow.preparer import DataPreparer, ColumnSharer
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
 

@@ -2,6 +2,7 @@
 
 from .cleaner import CleanerMapper
 from .mapper import IntentMapper
+from .preprocessor import Preprocessor
 
 
-__all__ = ["CleanerMapper", "IntentMapper"]
+__all__ = ["CleanerMapper", "IntentMapper", "Preprocessor"]

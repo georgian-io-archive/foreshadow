@@ -1,6 +1,8 @@
 """Foreshadow system config resolver."""
 
+import json
 import os
+from collections import MutableMapping
 
 import yaml
 
@@ -9,18 +11,23 @@ from foreshadow.utils import get_config_path, get_transformer
 
 CONFIG_FILE_NAME = "config.yml"
 
-DEFAULT_CONFIG = {
-    "cleaner": [],
-    "resolver": ["Numeric", "Categoric", "Text"],
-    "Numeric": {"preprocessor": ["Imputer", "Scaler"]},
-    "Categoric": {"preprocessor": ["CategoricalEncoder"]},
-    "Text": {"preprocessor": ["TextEncoder"]},
+_DEFAULT_CONFIG = {
+    "Cleaner": {
+        "Flatteners": ["StandardJsonFlattener"],
+        "Cleaners": [
+            "YYYYMMDDDateCleaner",
+            "DropCleaner",
+            "DollarFinancialCleaner",
+        ],
+    },
+    "Tiebreak": ["Numeric", "Categoric", "Text"],
+    "Numeric": {"Preprocessor": ["Imputer", "Scaler"]},
+    "Categoric": {"Preprocessor": ["CategoricalEncoder"]},
+    "Text": {"Preprocessor": ["TextEncoder"]},
 }
 
-_cfg = {}
 
-
-def get_config(base):
+def load_config(base):
     """Try to load configuration data from specific folder path.
 
     Args:
@@ -46,71 +53,175 @@ def get_config(base):
                 return data
 
 
-def reset_config():
-    """Reset internal configuration.
+class ConfigStore(MutableMapping):
+    """Define a single-instance config store with convenience methods.
 
-    Note:
-        This is useful in an IDLE setting when the configuration file might
-        have been modified but you don't want to reload the system.
-
-    """
-    global _cfg
-    _cfg = {}
-
-
-def get_intents():
-    """Get the intents defined in the config.
-
-    Returns:
-        list: A list of strings for the specific configuration.
+    Attributues:
+        system_config: The default system configuration dictionary
+        user_config: The specific user configuration dictionary
 
     """
-    return resolve_config()["resolver"]
 
+    def __init__(self, *args, **kwarg):
+        self.system_config = _DEFAULT_CONFIG
+        self.user_config = load_config(get_config_path())
+        self._cfg_list = {}  # key is path
 
-def resolve_config():
-    """Resolve the configuration to actual classes.
+    def get_config(self):
+        """Resolve a config instance.
 
-    Note:
-        The order is resolution is as follows in increasing precedence order:
-        framework, user, local.
+        Returns:
+            dict: A resolved version of the system configuration that merges \
+                system, user, and local configuration setups.
 
-    Returns:
-        A dictionary with the same keys as `foreshadow.config.DEFAULT_CONFIG`
-        with the correct overrides.
+        """
+        local_path = os.path.abspath("")
+        local_config = load_config(local_path)
 
-    """
-    default = DEFAULT_CONFIG
-    user = get_config(get_config_path())
-    local_path = os.path.abspath("")
-    local = get_config(local_path)
+        # Expand the dictionaries in order of precedence
+        resolved_strs = {
+            **self.system_config,
+            **self.user_config,
+            **local_config,
+        }
 
-    global _cfg
-    if local_path in _cfg:
-        return _cfg.get(local_path)
+        resolved_hash = hash(json.dumps(resolved_strs, sort_keys=True))
 
-    # Expand the dictionaries in order of precedence
-    _resolved = {**default, **user, **local}
+        if resolved_hash in self._cfg_list:
+            return self._cfg_list[resolved_hash]
 
-    resolved = {}
-    # key is cleaner, resolver, or intent
-    # all individual steps are converted to classes
-    for key, data in _resolved.items():
-        if not len(data):
-            resolved[key] = data
-        elif isinstance(data, list):
-            resolved[key] = [
-                get_transformer(transformer) for transformer in data
-            ]
-        elif isinstance(data, dict):
-            resolved[key] = {
-                step: [
-                    get_transformer(transformer)
-                    for transformer in transformer_list
+        resolved = {}
+        # key is cleaner, resolver, or intent
+        # all individual steps are converted to classes
+        for key, data in resolved_strs.items():
+            if not len(data):
+                resolved[key] = data
+            elif isinstance(data, list):
+                resolved[key] = [
+                    get_transformer(transformer) for transformer in data
                 ]
-                for step, transformer_list in data.items()
-            }
+            elif isinstance(data, dict):
+                resolved[key] = {
+                    step: [
+                        get_transformer(transformer)
+                        for transformer in transformer_list
+                    ]
+                    for step, transformer_list in data.items()
+                }
 
-    _cfg[local_path] = resolved
+        self._cfg_list[resolved_hash] = resolved
 
-    return resolved
+        return resolved
+
+    def get_cleaners(self, flatteners=False, cleaners=False):
+        """Get cleaner setup.
+
+        Args:
+            flatteners (bool): get flatteners
+            cleaners (bool): get cleaners
+
+        Returns:
+            list: A list of all the relavent classes
+
+        Raises:
+            ValueError: Both flatteners and cleaners cannot be false
+
+        """
+        if not (flatteners or cleaners):
+            raise ValueError("Both flatteners and cleaners cannot be false.")
+
+        config = self.get_config()
+
+        flatteners = config["Cleaner"]["Flatteners"] if flatteners else []
+        cleaners = config["Cleaner"]["Cleaners"] if cleaners else []
+
+        return [*flatteners, *cleaners]
+
+    def get_intents(self):
+        """Get the intent resolution order.
+
+        Returns:
+            list: A list of intent objects in order
+
+        """
+        return self.get_config()["Tiebreak"]
+
+    def get_preprocessor_steps(self, intent):
+        """Get the preprocessor list for a given intent.
+
+        Args:
+            intent: A string of the intent to select upon.
+
+        Returns:
+            list: A list of transformation classes for an intent
+
+        """
+        return self.get_config()[intent]["Preprocessor"]
+
+    def clear(self):
+        """Clear all cached configuration stores."""
+        self._cfg_list = {}
+
+    def __delitem__(self, key):
+        """Delete an item from the config cache for a given hash value.
+
+        Args:
+            key: A hash value for the item to delete
+
+        """
+        del self._cfg_list[key]
+
+    def __getitem__(self, key):
+        """Get an item from the config cache for a given hash value.
+
+        Args:
+            key: A hash value for the item to get
+
+        Returns:
+            dict: The configuration for a particular hash value.
+
+        """
+        return self._cfg_list[key]
+
+    def __iter__(self):
+        """Get the iterable the config cache.
+
+        Yields:
+            The key, value pairs of hash and its associated configuration.
+
+        """
+        for data in self._cfg_list:
+            yield data
+
+    def __len__(self):
+        """Get the number of hashes saved in the cache.
+
+        Returns:
+            The number of hashes saved in the internal cache.
+
+        """
+        return len(self._cfg_list)
+
+    def __setitem__(self):
+        """Values cannot be set in the cache.
+
+        Raises:
+            NotImplementedError: The config cannot be manually set.
+
+        """
+        raise NotImplementedError("The config cannot be manually set.")
+
+    def __eq__(self, other):
+        """Check the equality of the cache with another cache instance.
+
+        Args:
+            other: Another cache instance or dictionary.
+
+        Returns:
+            bool: True if the caches are equal, False otherwise
+
+        """
+        return self._cfg_list == other
+
+
+config = ConfigStore()

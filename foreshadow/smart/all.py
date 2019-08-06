@@ -31,7 +31,7 @@ from foreshadow.concrete.internals import (
     ToString,
     UncommonRemover,
 )
-from foreshadow.preparer import SerializablePipeline
+from foreshadow.pipeline import SerializablePipeline
 from foreshadow.utils import check_df
 
 from .smart import SmartTransformer

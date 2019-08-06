@@ -2,7 +2,7 @@
 
 from foreshadow import console
 from foreshadow.foreshadow import Foreshadow
-from foreshadow.preparer.preparer import DataPreparer
+from foreshadow.preparer import DataPreparer
 
 
 __doc__ = """
