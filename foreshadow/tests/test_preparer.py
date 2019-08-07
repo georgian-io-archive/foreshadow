@@ -53,3 +53,25 @@ def test_data_preparer_fit(cleaner_kwargs):
     cs = ColumnSharer()
     dp = DataPreparer(cs, cleaner_kwargs=cleaner_kwargs)
     dp.fit(data)
+
+
+@pytest.mark.parametrize("deep", [True, False])
+def test_data_preparer_get_params(deep):
+    """Test thet get_params returns the minimum required.
+
+    Args:
+        deep: arg to get_params
+
+    """
+    from foreshadow.preparer import DataPreparer
+
+    dp = DataPreparer()
+    params = dp.get_params(deep=deep)
+    assert "cleaner_kwargs" in params
+    assert "column_sharer" in params
+    assert "engineerer_kwargs" in params
+    assert "intent_kwargs" in params
+    assert "preprocessor_kwargs" in params
+    assert "reducer_kwargs" in params
+    assert "y_var" in params
+    assert "steps" in params

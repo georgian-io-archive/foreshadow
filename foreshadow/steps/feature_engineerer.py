@@ -41,13 +41,15 @@ class FeatureEngineererMapper(PreparerStep, AutoIntentMixin):
 
         columns = X.columns.values.tolist()
         columns_by_domain = group_by(columns, "domain")
+        print(columns_by_domain)
 
         columns_by_domain_and_intent = defaultdict(list)
         for domain in columns_by_domain:
             columns_by_intent = group_by(columns_by_domain[domain], "intent")
+            print(columns_by_intent)
             for intent in columns_by_intent:
                 columns_by_domain_and_intent[
-                    domain + "_" + intent
+                    str(domain) + "_" + intent
                 ] += columns_by_intent[intent]
         """Instead of using i as the outer layer key,
         should we use some more specific like the key

@@ -89,3 +89,11 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
                 # ('model_selector', modeler_kwargs_)
             ]  # TODO add each of these components
         )
+
+    def _get_params(self, attr, deep=True):
+        # attr will be 'steps' if called from pipeline.get_params()
+        out = super()._get_params(attr, deep)
+        steps = getattr(self, attr)
+        out.update({"steps": steps})  # manually
+        # adding steps to the get_params()
+        return out

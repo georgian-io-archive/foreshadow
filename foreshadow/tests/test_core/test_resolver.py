@@ -12,6 +12,6 @@ def test_resolver_overall():
     columns = ["financials"]
     data = pd.DataFrame({"financials": np.arange(100)}, columns=columns)
     cs = ColumnSharer()
-    ir = IntentMapper(cs)
+    ir = IntentMapper(column_sharer=cs)
     ir.fit(data)
     assert cs["intent", "financials"] == "Numeric"
