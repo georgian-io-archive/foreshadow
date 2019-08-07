@@ -37,17 +37,18 @@ class CleanerMapper(PreparerStep):
             cols=X.columns,
         )
 
-    def __repr__(self):
-        """Return string representation of this object with parent params.
-
-        Returns:
-            See above.
-
-        """
-        r = super().__repr__()
-        preparer_params = self._preparer_params()
-        preparer_params = {p: getattr(self, p, None) for p in preparer_params}
-        preparer_print = ", ".join(
-            ["{}={}".format(k, v) for k, v in preparer_params.items()]
-        )
-        return r[:-1] + preparer_print + ")"
+    # def __repr__(self):
+    #     """Return string representation of this object with parent params.
+    #
+    #     Returns:
+    #         See above.
+    #
+    #     """
+    #     r = super().__repr__()
+    #     preparer_params = self._preparer_params()
+    #     preparer_params = {p: getattr(self, p, None)
+    #                        for p in preparer_params}
+    #     preparer_print = ", ".join(
+    #         ["{}={}".format(k, v) for k, v in preparer_params.items()]
+    #     )
+    #     return r[:-1] + preparer_print + ")"

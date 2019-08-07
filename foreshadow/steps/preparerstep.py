@@ -536,3 +536,39 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             if p.name != "self" and p.kind != p.VAR_KEYWORD
         ]
         return [p.name for p in parameters]
+
+    def get_params(self, deep=True):
+        """See super.
+
+        Overridden to add this parent classes' params to children and to
+        include _parallel_process
+
+        Args:
+            deep:  See super.
+
+        Returns:
+            See super.
+
+        """
+        params = super().get_params(deep=deep)
+        _preparer_params = self._preparer_params()
+        params.update(
+            {key: getattr(self, key, None) for key in _preparer_params}
+        )
+        params.update(
+            {"_parallel_process": getattr(self, "_parallel_process", None)}
+        )
+        return params
+
+    def set_params(self, **params):
+        """See super.
+
+        Overridden to afld this parent classes' params to children and to
+        include _parallel_process
+
+        Args:
+            **params: see super.
+
+        """
+        self._parallel_process = params.pop("_parallel_process", None)
+        super().set_params(**params)
