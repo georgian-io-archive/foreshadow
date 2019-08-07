@@ -108,9 +108,6 @@ def pandas_wrap(transformer):  # noqa: C901
                     "called".format(transformer)
                 )
 
-            # TODO: remove this when _Empty is removed
-            self.__empty_fit = False
-
             self.is_wrapped = True
 
         def get_params(self, deep=True):
