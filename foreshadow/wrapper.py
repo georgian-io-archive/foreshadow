@@ -84,7 +84,7 @@ def pandas_wrap(transformer):  # noqa: C901
             Raises:
                 TypeError: if the init for Transformer cannot be called.
 
-            ..#noqa: I102
+            ..#noqa: I102, I401, I402
 
             """
             if "name" in kwargs:
