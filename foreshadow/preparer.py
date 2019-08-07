@@ -6,6 +6,7 @@ from foreshadow.pipeline import PipelineSerializerMixin
 from foreshadow.steps import (
     CleanerMapper,
     FeatureEngineererMapper,
+    FeatureReducerMapper,
     IntentMapper,
     Preprocessor,
 )
@@ -68,9 +69,9 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         preprocessor_kwargs_ = _none_to_dict(
             "preprocessor_kwargs", preprocessor_kwargs, column_sharer
         )
-        # reducer_kwargs_ = _none_to_dict(
-        #     "reducer_kwargs", reducer_kwargs, column_sharer
-        # )
+        reducer_kwargs_ = _none_to_dict(
+            "reducer_kwargs", reducer_kwargs, column_sharer
+        )
         # modeler_kwargs_ = _none_to_dict(
         #     "modeler_kwargs", modeler_kwargs, column_sharer
         # )
@@ -84,7 +85,7 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
                     FeatureEngineererMapper(**engineerer_kwargs_),
                 ),
                 ("feature_preprocessor", Preprocessor(**preprocessor_kwargs_)),
-                # ('feature_reducer', reducer_kwargs_,),
+                ("feature_reducer", FeatureReducerMapper(**reducer_kwargs_)),
                 # ('model_selector', modeler_kwargs_)
             ]  # TODO add each of these components
         )
