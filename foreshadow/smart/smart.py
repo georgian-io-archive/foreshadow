@@ -62,11 +62,11 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         name=None,
         keep_columns=False,
         check_wrapped=True,
-        **kwargs,
+        **transformer_kwargs,
     ):
         self.name = name
         self.keep_columns = keep_columns
-        self.kwargs = kwargs
+        self.transformer_kwargs = transformer_kwargs
         self.column_sharer = column_sharer
         # TODO will need to add the above when this is no longer wrapped
         self.y_var = y_var
@@ -107,12 +107,13 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         """
         value = deepcopy(value)
         if isinstance(value, str):
-            value = get_transformer(value)(**self.kwargs)
+            # This pathway is used at init time of the object
+            value = get_transformer(value)(**self.transformer_kwargs)
             self.unset_resolve()
         elif isinstance(value, dict):
             class_name = value.pop("class_name")
-            self.kwargs.update(value)
-            value = get_transformer(class_name)(**self.kwargs)
+            self.transformer_kwargs.update(value)
+            value = get_transformer(class_name)(**self.transformer_kwargs)
             self.unset_resolve()
         # Check transformer type
         is_trans = is_transformer(value)
@@ -179,20 +180,24 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         transformer_params = params.pop("transformer", self.transformer)
         super().set_params(**params)
 
-        # Calls to override auto set the transformer instance
+        # Validate new instantiation of transformer object
+        transformer_name = None
         if (
             isinstance(transformer_params, dict)
             and "class_name" in transformer_params
-        ):  # instantiate a
-            # new
-            # self.transformer
-            self.transformer = transformer_params
+        ):
+            # instantiate a new self.transformer
+            transformer_name = transformer_params.pop("class_name")
+            self.transformer_kwargs = transformer_params
+        elif isinstance(transformer_params, str):
+            transformer_name = transformer_params
+            self.transformer_kwargs = {}
+
+        # Calls to override auto set the transformer instance
+        if transformer_name is not None:
+            # instantiate a new self.transformer
+            self.transformer = transformer_name
         elif self.transformer is not None:
-            # valid_params = {
-            #     k.partition("__")[2]: v
-            #     for k, v in params.items()
-            #     if k.split("__")[0] == "transformer"
-            # }
             self.transformer.set_params(**transformer_params)
             self.transformer.set_extra_params(
                 name=type(self.transformer).__name__,
