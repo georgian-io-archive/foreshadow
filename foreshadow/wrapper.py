@@ -77,11 +77,13 @@ def pandas_wrap(transformer):  # noqa: C901
 
             Args:
                 *args: args to the parent constructor (shadowed transformer)
-                keep_columns: True to keep the original columns, False to not
-                name: name for new/created columns
                 **kwargs: kwargs to the parent constructor
 
-            ..#noqa: I102
+            Raises:
+                TypeError: if the init for Transformer cannot be called.
+
+            ..# noqa: I401
+            ..# noqa: I402
 
             """
             if "name" in kwargs:
