@@ -138,8 +138,7 @@ def pandas_wrap(transformer):  # noqa: C901
             # so we set them with the values on the object instance, below.
             try:
                 self_params = super().get_params(deep=deep)
-            except RuntimeError as e:
-                print(e)
+            except RuntimeError:
                 # TODO, Chris explain why we copy scikit-learn's internal
                 # get_params.
                 self_params = dict()  # the output

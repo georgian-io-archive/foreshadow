@@ -29,7 +29,7 @@ def test_foreshadow_X_preparer_false():
     assert foreshadow.X_preparer is None
 
 
-@pytest.mark.skip("THIS IS IMPORTANT FIX")
+# @pytest.mark.skip("THIS IS IMPORTANT FIX")
 def test_foreshadow_X_preparer_custom():
     from foreshadow.foreshadow import Foreshadow
     from foreshadow.preparer import DataPreparer
@@ -37,9 +37,7 @@ def test_foreshadow_X_preparer_custom():
 
     dp = DataPreparer(column_sharer=ColumnSharer())
     foreshadow = Foreshadow(X_preparer=dp)
-    assert type(foreshadow.X_preparer) == dp
-    # TODO(@Adithya) how would this have passed before?
-    #  What is it testing?
+    assert foreshadow.X_preparer == dp
 
 
 def test_foreshadow_X_preparer_error():
@@ -590,8 +588,7 @@ def test_foreshadow_param_optimize_invalid_dict_key():
     assert str(e.value) == "Invalid JSON Key fake in {}"
 
 
-@pytest.mark.skip("THIS IS IMPORTANT FIX")
-def test_core_foreshadow_example_regression():  # not sure why this is failing
+def test_core_foreshadow_example_regression():
     import numpy as np
     import pandas as pd
     from sklearn.datasets import load_boston
@@ -607,16 +604,15 @@ def test_core_foreshadow_example_regression():  # not sure why this is failing
     X_train, X_test, y_train, y_test = train_test_split(
         bostonX_df, bostony_df, test_size=0.2
     )
-
+    # print(X_train)
+    # print(X_train.iloc[0])
     model = Foreshadow(estimator=LinearRegression())
     model.fit(X_train, y_train)
     score = r2_score(y_test, model.predict(X_test))
     print("Boston score: %f" % score)
 
 
-@pytest.mark.skip("THIS IS IMPORTANT FIX")
-def test_core_foreshadow_example_classification():  # not sure why this is
-    # failing
+def test_core_foreshadow_example_classification():
     import numpy as np
     import pandas as pd
     from sklearn.datasets import load_iris

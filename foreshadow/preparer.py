@@ -11,6 +11,8 @@ from foreshadow.steps import (
     Preprocessor,
 )
 
+from .concrete import NoTransform
+
 
 def _none_to_dict(name, val, column_sharer=None):
     """Transform input kwarg to valid dict, handling sentinel value.
@@ -75,20 +77,28 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         # modeler_kwargs_ = _none_to_dict(
         #     "modeler_kwargs", modeler_kwargs, column_sharer
         # )
-
-        super().__init__(
-            steps=[
-                ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
-                ("intent", IntentMapper(**intent_kwargs_)),
-                (
-                    "feature_engineerer",
-                    FeatureEngineererMapper(**engineerer_kwargs_),
-                ),
-                ("feature_preprocessor", Preprocessor(**preprocessor_kwargs_)),
-                ("feature_reducer", FeatureReducerMapper(**reducer_kwargs_)),
-                # ('model_selector', modeler_kwargs_)
-            ]  # TODO add each of these components
-        )
+        if not self.y_var:
+            super().__init__(
+                steps=[
+                    ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
+                    ("intent", IntentMapper(**intent_kwargs_)),
+                    (
+                        "feature_engineerer",
+                        FeatureEngineererMapper(**engineerer_kwargs_),
+                    ),
+                    (
+                        "feature_preprocessor",
+                        Preprocessor(**preprocessor_kwargs_),
+                    ),
+                    (
+                        "feature_reducer",
+                        FeatureReducerMapper(**reducer_kwargs_),
+                    ),
+                    # ('model_selector', modeler_kwargs_)
+                ]  # TODO add each of these components
+            )
+        else:
+            super().__init__(steps=[("output", NoTransform())])
 
     def _get_params(self, attr, deep=True):
         # attr will be 'steps' if called from pipeline.get_params()

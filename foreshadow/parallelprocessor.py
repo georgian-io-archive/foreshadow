@@ -321,64 +321,62 @@ class ParallelProcessor(FeatureUnion):
                 pass
         return Xs
 
-    # def inverse_transform(self, X, **inverse_params):
-    #     """Perform both a fit and a transform.
-    #
-    #     Args:
-    #         X (:obj:`pandas.DataFrame`): Input X data
-    #         y (:obj: 'pandas.DataFrame'): labels Y for data
-    #         **inverse_params (dict): Parameters to apply to transformers when
-    #             inverse transforming
-    #
-    #     Returns:
-    #         :obj:`pandas.DataFrame`: All transformations concatenated
-    #
-    #     """
-    #     self._validate_transformers()
-    #
-    #     result = Parallel(n_jobs=self.n_jobs)(
-    #         delayed(_pandas_inverse_transform_one)(
-    #             trans,
-    #             weight,
-    #             _slice_cols(X, cols),
-    #             y,
-    #             cols,
-    #             self.collapse_index,
-    #             **inverse_params,
-    #         )
-    #         for name, trans, cols, weight in self._iter()
-    #     )
-    #
-    #     if not result:
-    #         # All transformers are None
-    #         return X[[]]
-    #
-    #     Xs, transformers = zip(*result)
-    #     self._update_transformer_list(transformers)
-    #
-    #     Xo = X[self._get_other_cols(X)]
-    #
-    #     # Iterates columns not being transformed
-    #     if len(list(Xo)) > 0:
-    #         # If a multi-index does not already exist create one with same
-    #         # label
-    #         if type(list(Xo)[0]) != tuple:
-    #             Xo.columns = [list(Xo), list(Xo)]
-    #
-    #         Xs += (Xo,)
-    #
-    #     # Concatenate results
-    #     Xs = pd.concat(Xs, axis=1)
-    #
-    #     # Convert multi index to single index if specified
-    #     if self.collapse_index:
-    #         try:
-    #             Xs.columns = Xs.columns.droplevel()
-    #             Xs.index.name = None
-    #             Xs.columns.name = None
-    #         except AttributeError:  # TODO figure out why this is needed
-    #             pass
-    #     return Xs
+    def inverse_transform(self, X, **inverse_params):
+        """Perform both a fit and a transform.
+
+        Args:
+            X (:obj:`pandas.DataFrame`): Input X data
+            **inverse_params (dict): Parameters to apply to transformers when
+                inverse transforming
+
+        Returns:
+            :obj:`pandas.DataFrame`: All transformations concatenated
+
+        """
+        self._validate_transformers()
+
+        result = Parallel(n_jobs=self.n_jobs)(
+            delayed(_pandas_inverse_transform_one)(
+                trans,
+                weight,
+                _slice_cols(X, cols),
+                cols,
+                self.collapse_index,
+                **inverse_params,
+            )
+            for name, trans, cols, weight in self._iter()
+        )
+
+        if not result:
+            # All transformers are None
+            return X[[]]
+
+        Xs, transformers = zip(*result)
+        self._update_transformer_list(transformers)
+
+        Xo = X[self._get_other_cols(X)]
+
+        # Iterates columns not being transformed
+        if len(list(Xo)) > 0:
+            # If a multi-index does not already exist create one with same
+            # label
+            if type(list(Xo)[0]) != tuple:
+                Xo.columns = [list(Xo), list(Xo)]
+
+            Xs += (Xo,)
+
+        # Concatenate results
+        Xs = pd.concat(Xs, axis=1)
+
+        # Convert multi index to single index if specified
+        if self.collapse_index:
+            try:
+                Xs.columns = Xs.columns.droplevel()
+                Xs.index.name = None
+                Xs.columns.name = None
+            except AttributeError:  # TODO figure out why this is needed
+                pass
+        return Xs
 
 
 def _slice_cols(X, cols, drop_level=True):
@@ -506,44 +504,36 @@ def _pandas_fit_transform_one(
     return res, t
 
 
-#
-# def _inverse_transform_one(transformer, weight, X, **inverse_params):
-#     res = transformer.inverse_transform(X, **inverse_params)
-#     # if we have a weight for this transformer, multiply output
-#     if weight is None:
-#         return res, transformer
-#     return res * weight, transformer
-#
-#
-# def _pandas_inverse_transform_one(transformer,
-#                                   weight,
-#                                   X,
-#                                   cols,
-#                                   collapse_index,
-#                                   **inverse_params,):
-#     """Inverse_transform DF then adds multi-index.
-#
-#         Args:
-#             transformer: transformer to use
-#             weight: weight to use
-#             X: input observations
-#             y: input labels
-#             cols: column names as list
-#             collapse_index: collapse multi-index to single-index
-#             **inverse_params: params to transformer inverse_transform
-#
-#         Returns:
-#             output from _inverse_transform_one
-#
-#         """
-#     colname = sorted(cols)[0]
-#     # Run original fit_transform function
-#     res, t = _inverse_transform_one(transformer,
-#                                     weight,
-#                                     X,
-#                                     **inverse_params)
-#     # Apply multi-index and name columns
-#     if not collapse_index:
-#         res.columns = [[colname] * len(list(res)), list(res)]
-#         res.columns = res.columns.rename(["origin", "new"])
-#     return res, t
+def _inverse_transform_one(transformer, weight, X, **inverse_params):
+    res = transformer.inverse_transform(X, **inverse_params)
+    # if we have a weight for this transformer, multiply output
+    if weight is None:
+        return res, transformer
+    return res * weight, transformer
+
+
+def _pandas_inverse_transform_one(
+    transformer, weight, X, cols, collapse_index, **inverse_params
+):
+    """Inverse_transform DF then adds multi-index.
+
+    Args:
+        transformer: transformer to use
+        weight: weight to use
+        X: input observations
+        cols: column names as list
+        collapse_index: collapse multi-index to single-index
+        **inverse_params: params to transformer inverse_transform
+
+    Returns:
+        output from _inverse_transform_one
+
+    """
+    colname = sorted(cols)[0]
+    # Run original fit_transform function
+    res, t = _inverse_transform_one(transformer, weight, X, **inverse_params)
+    # Apply multi-index and name columns
+    if not collapse_index:
+        res.columns = [[colname] * len(list(res)), list(res)]
+        res.columns = res.columns.rename(["origin", "new"])
+    return res, t

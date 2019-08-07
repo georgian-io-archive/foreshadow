@@ -183,10 +183,7 @@ class Foreshadow(BaseEstimator):
 
         if self.X_preparer is not None:
             self.pipeline = SerializablePipeline(
-                [
-                    ("preprocessor", self.X_preparer),
-                    ("estimator", self.estimator),
-                ]
+                [("preparer", self.X_preparer), ("estimator", self.estimator)]
             )
         else:
             self.pipeline = SerializablePipeline(
