@@ -14,8 +14,8 @@ class IntentMapper(PreparerStep):
 
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def get_mapping(self, X):
         """Return the mapping of transformations for the CleanerMapper step.
