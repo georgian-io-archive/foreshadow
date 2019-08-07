@@ -81,6 +81,9 @@ def pandas_wrap(transformer):  # noqa: C901
                 name: name for new/created columns
                 **kwargs: kwargs to the parent constructor
 
+            Raises:
+                TypeError: if the init for Transformer cannot be called.
+
             ..#noqa: I102
 
             """
