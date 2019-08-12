@@ -1,13 +1,8 @@
 """Transformer wrapping utility classes and functions."""
 
-import warnings
-from types import MethodType
-
 import numpy as np
 import pandas as pd
 import scipy
-from sklearn.base import BaseEstimator
-from sklearn.utils.fixes import signature
 
 from foreshadow.logging import logging
 from foreshadow.serializers import ConcreteSerializerMixin

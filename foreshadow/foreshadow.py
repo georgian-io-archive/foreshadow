@@ -302,6 +302,9 @@ class Foreshadow(BaseEstimator):
         Args:
             **params: params to set.
 
+        Returns:
+            See super.
+
         """
         self.data_columns = params.pop("data_columns", None)
         return super().set_params(**params)

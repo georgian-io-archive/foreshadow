@@ -1,6 +1,5 @@
 """General base classes used across Foreshadow."""
 from collections import MutableMapping, defaultdict, namedtuple
-from inspect import signature
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
@@ -525,7 +524,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
     @classmethod
     def _get_param_names(cls):
-        """Iteratively get __init__ params for all classes until PreparerStep.
+        """Get iteratively __init__ params for all classes until PreparerStep.
 
         Returns:
             params for all parents up to and including PreparerStep.

@@ -340,6 +340,9 @@ class AutoEstimator(BaseEstimator):
         Args:
             **params: params to set.
 
+        Returns:
+            See super.
+
         """
         self.estimator = params.pop("estimator", None)
         self.estimator_class = params.pop("estimator_class", None)

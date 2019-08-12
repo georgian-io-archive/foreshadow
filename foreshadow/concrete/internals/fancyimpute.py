@@ -53,6 +53,9 @@ class FancyImputer(BaseEstimator, TransformerMixin):
         Args:
             **params: params to set
 
+        Returns:
+            see super.
+
         Raises:
             ValueError: If method is invalid
 

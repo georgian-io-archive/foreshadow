@@ -1,7 +1,6 @@
 """Smart Transformer and its helper methods."""
 
 from abc import ABCMeta, abstractmethod
-from copy import deepcopy
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
@@ -153,6 +152,9 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
         Args:
             **params (dict): any valid parameter of this estimator
+
+        Returns:
+            see super.
 
         """
         if "transformer" in params:  # required as set_params assumes
