@@ -281,3 +281,27 @@ class Foreshadow(BaseEstimator):
         y_df = check_df(y_df)
         self._prepare_predict(data_df.columns)
         return self.pipeline.score(data_df, y_df, sample_weight)
+
+    def get_params(self, deep=True):
+        """Get params for this object. See super.
+
+        Args:
+            deep: True to recursively call get_params, False to not.
+
+        Returns:
+            params for this object.
+
+        """
+        params = super().get_params(deep=deep)
+        params['data_columns'] = self.data_columns
+        return params
+
+    def set_params(self, **params):
+        """Set params for this object. See super.
+
+        Args:
+            **params: params to set.
+
+        """
+        self.data_columns = params.pop('data_columns', None)
+        return super().set_params(**params)

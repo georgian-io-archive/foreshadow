@@ -43,7 +43,7 @@ class FancyImputer(BaseEstimator, TransformerMixin):
             dict: Parameter names mapped to their values.
 
         """
-        return {"method": self.method, "impute_kwargs": self.impute_kwargs}
+        return super().get_params(deep=deep)
 
     def set_params(self, **params):
         """Set the parameters of this estimator.
@@ -57,25 +57,22 @@ class FancyImputer(BaseEstimator, TransformerMixin):
             ValueError: If method is invalid
 
         """
-        impute_kwargs = params.pop("impute_kwargs", {})
-        method = params.pop("method", self.method)
-
-        self.kwargs = params
-        self.method = method
+        out = super().set_params(**params)
 
         # Auto import and initialize fancyimpute class defined by method
         try:
             from importlib import import_module
 
             module = import_module("fancyimpute")
-            self.cls = getattr(module, method)
+            self.cls = getattr(module, self.method)
         except Exception:
             raise ValueError(
                 "Invalid method. Possible values are BiScaler, KNN, "
                 "NuclearNormMinimization and SoftImpute"
             )
 
-        self.imputer = self.cls(**impute_kwargs)
+        self.imputer = self.cls(self.impute_kwargs)
+        return out
 
     def fit(self, X, y=None):
         """Empty function.

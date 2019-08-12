@@ -7,8 +7,7 @@ from foreshadow.utils.testing import get_file_path
 def test_transformer_wrapper_init():
     from foreshadow.concrete import StandardScaler
 
-    scaler = StandardScaler()
-    scaler.set_extra_params(name="test-scaler", keep_columns=True)
+    scaler = StandardScaler(name="test-scaler", keep_columns=True)
 
     assert scaler.name == "test-scaler"
     assert scaler.keep_columns is True

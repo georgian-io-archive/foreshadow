@@ -62,3 +62,30 @@ class FixedLabelEncoder(BaseEstimator, TransformerMixin):
 
         """
         return self.encoder.inverse_transform(X)
+
+    def get_params(self, deep=True):
+        """Get parameters for this estimator. See super.
+
+        Args:
+            deep: deep to super get_params
+
+        Returns:
+            Params for this estimator. See super.
+
+        """
+        params = super().get_params(deep=deep)
+        if not deep:
+            params['encoder'] = self.encoder
+        else:
+            params['encoder'] = self.encoder.get_params(deep=deep)
+        return params
+
+    def set_params(self, **params):
+        """Set parameters for this estimator. See super.
+
+        Args:
+            **params: params to set on this estimator.
+
+        """
+        self.encoder = params.pop('encoder')
+        super().set_params(**params)
