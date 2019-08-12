@@ -326,8 +326,12 @@ class AutoEstimator(BaseEstimator):
 
         """
         params = super().get_params(deep=deep)
-        params.update({'estimator': self.estimator,
-                       'estimator_class': self.estimator_class})
+        params.update(
+            {
+                "estimator": self.estimator,
+                "estimator_class": self.estimator_class,
+            }
+        )
         return params
 
     def set_params(self, **params):
@@ -337,8 +341,8 @@ class AutoEstimator(BaseEstimator):
             **params: params to set.
 
         """
-        self.estimator = params.pop('estimator', None)
-        self.estimator_class = params.pop('estimator_class', None)
+        self.estimator = params.pop("estimator", None)
+        self.estimator_class = params.pop("estimator_class", None)
         return super().set_params(**params)
 
 

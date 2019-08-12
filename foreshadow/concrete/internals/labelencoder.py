@@ -75,9 +75,9 @@ class FixedLabelEncoder(BaseEstimator, TransformerMixin):
         """
         params = super().get_params(deep=deep)
         if not deep:
-            params['encoder'] = self.encoder
+            params["encoder"] = self.encoder
         else:
-            params['encoder'] = self.encoder.get_params(deep=deep)
+            params["encoder"] = self.encoder.get_params(deep=deep)
         return params
 
     def set_params(self, **params):
@@ -87,5 +87,5 @@ class FixedLabelEncoder(BaseEstimator, TransformerMixin):
             **params: params to set on this estimator.
 
         """
-        self.encoder = params.pop('encoder')
+        self.encoder = params.pop("encoder")
         super().set_params(**params)

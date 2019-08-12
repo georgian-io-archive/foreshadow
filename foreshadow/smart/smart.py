@@ -155,10 +155,10 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             **params (dict): any valid parameter of this estimator
 
         """
-        if 'transformer' in params:  # required as set_params assumes
+        if "transformer" in params:  # required as set_params assumes
             # self.transformer will already be the object housed here. We
             # have it set to None as it may be anything at runtime.
-            self.transformer = params['transformer']
+            self.transformer = params["transformer"]
         return super().set_params(**params)
 
     @abstractmethod

@@ -1,11 +1,11 @@
 """Transformer wrapping utility classes and functions."""
 
 import warnings
+from types import MethodType
 
 import numpy as np
 import pandas as pd
 import scipy
-from types import MethodType
 from sklearn.base import BaseEstimator
 from sklearn.utils.fixes import signature
 
@@ -97,11 +97,11 @@ def pandas_wrap(transformer):  # noqa: C901
             #     "after instantiation."
             # )
             # self.keep_column = kwargs.pop("keep_columns", False)
-                # logging.warning(
-                #     "keep_columns is a deprecated kwarg. Please "
-                #     "remove it from the kwargs and instead set "
-                #     "it after instantiation."
-                # )
+            # logging.warning(
+            #     "keep_columns is a deprecated kwarg. Please "
+            #     "remove it from the kwargs and instead set "
+            #     "it after instantiation."
+            # )
             try:
                 super(DFTransformer, self).__init__(*args, **kwargs)
             except TypeError as e:

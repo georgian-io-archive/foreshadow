@@ -20,10 +20,7 @@ def test_dummy_encoder():
     assert check.equals(df)
 
 
-@pytest.mark.parametrize(
-    'deep',
-    [True, False]
-)
+@pytest.mark.parametrize("deep", [True, False])
 def test_dummy_encoder_get_params_keys(deep):
     """Test that the desired keys show up for the DummyEncoder object.
 
@@ -32,14 +29,11 @@ def test_dummy_encoder_get_params_keys(deep):
 
     """
     from foreshadow.concrete import DummyEncoder
+
     de = DummyEncoder()
     params = de.get_params(deep=deep)
 
-    desired_keys = [
-        'delimeter',
-        'other_cutoff',
-        'other_name',
-    ]
+    desired_keys = ["delimeter", "other_cutoff", "other_name"]
     for key in desired_keys:
         assert key in params
 
@@ -84,10 +78,7 @@ def test_box_cox():
     )
 
 
-@pytest.mark.parametrize(
-    'deep',
-    [True, False]
-)
+@pytest.mark.parametrize("deep", [True, False])
 def test_label_encoder_get_params_keys(deep):
     """Test that the desired keys show up for the LabelEncoder object.
 
@@ -96,12 +87,11 @@ def test_label_encoder_get_params_keys(deep):
 
         """
     from foreshadow.concrete import FixedLabelEncoder
+
     fle = FixedLabelEncoder()
     params = fle.get_params(deep=deep)
 
-    desired_keys = [
-        'encoder'
-    ]
+    desired_keys = ["encoder"]
     for key in desired_keys:
         assert key in params
 
@@ -185,8 +175,12 @@ def test_transformer_onehotencoder_fit_transform_keep_cols():
     df = pd.DataFrame(
         {"neat": ["apple", "apple", "orange", "apple", "orange"]}
     )
-    ohe = OneHotEncoder(use_cat_names=True, handle_unknown="ignore",
-                        name="encoder", keep_columns=True)
+    ohe = OneHotEncoder(
+        use_cat_names=True,
+        handle_unknown="ignore",
+        name="encoder",
+        keep_columns=True,
+    )
     assert ohe.fit(df) == ohe
     assert list(ohe.transform(df)) == ["neat", "neat_apple", "neat_orange"]
 

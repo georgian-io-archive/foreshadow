@@ -441,10 +441,10 @@ def test_smarttransformer_get_params(smart_child):
         "column_sharer": None,
         "check_wrapped": True,
         "transformer__copy": True,
-        "transformer__missing_values": 'NaN',
-        "transformer__strategy": 'mean',
+        "transformer__missing_values": "NaN",
+        "transformer__strategy": "mean",
         "transformer__verbose": 0,
-        'transformer__axis': 0,
+        "transformer__axis": 0,
     }
 
 

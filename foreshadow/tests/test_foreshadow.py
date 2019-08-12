@@ -635,10 +635,7 @@ def test_core_foreshadow_example_classification():
     print("Iris score: %f" % score)
 
 
-@pytest.mark.parametrize(
-    'deep',
-    [True, False]
-)
+@pytest.mark.parametrize("deep", [True, False])
 def test_foreshadow_get_params_keys(deep):
     """Test that the desired keys show up for the Foreshadow object.
 
@@ -647,15 +644,16 @@ def test_foreshadow_get_params_keys(deep):
 
     """
     from foreshadow.foreshadow import Foreshadow
+
     fs = Foreshadow()
     params = fs.get_params(deep=deep)
 
     desired_keys = [
-        'X_preparer',
-        'estimator',
-        'y_preparer',
-        'optimizer',
-        'data_columns'
+        "X_preparer",
+        "estimator",
+        "y_preparer",
+        "optimizer",
+        "data_columns",
     ]
     for key in desired_keys:
         assert key in params

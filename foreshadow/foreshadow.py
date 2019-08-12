@@ -293,7 +293,7 @@ class Foreshadow(BaseEstimator):
 
         """
         params = super().get_params(deep=deep)
-        params['data_columns'] = self.data_columns
+        params["data_columns"] = self.data_columns
         return params
 
     def set_params(self, **params):
@@ -303,5 +303,5 @@ class Foreshadow(BaseEstimator):
             **params: params to set.
 
         """
-        self.data_columns = params.pop('data_columns', None)
+        self.data_columns = params.pop("data_columns", None)
         return super().set_params(**params)

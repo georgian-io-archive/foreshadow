@@ -78,10 +78,7 @@ def test_metaestimator_score():
     )
 
 
-@pytest.mark.parametrize(
-    'deep',
-    [True, False]
-)
+@pytest.mark.parametrize("deep", [True, False])
 def test_meta_estimator_get_params_keys(deep):
     """Test that the desired keys show up for the MetaEstimator object.
 
@@ -92,12 +89,10 @@ def test_meta_estimator_get_params_keys(deep):
     from foreshadow.estimators.meta import MetaEstimator
     from sklearn.preprocessing import StandardScaler
     from sklearn.linear_model import LinearRegression
+
     me = MetaEstimator(LinearRegression(), StandardScaler())
     params = me.get_params(deep=deep)
 
-    desired_keys = [
-        'estimator',
-        'preprocessor'
-    ]
+    desired_keys = ["estimator", "preprocessor"]
     for key in desired_keys:
         assert key in params
