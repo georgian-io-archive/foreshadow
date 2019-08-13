@@ -16,6 +16,15 @@ patchy.patch(
      return self
              """,
 )
+"""sklearn.base.BaseEstiamtor uses the valid_params to set the params.
+
+In our use cases, we often modify both an objet and its params. In this case,
+the setattr(self, key, value) will change this object, but the
+valid_params[key] will have a reference to the old object, not setting the
+params on the new object. This is a big issue when we try to simultaneously
+change both an object and its params simultaneously. For instsance,
+see smart where we set both a transformer and that transformer's params.
+"""
 
 
 BaseEstimator.set_params = _set_params
