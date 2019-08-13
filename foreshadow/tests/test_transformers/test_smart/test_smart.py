@@ -3,6 +3,86 @@ import pytest
 from foreshadow.utils.testing import get_file_path
 
 
+@pytest.fixture()
+def smart_child():
+    """Get a defined SmartTransformer subclass, TestSmartTransformer.
+
+    Note:
+        Always returns StandardScaler.
+
+    """
+    from foreshadow.smart import SmartTransformer
+    from foreshadow.concrete import StandardScaler
+
+    class TestSmartTransformer(SmartTransformer):
+        def pick_transformer(self, X, y=None, **fit_params):
+            return StandardScaler()
+
+    yield TestSmartTransformer
+
+
+@pytest.mark.parametrize(
+    'deep',
+    [True, False]
+)
+def test_smart_get_params_default(smart_child, deep):
+    """Ensure that default get_params works.
+
+    Args:
+        smart_child: a smart instance
+        deep: deep param to get_params
+
+    """
+    smart = smart_child()
+    params = smart.get_params(deep=deep)
+    default_state = {'check_wrapped': True,
+                     'column_sharer': None,
+                     'force_reresolve': False,
+                     'keep_columns': False,
+                     'name': None,
+                     'should_resolve': True,
+                     'transformer': None,
+                     'y_var': False}
+    assert default_state == params
+
+
+@pytest.mark.parametrize(
+    'initial_transformer',
+    [None, "BoxCox", "StandardScaler"]
+)
+def test_smart_set_params_default(smart_child, initial_transformer):
+    """Test setting both transformer and its parameters simultaneously works.
+
+    Current sklearn implementation does not allow this and we created our
+    own BaseEstimator to allow this functionality.
+
+    Args:
+        smart_child: smart instance
+        initial_transformer: the initial transformer to put before trying to
+        set_params().
+
+    """
+    from foreshadow.concrete import StandardScaler
+    smart = smart_child()
+    smart.transformer = initial_transformer
+    params = {'transformer': "StandardScaler", "transformer__with_std":
+        False}
+    smart.set_params(**params)
+    check = {'check_wrapped': True,
+             'column_sharer': None,
+             'force_reresolve': False,
+             'keep_columns': False,
+             'name': None,
+             'should_resolve': False,
+             'y_var': False,
+             'transformer__with_std': False,
+             'transformer__copy': True,
+             'transformer__with_mean': True}
+    params = smart.get_params()
+    assert isinstance(params.pop('transformer'), StandardScaler)
+    assert check == params
+
+
 def test_smart_emtpy_input():
     import numpy as np
 

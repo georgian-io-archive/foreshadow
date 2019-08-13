@@ -1,6 +1,6 @@
 """Fancy imputation."""
 
-from sklearn.base import BaseEstimator, TransformerMixin
+from foreshadow.base import BaseEstimator, TransformerMixin
 
 from foreshadow.wrapper import pandas_wrap
 
@@ -21,6 +21,7 @@ class FancyImputer(BaseEstimator, TransformerMixin):
     def __init__(self, method="SimpleFill", impute_kwargs={}):
         self.impute_kwargs = impute_kwargs
         self.method = method
+        self._load_imputer()
 
     def _load_imputer(self):
         """Load concrete fancy imputer based on string representation.
@@ -68,6 +69,7 @@ class FancyImputer(BaseEstimator, TransformerMixin):
 
         """
         out = super().set_params(**params)
+        self._load_imputer()
         return out
 
     def fit(self, X, y=None):

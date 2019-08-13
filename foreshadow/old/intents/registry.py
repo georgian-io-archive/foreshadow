@@ -2,7 +2,7 @@
 # flake8: noqa
 # from abc import ABCMeta
 #
-# from sklearn.base import BaseEstimator, TransformerMixin
+# from foreshadow.base import BaseEstimator, TransformerMixin
 #
 # from foreshadow.intents import base
 # from foreshadow.core import SmartTransformer

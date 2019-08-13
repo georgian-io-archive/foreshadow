@@ -14,7 +14,7 @@ def test_transformer_wrapper_init():
 
 
 def test_transformer_wrapper_no_init():
-    from sklearn.base import BaseEstimator, TransformerMixin
+    from foreshadow.base import BaseEstimator, TransformerMixin
     from foreshadow.wrapper import pandas_wrap
 
     class NewTransformer(BaseEstimator, TransformerMixin):

@@ -1,6 +1,6 @@
 """Base Intent for all intent definitions."""
 
-from sklearn.base import BaseEstimator, TransformerMixin
+from foreshadow.base import BaseEstimator, TransformerMixin
 
 
 class BaseIntent(BaseEstimator, TransformerMixin):

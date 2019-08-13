@@ -1,7 +1,7 @@
 """FixedTfidfVectorizer."""
 
 import numpy as np
-from sklearn.base import BaseEstimator
+from foreshadow.base import BaseEstimator
 from sklearn.feature_extraction.text import (
     TfidfVectorizer as SklearnTfidfVectorizer,
     VectorizerMixin,

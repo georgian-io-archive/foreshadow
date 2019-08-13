@@ -3,7 +3,7 @@
 import inspect
 import warnings
 
-from sklearn.base import BaseEstimator
+from foreshadow.base import BaseEstimator
 from sklearn.model_selection._search import BaseSearchCV
 
 from foreshadow.columnsharer import ColumnSharer

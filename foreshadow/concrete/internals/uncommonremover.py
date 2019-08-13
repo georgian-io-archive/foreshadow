@@ -1,6 +1,6 @@
 """Uncommon remover."""
 
-from sklearn.base import BaseEstimator, TransformerMixin
+from foreshadow.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 
 from foreshadow.utils import check_df

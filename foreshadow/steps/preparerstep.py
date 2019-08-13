@@ -1,7 +1,7 @@
 """General base classes used across Foreshadow."""
 from collections import MutableMapping, defaultdict, namedtuple
 
-from sklearn.base import BaseEstimator, TransformerMixin
+from foreshadow.base import BaseEstimator, TransformerMixin
 
 from foreshadow.concrete.internals.notransform import NoTransform
 from foreshadow.logging import logging
