@@ -1,6 +1,5 @@
 """No Transform class through acts as a pass through for DataFrame and flag."""
 from foreshadow.base import BaseEstimator, TransformerMixin
-
 from foreshadow.wrapper import pandas_wrap
 
 

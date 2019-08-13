@@ -1,8 +1,8 @@
 """FixedLabelEncoder."""
 
-from foreshadow.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import LabelEncoder as SklearnLabelEncoder
 
+from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.wrapper import pandas_wrap
 
 

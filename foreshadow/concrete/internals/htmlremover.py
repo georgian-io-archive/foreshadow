@@ -2,7 +2,6 @@
 import re
 
 from foreshadow.base import BaseEstimator, TransformerMixin
-
 from foreshadow.utils import check_df
 from foreshadow.wrapper import pandas_wrap
 

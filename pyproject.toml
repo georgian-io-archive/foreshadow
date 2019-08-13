@@ -123,7 +123,7 @@ exclude = '''
 
 [tool.isort]
 known_first_party = 'foreshadow'
-known_third_party = ["category_encoders", "jsonpickle", "marshmallow", "numpy", "pandas", "pytest", "scipy", "six", "sklearn", "tpot", "yaml"]
+known_third_party = ["category_encoders", "jsonpickle", "marshmallow", "numpy", "pandas", "patchy", "pytest", "scipy", "six", "sklearn", "tpot", "yaml"]
 multi_line_output = 3
 lines_after_imports = 2
 force_grid_wrap = 0

@@ -3,7 +3,6 @@
 from abc import ABCMeta, abstractmethod
 
 from foreshadow.base import BaseEstimator, TransformerMixin
-
 from foreshadow.logging import logging
 from foreshadow.pipeline import SerializablePipeline
 from foreshadow.utils import (

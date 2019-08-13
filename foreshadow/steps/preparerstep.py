@@ -2,7 +2,6 @@
 from collections import MutableMapping, defaultdict, namedtuple
 
 from foreshadow.base import BaseEstimator, TransformerMixin
-
 from foreshadow.concrete.internals.notransform import NoTransform
 from foreshadow.logging import logging
 from foreshadow.parallelprocessor import ParallelProcessor

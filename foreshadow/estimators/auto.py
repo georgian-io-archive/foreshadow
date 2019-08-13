@@ -3,8 +3,8 @@
 import warnings
 
 import numpy as np
-from foreshadow.base import BaseEstimator
 
+from foreshadow.base import BaseEstimator
 from foreshadow.estimators.config import get_tpot_config
 from foreshadow.utils import check_df, check_module_installed
 

@@ -21,10 +21,7 @@ def smart_child():
     yield TestSmartTransformer
 
 
-@pytest.mark.parametrize(
-    'deep',
-    [True, False]
-)
+@pytest.mark.parametrize("deep", [True, False])
 def test_smart_get_params_default(smart_child, deep):
     """Ensure that default get_params works.
 
@@ -35,20 +32,21 @@ def test_smart_get_params_default(smart_child, deep):
     """
     smart = smart_child()
     params = smart.get_params(deep=deep)
-    default_state = {'check_wrapped': True,
-                     'column_sharer': None,
-                     'force_reresolve': False,
-                     'keep_columns': False,
-                     'name': None,
-                     'should_resolve': True,
-                     'transformer': None,
-                     'y_var': False}
+    default_state = {
+        "check_wrapped": True,
+        "column_sharer": None,
+        "force_reresolve": False,
+        "keep_columns": False,
+        "name": None,
+        "should_resolve": True,
+        "transformer": None,
+        "y_var": False,
+    }
     assert default_state == params
 
 
 @pytest.mark.parametrize(
-    'initial_transformer',
-    [None, "BoxCox", "StandardScaler"]
+    "initial_transformer", [None, "BoxCox", "StandardScaler"]
 )
 def test_smart_set_params_default(smart_child, initial_transformer):
     """Test setting both transformer and its parameters simultaneously works.
@@ -63,23 +61,25 @@ def test_smart_set_params_default(smart_child, initial_transformer):
 
     """
     from foreshadow.concrete import StandardScaler
+
     smart = smart_child()
     smart.transformer = initial_transformer
-    params = {'transformer': "StandardScaler", "transformer__with_std":
-        False}
+    params = {"transformer": "StandardScaler", "transformer__with_std": False}
     smart.set_params(**params)
-    check = {'check_wrapped': True,
-             'column_sharer': None,
-             'force_reresolve': False,
-             'keep_columns': False,
-             'name': None,
-             'should_resolve': False,
-             'y_var': False,
-             'transformer__with_std': False,
-             'transformer__copy': True,
-             'transformer__with_mean': True}
+    check = {
+        "check_wrapped": True,
+        "column_sharer": None,
+        "force_reresolve": False,
+        "keep_columns": False,
+        "name": None,
+        "should_resolve": False,
+        "y_var": False,
+        "transformer__with_std": False,
+        "transformer__copy": True,
+        "transformer__with_mean": True,
+    }
     params = smart.get_params()
-    assert isinstance(params.pop('transformer'), StandardScaler)
+    assert isinstance(params.pop("transformer"), StandardScaler)
     assert check == params
 
 
