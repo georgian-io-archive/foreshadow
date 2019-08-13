@@ -95,14 +95,9 @@ def test_data_preparer_serialization(cleaner_kwargs):
     cs = ColumnSharer()
     dp = DataPreparer(cs, cleaner_kwargs=cleaner_kwargs)
     dp.fit(data)
-    import pdb
 
-    pdb.set_trace()
     cs.to_json("column_sharer.json", deep=True)
     cs2 = ColumnSharer.from_json("column_sharer.json")
-    import pdb
-
-    pdb.set_trace()
 
     assert cs == cs2
 
