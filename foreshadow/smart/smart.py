@@ -259,3 +259,18 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         X = check_df(X)
         self.resolve(X)
         return self.transformer.inverse_transform(X)
+
+    @classmethod
+    def _get_param_names(cls):
+        """Get iteratively __init__ params for all classes until PreparerStep.
+
+        Returns:
+            params for all parents up to and including PreparerStep.
+            Includes the calling classes params.
+
+        """
+        params = super()._get_param_names()
+        while cls.__name__ != SmartTransformer.__name__:
+            cls = cls.__mro__[1]
+            params += cls._get_param_names()
+        return params
