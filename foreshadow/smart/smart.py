@@ -1,6 +1,7 @@
 """Smart Transformer and its helper methods."""
 
 from abc import ABCMeta, abstractmethod
+from copy import deepcopy
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
@@ -61,11 +62,11 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         name=None,
         keep_columns=False,
         check_wrapped=True,
-        **kwargs,
+        **transformer_kwargs,
     ):
         self.name = name
         self.keep_columns = keep_columns
-        self.kwargs = kwargs
+        self.transformer_kwargs = transformer_kwargs
         self.column_sharer = column_sharer
         # TODO will need to add the above when this is no longer wrapped
         self.y_var = y_var
@@ -105,7 +106,8 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
         """
         if isinstance(value, str):
-            value = get_transformer(value)(**self.kwargs)
+            # This pathway is used at init time of the object
+            value = get_transformer(value)(**self.transformer_kwargs)
             self.unset_resolve()
         # Check transformer type
         is_trans = is_transformer(value)
@@ -153,15 +155,30 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         Args:
             **params (dict): any valid parameter of this estimator
 
-        Returns:
-            see super.
-
         """
-        if "transformer" in params:  # required as set_params assumes
-            # self.transformer will already be the object housed here. We
-            # have it set to None as it may be anything at runtime.
-            self.transformer = params["transformer"]
-        return super().set_params(**params)
+        params = deepcopy(params)
+        transformer_params = params.pop("transformer", self.transformer)
+        super().set_params(**params)
+
+        # Calls to override auto set the transformer instance
+        if (
+            isinstance(transformer_params, dict)
+            and "class_name" in transformer_params
+        ):  # instantiate a
+            # new
+            # self.transformer
+            self.transformer = transformer_params
+        elif self.transformer is not None:
+            # valid_params = {
+            #     k.partition("__")[2]: v
+            #     for k, v in params.items()
+            #     if k.split("__")[0] == "transformer"
+            # }
+            self.transformer.set_params(**transformer_params)
+            self.transformer.set_extra_params(
+                name=type(self.transformer).__name__,
+                keep_columns=self.keep_columns,
+            )
 
     @abstractmethod
     def pick_transformer(self, X, y=None, **fit_params):
