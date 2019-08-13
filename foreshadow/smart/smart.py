@@ -156,8 +156,8 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             **params (dict): any valid parameter of this estimator
 
         """
-        if "transformer" in params:
-            self.transformer = params["transformer"]
+        # if "transformer" in params:
+        #     self.transformer = params["transformer"]
         super().set_params(**params)
 
 

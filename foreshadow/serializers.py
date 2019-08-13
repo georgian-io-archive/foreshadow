@@ -269,7 +269,8 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
 
         """
         return _make_serializable(
-            self.get_params(deep), serialize_args=self.serialize_params
+            self.get_params(deep),
+            # serialize_args=self.serialize_params
         )
 
     @classmethod
@@ -347,7 +348,7 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
         with open(fpath, "rb") as fopen:
             return pickle.load(fopen)
 
-    def serialize(self, method=None, name=None, **kwargs):
+    def serialize(self, method=None, **kwargs):
         """Serialize data as specified.
 
         If you would like to save the transformer parameters without saving
@@ -363,8 +364,6 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
         Args:
             method (str): A choice between `json` and `pickle` to serialize a
                 string.
-            name (str): The name associated with the transformer. If not
-                specified, a name will be derived if possible.
             **kwargs: The keyword arguments to pass to the serialization method
 
         Returns:
@@ -446,6 +445,16 @@ class PipelineSerializerMixin(ConcreteSerializerMixin):
 
         """
         return super().dict_serialize(deep=deep)
+
+
+class ParamSpecSerializerMixin(ConcreteSerializerMixin):
+    def serialize(self, **kwargs):
+        full_ser = super().serialize(**kwargs)
+        return full_ser
+
+    @classmethod
+    def deserialize(cls, data):
+        return super().deserialize(data)
 
 
 def deserialize(data):
