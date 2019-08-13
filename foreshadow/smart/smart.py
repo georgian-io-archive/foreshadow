@@ -157,9 +157,12 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             see super.
 
         """
-        if "transformer" in params:  # required as set_params assumes
-            # self.transformer will already be the object housed here. We
-            # have it set to None as it may be anything at runtime.
+        if "transformer" in params:  # We load this first as
+            # BaseEstimator.set_params will call this set_params of this
+            # object. In the init, we set this initially to None as it will
+            # later be resolved to whichever concrete transformer is chosen.
+            # None has no set_params, so we need to set this here, before we
+            # call to super().
             self.transformer = params["transformer"]
         return super().set_params(**params)
 

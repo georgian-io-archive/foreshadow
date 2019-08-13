@@ -116,9 +116,8 @@ def pandas_wrap(transformer):  # noqa: C901
             init statement for that class. Since this class is used to wrap
             a parent transformer (by OOP), we use the parent's init
             statement and then this DFTransformer's additional arguments.
-            We must override of BaseEstimator will complain about our
-            nonstandard usage. _get_param_names override holds the change to
-            the parent __init__.
+            We must override _get_param_names so that this method captures
+            the parent's __init__.
 
             Args:
                 deep (bool): If True, will return the parameters for this
@@ -130,8 +129,6 @@ def pandas_wrap(transformer):  # noqa: C901
 
             """
             params = super().get_params(deep=deep)
-            # params['keep_column'] = self.keep_column
-            # params['name'] = self.name
             return params
 
         def set_params(self, **params):
@@ -141,9 +138,8 @@ def pandas_wrap(transformer):  # noqa: C901
             init statement for that class. Since this class is used to wrap
             a parent transformer (by OOP), we use the parent's init
             statement and then this DFTransformer's additional arguments.
-            We must override of BaseEstimator will complain about our
-            nonstandard usage. _get_param_names override holds the change to
-            the parent __init__.
+            We must override _get_param_names so that this method captures
+            the parent's __init__.
 
             Args:
                 **params: params to init.
@@ -152,8 +148,6 @@ def pandas_wrap(transformer):  # noqa: C901
                 See super.
 
             """
-            # self.keep_column = params.pop("keep_column", False)
-            # self.name = params.pop("name", None)
             return super().set_params(**params)
 
         def fit(self, X, *args, **kwargs):
