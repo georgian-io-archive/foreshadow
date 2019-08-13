@@ -526,6 +526,10 @@ class PreparerStep(BaseEstimator, TransformerMixin):
     def _get_param_names(cls):
         """Get iteratively __init__ params for all classes until PreparerStep.
 
+        This method is implemented as a convenience for any child. It will
+        automatically climb the MRO for a child until it reaches this class
+        (the last parent who's __init__ params we care about).
+
         Returns:
             params for all parents up to and including PreparerStep.
             Includes the calling classes params.
