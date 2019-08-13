@@ -37,23 +37,22 @@ pipe = Pipeline([("s", s), ("lr", lr)])
 
 pipe.fit(X_data, y_data)
 
-param_distributions = {
-    "s__transformer": hp.choice(
+param_distributions = hp.choice(
         "s__transformer",
         [
             {
-                "class_name": "StandardScaler",
-                "with_mean": hp.choice("with_mean", [False, True]),
+                "s__transformer": "StandardScaler",
+                "s__transformer__with_mean": hp.choice("with_mean", [False,
+                                                                  True]),
             },
             {
-                "class_name": "MinMaxScaler",
-                "feature_range": hp.choice(
+                "s__transformer": "MinMaxScaler",
+                "s__transformer__feature_range": hp.choice(
                     "feature_range", [(0, 1), (0, 0.5)]
                 ),
             },
         ],
     )
-}
 
 
 class HyperOptSampler(object):
@@ -117,8 +116,8 @@ class ShadowSearchCV(BaseSearchCV):
             self.n_iter,
             random_state=self.random_state,
         )
-        for i in out:
-            print(i)
+        # for i in out:
+        #     print(i)
         return out
 
 
@@ -162,6 +161,8 @@ results = pd.DataFrame(rscv.cv_results_)
 results = results[
     [c for c in results.columns if all(s not in c for s in ["time", "params"])]
 ]
+
+print(results)
 
 
 # import pdb; pdb.set_trace()

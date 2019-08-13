@@ -156,29 +156,10 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             **params (dict): any valid parameter of this estimator
 
         """
-        params = deepcopy(params)
-        transformer_params = params.pop("transformer", self.transformer)
+        if "transformer" in params:
+            self.transformer = params["transformer"]
         super().set_params(**params)
 
-        # Calls to override auto set the transformer instance
-        if (
-            isinstance(transformer_params, dict)
-            and "class_name" in transformer_params
-        ):  # instantiate a
-            # new
-            # self.transformer
-            self.transformer = transformer_params
-        elif self.transformer is not None:
-            # valid_params = {
-            #     k.partition("__")[2]: v
-            #     for k, v in params.items()
-            #     if k.split("__")[0] == "transformer"
-            # }
-            self.transformer.set_params(**transformer_params)
-            self.transformer.set_extra_params(
-                name=type(self.transformer).__name__,
-                keep_columns=self.keep_columns,
-            )
 
     @abstractmethod
     def pick_transformer(self, X, y=None, **fit_params):

@@ -21,16 +21,22 @@ class FancyImputer(BaseEstimator, TransformerMixin):
     def __init__(self, method="SimpleFill", impute_kwargs={}):
         self.impute_kwargs = impute_kwargs
         self.method = method
+        self._load_imputer()
+
+    def _load_imputer(self):
+        """Load concrete fancy imputer based on string representation.
+
+        Auto import and initialize fancyimpute class defined by method.
+        """
         try:
-            module = __import__("fancyimpute", [method], 1)
-            self.cls = getattr(module, method)
+            module = __import__("fancyimpute", [self.method], 1)
+            self.cls = getattr(module, self.method)
         except Exception:
             raise ValueError(
                 "Invalid method. Possible values are BiScaler, KNN, "
                 "NuclearNormMinimization and SoftImpute"
             )
-
-        self.imputer = self.cls(**impute_kwargs)
+        self.imputer = self.cls(**self.impute_kwargs)
 
     def get_params(self, deep=True):
         """Get parameters for this estimator.
@@ -61,20 +67,7 @@ class FancyImputer(BaseEstimator, TransformerMixin):
 
         """
         out = super().set_params(**params)
-
-        # Auto import and initialize fancyimpute class defined by method
-        try:
-            from importlib import import_module
-
-            module = import_module("fancyimpute")
-            self.cls = getattr(module, self.method)
-        except Exception:
-            raise ValueError(
-                "Invalid method. Possible values are BiScaler, KNN, "
-                "NuclearNormMinimization and SoftImpute"
-            )
-
-        self.imputer = self.cls(self.impute_kwargs)
+        self._load_imputer()
         return out
 
     def fit(self, X, y=None):
