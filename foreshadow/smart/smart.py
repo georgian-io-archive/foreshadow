@@ -157,16 +157,6 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             see super.
 
         """
-        # if "transformer" in params:  # We load this first as
-        #     # BaseEstimator.set_params will call this set_params of this
-        #     # object. In the init, we set this initially to None as it will
-        #     # later be resolved to whichever concrete transformer is chosen.
-        #     # None has no set_params, so we need to set this here, before we
-        #     # call to super().
-        #     # This is required because of sklearn using valid_params[key]
-        #     # which is not the transformer passed in the params, but the
-        #     # current transformer on this object.
-        #     self.transformer = params["transformer"]
         return super().set_params(**params)
 
     @abstractmethod
@@ -246,7 +236,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         self.resolve(X, y, **fit_params)
         self.transformer.full_df = fit_params.pop("full_df", None)
         self.transformer.fit(X, y, **fit_params)
-        return self  # .transformer.fit(X, y, **fit_params)
+        return self
         # This should not return the self.transformer.fit as that will
         # cause fit_transforms, which call .fit().transform() to fail when
         # using our wrapper for transformers; TL;DR, it misses the call to
