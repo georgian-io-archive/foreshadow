@@ -74,6 +74,8 @@ def pandas_wrap(transformer):  # noqa: C901
 
             Args:
                 *args: args to the parent constructor (shadowed transformer)
+                name: name of the transformer.
+                keep_columns: keep original column names in the graph.
                 **kwargs: kwargs to the parent constructor
 
             Raises:
@@ -145,6 +147,9 @@ def pandas_wrap(transformer):  # noqa: C901
 
             Args:
                 **params: params to init.
+
+            Returns:
+                See super.
 
             """
             # self.keep_column = params.pop("keep_column", False)
