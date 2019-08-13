@@ -198,6 +198,81 @@ def test_column_sharer_iter(store):
 
 
 @pytest.mark.parametrize(
+    "store",
+    [
+        {"domain": {}, "intent": {}, "metastat": {}},
+        {"domain": {"column1": [0, 1, 2]}},
+        {
+            "domain": {"column1": [0, 1, 2]},
+            "intent": {"column1": [1, 2, 3], "column2": [1, 4, 6]},
+            "metastat": {},
+            "registered_key": {},
+            "another_registered": {"column1": [1, 2, 3], "column2": True},
+        },
+    ],
+)
+def test_column_sharer_get_params(store):
+    """Test that get_params are returning the right content.
+
+    Args:
+        store: the internal dictionary to use.
+
+    """
+    from foreshadow.columnsharer import ColumnSharer
+
+    cs = ColumnSharer()
+    for key in store:
+        cs[key] = store[key]
+
+    from foreshadow.columnsharer import PrettyDefaultDict
+
+    expected = {
+        "store": PrettyDefaultDict(lambda: PrettyDefaultDict(lambda: None))
+    }
+    for key in store:
+        if len(store[key]) > 0:
+            for column in store[key]:
+                expected["store"][key][column] = store[key][column]
+        else:
+            expected["store"][key] = PrettyDefaultDict(lambda: None)
+
+    assert expected == cs.get_params(deep=True)
+
+
+@pytest.mark.parametrize(
+    "store",
+    [
+        {"domain": {}, "intent": {}, "metastat": {}},
+        {"domain": {"column1": [0, 1, 2]}},
+        {
+            "domain": {"column1": [0, 1, 2]},
+            "intent": {"column1": [1, 2, 3], "column2": [1, 4, 6]},
+            "metastat": {},
+            "registered_key": {},
+            "another_registered": {"column1": [1, 2, 3], "column2": True},
+        },
+    ],
+)
+def test_column_sharer_set_params(store):
+    """Test that set_params are updating the ColumnShare correctly
+
+    Args:
+        store: the internal dictionary to use.
+
+    """
+    from foreshadow.columnsharer import ColumnSharer
+
+    cs = ColumnSharer()
+    for key in store:
+        cs[key] = store[key]
+
+    expected = ColumnSharer()
+    expected.set_params(store=store)
+
+    assert expected == cs
+
+
+@pytest.mark.parametrize(
     "key,item_to_set,expected,warning",
     [
         (["domain"], {}, {}, False),

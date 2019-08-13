@@ -73,6 +73,8 @@ def get_transformer(class_name, source_lib=None):
                 "foreshadow.concrete",
                 "foreshadow.smart",
                 "foreshadow.intents",
+                "foreshadow.steps",
+                "foreshadow.parallelprocessor",
             ]
         )
 

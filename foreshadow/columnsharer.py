@@ -2,6 +2,8 @@
 import pprint
 from collections import MutableMapping, defaultdict
 
+from foreshadow.serializers import ConcreteSerializerMixin
+
 
 # TODO: Make this multi processor safe using managers
 
@@ -12,7 +14,7 @@ class PrettyDefaultDict(defaultdict):
     __repr__ = dict.__repr__
 
 
-class ColumnSharer(MutableMapping):
+class ColumnSharer(MutableMapping, ConcreteSerializerMixin):
     """Main cache-class to be used as single-instance to share data.
 
     Note:
@@ -41,6 +43,42 @@ class ColumnSharer(MutableMapping):
         self.__acceptable_keys = PrettyDefaultDict(
             lambda: False, acceptable_keys
         )
+
+    def get_params(self, deep=False):
+        """Get parameters for the column sharer, which is the store in this case.
+
+        Args:
+            deep: Not used for this class. Default to False.
+
+        Returns:
+            Params for the column_sharer.
+
+        """
+        # Since the users are not supposed to change the acceptable_keys, I'm
+        # inclined to not show them but we do need to show all of them in the
+        # documentation.
+        return {
+            "store": self.store,
+            # "__acceptable_keys": self.__acceptable_keys
+        }
+
+    def set_params(self, **params):
+        """Set the parameters of the column sharer.
+
+        Args:
+            **params: params to set
+
+        Returns:
+            The column sharer with stores set.
+
+        """
+        for key in params["store"]:
+            self[key] = params["store"][key]
+
+        # for key in params["__acceptable_keys"]:
+        #     self.__acceptable_keys[key] = params["__acceptable_keys"][key]
+
+        return self
 
     def __getitem__(self, key_list):
         """Override getitem to support multi key accessing simultaneously.

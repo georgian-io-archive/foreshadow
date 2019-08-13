@@ -191,7 +191,10 @@ class BaseTransformerSerializer:
 
         """
         if method is None:
-            method = self.DEFAULT_OPTION
+            if "_method" in kwargs:
+                method = kwargs.pop("_method")
+            else:
+                method = self.DEFAULT_OPTION
 
         if method in self.OPTIONS:
             method_func = getattr(self, method + "_serialize")
@@ -291,7 +294,13 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
         else:
             # Cannot use set_params since steps is a required init arg
             # for Pipelines
-            return cls(**params)
+            if issubclass(cls, PipelineSerializerMixin):
+                return cls(**params)
+            else:
+                ret_tf = cls()
+                ret_tf.set_params(**params)
+
+                return ret_tf
 
     def inline_serialize(self):
         """Convert transformer to hex pickle form inline in a dictionary form.

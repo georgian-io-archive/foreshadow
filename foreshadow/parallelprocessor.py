@@ -10,8 +10,10 @@ from sklearn.pipeline import (
     _transform_one,
 )
 
+from .serializers import ConcreteSerializerMixin
 
-class ParallelProcessor(FeatureUnion):
+
+class ParallelProcessor(FeatureUnion, ConcreteSerializerMixin):
     """Class to support parallel operation on dataframes.
 
     This class functions similarly to a FeatureUnion except it divides a given
