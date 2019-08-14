@@ -116,8 +116,6 @@ class ShadowSearchCV(BaseSearchCV):
             self.n_iter,
             random_state=self.random_state,
         )
-        # for i in out:
-        #     print(i)
         return out
 
 
