@@ -293,7 +293,9 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             return pickle_class(**params)
         else:
             # Cannot use set_params since steps is a required init arg
-            # for Pipelines
+            # for Pipelines and therefore we cannot use default
+            # init method (assuming no required args) to initialize
+            # an instance then call set_params.
             if issubclass(cls, PipelineSerializerMixin):
                 return cls(**params)
             else:
