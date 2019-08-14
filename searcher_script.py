@@ -65,7 +65,7 @@ test = [
             },
         ]
 
-from foreshadow.optimizers.optimizer import _replace_list
+from foreshadow.optimizers.tuner import _replace_list
 print(_replace_list(None, test))
 print(param_distributions)
 
