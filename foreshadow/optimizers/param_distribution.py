@@ -1,7 +1,8 @@
 """Classes to be configured by user for customizing parameter tuning."""
 
-import foreshadow as fs
+from hyperopt import hp
 import foreshadow.serializers as ser
+from collections import MutableMapping
 
 
 """
@@ -28,18 +29,36 @@ overridden to that group process.
 """
 
 
-class ParamSpec(ser.ConcreteSerializerMixin):
-    def __init__(self, fs_pipeline, X_df, Y_df):
-        self.fs_pipeline = fs_pipeline
-        params = self.fs_pipeline.get_params()
-        print(params)
+class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
+    def __init__(self, fs_pipeline=None, X_df=None, y_df=None):
+        if not (fs_pipeline is None) == (X_df is None) == (y_df is None):
+            raise ValueError("Either all kwargs are None or all are set. To "
+                             "use automatic param determination, pass all "
+                             "kwargs. Otherwise, manual setting can be "
+                             "accomplished using set_params.")
+        self._param_set = False
+        self.param_distribution = []
+        if not (fs_pipeline is None) and (X_df is None) and (y_df) is None:
+            params = fs_pipeline.get_params()
+            for kwarg in kwargs:
+                key, delim, subkey = kwarg.partition('__')
+                self.param_distribution[key] = {}
+                while delim !=  '':
+                    pass
+            self._param_set = True
 
     def get_params(self, deep=True):
-
+        return self.param_distribution
 
     def set_params(self, **params):
-        pass
+        self.param_distribibution = params['param_distribution']
+        self._param_set = True
 
+    def __call__(self):
+        return self.param_distribibution
+
+    def __getitem__(self, item):
+        return self.
 
 
 if __name__ == '__main__':
