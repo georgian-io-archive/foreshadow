@@ -21,18 +21,10 @@ def smart_child():
     yield TestSmartTransformer
 
 
-@pytest.mark.parametrize("deep", [True, False])
-def test_smart_get_params_default(smart_child, deep):
-    """Ensure that default get_params works.
-
-    Args:
-        smart_child: a smart instance
-        deep: deep param to get_params
-
-    """
-    smart = smart_child()
-    params = smart.get_params(deep=deep)
-    default_state = {
+@pytest.fixture()
+def smart_params():
+    """Get the params for a defined SmartTransformer subclass."""
+    yield {
         "check_wrapped": True,
         "column_sharer": None,
         "force_reresolve": False,
@@ -42,7 +34,48 @@ def test_smart_get_params_default(smart_child, deep):
         "transformer": None,
         "y_var": False,
     }
-    assert default_state == params
+
+
+@pytest.mark.parametrize("deep", [True, False])
+def test_smart_get_params_default(smart_child, smart_params, deep):
+    """Ensure that default get_params works.
+
+    Args:
+        smart_child: a smart instance
+        deep: deep param to get_params
+
+    """
+    smart = smart_child()
+    params = smart.get_params(deep=deep)
+    assert smart_params == params
+
+
+@pytest.mark.parametrize(
+    "initial_transformer", [None, "BoxCox", "StandardScaler"]
+)
+def test_smart_get_params_deep(smart_child, smart_params, initial_transformer):
+    """Test that smart.get_params(deep=True) functions as desired.
+
+    Args:
+        smart_child: SmartTransformer subclass instance fixture
+        smart_params: default params for above
+        initial_transformer: the transformer to set on smart.transformer for
+            the test.
+
+    """
+    smart = smart_child()
+    smart.transformer = initial_transformer
+    try:
+        nested_params = smart.transformer.get_params(deep=True)
+        nested_params = {
+            "transformer__" + key: val for key, val in nested_params.items()
+        }
+        nested_params["should_resolve"] = False
+    except AttributeError:  # case of None
+        nested_params = {}
+    nested_params["transformer"] = smart.transformer
+    smart_params.update(nested_params)
+    assert smart.get_params(True) == smart_params
 
 
 @pytest.mark.parametrize(
