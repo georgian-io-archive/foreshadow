@@ -57,10 +57,7 @@ class ColumnSharer(MutableMapping, ConcreteSerializerMixin):
         # Since the users are not supposed to change the acceptable_keys, I'm
         # inclined to not show them but we do need to show all of them in the
         # documentation.
-        return {
-            "store": self.store,
-            # "__acceptable_keys": self.__acceptable_keys
-        }
+        return {"store": self.store}
 
     def set_params(self, **params):
         """Set the parameters of the column sharer.
@@ -74,9 +71,6 @@ class ColumnSharer(MutableMapping, ConcreteSerializerMixin):
         """
         for key in params["store"]:
             self[key] = params["store"][key]
-
-        # for key in params["__acceptable_keys"]:
-        #     self.__acceptable_keys[key] = params["__acceptable_keys"][key]
 
         return self
 
