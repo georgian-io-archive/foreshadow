@@ -77,32 +77,43 @@ def test_data_preparer_get_params(deep):
     assert "steps" in params
 
 
-@pytest.mark.parametrize("cleaner_kwargs", [({}), (None)])
-def test_data_preparer_serialization(cleaner_kwargs):
-    """Test fitting of DataPreparer after creation with kwargs.
-
-    Args:
-          cleaner_kwargs: kwargs to CleanerMapper step
+def test_data_preparer_serialization_has_one_column_sharer():
+    """Test DataPreparer serialization after fitting. The serialized
+    object should contain only 1 column_sharer instance.
 
     """
     pass
-    # from foreshadow.preparer import DataPreparer
-    # from foreshadow.columnsharer import ColumnSharer
-    # import pandas as pd
-    #
-    # boston_path = get_file_path("data", "boston_housing.csv")
-    # data = pd.read_csv(boston_path)
-    #
-    # cs = ColumnSharer()
-    # dp = DataPreparer(cs, cleaner_kwargs=cleaner_kwargs)
-    # dp.fit(data)
-    #
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
+    import pandas as pd
+
+    boston_path = get_file_path("data", "boston_housing.csv")
+    data = pd.read_csv(boston_path)
+
+    cs = ColumnSharer()
+    dp = DataPreparer(cs)
+    dp.fit(data)
+
+    dp_serialized = dp.serialize(method="dict", deep=True)
+    key_name = "column_sharer"
+    assert key_name in dp_serialized
+    dp_serialized.pop(key_name)
+
+    def check_has_no_column_sharer(dat, target):
+        if isinstance(dat, dict):
+            matching_keys = [key for key in dat if key.endswith(target)]
+            assert len(matching_keys) == 0
+            for key in dat:
+                check_has_no_column_sharer(dat[key], target)
+        elif isinstance(dat, list):
+            for item in dat:
+                check_has_no_column_sharer(item, target)
+
+    check_has_no_column_sharer(dp_serialized, key_name)
+
     # cs.to_json("column_sharer.json", deep=True)
     # cs2 = ColumnSharer.from_json("column_sharer.json")
     #
     # assert cs == cs2
-
     # dp.to_json("data_preparerer_deep_true3.json", deep=True)
     # dp.to_yaml("data_preparerer_deep_true2.yaml", deep=True)
-
-    # dp2 = DataPreparer.from_json("data_preparerer_deep_true2.json")

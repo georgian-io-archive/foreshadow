@@ -107,3 +107,47 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         out.update({"steps": steps})  # manually
         # adding steps to the get_params()
         return out
+
+    def dict_serialize(self, deep=False):
+        """Serialize the init parameters (dictionary form) of a pipeline.
+
+        This method removes redundant column_sharers in the individual
+        steps.
+
+        Note:
+            This recursively serializes the individual steps to facilitate a
+            human readable form.
+
+        Args:
+            deep (bool): If True, will return the parameters for this estimator
+                recursively
+
+        Returns:
+            dict: The initialization parameters of the pipeline.
+
+        """
+        serialized = super().dict_serialize(deep=deep)
+        column_sharer_serialized = serialized.pop("column_sharer", None)
+        # Remove all instance of column_sharer from the serialized recursively.
+        serialized = self.__remove_key_from_dict(
+            serialized, target="column_sharer"
+        )
+        # Add back the column_sharer in the end only once.
+        serialized["column_sharer"] = column_sharer_serialized
+        return serialized
+
+    def __remove_key_from_dict(self, data, target="column_sharer"):
+        if isinstance(data, dict):
+            matching_keys = [key for key in data if key.endswith(target)]
+            for mk in matching_keys:
+                del data[mk]
+            data = {
+                key: self.__remove_key_from_dict(data[key], target=target)
+                for key in data
+            }
+        elif isinstance(data, list):
+            data = [
+                self.__remove_key_from_dict(item, target=target)
+                for item in data
+            ]
+        return data
