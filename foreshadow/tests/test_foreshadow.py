@@ -78,7 +78,7 @@ def test_foreshadow_y_preparer_error():
 
 def test_foreshadow_estimator_custom():
     from foreshadow.foreshadow import Foreshadow
-    from sklearn.base import BaseEstimator
+    from foreshadow.base import BaseEstimator
 
     estimator = BaseEstimator()
     foreshadow = Foreshadow(estimator=estimator)
@@ -98,7 +98,7 @@ def test_foreshadow_estimator_error():
 def test_foreshadow_optimizer_custom():
     from foreshadow.foreshadow import Foreshadow
     from sklearn.model_selection._search import BaseSearchCV
-    from sklearn.base import BaseEstimator
+    from foreshadow.base import BaseEstimator
 
     class DummySearch(BaseSearchCV):
         pass
@@ -334,7 +334,7 @@ def test_foreshadow_predict_diff_cols():
 @pytest.mark.skip("borken until parameter optimization is implemented")
 def test_foreshadow_param_optimize_fit(mocker):
     import pandas as pd
-    from sklearn.base import BaseEstimator, TransformerMixin
+    from foreshadow.base import BaseEstimator, TransformerMixin
     from sklearn.model_selection._search import BaseSearchCV
 
     from foreshadow.foreshadow import Foreshadow

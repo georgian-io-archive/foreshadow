@@ -3,10 +3,10 @@
 import numpy as np
 from scipy.special import inv_boxcox1p
 from scipy.stats import boxcox
-from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
+from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.wrapper import pandas_wrap
 
 

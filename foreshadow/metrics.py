@@ -211,7 +211,6 @@ def avg_col_regex(feature, cleaner, mode=min):
 
     """
     f = feature
-    print(f)
     matched_lens = [
         (
             cleaner(f.at[i, f.columns[0]]).match_lens,

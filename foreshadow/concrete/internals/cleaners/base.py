@@ -3,8 +3,8 @@
 from collections import namedtuple
 
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
 
+from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.exceptions import InvalidDataFrame
 from foreshadow.metrics import avg_col_regex, regex_rows
 from foreshadow.utils import check_df

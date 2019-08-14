@@ -1,7 +1,6 @@
 """Fancy imputation."""
 
-from sklearn.base import BaseEstimator, TransformerMixin
-
+from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.wrapper import pandas_wrap
 
 
@@ -27,6 +26,10 @@ class FancyImputer(BaseEstimator, TransformerMixin):
         """Load concrete fancy imputer based on string representation.
 
         Auto import and initialize fancyimpute class defined by method.
+
+        Raises:
+            ValueError: If method is invalid
+
         """
         try:
             module = __import__("fancyimpute", [self.method], 1)
@@ -36,6 +39,7 @@ class FancyImputer(BaseEstimator, TransformerMixin):
                 "Invalid method. Possible values are BiScaler, KNN, "
                 "NuclearNormMinimization and SoftImpute"
             )
+
         self.imputer = self.cls(**self.impute_kwargs)
 
     def get_params(self, deep=True):
@@ -61,9 +65,6 @@ class FancyImputer(BaseEstimator, TransformerMixin):
 
         Returns:
             see super.
-
-        Raises:
-            ValueError: If method is invalid
 
         """
         out = super().set_params(**params)

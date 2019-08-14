@@ -1,10 +1,8 @@
 """Smart Transformer and its helper methods."""
 
 from abc import ABCMeta, abstractmethod
-from copy import deepcopy
 
-from sklearn.base import BaseEstimator, TransformerMixin
-
+from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.logging import logging
 from foreshadow.pipeline import SerializablePipeline
 from foreshadow.utils import (
@@ -62,11 +60,11 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         name=None,
         keep_columns=False,
         check_wrapped=True,
-        **transformer_kwargs,
+        **kwargs,
     ):
         self.name = name
         self.keep_columns = keep_columns
-        self.transformer_kwargs = transformer_kwargs
+        self.kwargs = kwargs
         self.column_sharer = column_sharer
         # TODO will need to add the above when this is no longer wrapped
         self.y_var = y_var
@@ -106,8 +104,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
         """
         if isinstance(value, str):
-            # This pathway is used at init time of the object
-            value = get_transformer(value)(**self.transformer_kwargs)
+            value = get_transformer(value)(**self.kwargs)
             self.unset_resolve()
         # Check transformer type
         is_trans = is_transformer(value)
@@ -155,11 +152,11 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         Args:
             **params (dict): any valid parameter of this estimator
 
-        """
-        # if "transformer" in params:
-        #     self.transformer = params["transformer"]
-        super().set_params(**params)
+        Returns:
+            see super.
 
+        """
+        return super().set_params(**params)
 
     @abstractmethod
     def pick_transformer(self, X, y=None, **fit_params):
@@ -238,7 +235,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         self.resolve(X, y, **fit_params)
         self.transformer.full_df = fit_params.pop("full_df", None)
         self.transformer.fit(X, y, **fit_params)
-        return self  # .transformer.fit(X, y, **fit_params)
+        return self
         # This should not return the self.transformer.fit as that will
         # cause fit_transforms, which call .fit().transform() to fail when
         # using our wrapper for transformers; TL;DR, it misses the call to

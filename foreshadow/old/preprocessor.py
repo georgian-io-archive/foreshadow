@@ -3,7 +3,7 @@
 # import inspect
 # from copy import deepcopy
 #
-# from sklearn.base import BaseEstimator, TransformerMixin
+# from foreshadow.base import BaseEstimator, TransformerMixin
 #
 # from foreshadow.intents import GenericIntent
 # from foreshadow.intents.registry import registry_eval

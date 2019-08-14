@@ -53,161 +53,129 @@ param_distributions = hp.choice(
             },
         ],
     )
-from collections import MutableMapping
-class ParamSpec(MutableMapping):
-    def __init__(self, fs_pipeline=None, X_df=None, y_df=None):
-        if not (fs_pipeline is None) == (X_df is None) == (y_df is None):
-            raise ValueError("Either all kwargs are None or all are set. To "
-                             "use automatic param determination, pass all "
-                             "kwargs. Otherwise, manual setting can be "
-                             "accomplished using set_params.")
-        self._param_set = False
-        self.param_distributions = []
-        if not (fs_pipeline is None) and (X_df is None) and (y_df) is None:
-            params = fs_pipeline.get_params()
-            for kwarg in kwargs:
-                key, delim, subkey = kwarg.partition('__')
-                self.param_distribution[key] = {}
-                while delim !=  '':
-                    pass
-            self._param_set = True
 
-    def get_params(self, deep=True):
-        return self.param_distribution
+test = [
+            {
+                "s__transformer": "StandardScaler",
+                "s__transformer__with_mean": [False,True],
+            },
+            {
+                "s__transformer": "MinMaxScaler",
+                "s__transformer__feature_range": [(0, 1), (0, 0.5)],
+            },
+        ]
 
-    def set_params(self, **params):
-        self.param_distribibutions = params['param_distributions']
-        self._param_set = True
-
-    def __call__(self):
-        return self.param_distribibutions
-
-    def __iter__(self):
-        return iter(self.param_distributions)
-
-    def __getitem__(self, item):
-        return self.param_distributions[item]
-
-    def __setitem__(self, key, value):
-        self.param_distributions[key] = value
-
-    def __len__(self):
-        return len(self.param_distributions)
-
-    def __delitem__(self, key):
-        raise NotImplementedError('test')
-
-# ps = ParamSpec()
-# ps.set_params(param_distributions=param_distributions)
-# param_distributions = ps
+from foreshadow.optimizers.optimizer import _replace_list
+print(_replace_list(None, test))
+print(param_distributions)
 
 
-class HyperOptSampler(object):
-    def __init__(self, param_distributions, n_iter, random_state=None):
-        self.param_distributions = param_distributions
-        self.n_iter = n_iter
-        self.random_state = random_state
-
-    def __iter__(self):
-        # check if all distributions are given as lists
-        # in this case we want to sample without replacement
-        rng = check_random_state(self.random_state)
-        for _ in six.moves.range(self.n_iter):
-            # import pdb; pdb.set_trace()
-            yield stoch.sample(self.param_distributions, rng=rng)
-
-    def __len__(self):
-        """Number of points that will be sampled."""
-        return self.n_iter
-
-
-class ShadowSearchCV(BaseSearchCV):
-    def __init__(
-        self,
-        estimator,
-        param_distributions,
-        n_iter=10,
-        scoring=None,
-        fit_params=None,
-        n_jobs=1,
-        iid=True,
-        refit=True,
-        cv=None,
-        verbose=0,
-        pre_dispatch="2*n_jobs",
-        random_state=None,
-        error_score="raise",
-        return_train_score="warn",
-    ):
-        self.param_distributions = param_distributions
-        self.n_iter = n_iter
-        self.random_state = random_state
-        super().__init__(
-            estimator=estimator,
-            scoring=scoring,
-            fit_params=fit_params,
-            n_jobs=n_jobs,
-            iid=iid,
-            refit=refit,
-            cv=cv,
-            verbose=verbose,
-            pre_dispatch=pre_dispatch,
-            error_score=error_score,
-            return_train_score=return_train_score,
-        )
-
-    def _get_param_iterator(self):
-        """Return ParameterSampler instance for the given distributions"""
-        out = HyperOptSampler(
-            self.param_distributions,
-            self.n_iter,
-            random_state=self.random_state,
-        )
-        return out
-
-
-# combinations.yaml
-"""
-combinations:
-    X_preparer.cleaner.CHAS:
-        Cleaner:
-            - date:
-                - p1
-                - p2
-            - financial
-        IntentMapper:
-            - Something
-
-    X_preparer.cleaner.CHAS.CleanerMapper:
-        -Something
-
-    X_preparer.cleaner.CHAS.IntentMapper:
-        -Something
-
-
-    X_preparer:
-        cleaner:
-            CHAS:
-                Cleaner:
-                    date:
-                        -p1
-                        -p2
-
-"""
-
-rscv = ShadowSearchCV(
-    pipe, param_distributions, iid=True, scoring="accuracy", n_iter=2
-)
-
-# print("Train Accuracy: {}".format(accuracy_score(y_data, pipe.predict(X_data))))
-
-rscv.fit(X_data, y_data)
-results = pd.DataFrame(rscv.cv_results_)
-results = results[
-    [c for c in results.columns if all(s not in c for s in ["time", "params"])]
-]
-
-print(results)
+# class HyperOptSampler(object):
+#     def __init__(self, param_distributions, n_iter, random_state=None):
+#         self.param_distributions = param_distributions
+#         self.n_iter = n_iter
+#         self.random_state = random_state
+#
+#     def __iter__(self):
+#         # check if all distributions are given as lists
+#         # in this case we want to sample without replacement
+#         rng = check_random_state(self.random_state)
+#         for _ in six.moves.range(self.n_iter):
+#             # import pdb; pdb.set_trace()
+#             yield stoch.sample(self.param_distributions, rng=rng)
+#
+#     def __len__(self):
+#         """Number of points that will be sampled."""
+#         return self.n_iter
+#
+#
+# class ShadowSearchCV(BaseSearchCV):
+#     def __init__(
+#         self,
+#         estimator,
+#         param_distributions,
+#         n_iter=10,
+#         scoring=None,
+#         fit_params=None,
+#         n_jobs=1,
+#         iid=True,
+#         refit=True,
+#         cv=None,
+#         verbose=0,
+#         pre_dispatch="2*n_jobs",
+#         random_state=None,
+#         error_score="raise",
+#         return_train_score="warn",
+#     ):
+#         self.param_distributions = param_distributions
+#         self.n_iter = n_iter
+#         self.random_state = random_state
+#         super().__init__(
+#             estimator=estimator,
+#             scoring=scoring,
+#             fit_params=fit_params,
+#             n_jobs=n_jobs,
+#             iid=iid,
+#             refit=refit,
+#             cv=cv,
+#             verbose=verbose,
+#             pre_dispatch=pre_dispatch,
+#             error_score=error_score,
+#             return_train_score=return_train_score,
+#         )
+#
+#     def _get_param_iterator(self):
+#         """Return ParameterSampler instance for the given distributions"""
+#         out = HyperOptSampler(
+#             self.param_distributions,
+#             self.n_iter,
+#             random_state=self.random_state,
+#         )
+#         return out
+#
+#
+# # combinations.yaml
+# """
+# combinations:
+#     X_preparer.cleaner.CHAS:
+#         Cleaner:
+#             - date:
+#                 - p1
+#                 - p2
+#             - financial
+#         IntentMapper:
+#             - Something
+#
+#     X_preparer.cleaner.CHAS.CleanerMapper:
+#         -Something
+#
+#     X_preparer.cleaner.CHAS.IntentMapper:
+#         -Something
+#
+#
+#     X_preparer:
+#         cleaner:
+#             CHAS:
+#                 Cleaner:
+#                     date:
+#                         -p1
+#                         -p2
+#
+# """
+#
+# rscv = ShadowSearchCV(
+#     pipe, param_distributions, iid=True, scoring="accuracy", n_iter=10
+# )
+#
+# # print("Train Accuracy: {}".format(accuracy_score(y_data, pipe.predict(X_data))))
+#
+# rscv.fit(X_data, y_data)
+# results = pd.DataFrame(rscv.cv_results_)
+# results = results[
+#     [c for c in results.columns if all(s not in c for s in ["time", "params"])]
+# ]
+#
+# print(results)
 
 
 # import pdb; pdb.set_trace()

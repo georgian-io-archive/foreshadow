@@ -1,8 +1,7 @@
 """General base classes used across Foreshadow."""
 from collections import MutableMapping, defaultdict, namedtuple
 
-from sklearn.base import BaseEstimator, TransformerMixin
-
+from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.concrete.internals.notransform import NoTransform
 from foreshadow.logging import logging
 from foreshadow.parallelprocessor import ParallelProcessor
@@ -525,6 +524,10 @@ class PreparerStep(BaseEstimator, TransformerMixin):
     @classmethod
     def _get_param_names(cls):
         """Get iteratively __init__ params for all classes until PreparerStep.
+
+        This method is implemented as a convenience for any child. It will
+        automatically climb the MRO for a child until it reaches this class
+        (the last parent who's __init__ params we care about).
 
         Returns:
             params for all parents up to and including PreparerStep.
