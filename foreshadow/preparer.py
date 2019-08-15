@@ -129,25 +129,22 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         serialized = super().dict_serialize(deep=deep)
         column_sharer_serialized = serialized.pop("column_sharer", None)
         # Remove all instance of column_sharer from the serialized recursively.
-        serialized = self.__remove_key_from_dict(
-            serialized, target="column_sharer"
-        )
+        serialized = self.__remove_key_from(serialized, target="column_sharer")
         # Add back the column_sharer in the end only once.
         serialized["column_sharer"] = column_sharer_serialized
         return serialized
 
-    def __remove_key_from_dict(self, data, target="column_sharer"):
+    def __remove_key_from(self, data, target="column_sharer"):
         if isinstance(data, dict):
             matching_keys = [key for key in data if key.endswith(target)]
             for mk in matching_keys:
                 del data[mk]
             data = {
-                key: self.__remove_key_from_dict(data[key], target=target)
+                key: self.__remove_key_from(data[key], target=target)
                 for key in data
             }
         elif isinstance(data, list):
             data = [
-                self.__remove_key_from_dict(item, target=target)
-                for item in data
+                self.__remove_key_from(item, target=target) for item in data
             ]
         return data
