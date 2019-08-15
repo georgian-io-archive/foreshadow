@@ -44,35 +44,36 @@ class ColumnSharer(MutableMapping, ConcreteSerializerMixin):
             lambda: False, acceptable_keys
         )
 
-    def get_params(self, deep=False):
-        """Get parameters for the column sharer, which is the store in this case.
+    def dict_serialize(self, deep=True):
+        """Serialize the init parameters (dictionary form) of a columnsharer.
 
         Args:
-            deep: Not used for this class. Default to False.
+            deep (bool): If True, will return the parameters for a columnsharer
+                recursively
 
         Returns:
-            Params for the column_sharer.
+            dict: The initialization parameters of the transformer.
 
         """
-        # Since the users are not supposed to change the acceptable_keys, I'm
-        # inclined to not show them but we do need to show all of them in the
-        # documentation.
         return {"store": self.store}
 
-    def set_params(self, **params):
-        """Set the parameters of the column sharer.
+    @classmethod
+    def dict_deserialize(cls, data):
+        """Deserialize the dictionary form of a columnsharer.
 
         Args:
-            **params: params to set
+            data: The dictionary to parse as a columnsharer is constructed.
 
         Returns:
-            The column sharer with stores set.
+            object: A re-constructed transformer
 
         """
-        for key in params["store"]:
-            self[key] = params["store"][key]
+        ret = cls()
+        store = data["store"]
+        for key in store:
+            ret[key] = store[key]
 
-        return self
+        return ret
 
     def __getitem__(self, key_list):
         """Override getitem to support multi key accessing simultaneously.

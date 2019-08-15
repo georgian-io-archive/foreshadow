@@ -211,7 +211,7 @@ def test_column_sharer_iter(store):
         },
     ],
 )
-def test_column_sharer_get_params(store):
+def test_column_sharer_dict_serialize(store):
     """Test that get_params are returning the right content.
 
     Args:
@@ -236,7 +236,7 @@ def test_column_sharer_get_params(store):
         else:
             expected["store"][key] = PrettyDefaultDict(lambda: None)
 
-    assert expected == cs.get_params(deep=True)
+    assert expected == cs.dict_serialize(deep=True)
 
 
 @pytest.mark.parametrize(
@@ -253,7 +253,7 @@ def test_column_sharer_get_params(store):
         },
     ],
 )
-def test_column_sharer_set_params(store):
+def test_column_sharer_dict_deserialize(store):
     """Test that set_params are updating the ColumnShare correctly
 
     Args:
@@ -266,8 +266,9 @@ def test_column_sharer_set_params(store):
     for key in store:
         cs[key] = store[key]
 
-    expected = ColumnSharer()
-    expected.set_params(store=store)
+    serialized = cs.serialize(method="dict")
+
+    expected = ColumnSharer.dict_deserialize(serialized)
 
     assert expected == cs
 
