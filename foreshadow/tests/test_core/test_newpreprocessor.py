@@ -18,7 +18,7 @@ def test_preprocessor_none_config(mocker):
     from foreshadow.columnsharer import ColumnSharer
     from foreshadow.steps import Preprocessor
 
-    from sklearn.base import BaseEstimator, TransformerMixin
+    from foreshadow.base import BaseEstimator, TransformerMixin
 
     class DummyIntent(BaseEstimator, TransformerMixin):
         def fit(self, X, y=None, **fit_params):
@@ -66,7 +66,7 @@ def test_preprocessor_numbers(mocker):
     from foreshadow.columnsharer import ColumnSharer
     from foreshadow.steps import Preprocessor
 
-    from sklearn.base import BaseEstimator, TransformerMixin
+    from foreshadow.base import BaseEstimator, TransformerMixin
 
     from foreshadow.concrete import StandardScaler
 
@@ -132,7 +132,7 @@ def test_preprocessor_columnsharer(mocker, column_sharer):
     import pandas as pd
     from foreshadow.steps import Preprocessor
 
-    from sklearn.base import BaseEstimator, TransformerMixin
+    from foreshadow.base import BaseEstimator, TransformerMixin
 
     from foreshadow.concrete import StandardScaler
 

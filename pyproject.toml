@@ -58,6 +58,7 @@ sphinx = { version ="^1.7.6", optional = true }
 sphinx_rtd_theme = { version ="^0.4.1", optional = true }
 sphinxcontrib-plantuml = { version ="^0.16.1", optional = true }
 docutils = { version ="<0.15.1", optional= true }  # hot fix: https://github.com/sdispater/poetry/issues/1194
+patchy = "^1.5"
 
 [tool.poetry.dev-dependencies]
 # Linting
@@ -122,7 +123,7 @@ exclude = '''
 
 [tool.isort]
 known_first_party = 'foreshadow'
-known_third_party = ["category_encoders", "jsonpickle", "marshmallow", "numpy", "pandas", "pytest", "scipy", "six", "sklearn", "tpot", "yaml"]
+known_third_party = ["category_encoders", "jsonpickle", "marshmallow", "numpy", "pandas", "patchy", "pytest", "scipy", "six", "sklearn", "tpot", "yaml"]
 multi_line_output = 3
 lines_after_imports = 2
 force_grid_wrap = 0

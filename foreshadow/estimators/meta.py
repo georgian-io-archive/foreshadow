@@ -1,7 +1,6 @@
 """Wrapped Estimator."""
 
-from sklearn.base import BaseEstimator
-
+from foreshadow.base import BaseEstimator
 from foreshadow.utils import check_df
 
 

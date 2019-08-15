@@ -1,7 +1,6 @@
 """Foreshadow extension of feature union for handling dataframes."""
 
 import pandas as pd
-from sklearn.base import BaseEstimator
 from sklearn.externals.joblib import Parallel, delayed
 from sklearn.pipeline import (
     FeatureUnion,
@@ -11,6 +10,7 @@ from sklearn.pipeline import (
 )
 
 from .serializers import ConcreteSerializerMixin
+from foreshadow.base import BaseEstimator
 
 
 class ParallelProcessor(FeatureUnion, ConcreteSerializerMixin):

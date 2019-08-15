@@ -1,3 +1,7 @@
+"""Tests for foreshadow/estimators/meta.py."""
+import pytest
+
+
 def test_metaestimator_predict():
     import numpy as np
 
@@ -72,3 +76,23 @@ def test_metaestimator_score():
     assert np.allclose(
         me.score(X_test, y_test), est.score(X_test, scaler.transform(y_test))
     )
+
+
+@pytest.mark.parametrize("deep", [True, False])
+def test_meta_estimator_get_params_keys(deep):
+    """Test that the desired keys show up for the MetaEstimator object.
+
+    Args:
+        deep: deep param to get_params
+
+    """
+    from foreshadow.estimators.meta import MetaEstimator
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.linear_model import LinearRegression
+
+    me = MetaEstimator(LinearRegression(), StandardScaler())
+    params = me.get_params(deep=deep)
+
+    desired_keys = ["estimator", "preprocessor"]
+    for key in desired_keys:
+        assert key in params

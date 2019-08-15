@@ -1,12 +1,8 @@
 """Transformer wrapping utility classes and functions."""
 
-import warnings
-
 import numpy as np
 import pandas as pd
 import scipy
-from sklearn.base import BaseEstimator
-from sklearn.utils.fixes import signature
 
 from foreshadow.logging import logging
 from foreshadow.serializers import ConcreteSerializerMixin
@@ -31,6 +27,7 @@ def pandas_wrap(transformer):  # noqa: C901
     # MRO metaclass issues in DFTransformer if we try to choose the base class
     # for our metaclass that is not the same one for the transformer we are
     # also extending.
+
     class DFTransformerMeta(type(transformer)):
         """Metaclass for DFTransformer to appear as parent Transformer."""
 
@@ -72,11 +69,13 @@ def pandas_wrap(transformer):  # noqa: C901
     ):
         """Wrapper to Enable parent transformer to handle DataFrames."""
 
-        def __init__(self, *args, **kwargs):
+        def __init__(self, *args, name=None, keep_columns=False, **kwargs):
             """Initialize parent Transformer.
 
             Args:
                 *args: args to the parent constructor (shadowed transformer)
+                name: name of the transformer.
+                keep_columns: keep original column names in the graph.
                 **kwargs: kwargs to the parent constructor
 
             Raises:
@@ -86,20 +85,20 @@ def pandas_wrap(transformer):  # noqa: C901
             ..# noqa: I402
 
             """
-            if "name" in kwargs:
-                self.name = kwargs.pop("name")
-                logging.warning(
-                    "name is a deprecated kwarg. Please remove "
-                    "it from the kwargs and instead set it "
-                    "after instantiation."
-                )
-            if "keep_columns" in kwargs:
-                self.keep_column = kwargs.pop("keep_columns")
-                logging.warning(
-                    "keep_columns is a deprecated kwarg. Please "
-                    "remove it from the kwargs and instead set "
-                    "it after instantiation."
-                )
+            self.name = name
+            self.keep_columns = keep_columns
+            # self.name = kwargs.pop("name", None)
+            # logging.warning(
+            #     "name is a deprecated kwarg. Please remove "
+            #     "it from the kwargs and instead set it "
+            #     "after instantiation."
+            # )
+            # self.keep_column = kwargs.pop("keep_columns", False)
+            # logging.warning(
+            #     "keep_columns is a deprecated kwarg. Please "
+            #     "remove it from the kwargs and instead set "
+            #     "it after instantiation."
+            # )
             try:
                 super(DFTransformer, self).__init__(*args, **kwargs)
             except TypeError as e:
@@ -117,8 +116,8 @@ def pandas_wrap(transformer):  # noqa: C901
             init statement for that class. Since this class is used to wrap
             a parent transformer (by OOP), we use the parent's init
             statement and then this DFTransformer's additional arguments.
-            We must override of BaseEstimator will complain about our
-            nonstandard usage.
+            We must override _get_param_names so that this method captures
+            the parent's __init__.
 
             Args:
                 deep (bool): If True, will return the parameters for this
@@ -129,57 +128,27 @@ def pandas_wrap(transformer):  # noqa: C901
                 DFTransformer wrapper.
 
             """
-            parent_params = BaseEstimator.get_params(transformer, deep=deep)
-            # will contain any init arguments that are not variable keyword
-            # arguments. By default, this means that any new transformer
-            # cannot have variable keyword arguments in its init less the
-            # transformer designer is okay with it not getting picked up here.
-            # The transformer class passed will not contain the current values,
-            # so we set them with the values on the object instance, below.
-            try:
-                self_params = super().get_params(deep=deep)
-            except RuntimeError:
-                # TODO, Chris explain why we copy scikit-learn's internal
-                # get_params.
-                self_params = dict()  # the output
-                init = getattr(
-                    self.__init__, "deprecated_original", self.__init__
-                )
-                if init is object.__init__:
-                    return self_params
-                # explicit constructor to introspect
-                # introspect the constructor arguments to find the model
-                # parameters to represent
-                init_signature = signature(init)
-                # Consider the constructor parameters excluding 'self'
-                self_sig = [
-                    p
-                    for p in init_signature.parameters.values()
-                    if p.name != "self"
-                    and p.kind != p.VAR_KEYWORD
-                    and p.kind != p.VAR_POSITIONAL
-                ]
-                self_sig = sorted([p.name for p in self_sig])
-                for key in self_sig + list(parent_params.keys()):
-                    warnings.simplefilter("always", DeprecationWarning)
-                    try:
-                        with warnings.catch_warnings(record=True) as w:
-                            value = getattr(self, key, None)
-                        if len(w) and w[0].category == DeprecationWarning:
-                            # if the parameter is deprecated, don't show it
-                            continue
-                    finally:
-                        warnings.filters.pop(0)
+            params = super().get_params(deep=deep)
+            return params
 
-                    # XXX: should we rather test if instance of estimator?
-                    if deep and hasattr(value, "get_params"):
-                        deep_items = value.get_params().items()
-                        self_params.update(
-                            (key + "__" + k, val) for k, val in deep_items
-                        )
-                    self_params[key] = value
+        def set_params(self, **params):
+            """Override standard set_params to handle nonstandard init.
 
-            return self_params
+            BaseEstimator for sklearn gets and sets parameters based on the
+            init statement for that class. Since this class is used to wrap
+            a parent transformer (by OOP), we use the parent's init
+            statement and then this DFTransformer's additional arguments.
+            We must override _get_param_names so that this method captures
+            the parent's __init__.
+
+            Args:
+                **params: params to init.
+
+            Returns:
+                See super.
+
+            """
+            return super().set_params(**params)
 
         def fit(self, X, *args, **kwargs):
             """Fit the estimator or transformer, pandas enabled.
@@ -383,11 +352,17 @@ def pandas_wrap(transformer):  # noqa: C901
             return out
 
         def __repr__(self):
-            return "DFTransformer: {}".format(self.__class__.__name__)
+            return "DF{}".format(self.__class__.__name__)
 
-        def set_extra_params(self, name=None, keep_columns=False):
-            setattr(self, "name", name)
-            setattr(self, "keep_columns", keep_columns)
+        @classmethod
+        def _get_param_names(cls):
+            """Shadow the parent __init__ method.
+
+            Returns:
+                _param_names for the parent class (and therefore the __init__).
+
+            """
+            return transformer._get_param_names()
 
     return DFTransformer
 

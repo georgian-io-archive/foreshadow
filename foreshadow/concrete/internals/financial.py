@@ -4,8 +4,8 @@ import re
 
 import numpy as np
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
 
+from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.wrapper import pandas_wrap
 
 
