@@ -52,9 +52,11 @@ class ColumnSharer(MutableMapping, ConcreteSerializerMixin):
                 recursively
 
         Returns:
-            dict: The initialization parameters of the transformer.
+            dict: The initialization parameters of the columnsharer.
 
         """
+        # Not returning __acceptable_keys because they are not supposed to be
+        # exposed to the user.
         return {"store": self.store}
 
     @classmethod
@@ -65,7 +67,7 @@ class ColumnSharer(MutableMapping, ConcreteSerializerMixin):
             data: The dictionary to parse as a columnsharer is constructed.
 
         Returns:
-            object: A re-constructed transformer
+            object: A re-constructed columnsharer
 
         """
         ret = cls()
