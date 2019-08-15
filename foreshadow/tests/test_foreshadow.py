@@ -78,7 +78,7 @@ def test_foreshadow_y_preparer_error():
 
 def test_foreshadow_estimator_custom():
     from foreshadow.foreshadow import Foreshadow
-    from sklearn.base import BaseEstimator
+    from foreshadow.base import BaseEstimator
 
     estimator = BaseEstimator()
     foreshadow = Foreshadow(estimator=estimator)
@@ -98,7 +98,7 @@ def test_foreshadow_estimator_error():
 def test_foreshadow_optimizer_custom():
     from foreshadow.foreshadow import Foreshadow
     from sklearn.model_selection._search import BaseSearchCV
-    from sklearn.base import BaseEstimator
+    from foreshadow.base import BaseEstimator
 
     class DummySearch(BaseSearchCV):
         pass
@@ -334,7 +334,7 @@ def test_foreshadow_predict_diff_cols():
 @pytest.mark.skip("borken until parameter optimization is implemented")
 def test_foreshadow_param_optimize_fit(mocker):
     import pandas as pd
-    from sklearn.base import BaseEstimator, TransformerMixin
+    from foreshadow.base import BaseEstimator, TransformerMixin
     from sklearn.model_selection._search import BaseSearchCV
 
     from foreshadow.foreshadow import Foreshadow
@@ -633,3 +633,27 @@ def test_core_foreshadow_example_classification():
     model.fit(X_train, y_train)
     score = f1_score(y_test, model.predict(X_test), average="weighted")
     print("Iris score: %f" % score)
+
+
+@pytest.mark.parametrize("deep", [True, False])
+def test_foreshadow_get_params_keys(deep):
+    """Test that the desired keys show up for the Foreshadow object.
+
+    Args:
+        deep: deep param to get_params
+
+    """
+    from foreshadow.foreshadow import Foreshadow
+
+    fs = Foreshadow()
+    params = fs.get_params(deep=deep)
+
+    desired_keys = [
+        "X_preparer",
+        "estimator",
+        "y_preparer",
+        "optimizer",
+        "data_columns",
+    ]
+    for key in desired_keys:
+        assert key in params

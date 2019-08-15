@@ -1,9 +1,7 @@
 """General base classes used across Foreshadow."""
 from collections import MutableMapping, defaultdict, namedtuple
-from inspect import signature
 
-from sklearn.base import BaseEstimator, TransformerMixin
-
+from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.concrete.internals.notransform import NoTransform
 from foreshadow.logging import logging
 from foreshadow.parallelprocessor import ParallelProcessor
@@ -523,25 +521,31 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         self.check_process(X)
         return self._parallel_process.inverse_transform(X, *args, **kwargs)
 
-    @staticmethod
-    def _preparer_params():
-        init = getattr(
-            PreparerStep.__init__, "deprecated_original", PreparerStep.__init__
-        )
-        init_signature = signature(init)
-        # Consider the constructor parameters excluding 'self'
-        parameters = [
-            p
-            for p in init_signature.parameters.values()
-            if p.name != "self" and p.kind != p.VAR_KEYWORD
-        ]
-        return [p.name for p in parameters]
+    @classmethod
+    def _get_param_names(cls):
+        """Get iteratively __init__ params for all classes until PreparerStep.
+
+        This method is implemented as a convenience for any child. It will
+        automatically climb the MRO for a child until it reaches this class
+        (the last parent who's __init__ params we care about).
+
+        Returns:
+            params for all parents up to and including PreparerStep.
+            Includes the calling classes params.
+
+        """
+        params = super()._get_param_names()
+        while cls.__name__ != PreparerStep.__name__:
+            cls = cls.__mro__[1]
+            params += cls._get_param_names()
+        return params
 
     def get_params(self, deep=True):
         """See super.
 
         Overridden to add this parent classes' params to children and to
-        include _parallel_process
+        include _parallel_process. _get_param_names holds the logic for
+        getting all parent params.
 
         Args:
             deep:  See super.
@@ -551,10 +555,6 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
         """
         params = super().get_params(deep=deep)
-        _preparer_params = self._preparer_params()
-        params.update(
-            {key: getattr(self, key, None) for key in _preparer_params}
-        )
         params.update(
             {"_parallel_process": getattr(self, "_parallel_process", None)}
         )
@@ -564,7 +564,8 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         """See super.
 
         Overridden to afld this parent classes' params to children and to
-        include _parallel_process
+        include _parallel_process. _get_param_names holds the logic for
+        getting all parent params.
 
         Args:
             **params: see super.

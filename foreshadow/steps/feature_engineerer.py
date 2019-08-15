@@ -41,12 +41,10 @@ class FeatureEngineererMapper(PreparerStep, AutoIntentMixin):
 
         columns = X.columns.values.tolist()
         columns_by_domain = group_by(columns, "domain")
-        print(columns_by_domain)
 
         columns_by_domain_and_intent = defaultdict(list)
         for domain in columns_by_domain:
             columns_by_intent = group_by(columns_by_domain[domain], "intent")
-            print(columns_by_intent)
             for intent in columns_by_intent:
                 columns_by_domain_and_intent[
                     str(domain) + "_" + intent

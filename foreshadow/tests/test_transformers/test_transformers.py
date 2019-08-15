@@ -12,8 +12,7 @@ def test_transformer_keep_cols():
 
     df = pd.read_csv(boston_path)
 
-    custom = CustomScaler()
-    custom.set_extra_params(keep_columns=True)
+    custom = CustomScaler(keep_columns=True)
     custom_tf = custom.fit_transform(df[["crim"]])
 
     assert custom_tf.shape[1] == 2
@@ -27,8 +26,7 @@ def test_transformer_naming_override():
 
     df = pd.read_csv(boston_path)
 
-    scaler = StandardScaler()
-    scaler.set_extra_params(name="test", keep_columns=False)
+    scaler = StandardScaler(name="test", keep_columns=False)
     out = scaler.fit_transform(df[["crim"]])
 
     assert out.iloc[:, 0].name == "crim"
@@ -342,8 +340,7 @@ def test_smarttransformer_function_override(smart_child):
     # assert smart.transformer.name == "impute"
     # not relevant anymore.
 
-    std = Imputer()
-    std.set_extra_params(name="impute")
+    std = Imputer(name="impute")
     std_data = std.fit_transform(df[["crim"]])
 
     assert smart_data.equals(std_data)
@@ -386,7 +383,7 @@ def test_smarttransformer_set_params_override(smart_child):
     from foreshadow.concrete import StandardScaler
 
     smart = smart_child(transformer="Imputer")
-    smart.set_params(**{"transformer": {"class_name": "StandardScaler"}})
+    smart.set_params(**{"transformer": "StandardScaler"})
 
     assert isinstance(smart.transformer, StandardScaler)
 
@@ -413,10 +410,11 @@ def test_smarttransformer_set_params_default(smart_child):
     """
     smart = smart_child()
     smart.fit([1, 2, 3])
+    before = smart.__dict__
+    params = smart.get_params()
+    smart = smart_child().set_params(**params)
 
-    smart.set_params(**{"transformer": {"with_mean": False}})
-
-    assert not smart.transformer.with_mean
+    assert smart.__dict__ == before
 
 
 def test_smarttransformer_get_params(smart_child):
@@ -434,14 +432,7 @@ def test_smarttransformer_get_params(smart_child):
     params = smart.get_params()
     print(params)
     assert params == {
-        "transformer": {
-            "class_name": "Imputer",
-            "missing_values": "NaN",
-            "strategy": "mean",
-            "copy": True,
-            "axis": 0,
-            "verbose": 0,
-        },
+        "transformer": smart.transformer,
         "name": None,
         "keep_columns": False,
         "y_var": False,
@@ -449,6 +440,11 @@ def test_smarttransformer_get_params(smart_child):
         "should_resolve": False,
         "column_sharer": None,
         "check_wrapped": True,
+        "transformer__copy": True,
+        "transformer__missing_values": "NaN",
+        "transformer__strategy": "mean",
+        "transformer__verbose": 0,
+        "transformer__axis": 0,
     }
 
 

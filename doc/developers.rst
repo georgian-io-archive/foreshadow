@@ -166,7 +166,7 @@ Adding transformers is quite simple. Simply write a class with the `fit` `transf
 
 .. code-block:: python
 
-   from sklearn.base import TransformerMixin, BaseEstimator
+   from foreshadow.base import TransformerMixin, BaseEstimator
    from sklearn.utils import check_array
    
    class CustomTransformer(BaseEstimator, TransformerMixin):   

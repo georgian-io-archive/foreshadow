@@ -4,6 +4,7 @@ from .cleaner import CleanerMapper
 from .feature_engineerer import FeatureEngineererMapper
 from .feature_reducer import FeatureReducerMapper
 from .mapper import IntentMapper
+from .preparerstep import PreparerStep
 from .preprocessor import Preprocessor
 
 
@@ -13,4 +14,5 @@ __all__ = [
     "Preprocessor",
     "FeatureEngineererMapper",
     "FeatureReducerMapper",
+    "PreparerStep",
 ]

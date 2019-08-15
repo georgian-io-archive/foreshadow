@@ -72,11 +72,6 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "19.1.0"
 
-[package.extras]
-dev = ["coverage", "hypothesis", "pympler", "pytest", "six", "zope.interface", "sphinx", "pre-commit"]
-docs = ["sphinx", "zope.interface"]
-tests = ["coverage", "hypothesis", "pympler", "pytest", "six", "zope.interface"]
-
 [[package]]
 category = "main"
 description = "Internationalization utilities"
@@ -110,9 +105,6 @@ appdirs = "*"
 attrs = ">=17.4.0"
 click = ">=6.5"
 toml = ">=0.9.4"
-
-[package.extras]
-d = ["aiohttp (>=3.3.2)"]
 
 [[package]]
 category = "dev"
@@ -233,9 +225,6 @@ name = "dill"
 optional = false
 python-versions = ">=2.6, !=3.0.*"
 version = "0.3.0"
-
-[package.extras]
-graph = ["objgraph (>=1.7.2)"]
 
 [[package]]
 category = "main"
@@ -393,9 +382,6 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "1.4.5"
 
-[package.extras]
-license = ["editdistance"]
-
 [[package]]
 category = "main"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -423,9 +409,6 @@ version = "0.18"
 [package.dependencies]
 zipp = ">=0.5"
 
-[package.extras]
-docs = ["sphinx", "docutils (0.12)", "rst.linker"]
-
 [[package]]
 category = "dev"
 description = "Read resources from Python packages"
@@ -443,9 +426,6 @@ optional = false
 python-versions = "*"
 version = "17.5.0"
 
-[package.extras]
-scripts = ["click (>=6.0)", "twisted (>=16.4.0)"]
-
 [[package]]
 category = "dev"
 description = "A Python utility / library to sort Python imports."
@@ -455,15 +435,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "4.3.21"
 
 [package.dependencies]
-[package.dependencies.toml]
-optional = true
-version = "*"
-
-[package.extras]
-pipfile = ["pipreqs", "requirementslib"]
-pyproject = ["toml"]
-requirements = ["pipreqs", "pip-api"]
-xdg_home = ["appdirs (>=1.4.0)"]
+toml = "*"
 
 [[package]]
 category = "main"
@@ -475,9 +447,6 @@ version = "2.10.1"
 
 [package.dependencies]
 MarkupSafe = ">=0.23"
-
-[package.extras]
-i18n = ["Babel (>=0.8)"]
 
 [[package]]
 category = "main"
@@ -512,10 +481,6 @@ pyyaml = "*"
 scipy = ">=0.14"
 six = ">=1.9.0"
 
-[package.extras]
-tests = ["pytest", "pytest-pep8", "pytest-xdist", "pytest-cov", "pytest-timeout", "pandas", "requests"]
-visualize = ["pydot (>=1.2.4)"]
-
 [[package]]
 category = "main"
 description = "Reference implementations of popular deep learning models"
@@ -528,9 +493,6 @@ version = "1.0.8"
 h5py = "*"
 numpy = ">=1.9.1"
 
-[package.extras]
-tests = ["pytest", "pytest-pep8", "pytest-xdist", "pytest-cov"]
-
 [[package]]
 category = "main"
 description = "Easy data preprocessing and data augmentation for deep learning models"
@@ -542,11 +504,6 @@ version = "1.1.0"
 [package.dependencies]
 numpy = ">=1.9.1"
 six = ">=1.9.0"
-
-[package.extras]
-image = ["scipy (>=0.14)", "Pillow (>=5.2.0)"]
-pep8 = ["flake8"]
-tests = ["pandas", "pillow", "tensorflow (1.7)", "keras", "pytest", "pytest-xdist", "pytest-cov"]
 
 [[package]]
 category = "main"
@@ -571,9 +528,6 @@ version = "3.1.1"
 [package.dependencies]
 setuptools = ">=36"
 
-[package.extras]
-testing = ["coverage", "pyyaml"]
-
 [[package]]
 category = "main"
 description = "Safely add untrusted strings to HTML/XML markup."
@@ -589,12 +543,6 @@ name = "marshmallow"
 optional = false
 python-versions = "*"
 version = "2.19.5"
-
-[package.extras]
-dev = ["python-dateutil", "simplejson", "pytest", "pytz", "flake8 (3.7.4)", "tox"]
-lint = ["flake8 (3.7.4)"]
-reco = ["python-dateutil", "simplejson"]
-tests = ["pytest", "pytz"]
 
 [[package]]
 category = "dev"
@@ -614,11 +562,6 @@ version = "3.0.5"
 
 [package.dependencies]
 six = "*"
-
-[package.extras]
-build = ["twine", "wheel", "blurb"]
-docs = ["sphinx"]
-test = ["pytest", "pytest-cov"]
 
 [[package]]
 category = "dev"
@@ -707,6 +650,17 @@ pytz = ">=2011k"
 
 [[package]]
 category = "main"
+description = "Patch the inner source of python functions at runtime."
+name = "patchy"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "1.5.0"
+
+[package.dependencies]
+six = ">=1.9.0"
+
+[[package]]
+category = "main"
 description = "A Python package for describing statistical models and for building design matrices."
 name = "patsy"
 optional = false
@@ -727,9 +681,6 @@ version = "0.12.0"
 
 [package.dependencies]
 importlib-metadata = ">=0.12"
-
-[package.extras]
-dev = ["pre-commit", "tox"]
 
 [[package]]
 category = "dev"
@@ -848,9 +799,6 @@ version = "2.7.1"
 coverage = ">=4.4"
 pytest = ">=3.6"
 
-[package.extras]
-testing = ["fields", "hunter", "process-tests (2.0.2)", "six", "virtualenv"]
-
 [[package]]
 category = "dev"
 description = "Thin-wrapper around the mock package for easier use with py.test"
@@ -861,9 +809,6 @@ version = "1.10.4"
 
 [package.dependencies]
 pytest = ">=2.7"
-
-[package.extras]
-dev = ["pre-commit", "tox"]
 
 [[package]]
 category = "main"
@@ -906,10 +851,6 @@ chardet = ">=3.0.2,<3.1.0"
 idna = ">=2.5,<2.9"
 urllib3 = ">=1.21.1,<1.25.0 || >1.25.0,<1.25.1 || >1.25.1,<1.26"
 
-[package.extras]
-security = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)"]
-socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7)", "win-inet-pton"]
-
 [[package]]
 category = "main"
 description = "A set of python modules for machine learning and data mining"
@@ -917,9 +858,6 @@ name = "scikit-learn"
 optional = false
 python-versions = "*"
 version = "0.19.2"
-
-[package.extras]
-alldeps = ["numpy (>=1.8.2)", "scipy (>=0.13.3)"]
 
 [[package]]
 category = "main"
@@ -994,10 +932,6 @@ six = ">=1.5"
 snowballstemmer = ">=1.1"
 sphinxcontrib-websupport = "*"
 
-[package.extras]
-test = ["mock", "pytest", "pytest-cov", "html5lib", "flake8 (>=3.5.0)", "flake8-import-order", "enum34", "mypy", "typed-ast"]
-websupport = ["sqlalchemy (>=0.9)", "whoosh (>=2.0)"]
-
 [[package]]
 category = "main"
 description = "Read the Docs theme for Sphinx"
@@ -1028,9 +962,6 @@ optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "1.1.2"
 
-[package.extras]
-test = ["pytest", "mock"]
-
 [[package]]
 category = "main"
 description = "Statistical computations and models for Python"
@@ -1044,11 +975,6 @@ numpy = ">=1.11"
 pandas = ">=0.19"
 patsy = ">=0.4.0"
 scipy = ">=0.18"
-
-[package.extras]
-build = ["cython (>=0.24)"]
-develop = ["cython (>=0.24)"]
-docs = ["sphinx", "nbconvert", "jupyter-client", "ipykernel", "matplotlib", "nbformat", "numpydoc", "pandas-datareader"]
 
 [[package]]
 category = "main"
@@ -1164,10 +1090,6 @@ six = ">=1.0.0,<2"
 toml = ">=0.9.4"
 virtualenv = ">=14.0.0"
 
-[package.extras]
-docs = ["sphinx (>=2.0.0,<3)", "towncrier (>=18.5.0)", "pygments-github-lexers (>=0.0.5)", "sphinxcontrib-autoprogram (>=0.1.5)"]
-testing = ["freezegun (>=0.3.11,<1)", "pathlib2 (>=2.3.3,<3)", "pytest (>=4.0.0,<6)", "pytest-cov (>=2.5.1,<3)", "pytest-mock (>=1.10.0,<2)", "pytest-xdist (>=1.22.2,<2)", "pytest-randomly (>=1.2.3,<2)", "flaky (>=3.4.0,<4)", "psutil (>=5.6.1,<6)"]
-
 [[package]]
 category = "main"
 description = "Tree-based Pipeline Optimization Tool"
@@ -1187,12 +1109,6 @@ stopit = ">=1.1.1"
 tqdm = ">=4.26.0"
 update-checker = ">=0.16"
 
-[package.extras]
-dask = ["dask (>=0.18.2)", "distributed (>=1.22.1)", "dask-ml (>=0.9.0)"]
-mdr = ["scikit-mdr (>=0.4.4)"]
-skrebate = ["skrebate (>=0.3.4)"]
-xgboost = ["xgboost (0.6a2)"]
-
 [[package]]
 category = "main"
 description = "Fast, Extensible Progress Meter"
@@ -1200,9 +1116,6 @@ name = "tqdm"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*"
 version = "4.32.2"
-
-[package.extras]
-dev = ["py-make (>=0.1.0)", "twine", "argopt", "pydoc-markdown"]
 
 [[package]]
 category = "main"
@@ -1223,11 +1136,6 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4"
 version = "1.25.3"
 
-[package.extras]
-brotli = ["brotlipy (>=0.6.0)"]
-secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "certifi", "ipaddress"]
-socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7,<2.0)"]
-
 [[package]]
 category = "dev"
 description = "Virtual Python Environment builder"
@@ -1235,10 +1143,6 @@ name = "virtualenv"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "16.7.1"
-
-[package.extras]
-docs = ["sphinx (>=1.8.0,<2)", "towncrier (>=18.5.0)", "sphinx-rtd-theme (>=0.4.2,<1)"]
-testing = ["pytest (>=4.0.0,<5)", "coverage (>=4.5.0,<5)", "pytest-timeout (>=1.3.0,<2)", "six (>=1.10.0,<2)", "pytest-xdist", "pytest-localserver", "pypiserver", "mock", "xonsh"]
 
 [[package]]
 category = "main"
@@ -1248,11 +1152,6 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "0.15.5"
 
-[package.extras]
-dev = ["pytest", "coverage", "tox", "sphinx", "pallets-sphinx-themes", "sphinx-issues"]
-termcolor = ["termcolor"]
-watchdog = ["watchdog"]
-
 [[package]]
 category = "main"
 description = "A built-package format for Python."
@@ -1260,9 +1159,6 @@ name = "wheel"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "0.33.4"
-
-[package.extras]
-test = ["pytest (>=3.0.0)", "pytest-cov"]
 
 [[package]]
 category = "main"
@@ -1283,9 +1179,6 @@ version = "0.8.3"
 [package.dependencies]
 six = "*"
 
-[package.extras]
-all = ["pygments", "codecov", "colorama", "pytest", "pytest-cov"]
-
 [[package]]
 category = "dev"
 description = "Backport of pathlib-compatible object wrapper for zip files"
@@ -1294,15 +1187,11 @@ optional = false
 python-versions = ">=2.7"
 version = "0.5.2"
 
-[package.extras]
-docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
-testing = ["pathlib2", "contextlib2", "unittest2"]
-
 [extras]
 doc = ["sphinx", "sphinx_rtd_theme", "sphinxcontrib-plantuml", "docutils"]
 
 [metadata]
-content-hash = "966f7dbbcd0abb235aa221ee434b2dea9efe1c73680108571645ebdd30a16532"
+content-hash = "21268141db69de2b5ae77d0306654321f5028dbdd7dad505b2a3dedce4152845"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -1325,7 +1214,7 @@ chardet = ["84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae", "
 click = ["2335065e6395b9e67ca716de5f7526736bfa6ceead690adf616d925bdc622b13", "5b94b49521f6456670fdb30cd82a4eca9412788a93fa6dd6df72c94d5a8ff2d7"]
 colorama = ["05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d", "f8ac84de7840f5b9c4e3347b3c1eaa50f7e49c2b07596221daec5edaabbd7c48"]
 coverage = ["0c5fe441b9cfdab64719f24e9684502a59432df7570521563d7b1aff27ac755f", "2b412abc4c7d6e019ce7c27cbc229783035eef6d5401695dccba80f481be4eb3", "3684fabf6b87a369017756b551cef29e505cb155ddb892a7a29277b978da88b9", "39e088da9b284f1bd17c750ac672103779f7954ce6125fd4382134ac8d152d74", "3c205bc11cc4fcc57b761c2da73b9b72a59f8d5ca89979afb0c1c6f9e53c7390", "42692db854d13c6c5e9541b6ffe0fe921fe16c9c446358d642ccae1462582d3b", "465ce53a8c0f3a7950dfb836438442f833cf6663d407f37d8c52fe7b6e56d7e8", "48020e343fc40f72a442c8a1334284620f81295256a6b6ca6d8aa1350c763bbe", "4ec30ade438d1711562f3786bea33a9da6107414aed60a5daa974d50a8c2c351", "5296fc86ab612ec12394565c500b412a43b328b3907c0d14358950d06fd83baf", "5f61bed2f7d9b6a9ab935150a6b23d7f84b8055524e7be7715b6513f3328138e", "6899797ac384b239ce1926f3cb86ffc19996f6fa3a1efbb23cb49e0c12d8c18c", "68a43a9f9f83693ce0414d17e019daee7ab3f7113a70c79a3dd4c2f704e4d741", "6b8033d47fe22506856fe450470ccb1d8ba1ffb8463494a15cfc96392a288c09", "7ad7536066b28863e5835e8cfeaa794b7fe352d99a8cded9f43d1161be8e9fbd", "7bacb89ccf4bedb30b277e96e4cc68cd1369ca6841bde7b005191b54d3dd1034", "839dc7c36501254e14331bcb98b27002aa415e4af7ea039d9009409b9d2d5420", "8e679d1bde5e2de4a909efb071f14b472a678b788904440779d2c449c0355b27", "8f9a95b66969cdea53ec992ecea5406c5bd99c9221f539bca1e8406b200ae98c", "932c03d2d565f75961ba1d3cec41ddde00e162c5b46d03f7423edcb807734eab", "93f965415cc51604f571e491f280cff0f5be35895b4eb5e55b47ae90c02a497b", "988529edadc49039d205e0aa6ce049c5ccda4acb2d6c3c5c550c17e8c02c05ba", "998d7e73548fe395eeb294495a04d38942edb66d1fa61eb70418871bc621227e", "9de60893fb447d1e797f6bf08fdf0dbcda0c1e34c1b06c92bd3a363c0ea8c609", "9e80d45d0c7fcee54e22771db7f1b0b126fb4a6c0a2e5afa72f66827207ff2f2", "a545a3dfe5082dc8e8c3eb7f8a2cf4f2870902ff1860bd99b6198cfd1f9d1f49", "a5d8f29e5ec661143621a8f4de51adfb300d7a476224156a39a392254f70687b", "a9abc8c480e103dc05d9b332c6cc9fb1586330356fc14f1aa9c0ca5745097d19", "aca06bfba4759bbdb09bf52ebb15ae20268ee1f6747417837926fae990ebc41d", "bb23b7a6fd666e551a3094ab896a57809e010059540ad20acbeec03a154224ce", "bfd1d0ae7e292105f29d7deaa9d8f2916ed8553ab9d5f39ec65bcf5deadff3f9", "c22ab9f96cbaff05c6a84e20ec856383d27eae09e511d3e6ac4479489195861d", "c62ca0a38958f541a73cf86acdab020c2091631c137bd359c4f5bddde7b75fd4", "c709d8bda72cf4cd348ccec2a4881f2c5848fd72903c185f363d361b2737f773", "c968a6aa7e0b56ecbd28531ddf439c2ec103610d3e2bf3b75b813304f8cb7723", "ca58eba39c68010d7e87a823f22a081b5290e3e3c64714aac3c91481d8b34d22", "df785d8cb80539d0b55fd47183264b7002077859028dfe3070cf6359bf8b2d9c", "f406628ca51e0ae90ae76ea8398677a921b36f0bd71aab2099dfed08abd0322f", "f46087bbd95ebae244a0eda01a618aff11ec7a069b15a3ef8f6b520db523dcf1", "f8019c5279eb32360ca03e9fac40a12667715546eed5c5eb59eb381f2f501260", "fc5f4d209733750afd2714e9109816a29500718b32dd9a5db01c0cb3a019b96a"]
-cvxpy = ["4aa7fc03707fccc673bd793572cc5b950ebd304c478cd9c0b6d53ccf7186a3f1", "7a37f30bf62bf2d521bbfd934aa38af718638960c837afa051b088c059e23e88", "d2297643a9223decaed6ea12b3913cf01c4aa659ac4b046a76360d7752447cbe"]
+cvxpy = ["13fd80967d306c0c9959304fd633d3e494fa3b82f01e455bf18d7ceeb7f5b6c7", "1b2d3717919841b3a155db462923847a279fcf270a2895145fe43873e41fe6ad", "4aa7fc03707fccc673bd793572cc5b950ebd304c478cd9c0b6d53ccf7186a3f1", "645054acbbcc39a9bd851582224c38db141a98a1386bcc28d88019e95c920ccd", "7a37f30bf62bf2d521bbfd934aa38af718638960c837afa051b088c059e23e88", "d2297643a9223decaed6ea12b3913cf01c4aa659ac4b046a76360d7752447cbe", "d3643b915a195ef20c90aaf7a974e9df6a6831467f1aa7e64bb0bb3c9cb6df41", "faee66f3da014226829ab9b724674c6378a6e7bf57b6223bda1acf6878ef9e32"]
 darglint = ["651a6029f02715e9b5af0287c1e3787518fe71478d295e4a1c3334a35a9e82a0", "c0a617f42fa196d4e0a2f8246d98b4d16c3fe9728937524a3c35fd2dbef986f6"]
 deap = ["01ab6067af3c86bd3a00a0d5e0c9860220c7cf412031f9cce18a6d08ec25b808", "0dc11a5521f661a7c7f475466d932b056fbfee8447ad73b007d69ef75c924355", "11162ae0343a25f5a8625f683ce16bad5757812d71db6b80a5ac7c25799a1a88", "1873f5e2a55ff61dac965b55cc042b2fe5529edbd54fc0fc1061664ddb4b75db", "19f6a60c91313cb1f39a9687bc54efab8abc599e5f81b87faedf583efc388602", "21787af1e4a56345bbffa6d1b07f5611d3ef7b299e5e832e6ab28dbab5c5c10e", "2f50f38ae0c82554a476d6c6013c85da4a8d7cac102edc4ec460a658200bd832", "31ed6220068e703d3f54c53046b8f25b85a9225c64e1e50172c2172c4bd8a7fe", "34594ba2f417ccb622b0ff54c25850fde80e12ca89fde6f242b15029e846be29", "3603c91779c276588884321637212511962b2f0668cec56b2b5664d28f28eee7", "5ee3cee4eac683237915bf570ede65047224ac6f392970fed029e3404935647c", "600e95e745cee25fda8c9a67219c9f46c4661da636a5af9f5e924230e7a3aeac", "6102d8bca425ff5d704f7631b69c22e33782e33020ce059cc88085746444ebfe", "669840720da9c4571efd9d0efdf90267009686b7a4c43dd4ab124e33e9cc153a", "6c5ef3b6c387cd28c7aab0297b05a9994b9c88dfd8a89236866c14703d55f9dc", "a0a0e56bd52a262ee12f84fa883b7ec5367532b784e2a6e83b1f7126b69d2300", "a1cc5fc4a2735ec5560ddef84f80beb84540d3221a147b53bba5e6a8718c8a55", "b05f607041c3f8aac5364055cb9632714bc62fe93e53283fbafea9ba91e13a69", "cd0fd7bccf7837b9e6a666b75e1c3a629fa3f5bc346cb90a9edd8cd56f085980", "cf1e53c822526bbc418333c47f668f394b00b51fddb4f15c54d5f190b2b88f17", "e648e1d76d5c8ecbce7f312bd174e4d2613debddd81f2a614b9023f7ad0331a0", "f146a9a0957510b57a2b5c669a26f0b84b2d219000b5684f4827884a75ad2ea7", "f1a0d1390e0b4f9edd4cbf2903c7d60865f43bad00de239aa066ffeda4ad7ee0", "fe789aa74ba78549030037dc9580510ff1763ef12fdf05cb92dda74237110565"]
 dill = ["993409439ebf7f7902d9de93eaa2a395e0446ff773d29f13dc46646482f76906"]
@@ -1370,6 +1259,7 @@ numpy = ["0778076e764e146d3078b17c24c4d89e0ecd4ac5401beff8e1c87879043a0633", "14
 osqp = ["02dbcd69dbe07204142909a4bf99df374dae993583f3bc766b2bf8871ae2536f", "1f604f4927b375778570aa6d758c38ff61117fcbd8478fa0563a96662acb1a0b", "2cfa4eba7f92ad6996c3ace35fd82587686521cfbb23f82841636e64fe5b56f0", "39bd29fd23bbdd0a7766e4f90d330ff3cb76a7c2737519a2a307c3dfe3603015", "3a6cb649373f9c7179ba5645656d4eed804d555d87908006c4ae4db413ab3f9c", "3c49c3fd8fcda226407f1deb5326cd6d3951abe64ff86e7fca65c4c533993158", "50c2f70ec4cda87d21f18eb7e6e75f61102daf218c276e4e7bbba951be20481d", "6aa0b91c50ad5d7ab0403031552221e1a1f51fcdb5860ffddbd9c40627299846", "7439a1318f6509be5f49bd0249c15f3ad3b1754f729d4e00c379417058fc5357", "86417db99dc6cac26d7cc3ee53a7936fbe7387b87309b5e2fa6e4fff2445c9c9", "86d58b5a9f8f4dc6fd1dcb02fbb29be8c3bcae59b85620d174c88125d953707d", "86f448a71d35e3156c46efb8d9ccde8253e5858c0c483c1454df473546b60496", "8c46d87410eb4bacdd3211899be2b03fd318751c65de8d9e8ad15bcfe7ee9faf", "9cb4809fbe1afeb9cba17e7f62028de47dae22360abf55e8a29663f856c23e2a", "a7d8e28dc4c5490d4b35a88c17167c5b75ccd2e495dd5ac99fa3d510c1cfccef", "b17c6b28455bf7e3e52209c1ce48b74f86a5bc781104492d344ff93c41930b10", "c5dc13677ecd6def58c0c95f5e0afef9254531ba8c5d65efad940013622b45dd", "cc7cc1a99c54c6f192bdccba0fb263cf8cef3084a2918d3d67109db92e5148e9", "da0424e542a137629a863f71158f8a2fec1def9983c06d969891ef5ae170fc9f", "ded0027a08e2c9572a280fcd6cca9d4ed2f1c50fb80585453be4290062a6e909", "e801b30a8f7c6d51723e8275b6c143b2154d946423b6cb2b973db027b7a9955b", "eda282626fee5e9050cdb09934a91726ec39070da07d5f92b888a4d56404539b", "f14800074b44b54237ff3b892c5ccd7788e739774b739a11cfed9b44466c0471"]
 packaging = ["0c98a5d0be38ed775798ece1b9727178c4469d9c3b4ada66e8e6b7849f8732af", "9e1cbf8c12b1f1ce0bb5344b8d7ecf66a6f8a6e91bcb0c84593ed6d3ab5c4ab3"]
 pandas = ["11975fad9edbdb55f1a560d96f91830e83e29bed6ad5ebf506abda09818eaf60", "12e13d127ca1b585dd6f6840d3fe3fa6e46c36a6afe2dbc5cb0b57032c902e31", "1c87fcb201e1e06f66e23a61a5fea9eeebfe7204a66d99df24600e3f05168051", "242e9900de758e137304ad4b5663c2eff0d798c2c3b891250bd0bd97144579da", "26c903d0ae1542890cb9abadb4adcb18f356b14c2df46e4ff657ae640e3ac9e7", "2e1e88f9d3e5f107b65b59cd29f141995597b035d17cc5537e58142038942e1a", "31b7a48b344c14691a8e92765d4023f88902ba3e96e2e4d0364d3453cdfd50db", "4fd07a932b4352f8a8973761ab4e84f965bf81cc750fb38e04f01088ab901cb8", "5b24ca47acf69222e82530e89111dd9d14f9b970ab2cd3a1c2c78f0c4fbba4f4", "647b3b916cc8f6aeba240c8171be3ab799c3c1b2ea179a3be0bd2712c4237553", "66b060946046ca27c0e03e9bec9bba3e0b918bafff84c425ca2cc2e157ce121e", "6efa9fa6e1434141df8872d0fa4226fc301b17aacf37429193f9d70b426ea28f", "be4715c9d8367e51dbe6bc6d05e205b1ae234f0dc5465931014aa1c4af44c1ba", "bea90da782d8e945fccfc958585210d23de374fa9294a9481ed2abcef637ebfc", "d318d77ab96f66a59e792a481e2701fba879e1a453aefeebdb17444fe204d1ed", "d785fc08d6f4207437e900ffead930a61e634c5e4f980ba6d3dc03c9581748c7", "de9559287c4fe8da56e8c3878d2374abc19d1ba2b807bfa7553e912a8e5ba87c", "f4f98b190bb918ac0bc0e3dd2ab74ff3573da9f43106f6dba6385406912ec00f", "f71f1a7e2d03758f6e957896ed696254e2bc83110ddbc6942018f1a232dd9dad", "fb944c8f0b0ab5c1f7846c686bc4cdf8cde7224655c12edcd59d5212cd57bec0"]
+patchy = ["21609acb2e7d6b5375c605ae1a0f13469c50569db817ee4e62336b0aff103d75", "aae8ad17484b94498c2e4232a3e419cebf526e2ad8a80282f77447e9fd4d8a5c"]
 patsy = ["5465be1c0e670c3a965355ec09e9a502bf2c4cbe4875e8528b0221190a8a5d40", "f115cec4201e1465cd58b9866b0b0e7b941caafec129869057405bfe5b5e3991"]
 pluggy = ["0825a152ac059776623854c1543d65a4ad408eb3d33ee114dff91e57ec6ae6fc", "b9817417e95936bf75d85d3f8767f7df6cdde751fc40aed3bb3074cbcb77757c"]
 pre-commit = ["92e406d556190503630fd801958379861c94884693a032ba66629d0351fdccd4", "cccc39051bc2457b0c0f7152a411f8e05e3ba2fe1a5613e4ee0833c1c1985ce3"]

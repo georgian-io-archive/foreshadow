@@ -1,13 +1,13 @@
 """FixedTfidfVectorizer."""
 
 import numpy as np
-from sklearn.base import BaseEstimator
 from sklearn.feature_extraction.text import (
     TfidfVectorizer as SklearnTfidfVectorizer,
     VectorizerMixin,
 )
 from sklearn.utils import check_array
 
+from foreshadow.base import BaseEstimator
 from foreshadow.wrapper import pandas_wrap
 
 

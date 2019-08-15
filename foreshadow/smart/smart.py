@@ -1,10 +1,8 @@
 """Smart Transformer and its helper methods."""
 
 from abc import ABCMeta, abstractmethod
-from copy import deepcopy
 
-from sklearn.base import BaseEstimator, TransformerMixin
-
+from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.logging import logging
 from foreshadow.pipeline import SerializablePipeline
 from foreshadow.utils import (
@@ -105,14 +103,8 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
                 nor None.
 
         """
-        value = deepcopy(value)
         if isinstance(value, str):
             value = get_transformer(value)(**self.kwargs)
-            self.unset_resolve()
-        elif isinstance(value, dict):
-            class_name = value.pop("class_name")
-            self.kwargs.update(value)
-            value = get_transformer(class_name)(**self.kwargs)
             self.unset_resolve()
         # Check transformer type
         is_trans = is_transformer(value)
@@ -150,20 +142,6 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
         """
         params = super().get_params(deep=deep)
-        transformer_params = {}
-        if self.transformer is not None:
-            transformer_params = {
-                "transformer": self.transformer.get_params(deep=deep)
-            }
-            transformer_params["transformer"].update(
-                {"class_name": type(self.transformer).__name__}
-            )
-        params.update(transformer_params)
-        params = {
-            key: val
-            for key, val in params.items()
-            if key.find("transformer__") == -1
-        }
         return params
 
     def set_params(self, **params):
@@ -174,30 +152,11 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         Args:
             **params (dict): any valid parameter of this estimator
 
-        """
-        params = deepcopy(params)
-        transformer_params = params.pop("transformer", self.transformer)
-        super().set_params(**params)
+        Returns:
+            see super.
 
-        # Calls to override auto set the transformer instance
-        if (
-            isinstance(transformer_params, dict)
-            and "class_name" in transformer_params
-        ):  # instantiate a
-            # new
-            # self.transformer
-            self.transformer = transformer_params
-        elif self.transformer is not None:
-            # valid_params = {
-            #     k.partition("__")[2]: v
-            #     for k, v in params.items()
-            #     if k.split("__")[0] == "transformer"
-            # }
-            self.transformer.set_params(**transformer_params)
-            self.transformer.set_extra_params(
-                name=type(self.transformer).__name__,
-                keep_columns=self.keep_columns,
-            )
+        """
+        return super().set_params(**params)
 
     @abstractmethod
     def pick_transformer(self, X, y=None, **fit_params):
@@ -276,7 +235,7 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         self.resolve(X, y, **fit_params)
         self.transformer.full_df = fit_params.pop("full_df", None)
         self.transformer.fit(X, y, **fit_params)
-        return self  # .transformer.fit(X, y, **fit_params)
+        return self
         # This should not return the self.transformer.fit as that will
         # cause fit_transforms, which call .fit().transform() to fail when
         # using our wrapper for transformers; TL;DR, it misses the call to
@@ -295,3 +254,18 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         X = check_df(X)
         self.resolve(X)
         return self.transformer.inverse_transform(X)
+
+    @classmethod
+    def _get_param_names(cls):
+        """Get iteratively __init__ params for all classes until PreparerStep.
+
+        Returns:
+            params for all parents up to and including PreparerStep.
+            Includes the calling classes params.
+
+        """
+        params = super()._get_param_names()
+        while cls.__name__ != SmartTransformer.__name__:
+            cls = cls.__mro__[1]
+            params += cls._get_param_names()
+        return params
