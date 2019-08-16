@@ -263,10 +263,12 @@ class PreparerStep(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
             **kwargs: kwargs to PIpeline constructor.
 
         """
+        self._parallel_process = None
+        if "_parallel_process" in kwargs:
+            self._parallel_process = kwargs.pop("_parallel_process")
         self.column_sharer = column_sharer
         if self.column_sharer is None:
             self.column_sharer = ColumnSharer()
-        self._parallel_process = None
         super().__init__(**kwargs)
 
     @staticmethod
@@ -379,6 +381,9 @@ class PreparerStep(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
             as good as possible.
 
         """
+        import pdb
+
+        pdb.set_trace()
         column_mapping = self.get_mapping(X)
         logging.debug(
             self.logging_name() + "column_mapping: {}".format(column_mapping)
