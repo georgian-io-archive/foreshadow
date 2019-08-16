@@ -68,11 +68,16 @@ def _make_deserializable(data):
         dict: A dictionary with complex objects reconstructed as necessary.
 
     """
+    import pdb
+
+    pdb.set_trace()
     if isinstance(data, dict):
         if any("py/" in s for s in data.keys()):
             return _unpickler.restore(data)
         if any("method" in s for s in data.keys()):
-            return _obj_deserializer_helper(data)
+            # TODO why is this?
+            # return _obj_deserializer_helper(data)
+            return deserialize(data)
         else:
             new_data = {}
             for k, v in data.items():
@@ -153,6 +158,9 @@ def _obj_deserializer_helper(data):
     if pickle_class is not None:
         transformer = _unpickle_inline_repr(pickle_class)
     else:
+        import pdb
+
+        pdb.set_trace()
         transformer = get_transformer(data["_class"])
 
     return transformer
@@ -225,6 +233,9 @@ class BaseTransformerSerializer:
             ValueError: If the method is not in `OPTIONS`
 
         """
+        import pdb
+
+        pdb.set_trace()
         method = data.pop("_method")  # TODO: add malformed serialization error
         _ = data.pop("_class", None)
         if method in cls.OPTIONS:
@@ -287,6 +298,7 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
 
         """
         params = _make_deserializable(data)
+        # import pdb; pdb.set_trace()
         pickle_class = params.pop("_pickled_class", None)
         if pickle_class is not None:
             pickle_class = _unpickle_inline_repr(pickle_class)

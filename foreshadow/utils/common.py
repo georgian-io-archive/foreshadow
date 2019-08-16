@@ -75,6 +75,7 @@ def get_transformer(class_name, source_lib=None):
                 "foreshadow.intents",
                 "foreshadow.steps",
                 "foreshadow.parallelprocessor",
+                "foreshadow.columnsharer",
             ]
         )
 
