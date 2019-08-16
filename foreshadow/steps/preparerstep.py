@@ -1,6 +1,8 @@
 """General base classes used across Foreshadow."""
 from collections import MutableMapping, defaultdict, namedtuple
 
+from sklearn.utils.validation import check_is_fitted
+
 from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.concrete.internals.notransform import NoTransform
 from foreshadow.logging import logging
@@ -262,10 +264,14 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             **kwargs: kwargs to PIpeline constructor.
 
         """
+        self._parallel_process = None
+        if "_parallel_process" in kwargs:  # clone will try to init using
+            # the params from get_params, meaning this will be passed
+            # through even though its not a part of the init.
+            self._parallel_process = kwargs.pop("_parallel_process")
         self.column_sharer = column_sharer
         if self.column_sharer is None:
             self.column_sharer = ColumnSharer()
-        self._parallel_process = None
         super().__init__(**kwargs)
 
     @staticmethod
@@ -463,13 +469,12 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             X: input DataFrame
 
         """
-        if self._parallel_process is None:
-            logging.debug(
-                "DataPreparerStep: {} called check_process".format(
-                    self.__class__.__name__
-                )
+        logging.debug(
+            "DataPreparerStep: {} called check_process".format(
+                self.__class__.__name__
             )
-            self._parallel_process = self.parallelize_smart_steps(X)
+        )
+        self._parallel_process = self.parallelize_smart_steps(X)
 
     def fit_transform(self, X, y=None, **fit_params):
         """Fit then transform this PreparerStep.
@@ -502,6 +507,8 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             result from .transform()
 
         """
+        if getattr(self, '_parallel_process', None) is None:
+            raise ValueError('not fitted.')
         return self._parallel_process.transform(X, *args, **kwargs)
 
     def inverse_transform(self, X, *args, **kwargs):
@@ -538,6 +545,8 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         while cls.__name__ != PreparerStep.__name__:
             cls = cls.__mro__[1]
             params += cls._get_param_names()
+        if '_parallel_process' not in params:
+            params += ['_parallel_process']
         return params
 
     def get_params(self, deep=True):
@@ -555,9 +564,9 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
         """
         params = super().get_params(deep=deep)
-        params.update(
-            {"_parallel_process": getattr(self, "_parallel_process", None)}
-        )
+        # params.update(
+        #     {"_parallel_process": getattr(self, "_parallel_process", None)}
+        # )
         return params
 
     def set_params(self, **params):
@@ -571,5 +580,5 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             **params: see super.
 
         """
-        self._parallel_process = params.pop("_parallel_process", None)
+        # self._parallel_process = params.pop("_parallel_process", None)
         super().set_params(**params)

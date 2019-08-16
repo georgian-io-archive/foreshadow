@@ -1,6 +1,5 @@
 """Classes to be configured by user for customizing parameter tuning."""
 
-from hyperopt import hp
 import foreshadow.serializers as ser
 from collections import MutableMapping
 
@@ -114,11 +113,6 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
     def __len__(self):
         return len(self.param_distributions)
 
-    def __delitem__(self, key):
+    def __delitem__(self, key):  # overriding abstract method but should not
+        # be called
         raise NotImplementedError('')
-
-
-if __name__ == '__main__':
-    # ParamSpec().to_json("test")
-    from foreshadow import Foreshadow
-    ParamSpec(Foreshadow())

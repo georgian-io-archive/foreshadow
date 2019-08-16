@@ -55,13 +55,11 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         reducer_kwargs=None,
         modeler_kwargs=None,
         y_var=None,
+        **kwargs,
     ):
-        self.column_sharer = column_sharer
-        # TODO look at fixing structure so we don't have to import inside init.
         cleaner_kwargs_ = _none_to_dict(
             "cleaner_kwargs", cleaner_kwargs, column_sharer
         )
-        self.y_var = y_var
         intent_kwargs_ = _none_to_dict(
             "intent_kwargs", intent_kwargs, column_sharer
         )
@@ -74,31 +72,35 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         reducer_kwargs_ = _none_to_dict(
             "reducer_kwargs", reducer_kwargs, column_sharer
         )
+        if not y_var:
+            steps = [
+                ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
+                ("intent", IntentMapper(**intent_kwargs_)),
+                (
+                    "feature_engineerer",
+                    FeatureEngineererMapper(**engineerer_kwargs_),
+                ),
+                (
+                    "feature_preprocessor",
+                    Preprocessor(**preprocessor_kwargs_),
+                ),
+                (
+                    "feature_reducer",
+                    FeatureReducerMapper(**reducer_kwargs_),
+                ),
+            ]
+        else:
+            steps = [("output", NoTransform())]
+        if 'steps' in kwargs:  # needed for sklearn estimator clone,
+            # which will try to init the object using get_params.
+            steps = kwargs.pop('steps')
+
+        self.column_sharer = column_sharer
+        self.y_var = y_var
         # modeler_kwargs_ = _none_to_dict(
         #     "modeler_kwargs", modeler_kwargs, column_sharer
         # )
-        if not self.y_var:
-            super().__init__(
-                steps=[
-                    ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
-                    ("intent", IntentMapper(**intent_kwargs_)),
-                    (
-                        "feature_engineerer",
-                        FeatureEngineererMapper(**engineerer_kwargs_),
-                    ),
-                    (
-                        "feature_preprocessor",
-                        Preprocessor(**preprocessor_kwargs_),
-                    ),
-                    (
-                        "feature_reducer",
-                        FeatureReducerMapper(**reducer_kwargs_),
-                    ),
-                    # ('model_selector', modeler_kwargs_)
-                ]  # TODO add each of these components
-            )
-        else:
-            super().__init__(steps=[("output", NoTransform())])
+        super().__init__(steps, **kwargs)
 
     def _get_params(self, attr, deep=True):
         # attr will be 'steps' if called from pipeline.get_params()

@@ -4,6 +4,7 @@ import inspect
 import warnings
 
 from sklearn.model_selection._search import BaseSearchCV
+from sklearn.utils.validation import check_is_fitted
 
 from foreshadow.base import BaseEstimator
 from foreshadow.columnsharer import ColumnSharer
@@ -12,6 +13,11 @@ from foreshadow.estimators.meta import MetaEstimator
 from foreshadow.pipeline import SerializablePipeline
 from foreshadow.preparer import DataPreparer
 from foreshadow.utils import check_df
+from foreshadow.optimizers import (
+    ParamSpec,
+    Tuner,
+    test_params
+)
 
 
 class Foreshadow(BaseEstimator):
@@ -37,17 +43,23 @@ class Foreshadow(BaseEstimator):
 
     """
 
-    def __init__(
-        self, X_preparer=None, y_preparer=None, estimator=None, optimizer=None
-    ):
+    def __init__(self,
+                 X_preparer=None,
+                 y_preparer=None,
+                 estimator=None,
+                 optimizer=None,
+                 optimizer_kwargs=None,):
         self.X_preparer = X_preparer
         self.y_preparer = y_preparer
         self.estimator = estimator
         self.optimizer = optimizer
+        self.optimizer_kwargs = {} if optimizer_kwargs is \
+                                      None else optimizer_kwargs
         self.pipeline = None
         self.data_columns = None
 
         if isinstance(self.estimator, AutoEstimator) and optimizer is not None:
+            # TODO implement V2 architecture here.
             warnings.warn(
                 "An automatic estimator cannot be used with an optimizer."
                 " Proceeding without use of optimizer"
@@ -77,7 +89,8 @@ class Foreshadow(BaseEstimator):
             elif isinstance(dp, DataPreparer):
                 self._X_preprocessor = dp
             else:
-                raise ValueError("Invalid value passed as X_preparer")
+                raise ValueError("Invalid value: '{}' "
+                                 "passed as X_preparer".format(dp))
         else:
             self._X_preprocessor = DataPreparer(column_sharer=ColumnSharer())
 
@@ -160,7 +173,17 @@ class Foreshadow(BaseEstimator):
         if o is None or (inspect.isclass(o) and issubclass(o, BaseSearchCV)):
             self._optimizer = o
         else:
-            raise ValueError("Invalid value passed as optimizer")
+            raise ValueError("Invalid optimizer passed.")
+
+    def _reset(self):
+        try:
+            check_is_fitted(self, 'pipeline')
+            del self.pipeline
+            check_is_fitted(self, 'tuner')
+            del self.tuner
+            del self.opt_instance
+        except:
+            pass
 
     def fit(self, data_df, y_df):
         """Fit the Foreshadow instance using the provided input data.
@@ -173,6 +196,7 @@ class Foreshadow(BaseEstimator):
             :obj:`Foreshadow`: The fitted instance.
 
         """
+        self._reset()
         X_df = check_df(data_df)
         y_df = check_df(y_df)
         self.data_columns = X_df.columns.values.tolist()
@@ -192,17 +216,33 @@ class Foreshadow(BaseEstimator):
             )
 
         if self.optimizer is not None:
+            self.pipeline.fit(X_df, y_df)
+            self.pipeline.predict(X_df)
+            # print(self.pipeline.get_params(deep=True))
+            for key in self.pipeline.get_params().keys():
+                if key.find('feature_preprocessor') != -1:
+                    print(key)
+            print(test_params[0])
+            print([x in self.pipeline.get_params().keys() for x in
+                   test_params[0].keys()])
+            self.pipeline.set_params(**test_params[0])
+            self.pipeline.fit(X_df, y_df)
             # Calculate parameter search space
             # param_ranges = param_mapping(deepcopy(self.pipeline), X_df, y_df)
-
-            self.opt_instance = self.optimizer(
-                self.pipeline, param_ranges  # noqa: F821
-            )
-            self.opt_instance.fit(X_df, y_df)
-            self.pipeline = self.opt_instance.best_estimator_
+            params = ParamSpec()
+            params.set_params(param_distributions=test_params)
+            self.opt_instance = self.optimizer(estimator=self.pipeline,
+                                            param_distributions=params,
+                                            **{'iid': True,
+                                               "scoring": "accuracy",
+                                               "n_iter": 2,
+                                               'return_train_score': True})
+            self.tuner = Tuner(self.pipeline, params, self.opt_instance)
+            self.tuner.fit(X_df, y_df)
+            self.pipeline = self.tuner.transform(self.pipeline)
             # extract trained preprocessors
             if self.X_preparer is not None:
-                self.X_preparer = self.opt_instance.best_estimator_.steps[0][1]
+                self.X_preparer = self.pipeline.steps[0][1]
             if self.y_preparer is not None:
                 self.y_preparer = self.opt_instance.best_estimator_.steps[1][
                     1

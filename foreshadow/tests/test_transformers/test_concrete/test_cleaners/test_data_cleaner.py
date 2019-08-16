@@ -114,7 +114,6 @@ def test_json():
             "json_random",
         ],
     )
-    print(data.values, check.values)
     assert np.all(
         np.equal(data.values[data.notna()], check.values[check.notna()])
     )
@@ -165,6 +164,22 @@ def test_numerical_input_fittransform():
     dc = CleanerMapper(column_sharer=cs)
     transformed_data = dc.fit_transform(data)
     assert np.array_equal(transformed_data, data)
+
+
+# def test_get_params():
+#     import pandas as pd
+#     from foreshadow.preparer import CleanerMapper
+#     from foreshadow.columnsharer import ColumnSharer
+#
+#     columns = ["financials"]
+#     data = pd.DataFrame({"financials": ["", "", "", ""]}, columns=columns)
+#     cs = ColumnSharer()
+#     dc = CleanerMapper(column_sharer=cs)
+#     dc.fit(data)
+#     from pprint import pprint
+#     print(pprint(dc.get_params()))
+    # print(dc._parallel_process)
+
 
 
 # TODO test graph, could be implemented very wrong.

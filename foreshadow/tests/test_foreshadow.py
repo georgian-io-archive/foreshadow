@@ -13,12 +13,12 @@ def test_foreshadow_defaults():
     foreshadow = Foreshadow()
     # defaults
     assert (
-        isinstance(foreshadow.X_preparer, DataPreparer)
-        and isinstance(foreshadow.y_preparer, DataPreparer)
-        and isinstance(foreshadow.estimator, AutoEstimator)
-        and foreshadow.optimizer is None
-        and foreshadow.pipeline is None
-        and foreshadow.data_columns is None
+            isinstance(foreshadow.X_preparer, DataPreparer)
+            and isinstance(foreshadow.y_preparer, DataPreparer)
+            and isinstance(foreshadow.estimator, AutoEstimator)
+            and foreshadow.optimizer is None
+            and foreshadow.pipeline is None
+            and foreshadow.data_columns is None
     )
 
 
