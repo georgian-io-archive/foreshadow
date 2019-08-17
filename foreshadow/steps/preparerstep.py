@@ -458,8 +458,7 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         """
         # TODO make fit remove a step if nothing is done, rather than a
         #  NoTransform Transformer.
-        self.check_process(X)
-        self._parallel_process.fit(X, *args, **kwargs)
+        self.fit_transform(X, *args, **kwargs)
         return self
 
     def check_process(self, X):
@@ -490,8 +489,22 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             Result from .transform()
 
         """
-        self.check_process(X)
-        return self._parallel_process.fit_transform(X, y=y, **fit_params)
+        try:
+            return self._parallel_process.fit_transform(X, y=y, **fit_params)
+        except AttributeError:
+            if getattr(self, '_parallel_process', None) is None:
+                self.check_process(X)
+        except KeyError as e:
+            if str(e).find ('not in index') != -1:
+                # This indicates that a transformation step was changed and
+                # now does not correctly reflect the generated DataFrame as
+                # this step. We will thus reinitialize the _parallel_process
+                # so that the best pipeline for this step will be found.
+                self.check_process(X)
+        finally:
+            return self._parallel_process.fit_transform(X, y=y,
+                                                        **fit_params)
+
 
     def transform(self, X, *args, **kwargs):
         """Transform X using this PreparerStep.

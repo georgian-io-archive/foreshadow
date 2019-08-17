@@ -16,6 +16,7 @@ from sklearn.preprocessing import (  # noqa: F401
     MinMaxScaler,
     RobustScaler,
     StandardScaler,
+    LabelEncoder,
 )
 
 from foreshadow.utils import is_transformer

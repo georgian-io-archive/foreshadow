@@ -84,11 +84,6 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         """
         return self._transformer
 
-    def unset_resolve(self):
-        """Unset resolving for all passes."""
-        self.should_resolve = False
-        self.force_reresolve = False
-
     @transformer.setter
     def transformer(self, value):
         """Validate transformer initialization.
@@ -126,6 +121,11 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             )
 
         self._transformer = value
+
+    def unset_resolve(self):
+        """Unset resolving for all passes."""
+        self.should_resolve = False
+        self.force_reresolve = False
 
     def get_params(self, deep=True):
         """Get parameters for this estimator.

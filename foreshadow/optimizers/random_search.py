@@ -12,9 +12,10 @@ from .tuner import _replace_list
 
 class HyperOptRandomSampler(object):
     def __init__(self, param_distributions, n_iter, random_state=None):
-        self.param_distributions = _replace_list(
-            None, param_distributions, hp.choice
+        param_distributions = _replace_list(
+            None, param_distributions.param_distributions, hp.choice
         )
+        self.param_distributions = param_distributions
         self.n_iter = n_iter
         self.random_state = random_state
 

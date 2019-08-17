@@ -217,16 +217,16 @@ class Foreshadow(BaseEstimator):
 
         if self.optimizer is not None:
             self.pipeline.fit(X_df, y_df)
-            self.pipeline.predict(X_df)
+            # self.pipeline.predict(X_df)
             # print(self.pipeline.get_params(deep=True))
-            for key in self.pipeline.get_params().keys():
-                if key.find('feature_preprocessor') != -1:
-                    print(key)
-            print(test_params[0])
-            print([x in self.pipeline.get_params().keys() for x in
-                   test_params[0].keys()])
-            self.pipeline.set_params(**test_params[0])
-            self.pipeline.fit(X_df, y_df)
+            # for key in self.pipeline.get_params().keys():
+            #     if key.find('feature_preprocessor') != -1:
+            #         print(key)
+            # print(test_params[0])
+            # print([x in self.pipeline.get_params().keys() for x in
+            #        test_params[0].keys()])
+            # self.pipeline.set_params(**test_params[0])
+            # self.pipeline.fit(X_df, y_df)
             # Calculate parameter search space
             # param_ranges = param_mapping(deepcopy(self.pipeline), X_df, y_df)
             params = ParamSpec()
@@ -235,11 +235,19 @@ class Foreshadow(BaseEstimator):
                                             param_distributions=params,
                                             **{'iid': True,
                                                "scoring": "accuracy",
-                                               "n_iter": 2,
+                                               "n_iter": 10,
                                                'return_train_score': True})
             self.tuner = Tuner(self.pipeline, params, self.opt_instance)
             self.tuner.fit(X_df, y_df)
+            import pandas as pd
+            results = pd.DataFrame(self.opt_instance.cv_results_)
+            results = results[
+                [c for c in results.columns if
+                 all(s not in c for s in ["time", "params"])]
+            ]
+            print(results)
             self.pipeline = self.tuner.transform(self.pipeline)
+            print(self.pipeline)
             # extract trained preprocessors
             if self.X_preparer is not None:
                 self.X_preparer = self.pipeline.steps[0][1]

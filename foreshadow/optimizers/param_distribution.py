@@ -92,14 +92,14 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
             # self._param_set = True
 
     def get_params(self, deep=True):
-        return self.param_distribution
+        return self.param_distributions
 
     def set_params(self, **params):
-        self.param_distribibutions = params['param_distributions']
+        self.param_distributions = params['param_distributions']
         self._param_set = True
 
     def __call__(self):
-        return self.param_distribibutions
+        return self.param_distributions
 
     def __iter__(self):
         return iter(self.param_distributions)

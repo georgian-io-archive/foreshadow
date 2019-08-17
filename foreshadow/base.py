@@ -9,7 +9,7 @@ patchy.patch(
     _set_params,
     """@@ -30,6 +30,9 @@
              setattr(self, key, value)
-
+    
      for key, sub_params in nested_params.items():
 -        valid_params[key].set_params(**sub_params)
 +        try:

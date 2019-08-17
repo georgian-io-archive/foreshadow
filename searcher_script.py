@@ -184,6 +184,7 @@ combinations:
 
 # from foreshadow.optimizers import RandomSearchCV, Tuner, ParamSpec
 #
+# print("simpletest")
 # ps = ParamSpec()
 # test = [
 #             {
@@ -204,6 +205,9 @@ combinations:
 # t.fit(X_data, y_data)
 # print(t.best_pipeline)
 
+###############
+
+print("foreshadow")
 import foreshadow
 
 t = {'iid': True,

@@ -28,7 +28,8 @@ test_params = [
             },
             {
                 "X_preparer__feature_preprocessor___parallel_process__group"
-                ": 0__CategoricalEncoder__transformer__ohe": "LabelEncoder"
+                ": 0__CategoricalEncoder__transformer__ohe":
+                    get_transformer("HashingEncoder")()
             },
         ]
 
