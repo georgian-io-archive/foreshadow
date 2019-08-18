@@ -1,4 +1,7 @@
 """Foreshadow extension of feature union for handling dataframes."""
+# flake8: noqa
+
+import inspect
 
 import pandas as pd
 from sklearn.externals.joblib import Parallel, delayed
@@ -9,8 +12,9 @@ from sklearn.pipeline import (
     _transform_one,
 )
 
-from .serializers import ConcreteSerializerMixin
 from foreshadow.base import BaseEstimator
+
+from .serializers import ConcreteSerializerMixin, _make_serializable
 
 
 class ParallelProcessor(FeatureUnion, ConcreteSerializerMixin):
@@ -59,6 +63,34 @@ class ParallelProcessor(FeatureUnion, ConcreteSerializerMixin):
         super(ParallelProcessor, self).__init__(
             transformer_list, n_jobs, transformer_weights
         )
+
+    def dict_serialize(self, deep=True):
+        params = self.get_params(deep=deep)
+        selected_params = self.__create_selected_params(params)
+        import pdb
+
+        pdb.set_trace()
+        return _make_serializable(
+            selected_params, serialize_args=self.serialize_params
+        )
+
+    def __create_selected_params(self, params):
+        init_params = inspect.signature(self.__init__).parameters
+        selected_params = {
+            name: params.pop(name) for name in init_params if name != "self"
+        }
+        selected_params["transformer_list"] = self.__convert_transformer_list(
+            selected_params["transformer_list"]
+        )
+        return selected_params
+
+    def __convert_transformer_list(self, transformer_list):
+        converted = {}
+        for transformer_triple in transformer_list:
+            column_groups = transformer_triple[2]
+            dynamic_pipeline = transformer_triple[1]
+            converted[",".join(column_groups)] = dynamic_pipeline
+        return converted
 
     def get_params(self, deep=True):
         """Return parameters of internal transformers.

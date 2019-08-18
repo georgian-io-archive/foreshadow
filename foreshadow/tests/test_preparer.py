@@ -82,19 +82,22 @@ def test_data_preparer_serialization_has_one_column_sharer():
     object should contain only 1 column_sharer instance.
 
     """
-    pass
     from foreshadow.preparer import DataPreparer
     from foreshadow.columnsharer import ColumnSharer
     import pandas as pd
 
     boston_path = get_file_path("data", "boston_housing.csv")
     data = pd.read_csv(boston_path)
+    # data = data.drop(columns=["indus", "ptratio", "tax"])
+    data = data[["crim"]]
 
     cs = ColumnSharer()
     dp = DataPreparer(cs)
     dp.fit(data)
 
+    dp.to_json("data_preparerer_deep_true3.json", deep=True)
     dp_serialized = dp.serialize(method="dict", deep=True)
+
     key_name = "column_sharer"
     assert key_name in dp_serialized
     dp_serialized.pop(key_name)
@@ -117,3 +120,31 @@ def test_data_preparer_serialization_has_one_column_sharer():
     # assert cs == cs2
     # dp.to_json("data_preparerer_deep_true3.json", deep=True)
     # dp.to_yaml("data_preparerer_deep_true2.yaml", deep=True)
+
+
+def test_data_preparer_deserialization():
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.columnsharer import ColumnSharer
+    import pandas as pd
+
+    boston_path = get_file_path("data", "boston_housing.csv")
+    data = pd.read_csv(boston_path)
+    # data = data.drop(columns=["indus", "ptratio", "tax"])
+    data = data[["crim"]]
+
+    cs = ColumnSharer()
+    dp = DataPreparer(cs)
+    dp.fit(data)
+    import pdb
+
+    pdb.set_trace()
+
+    dp.steps[0][1]._parallel_process.to_json(
+        "parallel_process.json", deep=True
+    )
+    dp.to_json("data_preparerer_deep_true4.json", deep=True)
+    import pdb
+
+    pdb.set_trace()
+    # dp2 = DataPreparer.from_json("data_preparerer_deep_true3.json")
+    # out = dp2.serialize()

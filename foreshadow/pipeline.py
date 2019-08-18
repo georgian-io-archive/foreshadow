@@ -1,4 +1,6 @@
 """A serializable form of sklearn pipelines."""
+# flake8: noqa
+
 import inspect
 import re
 
@@ -8,7 +10,7 @@ from sklearn.pipeline import Pipeline, _fit_transform_one  # noqa: F401
 from sklearn.utils.validation import check_memory  # noqa: F401
 
 from .parallelprocessor import ParallelProcessor  # noqa: F401
-from .serializers import PipelineSerializerMixin
+from .serializers import PipelineSerializerMixin, _make_serializable
 
 
 # Above imports used in runtime override.
@@ -97,6 +99,15 @@ exec(compile(_fit_source, "<string>", "exec"))  # will compile to _fit
 
 class DynamicPipeline(Pipeline, PipelineSerializerMixin):
     """Dynamically routes multiple outputs to separate Transformers."""
+
+    def dict_serialize(self, deep=False):
+        to_serialize = {}
+        all_params = self.get_params(deep=deep)
+        to_serialize["memory"] = all_params.pop("memory")
+        to_serialize["steps"] = all_params.pop("steps")
+        return _make_serializable(
+            to_serialize, serialize_args=self.serialize_params
+        )
 
     # TODO replace with thorough dynamic pipeline that handles all use cases
     #  and is based off defined inputs/outputs for each transformer.

@@ -1,8 +1,11 @@
 """Data preparation and foreshadow pipeline."""
+# flake8: noqa
+
+import inspect
 
 from sklearn.pipeline import Pipeline
 
-from foreshadow.pipeline import PipelineSerializerMixin
+from foreshadow.serializers import PipelineSerializerMixin, _make_serializable
 from foreshadow.steps import (
     CleanerMapper,
     FeatureEngineererMapper,
@@ -75,13 +78,13 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         if not y_var:
             steps = [
                 ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
-                ("intent", IntentMapper(**intent_kwargs_)),
-                (
-                    "feature_engineerer",
-                    FeatureEngineererMapper(**engineerer_kwargs_),
-                ),
-                ("feature_preprocessor", Preprocessor(**preprocessor_kwargs_)),
-                ("feature_reducer", FeatureReducerMapper(**reducer_kwargs_)),
+                # ("intent", IntentMapper(**intent_kwargs_)),
+                # (
+                #     "feature_engineerer",
+                #     FeatureEngineererMapper(**engineerer_kwargs_),
+                # ),
+                # ("feature_preprocessor", Preprocessor(**preprocessor_kwargs_)),
+                # ("feature_reducer", FeatureReducerMapper(**reducer_kwargs_)),
             ]
         else:
             steps = [("output", NoTransform())]
@@ -104,31 +107,56 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         # adding steps to the get_params()
         return out
 
-    def dict_serialize(self, deep=False):
-        """Serialize the init parameters (dictionary form) of a pipeline.
+    # def dict_serialize(self, deep=False):
+    #     """Serialize the init parameters (dictionary form) of a pipeline.
+    #
+    #     This method removes redundant column_sharers in the individual
+    #     steps.
+    #
+    #     Note:
+    #         This recursively serializes the individual steps to facilitate a
+    #         human readable form.
+    #
+    #     Args:
+    #         deep (bool): If True, will return the parameters for this estimator
+    #             recursively
+    #
+    #     Returns:
+    #         dict: The initialization parameters of the pipeline.
+    #
+    #     """
+    #     serialized = super().dict_serialize(deep=deep)
+    #     column_sharer_serialized = serialized.pop("column_sharer", None)
+    #     # Remove all instance of column_sharer from the serialized recursively.
+    #     serialized = self.__remove_key_from(serialized, target="column_sharer")
+    #     # Add back the column_sharer in the end only once.
+    #     serialized["column_sharer"] = column_sharer_serialized
+    #     return serialized
 
-        This method removes redundant column_sharers in the individual
-        steps.
+    def dict_serialize(self, deep=True):
+        import pdb
 
-        Note:
-            This recursively serializes the individual steps to facilitate a
-            human readable form.
-
-        Args:
-            deep (bool): If True, will return the parameters for this estimator
-                recursively
-
-        Returns:
-            dict: The initialization parameters of the pipeline.
-
-        """
-        serialized = super().dict_serialize(deep=deep)
+        pdb.set_trace()
+        params = self.get_params(deep=deep)
+        selected_params = self.__create_selected_params(params)
+        serialized = _make_serializable(
+            selected_params, serialize_args=self.serialize_params
+        )
         column_sharer_serialized = serialized.pop("column_sharer", None)
-        # Remove all instance of column_sharer from the serialized recursively.
         serialized = self.__remove_key_from(serialized, target="column_sharer")
         # Add back the column_sharer in the end only once.
         serialized["column_sharer"] = column_sharer_serialized
         return serialized
+
+    def __create_selected_params(self, params):
+        init_params = inspect.signature(self.__init__).parameters
+        selected_params = {
+            name: params.pop(name)
+            for name in init_params
+            if name not in ["self", "kwargs"]
+        }
+        selected_params["steps"] = params.pop("steps")
+        return selected_params
 
     def __remove_key_from(self, data, target="column_sharer"):
         if isinstance(data, dict):
@@ -144,3 +172,7 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
                 self.__remove_key_from(item, target=target) for item in data
             ]
         return data
+
+
+if __name__ == "__main__":
+    pass

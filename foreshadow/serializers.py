@@ -38,12 +38,16 @@ def _make_serializable(data, serialize_args={}):
         return data
     except TypeError:
         if isinstance(data, dict):
-            return {
+            result = {
                 k: _make_serializable(v, serialize_args=serialize_args)
                 for k, v in data.items()
             }
-        elif hasattr(data, "__next__"):
-            return [
+        # elif hasattr(data, "__iter__"):  # I don't think __next__ is correct
+        elif isinstance(data, (list, tuple)):
+            import pdb
+
+            pdb.set_trace()
+            result = [
                 _make_serializable(v, serialize_args=serialize_args)
                 for v in data
             ]
@@ -52,9 +56,11 @@ def _make_serializable(data, serialize_args={}):
             # serialize it using the same args that were passed into the top
             # level serialize method
             if hasattr(data, "serialize"):
-                return data.serialize(**serialize_args)
+                result = data.serialize(**serialize_args)
             else:
-                return _pickler.flatten(data)
+                result = _pickler.flatten(data)
+
+        return result
 
 
 def _make_deserializable(data):
@@ -68,9 +74,6 @@ def _make_deserializable(data):
         dict: A dictionary with complex objects reconstructed as necessary.
 
     """
-    import pdb
-
-    pdb.set_trace()
     if isinstance(data, dict):
         if any("py/" in s for s in data.keys()):
             return _unpickler.restore(data)
@@ -282,8 +285,12 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             dict: The initialization parameters of the transformer.
 
         """
+        import pdb
+
+        pdb.set_trace()
+        to_serialize = self.get_params(deep)
         return _make_serializable(
-            self.get_params(deep), serialize_args=self.serialize_params
+            to_serialize, serialize_args=self.serialize_params
         )
 
     @classmethod
