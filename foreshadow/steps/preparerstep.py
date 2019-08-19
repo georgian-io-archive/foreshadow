@@ -546,7 +546,8 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
         This method is implemented as a convenience for any child. It will
         automatically climb the MRO for a child until it reaches this class
-        (the last parent who's __init__ params we care about).
+        (the last parent who's __init__ params we care about). Also adds
+        _parallel_process to the sklearn get_params API.
 
         Returns:
             params for all parents up to and including PreparerStep.
@@ -560,37 +561,3 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         if "_parallel_process" not in params:
             params += ["_parallel_process"]
         return params
-
-    def get_params(self, deep=True):
-        """See super.
-
-        Overridden to add this parent classes' params to children and to
-        include _parallel_process. _get_param_names holds the logic for
-        getting all parent params.
-
-        Args:
-            deep:  See super.
-
-        Returns:
-            See super.
-
-        """
-        params = super().get_params(deep=deep)
-        # params.update(
-        #     {"_parallel_process": getattr(self, "_parallel_process", None)}
-        # )
-        return params
-
-    def set_params(self, **params):
-        """See super.
-
-        Overridden to afld this parent classes' params to children and to
-        include _parallel_process. _get_param_names holds the logic for
-        getting all parent params.
-
-        Args:
-            **params: see super.
-
-        """
-        # self._parallel_process = params.pop("_parallel_process", None)
-        super().set_params(**params)

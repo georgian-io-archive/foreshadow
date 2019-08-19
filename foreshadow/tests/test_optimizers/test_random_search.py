@@ -98,7 +98,7 @@ def test_random_param_list_simple(simple_distribution):
     from foreshadow.optimizers.random_search import HyperOptRandomSampler
 
     dist = simple_distribution
-    Sampler = HyperOptRandomSampler(dist, 10, max_tries=100000)
+    Sampler = HyperOptRandomSampler(dist, 10, max_tries=1000000)
     samples = []
     for sample in Sampler:
         samples.append(sample)
@@ -109,3 +109,19 @@ def test_random_param_list_simple(simple_distribution):
             v += str(val)
         unique_samples.add(v)
     assert len(unique_samples) == 4  # 4 unique samples.
+
+
+def test_random_param_list_simple_non_unique(simple_distribution):
+    """Test that sampler properly gives non unique iterations.
+
+    Args:
+        simple_distribution: fixture parameter distribution.
+
+    Returns:
+
+    """
+    from foreshadow.optimizers.random_search import HyperOptRandomSampler
+
+    dist = simple_distribution
+    Sampler = HyperOptRandomSampler(dist, 10, max_tries=None)
+    assert len(Sampler) == 10  # 10 non unique samples.

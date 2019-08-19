@@ -21,7 +21,8 @@ class HyperOptRandomSampler(object):
             param_distributions: Parameter distribution as nested list-dict.
             n_iter: length of returned iterator.
             random_state: random state.
-            max_tries: max attempts to try to get a new unique value.
+            max_tries: max attempts to try to get a new unique value. If
+                None, will not attempt to get unique values.
         """
         param_distributions = _replace_list(
             None, param_distributions.param_distributions, hp.choice
@@ -37,7 +38,9 @@ class HyperOptRandomSampler(object):
         As each state is defined using hp.choice, we don't explicitly know
         each of the unique states that our estimator can be set to. We
         sample the distribution of states up until max_tries times to get
-        these unique states and return an iterable of them.
+        these unique states and return an iterable of them. if max_tries is
+        None (set in constructor), then we sample the search space and add each
+        sampled value.
 
         Returns:
             iterable of unique states.
@@ -47,12 +50,13 @@ class HyperOptRandomSampler(object):
         # in this case we want to sample without replacement
         rng = check_random_state(self.random_state)
         prev_samples = []
+        max_tries = self.max_tries if self.max_tries is not None else 1
         for _ in six.moves.range(self.n_iter):
             # import pdb; pdb.set_trace()
             sample = stoch.sample(self.param_distributions, rng=rng)
             n_tries = 0
-            while sample not in prev_samples and n_tries < self.max_tries:
-                if sample not in prev_samples:
+            while sample not in prev_samples and n_tries < max_tries:
+                if sample not in prev_samples or self.max_tries is None:
                     prev_samples.append(sample)
                     break
                 sample = stoch.sample(self.param_distributions, rng=rng)
