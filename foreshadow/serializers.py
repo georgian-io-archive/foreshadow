@@ -448,12 +448,43 @@ class PipelineSerializerMixin(ConcreteSerializerMixin):
 
 
 class ParamSpecSerializerMixin(ConcreteSerializerMixin):
+    """Custom serialization for ParamSpec object."""
+
     def serialize(self, **kwargs):
+        """Serialize data as specified.
+
+        If you would like to save the transformer parameters without saving
+        its state in a human readable form, use `dict`. If you would like to
+        save the transformer with its internal state use `inline` to
+        save it in its hex form in the json. If you would like a more space
+        efficient form save use `disk` to save it a cache directory in
+        the root (~/.foreshadow/cache) that must be manually cleaned. Lastly,
+        if the transformer being serialized is custom, then the class itself
+        will be cached in pickle form and placed in the `pickle_class`
+        attribute.
+
+        Args:
+            **kwargs: The keyword arguments to pass to the serialization method
+
+        Returns:
+            str: The appropriate string representation of the serialization.
+
+        """
         full_ser = super().serialize(**kwargs)
         return full_ser
 
     @classmethod
     def deserialize(cls, data):
+        """Specify the method routing for a transformer deserialization.
+
+        Args:
+            data (dict): The counterpart to serialize that has all the required
+                args to build a transformer.
+
+        Returns:
+            object: The deserialized transformer
+
+        """
         return super().deserialize(data)
 
 

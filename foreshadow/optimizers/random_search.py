@@ -10,9 +10,19 @@ from .tuner import _replace_list
 
 
 class HyperOptRandomSampler(object):
+    """Sampler that is an iterable over param distribution."""
+
     def __init__(
         self, param_distributions, n_iter, random_state=None, max_tries=100
     ):
+        """Constructor.
+
+        Args:
+            param_distributions: Parameter distribution as nested list-dict.
+            n_iter: length of returned iterator.
+            random_state: random state.
+            max_tries: max attempts to try to get a new unique value.
+        """
         param_distributions = _replace_list(
             None, param_distributions.param_distributions, hp.choice
         )
@@ -22,6 +32,17 @@ class HyperOptRandomSampler(object):
         self.max_tries = max_tries
 
     def __iter__(self):
+        """Search parameter distribution for unique states.
+
+        As each state is defined using hp.choice, we don't explicitly know
+        each of the unique states that our estimator can be set to. We
+        sample the distribution of states up until max_tries times to get
+        these unique states and return an iterable of them.
+
+        Returns:
+            iterable of unique states.
+
+        """
         # check if all distributions are given as lists
         # in this case we want to sample without replacement
         rng = check_random_state(self.random_state)
@@ -39,11 +60,18 @@ class HyperOptRandomSampler(object):
         return iter(prev_samples)
 
     def __len__(self):
-        """Number of points that will be sampled."""
+        """Get number of sampled points for optimization.
+
+        Returns:
+            Number of unique states to be returned.
+
+        """
         return self.n_iter
 
 
 class RandomSearchCV(BaseSearchCV):
+    """Optimize Foreshadow.pipeline and/or its sub-objects."""
+
     def __init__(
         self,
         estimator,
@@ -81,7 +109,12 @@ class RandomSearchCV(BaseSearchCV):
         )
 
     def _get_param_iterator(self):
-        """Return ParameterSampler instance for the given distributions"""
+        """Return ParameterSampler instance for the given distributions.
+
+        Returns:
+            iterable of unique states defined by HyperOptRandomSampler.
+
+        """
         out = HyperOptRandomSampler(
             self.param_distributions,
             self.n_iter,

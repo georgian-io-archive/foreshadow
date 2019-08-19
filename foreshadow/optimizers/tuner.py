@@ -3,16 +3,10 @@
 import importlib
 import inspect
 
-import hyperopt.pyll.stochastic as stoch
-import six
 from hyperopt import hp
 from sklearn.exceptions import NotFittedError
-from sklearn.model_selection._search import BaseSearchCV
-from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 
-import foreshadow as fs
-import foreshadow.serializers as ser
 from foreshadow.base import BaseEstimator, TransformerMixin
 
 
@@ -41,10 +35,10 @@ combinations:
                     date:
                         -p1
                         -p2
-                        
-                        
+
+
 Convention:
-    Column name is last. If a .<blank> is present, then applied across all 
+    Column name is last. If a .<blank> is present, then applied across all
     columns.
 
 Things that may be swapped:
@@ -92,6 +86,16 @@ def _replace_list(key, obj, replace_with=hp.choice):
 
 
 def get(optimizer, **optimizer_kwargs):
+    """Get optimizer from foreshadow.optimizers package.
+
+    Args:
+        optimizer: optimizer name or class
+        **optimizer_kwargs: kwargs used in instantiation.
+
+    Returns:
+        Corresponding instantiated optimizer using kwargs.
+
+    """
     if isinstance(optimizer, str):
         mod = importlib.import_module("foreshadow.optimizers")
         return getattr(mod, optimizer)(**optimizer_kwargs)
@@ -135,11 +139,32 @@ class Tuner(BaseEstimator, TransformerMixin):
             pass
 
     def fit(self, X, y, **fit_params):
+        """Optimize self.pipeline using self.optimizer.
+
+        Args:
+            X: input points
+            y: input labels
+            **fit_params: params to optimizer fit method.
+
+        Returns:
+            self
+
+        """
         self._reset()
         self.optimizer.fit(X, y, **fit_params)
         self.best_pipeline = self.optimizer.best_estimator_
         self.best_params = self.optimizer.best_params_
+        return self
 
     def transform(self, pipeline):
+        """Transform pipeline using best_pipeline.
+
+        Args:
+            pipeline: input pipeline
+
+        Returns:
+            best_pipeline.
+
+        """
         check_is_fitted(self, "best_pipeline")
         return self.best_pipeline

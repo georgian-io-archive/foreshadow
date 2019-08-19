@@ -173,7 +173,7 @@ class Foreshadow(BaseEstimator):
         if o is None or (inspect.isclass(o) and issubclass(o, BaseSearchCV)):
             self._optimizer = o
         else:
-            raise ValueError("Invalid optimizer passed.")
+            raise ValueError("Invalid optimizer: '{}' passed.".format(o))
 
     def _reset(self):
         try:
@@ -182,7 +182,7 @@ class Foreshadow(BaseEstimator):
             check_is_fitted(self, "tuner")
             del self.tuner
             del self.opt_instance
-        except:
+        except AttributeError:
             pass
 
     def fit(self, data_df, y_df):

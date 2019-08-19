@@ -43,8 +43,7 @@ def _none_to_dict(name, val, column_sharer=None):
 
 
 class DataPreparer(Pipeline, PipelineSerializerMixin):
-    """Predefined pipeline for the foreshadow workflow. This Pipeline has 5
-    steps:
+    """Predefined pipeline for foreshadow workflow. This Pipeline has 5 steps.
 
     1. Cleaning
     2. Intent selection (data type, one of Categorical, Numerical, and Text)
@@ -119,6 +118,3 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         out.update({"steps": steps})  # manually
         # adding steps to the get_params()
         return out
-
-    def set_params(self, **kwargs):
-        return super().set_params(**kwargs)

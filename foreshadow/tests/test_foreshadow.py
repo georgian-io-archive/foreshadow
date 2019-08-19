@@ -47,7 +47,7 @@ def test_foreshadow_X_preparer_error():
     with pytest.raises(ValueError) as e:
         _ = Foreshadow(X_preparer=preprocessor)
 
-    assert str(e.value) == "Invalid value passed as X_preparer"
+    assert str(e.value) == "Invalid value: 'Invalid' passed as X_preparer"
 
 
 def test_foreshadow_y_preparer_false():
@@ -116,7 +116,7 @@ def test_foreshadow_optimizer_error_invalid():
     with pytest.raises(ValueError) as e:
         _ = Foreshadow(optimizer=optimizer)
 
-    assert str(e.value) == "Invalid value passed as optimizer"
+    assert str(e.value) == "Invalid optimizer: 'Invalid' passed."
 
 
 def test_foreshadow_optimizer_error_wrongclass():
@@ -126,7 +126,10 @@ def test_foreshadow_optimizer_error_wrongclass():
     with pytest.raises(ValueError) as e:
         _ = Foreshadow(optimizer=optimizer)
 
-    assert str(e.value) == "Invalid value passed as optimizer"
+    assert (
+        str(e.value) == "Invalid optimizer: '<class "
+        "'foreshadow.foreshadow.Foreshadow'>' passed."
+    )
 
 
 def test_foreshadow_warns_on_set_estimator_optimizer():

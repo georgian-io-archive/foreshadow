@@ -7,17 +7,18 @@ import pytest
 def simple_distribution():
     """Simple parameter distribution for testing."""
     from foreshadow.optimizers import ParamSpec
+
     ps = ParamSpec()
     dist = [
-            {
-                "s__transformer": "StandardScaler",
-                "s__transformer__with_mean": [False, True],
-            },
-            {
-                "s__transformer": "MinMaxScaler",
-                "s__transformer__feature_range": [(0, 1), (0, 0.5)]
-            },
-        ]
+        {
+            "s__transformer": "StandardScaler",
+            "s__transformer__with_mean": [False, True],
+        },
+        {
+            "s__transformer": "MinMaxScaler",
+            "s__transformer__feature_range": [(0, 1), (0, 0.5)],
+        },
+    ]
     ps.set_params(**{"param_distributions": dist})
     yield ps
 
@@ -27,9 +28,10 @@ def iris_data():
     """Iris dataset."""
     import sklearn.datasets as dt
     import pandas as pd
+
     data = dt.load_iris()
     X_data = pd.DataFrame(data.data, columns=data.feature_names).iloc[:, 0]
-    y_data = pd.DataFrame(data.target, columns=["target"])['target']
+    y_data = pd.DataFrame(data.target, columns=["target"])["target"]
     return X_data, y_data
 
 
@@ -65,18 +67,18 @@ def test_random_search_simple(estimator, simple_distribution, iris_data):
 
     """
     from foreshadow.optimizers import RandomSearchCV
+
     estimator, counter = estimator
     dist = simple_distribution
     keys = {key: None for d in dist.param_distributions for key in d}
     estimator.keys = lambda x: keys
     estimator = estimator()
     X, y = iris_data
-    rs = RandomSearchCV(estimator=estimator,
-                        param_distributions=dist)
+    rs = RandomSearchCV(estimator=estimator, param_distributions=dist)
     rs.fit(X, y)
     unique_samples = set()
     for sample in counter:
-        v = ''
+        v = ""
         for val in sample.values():
             v += str(val)
         unique_samples.add(v)
@@ -94,14 +96,15 @@ def test_random_param_list_simple(simple_distribution):
 
     """
     from foreshadow.optimizers.random_search import HyperOptRandomSampler
+
     dist = simple_distribution
-    Sampler = HyperOptRandomSampler(dist, 10)
+    Sampler = HyperOptRandomSampler(dist, 10, max_tries=100000)
     samples = []
     for sample in Sampler:
         samples.append(sample)
     unique_samples = set()
     for sample in samples:
-        v = ''
+        v = ""
         for val in sample.values():
             v += str(val)
         unique_samples.add(v)

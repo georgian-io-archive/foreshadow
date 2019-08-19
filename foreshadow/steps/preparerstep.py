@@ -1,8 +1,6 @@
 """General base classes used across Foreshadow."""
 from collections import MutableMapping, defaultdict, namedtuple
 
-from sklearn.utils.validation import check_is_fitted
-
 from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.concrete.internals.notransform import NoTransform
 from foreshadow.logging import logging
@@ -516,6 +514,9 @@ class PreparerStep(BaseEstimator, TransformerMixin):
 
         Returns:
             result from .transform()
+
+        Raises:
+            ValueError: if not fitted.
 
         """
         if getattr(self, "_parallel_process", None) is None:
