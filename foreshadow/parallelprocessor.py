@@ -85,12 +85,14 @@ class ParallelProcessor(FeatureUnion, ConcreteSerializerMixin):
         return selected_params
 
     def __convert_transformer_list(self, transformer_list):
-        converted = {}
+        result = []
         for transformer_triple in transformer_list:
+            converted = {}
             column_groups = transformer_triple[2]
             dynamic_pipeline = transformer_triple[1]
             converted[",".join(column_groups)] = dynamic_pipeline
-        return converted
+            result.append(converted)
+        return result
 
     def get_params(self, deep=True):
         """Return parameters of internal transformers.

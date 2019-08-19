@@ -1,11 +1,22 @@
 """Cleaner module for handling the cleaning and shaping of data."""
+from foreshadow.serializers import _make_serializable
 from foreshadow.smart import Cleaner, Flatten
 
 from .preparerstep import PreparerStep
 
 
+# flake8: noqa
+
+
 class CleanerMapper(PreparerStep):
     """Determine and perform best data cleaning step."""
+
+    def dict_serialize(self, deep=True):
+        """Flake8 you are annoying during development..."""
+        selected_params = self.get_params(deep=deep)["_parallel_process"]
+        return _make_serializable(
+            selected_params, serialize_args=self.serialize_params
+        )
 
     def __init__(self, **kwargs):
         """Define the single step for CleanerMapper, using SmartCleaner.
