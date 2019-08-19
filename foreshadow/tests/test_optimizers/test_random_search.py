@@ -98,7 +98,7 @@ def test_random_param_list_simple(simple_distribution):
     from foreshadow.optimizers.random_search import HyperOptRandomSampler
 
     dist = simple_distribution
-    Sampler = HyperOptRandomSampler(dist, 10, max_tries=1000000)
+    Sampler = HyperOptRandomSampler(dist, 10, max_tries=999999999999999999)
     samples = []
     for sample in Sampler:
         samples.append(sample)
@@ -108,6 +108,7 @@ def test_random_param_list_simple(simple_distribution):
         for val in sample.values():
             v += str(val)
         unique_samples.add(v)
+    print(unique_samples)
     assert len(unique_samples) == 4  # 4 unique samples.
 
 

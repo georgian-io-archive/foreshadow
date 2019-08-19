@@ -2,8 +2,9 @@
 
 from collections import MutableMapping
 
+import hyperopt.hp as hp
 import foreshadow.serializers as ser
-
+from .tuner import get, _replace_list
 
 """
 2. cases:
@@ -100,16 +101,41 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
             )
         self._param_set = False
         self.param_distributions = []
+
         if not (fs_pipeline is None) and (X_df is None) and (y_df) is None:
-            raise NotImplementedError("Automatic param spec not implemented")
-            # automatic pipelining.
-            # params = fs_pipeline.get_params()
-            # for kwarg in kwargs:
-            #     key, delim, subkey = kwarg.partition('__')
-            #     self.param_distribution[key] = {}
-            #     while delim !=  '':
-            #         pass
-            # self._param_set = True
+            self.param_distributions = [
+                {
+                    "X_preparer__feature_preprocessor___parallel_process__group"
+                    ": 0__CategoricalEncoder__transformer__ohe": get(
+                        "OneHotEncoder"
+                    ),
+                    "X_preparer__feature_preprocessor___parallel_process__group"
+                    ": 0__CategoricalEncoder__transformer__ohe__drop_invariant": [
+                        True,
+                        False,
+                    ],
+                },
+                {
+                    "X_preparer__feature_preprocessor___parallel_process__group"
+                    ": 0__CategoricalEncoder__transformer__ohe": get(
+                        "HashingEncoder"
+                    )
+                },
+            ]
+
+    def convert(self, key, replace_val=hp.choice):
+        """Convert internal self.param_distributions to valid distribution.
+
+        Uses _replace_list to replace all lists with replace_val
+
+        Args:
+            key: key to use for top level hp.choice name
+            replace_val: value to replace lists with.
+
+        """
+        self.param_distributions = _replace_list(key,
+                                                 self.param_distributions,
+                                                 replace_with=replace_val)
 
     def get_params(self, deep=True):
         """Get the params for this object. Used for serialization.
@@ -188,6 +214,9 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
         """
         return len(self.param_distributions)
 
+    def __contains__(self, item):
+        return self.param_distributions.__contains__(item)
+
     def __delitem__(self, key):  # overriding abstract method, not to be used.
         """Not implemented, only overrode because it is an abstract method.
 
@@ -201,3 +230,6 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
         raise NotImplementedError(
             "Abstract method not implemented. Should " "not be called.fl"
         )
+
+    def __hash__(self):
+        return self.param_distributions.__hash__()
