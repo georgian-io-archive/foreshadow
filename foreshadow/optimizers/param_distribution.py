@@ -8,7 +8,6 @@ import foreshadow.serializers as ser
 
 from .tuner import _replace_list, get
 
-
 """
 2. cases:
 
@@ -78,7 +77,7 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
     are. The lists showcase the different values that are possible.
     """
 
-    def __init__(self, fs_pipeline=None, X_df=None, y_df=None):
+    def __init__(self, fs_pipeline=None, X_df=None, y_df=None, level=None):
         """Initialize, and if args are passed, auto create param distribution.
 
         Only pass the init arguments if automatic param spec determination
@@ -94,7 +93,8 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
                 passed.
 
         """
-        if not (fs_pipeline is None) == (X_df is None) == (y_df is None):
+        if not (fs_pipeline is None) == (X_df is None) == (y_df is None) == \
+               (level is None):
             raise ValueError(
                 "Either all kwargs are None or all are set. To "
                 "use automatic param determination, pass all "
@@ -104,22 +104,30 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
         self._param_set = False
         self.param_distributions = []
 
-        if not (fs_pipeline is None) and (X_df is None) and (y_df) is None:
-            self.param_distributions = [
-                {
-                    "X_preparer__feature_preprocessor___"
-                    "parallel_process__group: 0__CategoricalEncoder__"
-                    "transformer__ohe": get("OneHotEncoder"),
-                    "X_preparer__feature_preprocessor"
-                    "___parallel_process__group: 0__CategoricalEncoder__"
-                    "transformer__ohe__drop_invariant": [True, False],
-                },
-                {
-                    "X_preparer__feature_preprocessor___"
-                    "parallel_process__group: 0__CategoricalEncoder__"
-                    "transformer__ohe": get("HashingEncoder")
-                },
-            ]
+        if not (fs_pipeline is None) and (X_df is None) and (y_df is None) \
+                and (level is None):
+            if level == 'intent':
+                pd = {"X_preparer"}
+            elif level == 'engineerer':
+
+            elif level == 'preprocessing':
+                pd = [
+                    {
+                        "X_preparer__feature_preprocessor___"
+                        "parallel_process__group: 0__CategoricalEncoder__"
+                        "transformer__ohe": get("OneHotEncoder"),
+                        "X_preparer__feature_preprocessor"
+                        "___parallel_process__group: 0__CategoricalEncoder__"
+                        "transformer__ohe__drop_invariant": [True, False],
+                    },
+                    {
+                        "X_preparer__feature_preprocessor___"
+                        "parallel_process__group: 0__CategoricalEncoder__"
+                        "transformer__ohe": get("HashingEncoder")
+                    },
+                ]
+
+            self.param_distributions = pd
 
     def convert(self, key, replace_val=hp.choice):
         """Convert internal self.param_distributions to valid distribution.
