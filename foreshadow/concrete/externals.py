@@ -13,10 +13,10 @@ from sklearn.feature_extraction.text import (  # noqa: F401
 )
 from sklearn.preprocessing import (  # noqa: F401
     Imputer,
+    LabelEncoder,
     MinMaxScaler,
     RobustScaler,
     StandardScaler,
-    LabelEncoder,
 )
 
 from foreshadow.utils import is_transformer

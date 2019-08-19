@@ -492,19 +492,17 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         try:
             return self._parallel_process.fit_transform(X, y=y, **fit_params)
         except AttributeError:
-            if getattr(self, '_parallel_process', None) is None:
+            if getattr(self, "_parallel_process", None) is None:
                 self.check_process(X)
         except KeyError as e:
-            if str(e).find ('not in index') != -1:
+            if str(e).find("not in index") != -1:
                 # This indicates that a transformation step was changed and
                 # now does not correctly reflect the generated DataFrame as
                 # this step. We will thus reinitialize the _parallel_process
                 # so that the best pipeline for this step will be found.
                 self.check_process(X)
         finally:
-            return self._parallel_process.fit_transform(X, y=y,
-                                                        **fit_params)
-
+            return self._parallel_process.fit_transform(X, y=y, **fit_params)
 
     def transform(self, X, *args, **kwargs):
         """Transform X using this PreparerStep.
@@ -520,8 +518,8 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             result from .transform()
 
         """
-        if getattr(self, '_parallel_process', None) is None:
-            raise ValueError('not fitted.')
+        if getattr(self, "_parallel_process", None) is None:
+            raise ValueError("not fitted.")
         return self._parallel_process.transform(X, *args, **kwargs)
 
     def inverse_transform(self, X, *args, **kwargs):
@@ -558,8 +556,8 @@ class PreparerStep(BaseEstimator, TransformerMixin):
         while cls.__name__ != PreparerStep.__name__:
             cls = cls.__mro__[1]
             params += cls._get_param_names()
-        if '_parallel_process' not in params:
-            params += ['_parallel_process']
+        if "_parallel_process" not in params:
+            params += ["_parallel_process"]
         return params
 
     def get_params(self, deep=True):

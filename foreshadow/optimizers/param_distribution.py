@@ -1,7 +1,8 @@
 """Classes to be configured by user for customizing parameter tuning."""
 
-import foreshadow.serializers as ser
 from collections import MutableMapping
+
+import foreshadow.serializers as ser
 
 
 """
@@ -72,16 +73,19 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
     Here, the dicts are used to tell the optimizer where to values to set
     are. The lists showcase the different values that are possible.
     """
+
     def __init__(self, fs_pipeline=None, X_df=None, y_df=None):
         if not (fs_pipeline is None) == (X_df is None) == (y_df is None):
-            raise ValueError("Either all kwargs are None or all are set. To "
-                             "use automatic param determination, pass all "
-                             "kwargs. Otherwise, manual setting can be "
-                             "accomplished using set_params.")
+            raise ValueError(
+                "Either all kwargs are None or all are set. To "
+                "use automatic param determination, pass all "
+                "kwargs. Otherwise, manual setting can be "
+                "accomplished using set_params."
+            )
         self._param_set = False
         self.param_distributions = []
         if not (fs_pipeline is None) and (X_df is None) and (y_df) is None:
-            raise NotImplementedError('Automatic param spec not implemented')
+            raise NotImplementedError("Automatic param spec not implemented")
             # automatic pipelining.
             # params = fs_pipeline.get_params()
             # for kwarg in kwargs:
@@ -95,7 +99,7 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
         return self.param_distributions
 
     def set_params(self, **params):
-        self.param_distributions = params['param_distributions']
+        self.param_distributions = params["param_distributions"]
         self._param_set = True
 
     def __call__(self):
@@ -115,4 +119,4 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
 
     def __delitem__(self, key):  # overriding abstract method but should not
         # be called
-        raise NotImplementedError('')
+        raise NotImplementedError("")

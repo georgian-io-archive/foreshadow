@@ -99,20 +99,14 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
                     "feature_engineerer",
                     FeatureEngineererMapper(**engineerer_kwargs_),
                 ),
-                (
-                    "feature_preprocessor",
-                    Preprocessor(**preprocessor_kwargs_),
-                ),
-                (
-                    "feature_reducer",
-                    FeatureReducerMapper(**reducer_kwargs_),
-                ),
+                ("feature_preprocessor", Preprocessor(**preprocessor_kwargs_)),
+                ("feature_reducer", FeatureReducerMapper(**reducer_kwargs_)),
             ]
         else:
             steps = [("output", NoTransform())]
-        if 'steps' in kwargs:  # needed for sklearn estimator clone,
+        if "steps" in kwargs:  # needed for sklearn estimator clone,
             # which will try to init the object using get_params.
-            steps = kwargs.pop('steps')
+            steps = kwargs.pop("steps")
 
         self.column_sharer = column_sharer
         self.y_var = y_var

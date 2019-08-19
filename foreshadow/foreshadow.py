@@ -10,14 +10,10 @@ from foreshadow.base import BaseEstimator
 from foreshadow.columnsharer import ColumnSharer
 from foreshadow.estimators.auto import AutoEstimator
 from foreshadow.estimators.meta import MetaEstimator
+from foreshadow.optimizers import ParamSpec, Tuner, test_params
 from foreshadow.pipeline import SerializablePipeline
 from foreshadow.preparer import DataPreparer
 from foreshadow.utils import check_df
-from foreshadow.optimizers import (
-    ParamSpec,
-    Tuner,
-    test_params
-)
 
 
 class Foreshadow(BaseEstimator):
@@ -43,18 +39,21 @@ class Foreshadow(BaseEstimator):
 
     """
 
-    def __init__(self,
-                 X_preparer=None,
-                 y_preparer=None,
-                 estimator=None,
-                 optimizer=None,
-                 optimizer_kwargs=None,):
+    def __init__(
+        self,
+        X_preparer=None,
+        y_preparer=None,
+        estimator=None,
+        optimizer=None,
+        optimizer_kwargs=None,
+    ):
         self.X_preparer = X_preparer
         self.y_preparer = y_preparer
         self.estimator = estimator
         self.optimizer = optimizer
-        self.optimizer_kwargs = {} if optimizer_kwargs is \
-                                      None else optimizer_kwargs
+        self.optimizer_kwargs = (
+            {} if optimizer_kwargs is None else optimizer_kwargs
+        )
         self.pipeline = None
         self.data_columns = None
 
@@ -89,8 +88,9 @@ class Foreshadow(BaseEstimator):
             elif isinstance(dp, DataPreparer):
                 self._X_preprocessor = dp
             else:
-                raise ValueError("Invalid value: '{}' "
-                                 "passed as X_preparer".format(dp))
+                raise ValueError(
+                    "Invalid value: '{}' " "passed as X_preparer".format(dp)
+                )
         else:
             self._X_preprocessor = DataPreparer(column_sharer=ColumnSharer())
 
@@ -177,9 +177,9 @@ class Foreshadow(BaseEstimator):
 
     def _reset(self):
         try:
-            check_is_fitted(self, 'pipeline')
+            check_is_fitted(self, "pipeline")
             del self.pipeline
-            check_is_fitted(self, 'tuner')
+            check_is_fitted(self, "tuner")
             del self.tuner
             del self.opt_instance
         except:
@@ -207,8 +207,10 @@ class Foreshadow(BaseEstimator):
 
         if self.X_preparer is not None:
             self.pipeline = SerializablePipeline(
-                [("X_preparer", self.X_preparer), ("estimator",
-                                                   self.estimator)]
+                [
+                    ("X_preparer", self.X_preparer),
+                    ("estimator", self.estimator),
+                ]
             )
         else:
             self.pipeline = SerializablePipeline(
@@ -231,19 +233,27 @@ class Foreshadow(BaseEstimator):
             # param_ranges = param_mapping(deepcopy(self.pipeline), X_df, y_df)
             params = ParamSpec()
             params.set_params(param_distributions=test_params)
-            self.opt_instance = self.optimizer(estimator=self.pipeline,
-                                            param_distributions=params,
-                                            **{'iid': True,
-                                               "scoring": "accuracy",
-                                               "n_iter": 10,
-                                               'return_train_score': True})
+            self.opt_instance = self.optimizer(
+                estimator=self.pipeline,
+                param_distributions=params,
+                **{
+                    "iid": True,
+                    "scoring": "accuracy",
+                    "n_iter": 10,
+                    "return_train_score": True,
+                }
+            )
             self.tuner = Tuner(self.pipeline, params, self.opt_instance)
             self.tuner.fit(X_df, y_df)
             import pandas as pd
+
             results = pd.DataFrame(self.opt_instance.cv_results_)
             results = results[
-                [c for c in results.columns if
-                 all(s not in c for s in ["time", "params"])]
+                [
+                    c
+                    for c in results.columns
+                    if all(s not in c for s in ["time", "params"])
+                ]
             ]
             print(results)
             self.pipeline = self.tuner.transform(self.pipeline)

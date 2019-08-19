@@ -178,8 +178,7 @@ def test_numerical_input_fittransform():
 #     dc.fit(data)
 #     from pprint import pprint
 #     print(pprint(dc.get_params()))
-    # print(dc._parallel_process)
-
+# print(dc._parallel_process)
 
 
 # TODO test graph, could be implemented very wrong.

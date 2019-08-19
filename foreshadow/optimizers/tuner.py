@@ -1,18 +1,19 @@
 """Classes for optimizing Foreshadow given a param_distribution."""
 
+import importlib
+import inspect
+
+import hyperopt.pyll.stochastic as stoch
 import six
+from hyperopt import hp
+from sklearn.exceptions import NotFittedError
 from sklearn.model_selection._search import BaseSearchCV
 from sklearn.utils import check_random_state
+from sklearn.utils.validation import check_is_fitted
 
 import foreshadow as fs
 import foreshadow.serializers as ser
-import hyperopt.pyll.stochastic as stoch
 from foreshadow.base import BaseEstimator, TransformerMixin
-from hyperopt import hp
-from sklearn.utils.validation import check_is_fitted
-from sklearn.exceptions import NotFittedError
-import importlib
-import inspect
 
 
 """
@@ -92,7 +93,7 @@ def _replace_list(key, obj, replace_with=hp.choice):
 
 def get(optimizer, **optimizer_kwargs):
     if isinstance(optimizer, str):
-        mod = importlib.import_module('foreshadow.optimizers')
+        mod = importlib.import_module("foreshadow.optimizers")
         return getattr(mod, optimizer)(**optimizer_kwargs)
     elif inspect.isclass(optimizer):
         return optimizer(**optimizer_kwargs)
@@ -101,25 +102,33 @@ def get(optimizer, **optimizer_kwargs):
 
 class Tuner(BaseEstimator, TransformerMixin):
     """Tunes the Foreshadow object using a ParamSpec and Optimizer."""
-    def __init__(self, pipeline=None, params=None, optimizer=None,
-                 optimizer_kwargs={}):
+
+    def __init__(
+        self, pipeline=None, params=None, optimizer=None, optimizer_kwargs={}
+    ):
         if pipeline is None:
-            raise ValueError("'pipeline' is a required arg and is only set to "
-                             "None due to sklearn get_params requirements.")
+            raise ValueError(
+                "'pipeline' is a required arg and is only set to "
+                "None due to sklearn get_params requirements."
+            )
         if params is None:
-            raise ValueError("'params' is a required arg and is only set to "
-                             "None due to sklearn get_params requirements.")
+            raise ValueError(
+                "'params' is a required arg and is only set to "
+                "None due to sklearn get_params requirements."
+            )
         self.pipeline = pipeline
         self.params = params
         self.optimizer_kwargs = optimizer_kwargs
-        self.optimizer = get(optimizer,
-                             estimator=self.pipeline,
-                             param_distributions=self.params,
-                             **self.optimizer_kwargs)
+        self.optimizer = get(
+            optimizer,
+            estimator=self.pipeline,
+            param_distributions=self.params,
+            **self.optimizer_kwargs
+        )
 
     def _reset(self):
         try:
-            check_is_fitted(self, 'best_pipeline')
+            check_is_fitted(self, "best_pipeline")
             del self.best_pipeline
             del self.best_params
         except NotFittedError:
@@ -132,5 +141,5 @@ class Tuner(BaseEstimator, TransformerMixin):
         self.best_params = self.optimizer.best_params_
 
     def transform(self, pipeline):
-        check_is_fitted(self, 'best_pipeline')
+        check_is_fitted(self, "best_pipeline")
         return self.best_pipeline

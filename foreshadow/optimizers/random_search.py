@@ -1,18 +1,18 @@
 """Random optimization of params."""
 
+import hyperopt.pyll.stochastic as stoch
 import six
+from hyperopt import hp
 from sklearn.model_selection._search import BaseSearchCV
 from sklearn.utils import check_random_state
-
-import hyperopt.pyll.stochastic as stoch
-from hyperopt import hp
 
 from .tuner import _replace_list
 
 
 class HyperOptRandomSampler(object):
-    def __init__(self, param_distributions, n_iter, random_state=None,
-                 max_tries=100):
+    def __init__(
+        self, param_distributions, n_iter, random_state=None, max_tries=100
+    ):
         param_distributions = _replace_list(
             None, param_distributions.param_distributions, hp.choice
         )
