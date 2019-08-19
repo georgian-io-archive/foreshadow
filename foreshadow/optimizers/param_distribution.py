@@ -3,8 +3,11 @@
 from collections import MutableMapping
 
 import hyperopt.hp as hp
+
 import foreshadow.serializers as ser
-from .tuner import get, _replace_list
+
+from .tuner import _replace_list, get
+
 
 """
 2. cases:
@@ -89,7 +92,6 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
         Raises:
             ValueError: if either all kwargs are not passed or all aren't
                 passed.
-            NotImplementedError: All kwargs passed.
 
         """
         if not (fs_pipeline is None) == (X_df is None) == (y_df is None):
@@ -105,21 +107,17 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
         if not (fs_pipeline is None) and (X_df is None) and (y_df) is None:
             self.param_distributions = [
                 {
-                    "X_preparer__feature_preprocessor___parallel_process__group"
-                    ": 0__CategoricalEncoder__transformer__ohe": get(
-                        "OneHotEncoder"
-                    ),
-                    "X_preparer__feature_preprocessor___parallel_process__group"
-                    ": 0__CategoricalEncoder__transformer__ohe__drop_invariant": [
-                        True,
-                        False,
-                    ],
+                    "X_preparer__feature_preprocessor___"
+                    "parallel_process__group: 0__CategoricalEncoder__"
+                    "transformer__ohe": get("OneHotEncoder"),
+                    "X_preparer__feature_preprocessor"
+                    "___parallel_process__group: 0__CategoricalEncoder__"
+                    "transformer__ohe__drop_invariant": [True, False],
                 },
                 {
-                    "X_preparer__feature_preprocessor___parallel_process__group"
-                    ": 0__CategoricalEncoder__transformer__ohe": get(
-                        "HashingEncoder"
-                    )
+                    "X_preparer__feature_preprocessor___"
+                    "parallel_process__group: 0__CategoricalEncoder__"
+                    "transformer__ohe": get("HashingEncoder")
                 },
             ]
 
@@ -133,9 +131,9 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
             replace_val: value to replace lists with.
 
         """
-        self.param_distributions = _replace_list(key,
-                                                 self.param_distributions,
-                                                 replace_with=replace_val)
+        self.param_distributions = _replace_list(
+            key, self.param_distributions, replace_with=replace_val
+        )
 
     def get_params(self, deep=True):
         """Get the params for this object. Used for serialization.
@@ -215,6 +213,15 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
         return len(self.param_distributions)
 
     def __contains__(self, item):
+        """Get if internal param distribution contains item.
+
+        Args:
+            item: item to check
+
+        Returns:
+            True if it contains the item. False else.
+
+        """
         return self.param_distributions.__contains__(item)
 
     def __delitem__(self, key):  # overriding abstract method, not to be used.
@@ -232,4 +239,10 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
         )
 
     def __hash__(self):
+        """Return unique hash from self.param_distributions.
+
+        Returns:
+            unique hash from internal param distribution
+
+        """
         return self.param_distributions.__hash__()
