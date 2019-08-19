@@ -36,7 +36,6 @@ class HyperOptRandomSampler(object):
                     break
                 sample = stoch.sample(self.param_distributions, rng=rng)
                 n_tries += 1
-
         return iter(prev_samples)
 
     def __len__(self):
@@ -61,10 +60,12 @@ class RandomSearchCV(BaseSearchCV):
         random_state=None,
         error_score="raise",
         return_train_score="warn",
+        max_tries=100,
     ):
         self.param_distributions = param_distributions
         self.n_iter = n_iter
         self.random_state = random_state
+        self.max_tries = max_tries
         super().__init__(
             estimator=estimator,
             scoring=scoring,
@@ -85,5 +86,6 @@ class RandomSearchCV(BaseSearchCV):
             self.param_distributions,
             self.n_iter,
             random_state=self.random_state,
+            max_tries=self.max_tries,
         )
         return out

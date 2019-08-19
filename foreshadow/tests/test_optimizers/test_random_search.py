@@ -5,7 +5,10 @@ import pytest
 
 @pytest.fixture()
 def simple_distribution():
-    yield [
+    """Simple parameter distribution for testing."""
+    from foreshadow.optimizers import ParamSpec
+    ps = ParamSpec()
+    dist = [
             {
                 "s__transformer": "StandardScaler",
                 "s__transformer__with_mean": [False, True],
@@ -15,20 +18,91 @@ def simple_distribution():
                 "s__transformer__feature_range": [(0, 1), (0, 0.5)]
             },
         ]
+    ps.set_params(**{"param_distributions": dist})
+    yield ps
 
 
-def test_random_search_simple(simple_distribution):
+@pytest.fixture()
+def iris_data():
+    """Iris dataset."""
+    import sklearn.datasets as dt
+    import pandas as pd
+    data = dt.load_iris()
+    X_data = pd.DataFrame(data.data, columns=data.feature_names).iloc[:, 0]
+    y_data = pd.DataFrame(data.target, columns=["target"])['target']
+    return X_data, y_data
+
+
+@pytest.fixture()
+def estimator(mocker):
+    """Mocked estimator. .keys method must be set to return all possible keys
+    from the parameter distribution."""
+    counter = []
+
+    class Estimator:
+        def __init__(self, **kwargs):
+            pass
+
+        def set_params(self, *args, **kwargs):
+            counter.append(kwargs)
+            return self
+
+        def get_params(self, deep=True):
+            return self.keys()
+
+    Estimator.fit = mocker.Mock(return_value=None)
+    Estimator.score = mocker.Mock(return_value=0.5)
+    return Estimator, counter
+
+
+def test_random_search_simple(estimator, simple_distribution, iris_data):
+    """Test that random search finds all different parameter specifications.
+
+    Args:
+        estimator: fixture estimator
+        simple_distribution: fixture distribution to parameter optimize on.
+        iris_data: fixture dataset to use.
+
+    """
+    from foreshadow.optimizers import RandomSearchCV
+    estimator, counter = estimator
     dist = simple_distribution
+    keys = {key: None for d in dist.param_distributions for key in d}
+    estimator.keys = lambda x: keys
+    estimator = estimator()
+    X, y = iris_data
+    rs = RandomSearchCV(estimator=estimator,
+                        param_distributions=dist)
+    rs.fit(X, y)
+    unique_samples = set()
+    for sample in counter:
+        v = ''
+        for val in sample.values():
+            v += str(val)
+        unique_samples.add(v)
+
+    assert len(unique_samples) == 4
 
 
 def test_random_param_list_simple(simple_distribution):
+    """Test that sampler properly iterates over parameter distribution.
+
+    Args:
+        simple_distribution: fixture parameter distribution.
+
+    Returns:
+
+    """
     from foreshadow.optimizers.random_search import HyperOptRandomSampler
-    from foreshadow.optimizers import ParamSpec
     dist = simple_distribution
-    ps = ParamSpec()
-    ps.set_params(**{"param_distributions": dist})
-    Sampler = HyperOptRandomSampler(ps, 10)
+    Sampler = HyperOptRandomSampler(dist, 10)
     samples = []
     for sample in Sampler:
         samples.append(sample)
-    assert len(samples) == 4  # 4 unique samples.
+    unique_samples = set()
+    for sample in samples:
+        v = ''
+        for val in sample.values():
+            v += str(val)
+        unique_samples.add(v)
+    assert len(unique_samples) == 4  # 4 unique samples.
