@@ -5,6 +5,7 @@ from abc import ABCMeta, abstractmethod
 from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.logging import logging
 from foreshadow.pipeline import SerializablePipeline
+from foreshadow.serializers import ConcreteSerializerMixin
 from foreshadow.utils import (
     check_df,
     get_transformer,
@@ -13,7 +14,9 @@ from foreshadow.utils import (
 )
 
 
-class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
+class SmartTransformer(
+    BaseEstimator, TransformerMixin, ConcreteSerializerMixin, metaclass=ABCMeta
+):
     """Abstract transformer class for meta transformer selection decisions.
 
     This class contains the logic necessary to determine a single transformer
@@ -126,6 +129,11 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             )
 
         self._transformer = value
+
+    # def dict_serialize(self, deep=True):
+    #     params = self.get_params(deep=deep)
+    #     import pdb;
+    #     return super().dict_serialize(deep=deep)
 
     def get_params(self, deep=True):
         """Get parameters for this estimator.

@@ -105,9 +105,13 @@ class DynamicPipeline(Pipeline, PipelineSerializerMixin):
         all_params = self.get_params(deep=deep)
         to_serialize["memory"] = all_params.pop("memory")
         to_serialize["steps"] = all_params.pop("steps")
-        return _make_serializable(
+        serialized = _make_serializable(
             to_serialize, serialize_args=self.serialize_params
         )
+        serialized["steps"] = [
+            {step[0]: step[1]} for step in serialized["steps"]
+        ]
+        return serialized
 
     # TODO replace with thorough dynamic pipeline that handles all use cases
     #  and is based off defined inputs/outputs for each transformer.
