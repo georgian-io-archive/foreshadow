@@ -6,6 +6,7 @@ from foreshadow.concrete.internals.notransform import NoTransform
 from foreshadow.logging import logging
 from foreshadow.parallelprocessor import ParallelProcessor
 from foreshadow.pipeline import DynamicPipeline
+from foreshadow.serializers import _make_deserializable, _make_serializable
 from foreshadow.utils.common import ConfigureColumnSharerMixin
 
 from ..columnsharer import ColumnSharer
@@ -280,6 +281,52 @@ class PreparerStep(
     def configure_column_sharer(self, column_sharer):  # noqa
         self.column_sharer = column_sharer
         self._parallel_process.configure_column_sharer(column_sharer)
+
+    def dict_serialize(self, deep=True):  # noqa
+        selected_params = self.get_params(deep=deep)["_parallel_process"]
+        serialized = _make_serializable(
+            selected_params, serialize_args=self.serialize_params
+        )
+        transformer_list = serialized["transformer_list"]
+        serialized.pop("transformer_list")
+        serialized["transformation_by_column_group"] = transformer_list
+        return serialized
+
+    @classmethod
+    def dict_deserialize(cls, data):  # noqa
+        params = _make_deserializable(data)
+        import pdb
+
+        pdb.set_trace()
+        parallel_processor = cls.reconstruct_parallel_process(params)
+        reconstructed_params = {"_parallel_process": parallel_processor}
+        ret_tf = cls()
+        ret_tf.set_params(**reconstructed_params)
+        return ret_tf
+
+    @classmethod
+    def reconstruct_parallel_process(cls, data):  # noqa
+        import pdb
+
+        pdb.set_trace()
+        n_jobs = data["n_jobs"]
+        transformer_weights = data["transformer_weights"]
+        collapse_index = data["collapse_index"]
+
+        transformer_list = []
+        for i, transformation in enumerate(
+            data["transformation_by_column_group"]
+        ):
+            group_name = "group: {}".format(str(i))
+            dynamic_pipeline = list(transformation.values())[0]
+            column_groups = list(transformation.keys())[0].split(",")
+            transformer_list.append(
+                (group_name, dynamic_pipeline, column_groups)
+            )
+
+        return ParallelProcessor(
+            transformer_list, n_jobs, transformer_weights, collapse_index
+        )
 
     @staticmethod
     def separate_cols(transformers, cols):

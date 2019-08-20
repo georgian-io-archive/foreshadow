@@ -85,7 +85,7 @@ class DataPreparer(
         if not y_var:
             steps = [
                 ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
-                # ("intent", IntentMapper(**intent_kwargs_)),
+                ("intent", IntentMapper(**intent_kwargs_)),
                 # (
                 #     "feature_engineerer",
                 #     FeatureEngineererMapper(**engineerer_kwargs_),
