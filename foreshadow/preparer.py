@@ -17,6 +17,7 @@ from foreshadow.steps import (
     IntentMapper,
     Preprocessor,
 )
+from foreshadow.utils.common import ConfigureColumnSharerMixin
 
 from .concrete import NoTransform
 
@@ -49,7 +50,9 @@ def _none_to_dict(name, val, column_sharer=None):
     return val
 
 
-class DataPreparer(Pipeline, PipelineSerializerMixin):
+class DataPreparer(
+    Pipeline, PipelineSerializerMixin, ConfigureColumnSharerMixin
+):
     """Predefined pipeline for the foreshadow workflow."""
 
     def __init__(
@@ -169,14 +172,13 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         params["steps"] = [list(step.items())[0] for step in params["steps"]]
         deserialized = cls(**params)
 
-        deserialized.set_column_sharer_recursively(deserialized.column_sharer)
+        deserialized.configure_column_sharer(deserialized.column_sharer)
 
         return deserialized
 
-    def set_column_sharer_recursively(self, column_sharer):
-        # TODO add this change
+    def configure_column_sharer(self, column_sharer):
         for step in self.steps:
-            step[1].set_column_sharer_recursively(column_sharer)
+            step[1].configure_column_sharer(column_sharer)
 
     def __create_selected_params(self, params):
         init_params = inspect.signature(self.__init__).parameters

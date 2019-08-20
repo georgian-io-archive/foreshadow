@@ -6,6 +6,7 @@ from foreshadow.concrete.internals.notransform import NoTransform
 from foreshadow.logging import logging
 from foreshadow.parallelprocessor import ParallelProcessor
 from foreshadow.pipeline import DynamicPipeline
+from foreshadow.utils.common import ConfigureColumnSharerMixin
 
 from ..columnsharer import ColumnSharer
 from ..serializers import ConcreteSerializerMixin
@@ -228,7 +229,12 @@ def _batch_parallelize(column_mapping):
     return steps, list(all_cols)
 
 
-class PreparerStep(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
+class PreparerStep(
+    BaseEstimator,
+    TransformerMixin,
+    ConcreteSerializerMixin,
+    ConfigureColumnSharerMixin,
+):
     """Base class for any pipeline step of DataPreparer.
 
     This class automatically wraps the defined pipeline to make it
@@ -271,9 +277,9 @@ class PreparerStep(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
             self.column_sharer = ColumnSharer()
         super().__init__(**kwargs)
 
-    def set_column_sharer_recursively(self, column_sharer):  # noqa
+    def configure_column_sharer(self, column_sharer):  # noqa
         self.column_sharer = column_sharer
-        self._parallel_process.set_column_sharer_recursively(column_sharer)
+        self._parallel_process.configure_column_sharer(column_sharer)
 
     @staticmethod
     def separate_cols(transformers, cols):

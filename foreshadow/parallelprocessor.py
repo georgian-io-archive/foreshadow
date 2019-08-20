@@ -13,6 +13,7 @@ from sklearn.pipeline import (
 )
 
 from foreshadow.base import BaseEstimator
+from foreshadow.utils.common import ConfigureColumnSharerMixin
 
 from .serializers import (
     ConcreteSerializerMixin,
@@ -21,7 +22,9 @@ from .serializers import (
 )
 
 
-class ParallelProcessor(FeatureUnion, ConcreteSerializerMixin):
+class ParallelProcessor(
+    FeatureUnion, ConcreteSerializerMixin, ConfigureColumnSharerMixin
+):
     """Class to support parallel operation on dataframes.
 
     This class functions similarly to a FeatureUnion except it divides a given
@@ -78,7 +81,7 @@ class ParallelProcessor(FeatureUnion, ConcreteSerializerMixin):
             selected_params, serialize_args=self.serialize_params
         )
 
-    def set_column_sharer_recursively(self, column_sharer):
+    def configure_column_sharer(self, column_sharer):
         for transformer_triple in self.transformer_list:
             dynamic_pipeline = transformer_triple[1]
             for step in dynamic_pipeline.steps:

@@ -92,3 +92,9 @@ def get_transformer(class_name, source_lib=None):
             )
 
     return getattr(module, class_name)
+
+
+class ConfigureColumnSharerMixin:  # noqa
+    def configure_column_sharer(self, column_sharer):  # noqa
+        if hasattr(self, "column_sharer"):
+            self.column_sharer = column_sharer
