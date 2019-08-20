@@ -144,4 +144,10 @@ def test_data_preparer_deserialization():
 
     pdb.set_trace()
     dp2 = DataPreparer.from_json("data_preparerer_deep_true4.json")
-    print(dp2)
+    import pdb
+
+    pdb.set_trace()
+    dp2_serialized = dp2.serialize(deep=True)
+    dp_serialized = dp.serialize(deep=True)
+
+    assert dp_serialized == dp2_serialized

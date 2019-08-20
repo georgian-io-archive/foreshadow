@@ -271,6 +271,10 @@ class PreparerStep(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
             self.column_sharer = ColumnSharer()
         super().__init__(**kwargs)
 
+    def set_column_sharer_recursively(self, column_sharer):  # noqa
+        self.column_sharer = column_sharer
+        self._parallel_process.set_column_sharer_recursively(column_sharer)
+
     @staticmethod
     def separate_cols(transformers, cols):
         """Return a valid mapping where each col has a separate transformer.

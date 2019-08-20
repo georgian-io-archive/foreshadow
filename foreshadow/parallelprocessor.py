@@ -78,6 +78,12 @@ class ParallelProcessor(FeatureUnion, ConcreteSerializerMixin):
             selected_params, serialize_args=self.serialize_params
         )
 
+    def set_column_sharer_recursively(self, column_sharer):
+        for transformer_triple in self.transformer_list:
+            dynamic_pipeline = transformer_triple[1]
+            for step in dynamic_pipeline.steps:
+                step[1].column_sharer = column_sharer
+
     @classmethod
     def dict_deserialize(cls, data):
         params = _make_deserializable(data)

@@ -5,7 +5,11 @@ import inspect
 
 from sklearn.pipeline import Pipeline
 
-from foreshadow.serializers import PipelineSerializerMixin, _make_serializable
+from foreshadow.serializers import (
+    PipelineSerializerMixin,
+    _make_deserializable,
+    _make_serializable,
+)
 from foreshadow.steps import (
     CleanerMapper,
     FeatureEngineererMapper,
@@ -158,6 +162,21 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         steps_reformatted = [{step[0]: step[1]} for step in steps]
         serialized["steps"] = steps_reformatted
         return serialized
+
+    @classmethod
+    def dict_deserialize(cls, data):
+        params = _make_deserializable(data)
+        params["steps"] = [list(step.items())[0] for step in params["steps"]]
+        deserialized = cls(**params)
+
+        deserialized.set_column_sharer_recursively(deserialized.column_sharer)
+
+        return deserialized
+
+    def set_column_sharer_recursively(self, column_sharer):
+        # TODO add this change
+        for step in self.steps:
+            step[1].set_column_sharer_recursively(column_sharer)
 
     def __create_selected_params(self, params):
         init_params = inspect.signature(self.__init__).parameters
