@@ -14,7 +14,11 @@ from sklearn.pipeline import (
 
 from foreshadow.base import BaseEstimator
 
-from .serializers import ConcreteSerializerMixin, _make_serializable
+from .serializers import (
+    ConcreteSerializerMixin,
+    _make_deserializable,
+    _make_serializable,
+)
 
 
 class ParallelProcessor(FeatureUnion, ConcreteSerializerMixin):
@@ -73,6 +77,16 @@ class ParallelProcessor(FeatureUnion, ConcreteSerializerMixin):
         return _make_serializable(
             selected_params, serialize_args=self.serialize_params
         )
+
+    @classmethod
+    def dict_deserialize(cls, data):
+        params = _make_deserializable(data)
+        import pdb
+
+        pdb.set_trace()
+        # TODO reconstruct the params so we can recreate the parallel process
+        params = params
+        return cls(**params)
 
     def __create_selected_params(self, params):
         init_params = inspect.signature(self.__init__).parameters

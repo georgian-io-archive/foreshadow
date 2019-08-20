@@ -1,5 +1,6 @@
 """Cleaner module for handling the cleaning and shaping of data."""
-from foreshadow.serializers import _make_serializable
+from foreshadow.parallelprocessor import ParallelProcessor
+from foreshadow.serializers import _make_deserializable, _make_serializable
 from foreshadow.smart import Cleaner, Flatten
 
 from .preparerstep import PreparerStep
@@ -21,6 +22,42 @@ class CleanerMapper(PreparerStep):
         serialized.pop("transformer_list")
         serialized["transformation_by_column_group"] = transformer_list
         return serialized
+
+    @classmethod
+    def dict_deserialize(cls, data):
+        params = _make_deserializable(data)
+        import pdb
+
+        pdb.set_trace()
+        parallel_processor = cls.__reconstruct_parallel_process(params)
+        reconstructed_params = {"_parallel_process": parallel_processor}
+        ret_tf = cls()
+        ret_tf.set_params(**reconstructed_params)
+        return ret_tf
+
+    @classmethod
+    def __reconstruct_parallel_process(cls, data):
+        import pdb
+
+        pdb.set_trace()
+        n_jobs = data["n_jobs"]
+        transformer_weights = data["transformer_weights"]
+        collapse_index = data["collapse_index"]
+
+        transformer_list = []
+        for i, transformation in enumerate(
+            data["transformation_by_column_group"]
+        ):
+            group_name = "group: {}".format(str(i))
+            dynamic_pipeline = list(transformation.values())[0]
+            column_groups = list(transformation.keys())[0].split(",")
+            transformer_list.append(
+                (group_name, dynamic_pipeline, column_groups)
+            )
+
+        return ParallelProcessor(
+            transformer_list, n_jobs, transformer_weights, collapse_index
+        )
 
     def __init__(self, **kwargs):
         """Define the single step for CleanerMapper, using SmartCleaner.
