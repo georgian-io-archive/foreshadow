@@ -14,9 +14,13 @@ class CleanerMapper(PreparerStep):
     def dict_serialize(self, deep=True):
         """Flake8 you are annoying during development..."""
         selected_params = self.get_params(deep=deep)["_parallel_process"]
-        return _make_serializable(
+        serialized = _make_serializable(
             selected_params, serialize_args=self.serialize_params
         )
+        transformer_list = serialized["transformer_list"]
+        serialized.pop("transformer_list")
+        serialized["transformation_by_column_group"] = transformer_list
+        return serialized
 
     def __init__(self, **kwargs):
         """Define the single step for CleanerMapper, using SmartCleaner.

@@ -44,9 +44,6 @@ def _make_serializable(data, serialize_args={}):
             }
         # elif hasattr(data, "__iter__"):  # I don't think __next__ is correct
         elif isinstance(data, (list, tuple)):
-            import pdb
-
-            pdb.set_trace()
             result = [
                 _make_serializable(v, serialize_args=serialize_args)
                 for v in data
@@ -161,9 +158,6 @@ def _obj_deserializer_helper(data):
     if pickle_class is not None:
         transformer = _unpickle_inline_repr(pickle_class)
     else:
-        import pdb
-
-        pdb.set_trace()
         transformer = get_transformer(data["_class"])
 
     return transformer
@@ -236,9 +230,6 @@ class BaseTransformerSerializer:
             ValueError: If the method is not in `OPTIONS`
 
         """
-        import pdb
-
-        pdb.set_trace()
         method = data.pop("_method")  # TODO: add malformed serialization error
         _ = data.pop("_class", None)
         if method in cls.OPTIONS:
@@ -285,9 +276,6 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             dict: The initialization parameters of the transformer.
 
         """
-        import pdb
-
-        pdb.set_trace()
         to_serialize = self.get_params(deep)
         return _make_serializable(
             to_serialize, serialize_args=self.serialize_params

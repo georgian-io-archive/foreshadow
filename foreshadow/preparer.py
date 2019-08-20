@@ -99,6 +99,14 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         # )
         super().__init__(steps, **kwargs)
 
+    # def dict_serialize(self, deep=True):
+    #     serialized = super().dict_serialize(deep=deep)
+    #     import pdb;pdb.set_trace()
+    #     steps = serialized["steps"]
+    #     steps_reformatted = [{step[0]: step[1]} for step in steps]
+    #     serialized["steps"] = steps_reformatted
+    #     return serialized
+
     def _get_params(self, attr, deep=True):
         # attr will be 'steps' if called from pipeline.get_params()
         out = super()._get_params(attr, deep)
@@ -146,6 +154,9 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         serialized = self.__remove_key_from(serialized, target="column_sharer")
         # Add back the column_sharer in the end only once.
         serialized["column_sharer"] = column_sharer_serialized
+        steps = serialized["steps"]
+        steps_reformatted = [{step[0]: step[1]} for step in steps]
+        serialized["steps"] = steps_reformatted
         return serialized
 
     def __create_selected_params(self, params):
