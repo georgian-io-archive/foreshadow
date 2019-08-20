@@ -71,6 +71,9 @@ def _make_deserializable(data):
         dict: A dictionary with complex objects reconstructed as necessary.
 
     """
+    import pdb
+
+    pdb.set_trace()
     if isinstance(data, dict):
         if any("py/" in s for s in data.keys()):
             return _unpickler.restore(data)
@@ -154,6 +157,9 @@ def _obj_deserializer_helper(data):
         The constructed class.
 
     """
+    import pdb
+
+    pdb.set_trace()
     pickle_class = data.get("_pickled_class")
     if pickle_class is not None:
         transformer = _unpickle_inline_repr(pickle_class)
@@ -230,6 +236,9 @@ class BaseTransformerSerializer:
             ValueError: If the method is not in `OPTIONS`
 
         """
+        import pdb
+
+        pdb.set_trace()
         method = data.pop("_method")  # TODO: add malformed serialization error
         _ = data.pop("_class", None)
         if method in cls.OPTIONS:
@@ -292,7 +301,12 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             object: A re-constructed transformer
 
         """
+        import pdb
+
+        pdb.set_trace()
         params = _make_deserializable(data)
+        # TODO here we will need to reconstruct the params so it becomes usable
+        # by the set_params.
         # import pdb; pdb.set_trace()
         pickle_class = params.pop("_pickled_class", None)
         if pickle_class is not None:
@@ -303,6 +317,9 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             # for Pipelines and therefore we cannot use default
             # init method (assuming no required args) to initialize
             # an instance then call set_params.
+            import pdb
+
+            pdb.set_trace()
             if issubclass(cls, PipelineSerializerMixin):
                 return cls(**params)
             else:

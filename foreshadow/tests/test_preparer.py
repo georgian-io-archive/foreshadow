@@ -135,9 +135,6 @@ def test_data_preparer_deserialization():
     cs = ColumnSharer()
     dp = DataPreparer(cs)
     dp.fit(data)
-    import pdb
-
-    pdb.set_trace()
 
     dp.steps[0][1]._parallel_process.to_json(
         "parallel_process.json", deep=True
@@ -146,5 +143,5 @@ def test_data_preparer_deserialization():
     import pdb
 
     pdb.set_trace()
-    # dp2 = DataPreparer.from_json("data_preparerer_deep_true3.json")
-    # out = dp2.serialize()
+    dp2 = DataPreparer.from_json("data_preparerer_deep_true4.json")
+    print(dp2)

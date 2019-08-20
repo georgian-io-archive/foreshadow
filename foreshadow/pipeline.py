@@ -10,7 +10,11 @@ from sklearn.pipeline import Pipeline, _fit_transform_one  # noqa: F401
 from sklearn.utils.validation import check_memory  # noqa: F401
 
 from .parallelprocessor import ParallelProcessor  # noqa: F401
-from .serializers import PipelineSerializerMixin, _make_serializable
+from .serializers import (
+    PipelineSerializerMixin,
+    _make_deserializable,
+    _make_serializable,
+)
 
 
 # Above imports used in runtime override.
@@ -112,6 +116,15 @@ class DynamicPipeline(Pipeline, PipelineSerializerMixin):
             {step[0]: step[1]} for step in serialized["steps"]
         ]
         return serialized
+
+    @classmethod
+    def dict_deserialize(cls, data):
+        params = _make_deserializable(data)
+        params["steps"] = [list(step.items())[0] for step in params["steps"]]
+        import pdb
+
+        pdb.set_trace()
+        return cls(**params)
 
     # TODO replace with thorough dynamic pipeline that handles all use cases
     #  and is based off defined inputs/outputs for each transformer.
