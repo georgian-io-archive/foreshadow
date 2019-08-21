@@ -104,28 +104,6 @@ exec(compile(_fit_source, "<string>", "exec"))  # will compile to _fit
 class DynamicPipeline(Pipeline, PipelineSerializerMixin):
     """Dynamically routes multiple outputs to separate Transformers."""
 
-    def dict_serialize(self, deep=False):
-        to_serialize = {}
-        all_params = self.get_params(deep=deep)
-        to_serialize["memory"] = all_params.pop("memory")
-        to_serialize["steps"] = all_params.pop("steps")
-        serialized = _make_serializable(
-            to_serialize, serialize_args=self.serialize_params
-        )
-        serialized["steps"] = [
-            {step[0]: step[1]} for step in serialized["steps"]
-        ]
-        return serialized
-
-    @classmethod
-    def dict_deserialize(cls, data):
-        params = _make_deserializable(data)
-        params["steps"] = [list(step.items())[0] for step in params["steps"]]
-        import pdb
-
-        pdb.set_trace()
-        return cls(**params)
-
     # TODO replace with thorough dynamic pipeline that handles all use cases
     #  and is based off defined inputs/outputs for each transformer.
     def _fit(self, X, y=None, **fit_params):  # copied super method

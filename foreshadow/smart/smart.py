@@ -77,6 +77,18 @@ class SmartTransformer(
         self.transformer = transformer
         self.check_wrapped = check_wrapped
 
+    def dict_serialize(self, deep=True):  # noqa
+        serialized = super().dict_serialize(deep=True)
+        if isinstance(self.transformer, SerializablePipeline):
+            self.__remove_redundant_transformer_item(serialized)
+        return serialized
+
+    @staticmethod
+    def __remove_redundant_transformer_item(data):
+        keys = [key for key in data if key.startswith("transformer__")]
+        for key in keys:
+            data.pop(key)
+
     @property
     def transformer(self):
         """Get the selected transformer from the SmartTransformer.

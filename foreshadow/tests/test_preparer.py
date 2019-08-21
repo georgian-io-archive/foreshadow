@@ -130,11 +130,13 @@ def test_data_preparer_deserialization():
     boston_path = get_file_path("data", "boston_housing.csv")
     data = pd.read_csv(boston_path)
     # data = data.drop(columns=["indus", "ptratio", "tax"])
-    data = data[["crim"]]
+    data = data[["crim", "indus", "ptratio"]]
 
     cs = ColumnSharer()
     dp = DataPreparer(cs)
     dp.fit(data)
+    data_transformed = dp.transform(data)
+    print(data_transformed)
 
     dp.steps[0][1]._parallel_process.to_json(
         "parallel_process.json", deep=True
@@ -144,10 +146,23 @@ def test_data_preparer_deserialization():
 
     pdb.set_trace()
     dp2 = DataPreparer.from_json("data_preparerer_deep_true4.json")
+    dp2.to_json("data_preparerer_deep_true5.json", deep=True)
     import pdb
 
     pdb.set_trace()
     dp2_serialized = dp2.serialize(deep=True)
     dp_serialized = dp.serialize(deep=True)
+
+    import json
+
+    with open("dp_serialized.json", "w") as f1:
+        json.dump(dp_serialized, f1)
+
+    with open("dp_serialized2.json", "w") as f2:
+        json.dump(dp2_serialized, f2)
+
+    import pdb
+
+    pdb.set_trace()
 
     assert dp_serialized == dp2_serialized

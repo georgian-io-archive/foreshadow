@@ -86,12 +86,12 @@ class DataPreparer(
             steps = [
                 ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
                 ("intent", IntentMapper(**intent_kwargs_)),
-                # (
-                #     "feature_engineerer",
-                #     FeatureEngineererMapper(**engineerer_kwargs_),
-                # ),
-                # ("feature_preprocessor", Preprocessor(**preprocessor_kwargs_)),
-                # ("feature_reducer", FeatureReducerMapper(**reducer_kwargs_)),
+                (
+                    "feature_engineerer",
+                    FeatureEngineererMapper(**engineerer_kwargs_),
+                ),
+                ("feature_preprocessor", Preprocessor(**preprocessor_kwargs_)),
+                ("feature_reducer", FeatureReducerMapper(**reducer_kwargs_)),
             ]
         else:
             steps = [("output", NoTransform())]

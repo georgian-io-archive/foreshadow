@@ -468,22 +468,27 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
 class PipelineSerializerMixin(ConcreteSerializerMixin):
     """An custom serialization method to allow pipelines serialization."""
 
-    def dict_serialize(self, deep=False):
-        """Serialize the init parameters (dictionary form) of a pipeline.
+    def dict_serialize(self, deep=False):  # noqa
+        to_serialize = {}
+        all_params = self.get_params(deep=deep)
+        to_serialize["memory"] = all_params.pop("memory")
+        to_serialize["steps"] = all_params.pop("steps")
+        serialized = _make_serializable(
+            to_serialize, serialize_args=self.serialize_params
+        )
+        serialized["steps"] = [
+            {step[0]: step[1]} for step in serialized["steps"]
+        ]
+        return serialized
 
-        Note:
-            This recursively serializes the individual steps to facilitate a
-            human readable form.
+    @classmethod
+    def dict_deserialize(cls, data):  # noqa
+        params = _make_deserializable(data)
+        params["steps"] = [list(step.items())[0] for step in params["steps"]]
+        import pdb
 
-        Args:
-            deep (bool): If True, will return the parameters for this estimator
-                recursively
-
-        Returns:
-            dict: The initialization parameters of the pipeline.
-
-        """
-        return super().dict_serialize(deep=deep)
+        pdb.set_trace()
+        return cls(**params)
 
 
 def deserialize(data):
