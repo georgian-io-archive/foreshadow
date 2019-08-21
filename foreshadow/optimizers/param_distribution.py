@@ -5,6 +5,7 @@ from collections import MutableMapping
 import hyperopt.hp as hp
 
 import foreshadow.serializers as ser
+from foreshadow.config import config
 
 from .tuner import _replace_list, get
 
@@ -104,18 +105,22 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
         self._param_set = False
         self.param_distributions = []
 
-        if not (fs_pipeline is None) and (X_df is None) and (y_df is None) \
-                and (level is None):
+        if not (fs_pipeline is None and X_df is None and
+                y_df is None and level is None):
+            param_config = config.get_params()
             if level == 'intent':
-                pd = {"X_preparer"}
+                params = param_config[level]
+                root = "X_preparer__intent__"
+                print(fs_pipeline.steps[0][1].steps[1][1].get_params())
+                params = {"X_"}
             elif level == 'engineerer':
-
+                pass
             elif level == 'preprocessing':
                 pd = [
                     {
                         "X_preparer__feature_preprocessor___"
                         "parallel_process__group: 0__CategoricalEncoder__"
-                        "transformer__ohe": get("OneHotEncoder"),
+                        "transformer__ohe": "OneHotEncoder",
                         "X_preparer__feature_preprocessor"
                         "___parallel_process__group: 0__CategoricalEncoder__"
                         "transformer__ohe__drop_invariant": [True, False],
@@ -123,7 +128,7 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
                     {
                         "X_preparer__feature_preprocessor___"
                         "parallel_process__group: 0__CategoricalEncoder__"
-                        "transformer__ohe": get("HashingEncoder")
+                        "transformer__ohe": "HashingEncoder"
                     },
                 ]
 

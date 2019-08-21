@@ -219,7 +219,7 @@ class Foreshadow(BaseEstimator):
 
         if self.optimizer is not None:
             self.pipeline.fit(X_df, y_df)
-            params = ParamSpec(self.pipeline, X_df, y_df)
+            params = ParamSpec(self.pipeline, X_df, y_df, level='intent')
             self.opt_instance = self.optimizer(
                 estimator=self.pipeline,
                 param_distributions=params,
@@ -232,7 +232,9 @@ class Foreshadow(BaseEstimator):
             )
             self.tuner = Tuner(self.pipeline, params, self.opt_instance)
             self.tuner.fit(X_df, y_df)
+            print(self.pipeline.steps[0][1].steps[1][1])
             self.pipeline = self.tuner.transform(self.pipeline)
+            print(self.pipeline.steps[0][1].steps[1][1])
             # extract trained preprocessors
             if self.X_preparer is not None:
                 self.X_preparer = self.pipeline.steps[0][1]

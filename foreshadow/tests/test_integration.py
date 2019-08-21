@@ -9,7 +9,7 @@ import pytest
 
 def check_slow():
     import os
-
+    os.environ['FORESHADOW_TESTS'] = "ALL"
     return os.environ.get("FORESHADOW_TESTS") != "ALL"
 
 
@@ -37,6 +37,42 @@ def test_integration_binary_classification():
         cancerX_df, cancery_df, test_size=0.2
     )
     shadow = fs.Foreshadow(estimator=LogisticRegression())
+    shadow.fit(X_train, y_train)
+
+    baseline = 0.9824561403508771
+    score = shadow.score(X_test, y_test)
+
+    assert not score < baseline * 0.9
+
+
+@slow
+def test_integration_binary_classification_with_optimization():
+    import foreshadow as fs
+    import pandas as pd
+    import numpy as np
+    from sklearn.datasets import load_breast_cancer
+    from sklearn.model_selection import train_test_split
+    from sklearn.linear_model import LogisticRegression
+    from foreshadow.optimizers import RandomSearchCV
+
+    np.random.seed(1337)
+
+    cancer = load_breast_cancer()
+    cancerX_df = pd.DataFrame(cancer.data, columns=cancer.feature_names)
+    cancery_df = pd.DataFrame(cancer.target, columns=["target"])
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        cancerX_df, cancery_df, test_size=0.2
+    )
+    ok = {
+        "iid": True,
+        "scoring": "accuracy",
+        "n_iter": 2,
+        "return_train_score": True,
+    }
+    shadow = fs.Foreshadow(estimator=LogisticRegression(),
+                           optimizer=RandomSearchCV,
+                           optimizer_kwargs=ok)
     shadow.fit(X_train, y_train)
 
     baseline = 0.9824561403508771
