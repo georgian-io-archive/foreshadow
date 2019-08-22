@@ -8,6 +8,7 @@ from foreshadow.parallelprocessor import ParallelProcessor
 from foreshadow.pipeline import DynamicPipeline
 
 from ..columnsharer import ColumnSharer
+from ..serializers import ConcreteSerializerMixin
 
 
 GroupProcess = namedtuple(
@@ -227,7 +228,7 @@ def _batch_parallelize(column_mapping):
     return steps, list(all_cols)
 
 
-class PreparerStep(BaseEstimator, TransformerMixin):
+class PreparerStep(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
     """Base class for any pipeline step of DataPreparer.
 
     This class automatically wraps the defined pipeline to make it
@@ -543,6 +544,10 @@ class PreparerStep(BaseEstimator, TransformerMixin):
     @classmethod
     def _get_param_names(cls):
         """Get iteratively __init__ params for all classes until PreparerStep.
+
+        Overridden to add this parent classes' params to children and to
+        include _parallel_process. _get_param_names holds the logic for
+        getting all parent params.
 
         This method is implemented as a convenience for any child. It will
         automatically climb the MRO for a child until it reaches this class

@@ -412,7 +412,6 @@ def test_smarttransformer_set_params_default(smart_child):
     smart.fit([1, 2, 3])
     before = smart.__dict__
     params = smart.get_params()
-    print(params)
     smart = smart_child().set_params(**params)
 
     assert smart.__dict__ == before
