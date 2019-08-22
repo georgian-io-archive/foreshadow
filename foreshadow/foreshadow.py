@@ -4,7 +4,6 @@ import inspect
 import warnings
 
 from sklearn.model_selection._search import BaseSearchCV
-from sklearn.utils.validation import check_is_fitted
 
 from foreshadow.base import BaseEstimator
 from foreshadow.columnsharer import ColumnSharer
@@ -58,7 +57,6 @@ class Foreshadow(BaseEstimator):
         self.data_columns = None
 
         if isinstance(self.estimator, AutoEstimator) and optimizer is not None:
-            # TODO implement V2 architecture here.
             warnings.warn(
                 "An automatic estimator cannot be used with an optimizer."
                 " Proceeding without use of optimizer"
@@ -176,14 +174,11 @@ class Foreshadow(BaseEstimator):
             raise ValueError("Invalid optimizer: '{}' passed.".format(o))
 
     def _reset(self):
-        try:
-            check_is_fitted(self, "pipeline")
+        if hasattr(self, "pipeline"):
             del self.pipeline
-            check_is_fitted(self, "tuner")
+        if hasattr(self, "tuner"):
             del self.tuner
             del self.opt_instance
-        except AttributeError:
-            pass
 
     def fit(self, data_df, y_df):
         """Fit the Foreshadow instance using the provided input data.

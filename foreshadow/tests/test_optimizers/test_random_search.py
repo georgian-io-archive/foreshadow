@@ -36,7 +36,7 @@ def iris_data():
 
 
 @pytest.fixture()
-def estimator(mocker):
+def estimator_counter(mocker):
     """Mocked estimator. .keys method must be set to return all possible keys
     from the parameter distribution."""
     counter = []
@@ -57,18 +57,20 @@ def estimator(mocker):
     return Estimator, counter
 
 
-def test_random_search_simple(estimator, simple_distribution, iris_data):
+def test_random_search_simple(
+    estimator_counter, simple_distribution, iris_data
+):
     """Test that random search finds all different parameter specifications.
 
     Args:
-        estimator: fixture estimator
+        estimator_counter: fixture estimator_counter
         simple_distribution: fixture distribution to parameter optimize on.
         iris_data: fixture dataset to use.
 
     """
     from foreshadow.optimizers import RandomSearchCV
 
-    estimator, counter = estimator
+    estimator, counter = estimator_counter
     dist = simple_distribution
     keys = {key: None for d in dist.param_distributions for key in d}
     estimator.keys = lambda x: keys
@@ -98,7 +100,7 @@ def test_random_param_list_simple(simple_distribution):
     from foreshadow.optimizers.random_search import HyperOptRandomSampler
 
     dist = simple_distribution
-    Sampler = HyperOptRandomSampler(dist, 10, max_tries=999999999999999999)
+    Sampler = HyperOptRandomSampler(dist, 10, max_tries=100)
     samples = []
     for sample in Sampler:
         samples.append(sample)

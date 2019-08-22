@@ -71,7 +71,6 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         engineerer_kwargs=None,
         preprocessor_kwargs=None,
         reducer_kwargs=None,
-        modeler_kwargs=None,
         y_var=None,
         **kwargs,
     ):

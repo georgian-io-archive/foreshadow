@@ -166,19 +166,4 @@ def test_numerical_input_fittransform():
     assert np.array_equal(transformed_data, data)
 
 
-# def test_get_params():
-#     import pandas as pd
-#     from foreshadow.preparer import CleanerMapper
-#     from foreshadow.columnsharer import ColumnSharer
-#
-#     columns = ["financials"]
-#     data = pd.DataFrame({"financials": ["", "", "", ""]}, columns=columns)
-#     cs = ColumnSharer()
-#     dc = CleanerMapper(column_sharer=cs)
-#     dc.fit(data)
-#     from pprint import pprint
-#     print(pprint(dc.get_params()))
-# print(dc._parallel_process)
-
-
 # TODO test graph, could be implemented very wrong.

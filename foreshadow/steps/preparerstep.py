@@ -454,8 +454,6 @@ class PreparerStep(BaseEstimator, TransformerMixin):
             transformed data handled by Pipeline._fit
 
         """
-        # TODO make fit remove a step if nothing is done, rather than a
-        #  NoTransform Transformer.
         self.fit_transform(X, *args, **kwargs)
         return self
 

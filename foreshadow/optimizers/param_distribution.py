@@ -9,34 +9,6 @@ import foreshadow.serializers as ser
 from .tuner import _replace_list, get
 
 
-"""
-2. cases:
-
-1. Apply override to initial columns
-
-In this case, we simply need to override the get_mapping result. This is
-hard to do because it is computed at .fit() time, not __init__ time. We need to
-compute it at .fit() time because we need access to the dataset. Instead,
-we will pass overrides to the __init__ and handle the errors if users choose
-wrong columns.
-
-
-2. apply override to a dynamically created transformer
-
-In this case, the output from a previous step in the PreparerStep's pipeline
-created new columns. Thesee will not be available at get_mapping() time. If
-we pass in these columns to ParallelProcessor, it will try to slice then out
-which will break. We do however know the initial column and, knowing
-DynamicPipeline's naming scheme, the new column's name. We can enable an
-override on a per column level by passing in the eventual columns to be
-overridden to that group process.
-
-
-
-ParamSpec
-"""
-
-
 class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
     """Holds the specification of the parameter search space.
 
@@ -104,6 +76,7 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
         self._param_set = False
         self.param_distributions = []
 
+        # automatic pipeline determination.
         if not (fs_pipeline is None) and (X_df is None) and (y_df) is None:
             self.param_distributions = [
                 {

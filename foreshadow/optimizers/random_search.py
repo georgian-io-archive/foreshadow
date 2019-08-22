@@ -1,7 +1,6 @@
 """Random optimization of params."""
 
 import hyperopt.pyll.stochastic as stoch
-import six
 from hyperopt import hp
 from sklearn.model_selection._search import BaseSearchCV
 from sklearn.utils import check_random_state
@@ -47,11 +46,10 @@ class HyperOptRandomSampler(object):
         rng = check_random_state(self.random_state)
         prev_samples = []
         max_tries = self.max_tries if self.max_tries is not None else 1
-        for _ in six.moves.range(self.n_iter):
-            # import pdb; pdb.set_trace()
+        for _ in range(self.n_iter):
             sample = stoch.sample(self.param_distributions(), rng=rng)
             n_tries = 0
-            while sample not in prev_samples and n_tries < max_tries:
+            while sample not in prev_samples or n_tries < max_tries:
                 if sample not in prev_samples or self.max_tries is None:
                     prev_samples.append(sample)
                     break
