@@ -219,7 +219,7 @@ class Foreshadow(BaseEstimator):
 
         if self.optimizer is not None:
             self.pipeline.fit(X_df, y_df)
-            params = ParamSpec(self.pipeline, X_df, y_df, level='intent')
+            params = ParamSpec(self.pipeline, X_df, y_df, level="intent")
             self.opt_instance = self.optimizer(
                 estimator=self.pipeline,
                 param_distributions=params,
@@ -229,9 +229,14 @@ class Foreshadow(BaseEstimator):
             self.tuner.fit(X_df, y_df)
             self.pipeline = self.tuner.transform(self.pipeline)
             import pandas as pd
+
             results = pd.DataFrame(self.opt_instance.cv_results_)
             results = results[
-                [c for c in results.columns if all(s not in c for s in ["time", "params"])]
+                [
+                    c
+                    for c in results.columns
+                    if all(s not in c for s in ["time", "params"])
+                ]
             ]
             print(results)
             print(self.pipeline.steps[0][1].steps[1][1])

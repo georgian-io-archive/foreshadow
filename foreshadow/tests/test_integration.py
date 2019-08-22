@@ -9,7 +9,8 @@ import pytest
 
 def check_slow():
     import os
-    os.environ['FORESHADOW_TESTS'] = "ALL"
+
+    os.environ["FORESHADOW_TESTS"] = "ALL"
     return os.environ.get("FORESHADOW_TESTS") != "ALL"
 
 
@@ -70,9 +71,11 @@ def test_integration_binary_classification_with_optimization():
         "n_iter": 15,
         "return_train_score": True,
     }
-    shadow = fs.Foreshadow(estimator=LogisticRegression(),
-                           optimizer=RandomSearchCV,
-                           optimizer_kwargs=ok)
+    shadow = fs.Foreshadow(
+        estimator=LogisticRegression(),
+        optimizer=RandomSearchCV,
+        optimizer_kwargs=ok,
+    )
     shadow.fit(X_train, y_train)
 
     baseline = 0.9824561403508771

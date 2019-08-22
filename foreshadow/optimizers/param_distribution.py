@@ -7,7 +7,8 @@ import hyperopt.hp as hp
 import foreshadow.serializers as ser
 from foreshadow.config import config
 
-from .tuner import _replace_list, get
+from .tuner import _replace_list
+
 
 """
 2. cases:
@@ -94,8 +95,12 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
                 passed.
 
         """
-        if not (fs_pipeline is None) == (X_df is None) == (y_df is None) == \
-               (level is None):
+        if (
+            not (fs_pipeline is None)
+            == (X_df is None)
+            == (y_df is None)
+            == (level is None)
+        ):
             raise ValueError(
                 "Either all kwargs are None or all are set. To "
                 "use automatic param determination, pass all "
@@ -105,19 +110,26 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
         self._param_set = False
         self.param_distributions = []
 
-        if not (fs_pipeline is None and X_df is None and
-                y_df is None and level is None):
+        if not (
+            fs_pipeline is None
+            and X_df is None
+            and y_df is None
+            and level is None
+        ):
             param_config = config.get_params()
-            if level == 'intent':
+            if level == "intent":
                 params = param_config[level]
                 root = "X_preparer__intent___parallel_process__"
                 intent = fs_pipeline.steps[0][1].steps[1][1]
-                pd = {root+process_name[0]+"__IntentResolver__transformer":
-                              [p() for p in params] for process_name in
-                          intent._parallel_process.transformer_list}
-            elif level == 'engineerer':
+                pd = {
+                    root
+                    + process_name[0]
+                    + "__IntentResolver__transformer": [p() for p in params]
+                    for process_name in intent._parallel_process.transformer_list
+                }
+            elif level == "engineerer":
                 pd = []
-            elif level == 'preprocessing':
+            elif level == "preprocessing":
                 # TODO implement different preprocessing optimizer checks
                 #  depending on the intent that is chosen. Since we force the
                 #  optimization to be either intent, engineerer,

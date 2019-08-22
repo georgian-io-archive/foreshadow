@@ -29,21 +29,21 @@ _DEFAULT_CONFIG = {
         "intent": ["Numeric", "Categoric", "Text"],
         "engineerer": [],
         "preprocessor": [
-                    {
-                        "X_preparer__feature_preprocessor___"
-                        "parallel_process__group: 0__CategoricalEncoder__"
-                        "transformer__ohe": "OneHotEncoder",
-                        "X_preparer__feature_preprocessor"
-                        "___parallel_process__group: 0__CategoricalEncoder__"
-                        "transformer__ohe__drop_invariant": [True, False],
-                    },
-                    {
-                        "X_preparer__feature_preprocessor___"
-                        "parallel_process__group: 0__CategoricalEncoder__"
-                        "transformer__ohe": "HashingEncoder"
-                    },
-                ],
-    }
+            {
+                "X_preparer__feature_preprocessor___"
+                "parallel_process__group: 0__CategoricalEncoder__"
+                "transformer__ohe": "OneHotEncoder",
+                "X_preparer__feature_preprocessor"
+                "___parallel_process__group: 0__CategoricalEncoder__"
+                "transformer__ohe__drop_invariant": [True, False],
+            },
+            {
+                "X_preparer__feature_preprocessor___"
+                "parallel_process__group: 0__CategoricalEncoder__"
+                "transformer__ohe": "HashingEncoder"
+            },
+        ],
+    },
 }
 
 
@@ -116,20 +116,22 @@ class ConfigStore(MutableMapping):
         for key, data in resolved_strs.items():
             if not len(data):
                 resolved[key] = data
-            elif key == 'Tuner':
-                resolved['Tuner'] = {}
-                resolved['Tuner']['intent'] = [get_transformer(t) for t in
-                                               data['intent']]
-                resolved['Tuner']['engineerer'] = [get_transformer(t) for t
-                                                   in data['engineerer']]
+            elif key == "Tuner":
+                resolved["Tuner"] = {}
+                resolved["Tuner"]["intent"] = [
+                    get_transformer(t) for t in data["intent"]
+                ]
+                resolved["Tuner"]["engineerer"] = [
+                    get_transformer(t) for t in data["engineerer"]
+                ]
                 converted_param_space = {}
-                for param_space in data['preprocessor']:
+                for param_space in data["preprocessor"]:
                     for key, val in param_space.items():
                         if isinstance(val, str):
                             converted_param_space[key] = get_transformer(val)
                         elif isinstance(val, list):
                             converted_param_space[key] = val
-                resolved['Tuner']['preprocessor'] = converted_param_space
+                resolved["Tuner"]["preprocessor"] = converted_param_space
             elif isinstance(data, list):
                 resolved[key] = [
                     get_transformer(transformer) for transformer in data
@@ -181,7 +183,7 @@ class ConfigStore(MutableMapping):
         return self.get_config()["Tiebreak"]
 
     def get_params(self):
-        return self.get_config()['Tuner']
+        return self.get_config()["Tuner"]
 
     def get_preprocessor_steps(self, intent):
         """Get the preprocessor list for a given intent.
