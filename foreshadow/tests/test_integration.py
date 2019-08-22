@@ -67,7 +67,7 @@ def test_integration_binary_classification_with_optimization():
     ok = {
         "iid": True,
         "scoring": "accuracy",
-        "n_iter": 2,
+        "n_iter": 15,
         "return_train_score": True,
     }
     shadow = fs.Foreshadow(estimator=LogisticRegression(),

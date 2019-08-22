@@ -110,12 +110,20 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
             param_config = config.get_params()
             if level == 'intent':
                 params = param_config[level]
-                root = "X_preparer__intent__"
-                print(fs_pipeline.steps[0][1].steps[1][1].get_params())
-                params = {"X_"}
+                root = "X_preparer__intent___parallel_process__"
+                intent = fs_pipeline.steps[0][1].steps[1][1]
+                pd = {root+process_name[0]+"__IntentResolver__transformer":
+                              [p() for p in params] for process_name in
+                          intent._parallel_process.transformer_list}
             elif level == 'engineerer':
-                pass
+                pd = []
             elif level == 'preprocessing':
+                # TODO implement different preprocessing optimizer checks
+                #  depending on the intent that is chosen. Since we force the
+                #  optimization to be either intent, engineerer,
+                #  or preprocessing and fix the rest of the states, we can
+                #  simply call column_sharer at this point and determine it
+                #  on a per column basis.
                 pd = [
                     {
                         "X_preparer__feature_preprocessor___"

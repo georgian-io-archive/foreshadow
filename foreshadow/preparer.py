@@ -118,3 +118,19 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         out.update({"steps": steps})  # manually
         # adding steps to the get_params()
         return out
+
+    def check_columnsharer_sync(self):
+        """Ensure that all column_sharer instances remain in sync."""
+        # TODO implement this. It should be called before predict or fit.
+        #  Leverage Jing's code in the new branch to check all the
+        #  get/setparams of each child and if they have a columnsharer,
+        #  delete their instance and instead set it with this one.
+        pass
+
+    def fit(self, *args, **kwargs):
+        self.check_columnsharer_sync()
+        return super().fit(*args, **kwargs)
+
+    def predict(self, *args, **kwargs):
+        self.check_columnsharer_sync()
+        return super().fit(*args, **kwargs)

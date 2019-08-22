@@ -223,17 +223,17 @@ class Foreshadow(BaseEstimator):
             self.opt_instance = self.optimizer(
                 estimator=self.pipeline,
                 param_distributions=params,
-                **{
-                    "iid": True,
-                    "scoring": "accuracy",
-                    "n_iter": 10,
-                    "return_train_score": True,
-                }
+                **self.optimizer_kwargs,
             )
             self.tuner = Tuner(self.pipeline, params, self.opt_instance)
             self.tuner.fit(X_df, y_df)
-            print(self.pipeline.steps[0][1].steps[1][1])
             self.pipeline = self.tuner.transform(self.pipeline)
+            import pandas as pd
+            results = pd.DataFrame(self.opt_instance.cv_results_)
+            results = results[
+                [c for c in results.columns if all(s not in c for s in ["time", "params"])]
+            ]
+            print(results)
             print(self.pipeline.steps[0][1].steps[1][1])
             # extract trained preprocessors
             if self.X_preparer is not None:
