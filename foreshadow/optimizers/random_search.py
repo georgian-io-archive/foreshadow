@@ -51,7 +51,7 @@ class HyperOptRandomSampler(object):
             # import pdb; pdb.set_trace()
             sample = stoch.sample(self.param_distributions(), rng=rng)
             n_tries = 0
-            while sample not in prev_samples and n_tries < max_tries:
+            while n_tries < max_tries:
                 if sample not in prev_samples or self.max_tries is None:
                     prev_samples.append(sample)
                     break

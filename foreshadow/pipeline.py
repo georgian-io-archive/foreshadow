@@ -1,4 +1,6 @@
 """A serializable form of sklearn pipelines."""
+# flake8: noqa
+
 import inspect
 import re
 
@@ -8,7 +10,11 @@ from sklearn.pipeline import Pipeline, _fit_transform_one  # noqa: F401
 from sklearn.utils.validation import check_memory  # noqa: F401
 
 from .parallelprocessor import ParallelProcessor  # noqa: F401
-from .serializers import PipelineSerializerMixin
+from .serializers import (
+    PipelineSerializerMixin,
+    _make_deserializable,
+    _make_serializable,
+)
 
 
 # Above imports used in runtime override.

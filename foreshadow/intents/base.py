@@ -1,9 +1,10 @@
 """Base Intent for all intent definitions."""
 
 from foreshadow.base import BaseEstimator, TransformerMixin
+from foreshadow.serializers import ConcreteSerializerMixin
 
 
-class BaseIntent(BaseEstimator, TransformerMixin):
+class BaseIntent(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
     """Base for all intent definitions.
 
     For each intent subclass a class attribute called `confidence_computation`

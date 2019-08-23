@@ -43,8 +43,6 @@ def test_get_config_only_sys():
     # (If you change default configs) or file structure, you will need to
     # verify the outputs are correct manually and regenerate the pickle
     # truth file.
-    # with open(test_data_path, "wb") as fopen:
-    #     pickle.dump(config[cfg_hash], fopen)
 
     with open(test_data_path, "rb") as fopen:
         test_data = pickle.load(fopen)

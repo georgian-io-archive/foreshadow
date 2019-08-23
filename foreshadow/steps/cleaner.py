@@ -4,6 +4,9 @@ from foreshadow.smart import Cleaner, Flatten
 from .preparerstep import PreparerStep
 
 
+# flake8: noqa
+
+
 class CleanerMapper(PreparerStep):
     """Determine and perform best data cleaning step."""
 

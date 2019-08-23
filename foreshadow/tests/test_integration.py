@@ -10,7 +10,6 @@ import pytest
 def check_slow():
     import os
 
-    os.environ["FORESHADOW_TESTS"] = "ALL"
     return os.environ.get("FORESHADOW_TESTS") != "ALL"
 
 
@@ -51,16 +50,16 @@ def test_integration_binary_classification_with_optimization():
     import foreshadow as fs
     import pandas as pd
     import numpy as np
-    from sklearn.datasets import load_breast_cancer
+    from sklearn.datasets import load_iris
     from sklearn.model_selection import train_test_split
     from sklearn.linear_model import LogisticRegression
     from foreshadow.optimizers import RandomSearchCV
 
     np.random.seed(1337)
 
-    cancer = load_breast_cancer()
-    cancerX_df = pd.DataFrame(cancer.data, columns=cancer.feature_names)
-    cancery_df = pd.DataFrame(cancer.target, columns=["target"])
+    iris = load_iris()
+    cancerX_df = pd.DataFrame(iris.data, columns=iris.feature_names)
+    cancery_df = pd.DataFrame(iris.target, columns=["target"])
 
     X_train, X_test, y_train, y_test = train_test_split(
         cancerX_df, cancery_df, test_size=0.2

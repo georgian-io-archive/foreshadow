@@ -5,6 +5,7 @@ from abc import ABCMeta, abstractmethod
 from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.logging import logging
 from foreshadow.pipeline import SerializablePipeline
+from foreshadow.serializers import ConcreteSerializerMixin
 from foreshadow.utils import (
     check_df,
     get_transformer,
@@ -13,7 +14,9 @@ from foreshadow.utils import (
 )
 
 
-class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
+class SmartTransformer(
+    BaseEstimator, TransformerMixin, ConcreteSerializerMixin, metaclass=ABCMeta
+):
     """Abstract transformer class for meta transformer selection decisions.
 
     This class contains the logic necessary to determine a single transformer
@@ -74,6 +77,18 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         self.transformer = transformer
         self.check_wrapped = check_wrapped
 
+    def dict_serialize(self, deep=True):  # noqa
+        serialized = super().dict_serialize(deep=True)
+        if isinstance(self.transformer, SerializablePipeline):
+            self.__remove_redundant_transformer_item(serialized)
+        return serialized
+
+    @staticmethod
+    def __remove_redundant_transformer_item(data):
+        keys = [key for key in data if key.startswith("transformer__")]
+        for key in keys:
+            data.pop(key)
+
     @property
     def transformer(self):
         """Get the selected transformer from the SmartTransformer.
@@ -126,37 +141,6 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         """Unset resolving for all passes."""
         self.should_resolve = False
         self.force_reresolve = False
-
-    def get_params(self, deep=True):
-        """Get parameters for this estimator.
-
-        Note: self.name and self.keep_columns are provided by the wrapping
-            method
-
-        Args:
-            deep (bool): If True, will return the parameters for this estimator
-                and contained sub-objects that are estimators.
-
-        Returns:
-            Parameter names mapped to their values.
-
-        """
-        params = super().get_params(deep=deep)
-        return params
-
-    def set_params(self, **params):
-        """Set the parameters of this estimator.
-
-        Valid parameter keys can be listed with :meth:`get_params()`.
-
-        Args:
-            **params (dict): any valid parameter of this estimator
-
-        Returns:
-            see super.
-
-        """
-        return super().set_params(**params)
 
     @abstractmethod
     def pick_transformer(self, X, y=None, **fit_params):
