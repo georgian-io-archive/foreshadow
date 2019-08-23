@@ -9,8 +9,9 @@ from sklearn.pipeline import (
     _transform_one,
 )
 
-from .serializers import ConcreteSerializerMixin
 from foreshadow.base import BaseEstimator
+
+from .serializers import ConcreteSerializerMixin
 
 
 class ParallelProcessor(FeatureUnion, ConcreteSerializerMixin):
