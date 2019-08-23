@@ -9,6 +9,7 @@ from foreshadow.base import BaseEstimator
 from foreshadow.columnsharer import ColumnSharer
 from foreshadow.estimators.auto import AutoEstimator
 from foreshadow.estimators.meta import MetaEstimator
+from foreshadow.optimizers import ParamSpec, Tuner
 from foreshadow.pipeline import SerializablePipeline
 from foreshadow.preparer import DataPreparer
 from foreshadow.utils import check_df
@@ -38,12 +39,20 @@ class Foreshadow(BaseEstimator):
     """
 
     def __init__(
-        self, X_preparer=None, y_preparer=None, estimator=None, optimizer=None
+        self,
+        X_preparer=None,
+        y_preparer=None,
+        estimator=None,
+        optimizer=None,
+        optimizer_kwargs=None,
     ):
         self.X_preparer = X_preparer
         self.y_preparer = y_preparer
         self.estimator = estimator
         self.optimizer = optimizer
+        self.optimizer_kwargs = (
+            {} if optimizer_kwargs is None else optimizer_kwargs
+        )
         self.pipeline = None
         self.data_columns = None
 
@@ -77,7 +86,9 @@ class Foreshadow(BaseEstimator):
             elif isinstance(dp, DataPreparer):
                 self._X_preprocessor = dp
             else:
-                raise ValueError("Invalid value passed as X_preparer")
+                raise ValueError(
+                    "Invalid value: '{}' " "passed as X_preparer".format(dp)
+                )
         else:
             self._X_preprocessor = DataPreparer(column_sharer=ColumnSharer())
 
@@ -160,7 +171,14 @@ class Foreshadow(BaseEstimator):
         if o is None or (inspect.isclass(o) and issubclass(o, BaseSearchCV)):
             self._optimizer = o
         else:
-            raise ValueError("Invalid value passed as optimizer")
+            raise ValueError("Invalid optimizer: '{}' passed.".format(o))
+
+    def _reset(self):
+        if hasattr(self, "pipeline"):
+            del self.pipeline
+        if hasattr(self, "tuner"):
+            del self.tuner
+            del self.opt_instance
 
     def fit(self, data_df, y_df):
         """Fit the Foreshadow instance using the provided input data.
@@ -173,6 +191,7 @@ class Foreshadow(BaseEstimator):
             :obj:`Foreshadow`: The fitted instance.
 
         """
+        self._reset()
         X_df = check_df(data_df)
         y_df = check_df(y_df)
         self.data_columns = X_df.columns.values.tolist()
@@ -183,7 +202,10 @@ class Foreshadow(BaseEstimator):
 
         if self.X_preparer is not None:
             self.pipeline = SerializablePipeline(
-                [("preparer", self.X_preparer), ("estimator", self.estimator)]
+                [
+                    ("X_preparer", self.X_preparer),
+                    ("estimator", self.estimator),
+                ]
             )
         else:
             self.pipeline = SerializablePipeline(
@@ -191,17 +213,24 @@ class Foreshadow(BaseEstimator):
             )
 
         if self.optimizer is not None:
-            # Calculate parameter search space
-            # param_ranges = param_mapping(deepcopy(self.pipeline), X_df, y_df)
-
+            self.pipeline.fit(X_df, y_df)
+            params = ParamSpec(self.pipeline, X_df, y_df)
             self.opt_instance = self.optimizer(
-                self.pipeline, param_ranges  # noqa: F821
+                estimator=self.pipeline,
+                param_distributions=params,
+                **{
+                    "iid": True,
+                    "scoring": "accuracy",
+                    "n_iter": 10,
+                    "return_train_score": True,
+                }
             )
-            self.opt_instance.fit(X_df, y_df)
-            self.pipeline = self.opt_instance.best_estimator_
+            self.tuner = Tuner(self.pipeline, params, self.opt_instance)
+            self.tuner.fit(X_df, y_df)
+            self.pipeline = self.tuner.transform(self.pipeline)
             # extract trained preprocessors
             if self.X_preparer is not None:
-                self.X_preparer = self.opt_instance.best_estimator_.steps[0][1]
+                self.X_preparer = self.pipeline.steps[0][1]
             if self.y_preparer is not None:
                 self.y_preparer = self.opt_instance.best_estimator_.steps[1][
                     1

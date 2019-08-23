@@ -263,10 +263,14 @@ class PreparerStep(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
             **kwargs: kwargs to PIpeline constructor.
 
         """
+        self._parallel_process = None
+        if "_parallel_process" in kwargs:  # clone will try to init using
+            # the params from get_params, meaning this will be passed
+            # through even though its not a part of the init.
+            self._parallel_process = kwargs.pop("_parallel_process")
         self.column_sharer = column_sharer
         if self.column_sharer is None:
             self.column_sharer = ColumnSharer()
-        self._parallel_process = None
         super().__init__(**kwargs)
 
     @staticmethod
@@ -451,10 +455,7 @@ class PreparerStep(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
             transformed data handled by Pipeline._fit
 
         """
-        # TODO make fit remove a step if nothing is done, rather than a
-        #  NoTransform Transformer.
-        self.check_process(X)
-        self._parallel_process.fit(X, *args, **kwargs)
+        self.fit_transform(X, *args, **kwargs)
         return self
 
     def check_process(self, X):
@@ -464,13 +465,12 @@ class PreparerStep(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
             X: input DataFrame
 
         """
-        if self._parallel_process is None:
-            logging.debug(
-                "DataPreparerStep: {} called check_process".format(
-                    self.__class__.__name__
-                )
+        logging.debug(
+            "DataPreparerStep: {} called check_process".format(
+                self.__class__.__name__
             )
-            self._parallel_process = self.parallelize_smart_steps(X)
+        )
+        self._parallel_process = self.parallelize_smart_steps(X)
 
     def fit_transform(self, X, y=None, **fit_params):
         """Fit then transform this PreparerStep.
@@ -486,8 +486,20 @@ class PreparerStep(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
             Result from .transform()
 
         """
-        self.check_process(X)
-        return self._parallel_process.fit_transform(X, y=y, **fit_params)
+        try:
+            return self._parallel_process.fit_transform(X, y=y, **fit_params)
+        except AttributeError:
+            if getattr(self, "_parallel_process", None) is None:
+                self.check_process(X)
+        except KeyError as e:
+            if str(e).find("not in index") != -1:
+                # This indicates that a transformation step was changed and
+                # now does not correctly reflect the generated DataFrame as
+                # this step. We will thus reinitialize the _parallel_process
+                # so that the best pipeline for this step will be found.
+                self.check_process(X)
+        finally:
+            return self._parallel_process.fit_transform(X, y=y, **fit_params)
 
     def transform(self, X, *args, **kwargs):
         """Transform X using this PreparerStep.
@@ -502,7 +514,12 @@ class PreparerStep(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
         Returns:
             result from .transform()
 
+        Raises:
+            ValueError: if not fitted.
+
         """
+        if getattr(self, "_parallel_process", None) is None:
+            raise ValueError("not fitted.")
         return self._parallel_process.transform(X, *args, **kwargs)
 
     def inverse_transform(self, X, *args, **kwargs):
@@ -526,9 +543,14 @@ class PreparerStep(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
     def _get_param_names(cls):
         """Get iteratively __init__ params for all classes until PreparerStep.
 
+        Overridden to add this parent classes' params to children and to
+        include _parallel_process. _get_param_names holds the logic for
+        getting all parent params.
+
         This method is implemented as a convenience for any child. It will
         automatically climb the MRO for a child until it reaches this class
-        (the last parent who's __init__ params we care about).
+        (the last parent who's __init__ params we care about). Also adds
+        _parallel_process to the sklearn get_params API.
 
         Returns:
             params for all parents up to and including PreparerStep.
@@ -539,38 +561,6 @@ class PreparerStep(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
         while cls.__name__ != PreparerStep.__name__:
             cls = cls.__mro__[1]
             params += cls._get_param_names()
+        if "_parallel_process" not in params:
+            params += ["_parallel_process"]
         return params
-
-    def get_params(self, deep=True):
-        """See super.
-
-        Overridden to add this parent classes' params to children and to
-        include _parallel_process. _get_param_names holds the logic for
-        getting all parent params.
-
-        Args:
-            deep:  See super.
-
-        Returns:
-            See super.
-
-        """
-        params = super().get_params(deep=deep)
-        params.update(
-            {"_parallel_process": getattr(self, "_parallel_process", None)}
-        )
-        return params
-
-    def set_params(self, **params):
-        """See super.
-
-        Overridden to afld this parent classes' params to children and to
-        include _parallel_process. _get_param_names holds the logic for
-        getting all parent params.
-
-        Args:
-            **params: see super.
-
-        """
-        self._parallel_process = params.pop("_parallel_process", None)
-        super().set_params(**params)

@@ -109,47 +109,6 @@ def pandas_wrap(transformer):  # noqa: C901
 
             self.is_wrapped = True
 
-        def get_params(self, deep=True):
-            """Override standard get_params to handle nonstandard init.
-
-            BaseEstimator for sklearn gets and sets parameters based on the
-            init statement for that class. Since this class is used to wrap
-            a parent transformer (by OOP), we use the parent's init
-            statement and then this DFTransformer's additional arguments.
-            We must override _get_param_names so that this method captures
-            the parent's __init__.
-
-            Args:
-                deep (bool): If True, will return the parameters for this
-                    estimator and contained sub-objects that are estimators.
-
-            Returns:
-                Parameter names mapped to their values for parent +
-                DFTransformer wrapper.
-
-            """
-            params = super().get_params(deep=deep)
-            return params
-
-        def set_params(self, **params):
-            """Override standard set_params to handle nonstandard init.
-
-            BaseEstimator for sklearn gets and sets parameters based on the
-            init statement for that class. Since this class is used to wrap
-            a parent transformer (by OOP), we use the parent's init
-            statement and then this DFTransformer's additional arguments.
-            We must override _get_param_names so that this method captures
-            the parent's __init__.
-
-            Args:
-                **params: params to init.
-
-            Returns:
-                See super.
-
-            """
-            return super().set_params(**params)
-
         def fit(self, X, *args, **kwargs):
             """Fit the estimator or transformer, pandas enabled.
 

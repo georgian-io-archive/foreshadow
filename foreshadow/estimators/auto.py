@@ -315,31 +315,6 @@ class AutoEstimator(BaseEstimator):
         y = check_df(y)
         return self.estimator.score(X, y)
 
-    def get_params(self, deep=True):
-        """Get params for this object. See super.
-
-        Args:
-            deep: True to recursively call get_params, False to not.
-
-        Returns:
-            params for this object.
-
-        """
-        params = super().get_params(deep=deep)
-        return params
-
-    def set_params(self, **params):
-        """Set params for this object. See super.
-
-        Args:
-            **params: params to set.
-
-        Returns:
-            See super.
-
-        """
-        return super().set_params(**params)
-
 
 def determine_problem_type(y):
     """Determine modeling problem type.
