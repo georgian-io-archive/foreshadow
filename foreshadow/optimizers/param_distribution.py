@@ -89,6 +89,7 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
             fs_pipeline: Foreshadow.pipeline
             X_df: input DataFrame of data points
             y_df: input DataFrame of labels
+            level: level for automatic tuning.
 
         Raises:
             ValueError: if either all kwargs are not passed or all aren't
@@ -123,10 +124,17 @@ class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
                 intent = fs_pipeline.steps[0][1].steps[1][1]
                 pd = {
                     root
-                    + process_name[0]
+                    + proc_name[0]
                     + "__IntentResolver__transformer": [p() for p in params]
-                    for process_name in intent._parallel_process.transformer_list
+                    for proc_name in intent._parallel_process.transformer_list
                 }
+                # root is the path to the intent object from the root pipeline.
+                # intent is the IntentMapper object (preparer step).
+                # proc_name is the name for a given group of columns in the
+                # intent's parallel process
+                # Then we specify the IntentResolver's transformer with each
+                # of the possible intents listed in the default params space
+                # from config.
             elif level == "engineerer":
                 pd = []
             elif level == "preprocessing":

@@ -128,9 +128,41 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         pass
 
     def fit(self, *args, **kwargs):
+        """Fit the sklearn pipeline and ensure columnsharer's are shared.
+
+        Uses self.check_columnsharer_sync() to ensure that the columnsharer
+        object is kept in sync with all subobjects in the nested pipelines.
+        This may be an issue when this pipeline is cloned, as the
+        initialization through sklearn's internal clone may not yet play
+        nice with our internal init synchronization protocol.
+
+        Args:
+            *args: See super.
+            **kwargs: See super.
+
+        Returns:
+            See super.
+
+        """
         self.check_columnsharer_sync()
         return super().fit(*args, **kwargs)
 
     def predict(self, *args, **kwargs):
+        """Predict using sklearn pipeline and ensure columnsharer's are shared.
+
+        Uses self.check_columnsharer_sync() to ensure that the columnsharer
+        object is kept in sync with all subobjects in the nested pipelines.
+        This may be an issue when this pipeline is cloned, as the
+        initialization through sklearn's internal clone may not yet play
+        nice with our internal init synchronization protocol.
+
+        Args:
+            *args: See super.
+            **kwargs: See super.
+
+        Returns:
+            See super.
+
+        """
         self.check_columnsharer_sync()
         return super().fit(*args, **kwargs)

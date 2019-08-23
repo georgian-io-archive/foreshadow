@@ -183,6 +183,13 @@ class ConfigStore(MutableMapping):
         return self.get_config()["Tiebreak"]
 
     def get_params(self):
+        """Get the default automatic param distribution for each level.
+
+        Returns:
+            list: A dict of lists representing the param distribution for a
+            given level.
+
+        """
         return self.get_config()["Tuner"]
 
     def get_preprocessor_steps(self, intent):
