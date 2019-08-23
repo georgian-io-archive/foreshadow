@@ -1,5 +1,4 @@
 """Data preparation and foreshadow pipeline."""
-# flake8: noqa
 
 import inspect
 
@@ -101,18 +100,7 @@ class DataPreparer(
 
         self.column_sharer = column_sharer
         self.y_var = y_var
-        # modeler_kwargs_ = _none_to_dict(
-        #     "modeler_kwargs", modeler_kwargs, column_sharer
-        # )
         super().__init__(steps, **kwargs)
-
-    # def dict_serialize(self, deep=True):
-    #     serialized = super().dict_serialize(deep=deep)
-    #     import pdb;pdb.set_trace()
-    #     steps = serialized["steps"]
-    #     steps_reformatted = [{step[0]: step[1]} for step in steps]
-    #     serialized["steps"] = steps_reformatted
-    #     return serialized
 
     def _get_params(self, attr, deep=True):
         # attr will be 'steps' if called from pipeline.get_params()
@@ -122,36 +110,16 @@ class DataPreparer(
         # adding steps to the get_params()
         return out
 
-    # def dict_serialize(self, deep=False):
-    #     """Serialize the init parameters (dictionary form) of a pipeline.
-    #
-    #     This method removes redundant column_sharers in the individual
-    #     steps.
-    #
-    #     Note:
-    #         This recursively serializes the individual steps to facilitate a
-    #         human readable form.
-    #
-    #     Args:
-    #         deep (bool): If True, will return the parameters for this estimator
-    #             recursively
-    #
-    #     Returns:
-    #         dict: The initialization parameters of the pipeline.
-    #
-    #     """
-    #     serialized = super().dict_serialize(deep=deep)
-    #     column_sharer_serialized = serialized.pop("column_sharer", None)
-    #     # Remove all instance of column_sharer from the serialized recursively.
-    #     serialized = self.__remove_key_from(serialized, target="column_sharer")
-    #     # Add back the column_sharer in the end only once.
-    #     serialized["column_sharer"] = column_sharer_serialized
-    #     return serialized
-
     def dict_serialize(self, deep=True):
-        import pdb
+        """Serialize the data preparer.
 
-        pdb.set_trace()
+        Args:
+            deep: see super.
+
+        Returns:
+            dict: serialized data preparer.
+
+        """
         params = self.get_params(deep=deep)
         selected_params = self.__create_selected_params(params)
         serialized = _make_serializable(
@@ -168,6 +136,15 @@ class DataPreparer(
 
     @classmethod
     def dict_deserialize(cls, data):
+        """Deserialize the data preparer.
+
+        Args:
+            data: serialized data preparer in JSON format.
+
+        Returns:
+            a reconstructed data preparer.
+
+        """
         params = _make_deserializable(data)
         params["steps"] = [list(step.items())[0] for step in params["steps"]]
         deserialized = cls(**params)
@@ -177,10 +154,25 @@ class DataPreparer(
         return deserialized
 
     def configure_column_sharer(self, column_sharer):
+        """Configure column sharer for all the underlying components recursively.
+
+        Args:
+            column_sharer: the column sharer instance.
+
+        """
         for step in self.steps:
             step[1].configure_column_sharer(column_sharer)
 
     def __create_selected_params(self, params):
+        """Extract params in the init method signature plus the steps.
+
+        Args:
+            params: params returned from get_params
+
+        Returns:
+            dict: selected params
+
+        """
         init_params = inspect.signature(self.__init__).parameters
         selected_params = {
             name: params.pop(name)
@@ -191,6 +183,18 @@ class DataPreparer(
         return selected_params
 
     def __remove_key_from(self, data, target="column_sharer"):
+        """Remove all column sharer block recursively from serialized data preparer.
+
+        Only the column sharer in the data preparer is preserved.
+
+        Args:
+            data: serialized data preparer (raw)
+            target: string that should match as a suffix of a key
+
+        Returns:
+            dict: a cleaned up serialized data preparer
+
+        """
         if isinstance(data, dict):
             matching_keys = [key for key in data if key.endswith(target)]
             for mk in matching_keys:

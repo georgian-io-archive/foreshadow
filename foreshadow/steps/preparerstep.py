@@ -278,11 +278,28 @@ class PreparerStep(
             self.column_sharer = ColumnSharer()
         super().__init__(**kwargs)
 
-    def configure_column_sharer(self, column_sharer):  # noqa
-        self.column_sharer = column_sharer
+    def configure_column_sharer(self, column_sharer):
+        """Recursively configure column sharer attribute.
+
+        Args:
+            column_sharer:  a column sharer instance.
+
+        """
+        super().configure_column_sharer(column_sharer)
         self._parallel_process.configure_column_sharer(column_sharer)
 
-    def dict_serialize(self, deep=True):  # noqa
+    def dict_serialize(self, deep=True):
+        """Serialize the preparestep.
+
+        It renames transformer_list to transformation_by_column_group.
+
+        Args:
+            deep: see super
+
+        Returns:
+            a serialized preparestep.
+
+        """
         selected_params = self.get_params(deep=deep)["_parallel_process"]
         serialized = _make_serializable(
             selected_params, serialize_args=self.serialize_params
@@ -293,11 +310,17 @@ class PreparerStep(
         return serialized
 
     @classmethod
-    def dict_deserialize(cls, data):  # noqa
-        params = _make_deserializable(data)
-        import pdb
+    def dict_deserialize(cls, data):
+        """Deserialize the transformer by reconstructing the parallel processor.
 
-        pdb.set_trace()
+        Args:
+            data: serialized preparestep
+
+        Returns:
+            a reconstructed preparestep
+
+        """
+        params = _make_deserializable(data)
         parallel_processor = cls.reconstruct_parallel_process(params)
         reconstructed_params = {"_parallel_process": parallel_processor}
         ret_tf = cls()
@@ -305,10 +328,16 @@ class PreparerStep(
         return ret_tf
 
     @classmethod
-    def reconstruct_parallel_process(cls, data):  # noqa
-        import pdb
+    def reconstruct_parallel_process(cls, data):
+        """Reconstruct the parallel process in a preparestep.
 
-        pdb.set_trace()
+        Args:
+            data: serialized block of a parallel process
+
+        Returns:
+            a reconstructed parallel processor
+
+        """
         n_jobs = data["n_jobs"]
         transformer_weights = data["transformer_weights"]
         collapse_index = data["collapse_index"]
@@ -438,9 +467,6 @@ class PreparerStep(
             as good as possible.
 
         """
-        import pdb
-
-        pdb.set_trace()
         column_mapping = self.get_mapping(X)
         logging.debug(
             self.logging_name() + "column_mapping: {}".format(column_mapping)

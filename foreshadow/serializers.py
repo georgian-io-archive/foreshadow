@@ -71,9 +71,6 @@ def _make_deserializable(data):
         dict: A dictionary with complex objects reconstructed as necessary.
 
     """
-    # import pdb
-    #
-    # pdb.set_trace()
     if isinstance(data, dict):
         if any("py/" in s for s in data.keys()):
             return _unpickler.restore(data)
@@ -157,9 +154,6 @@ def _obj_deserializer_helper(data):
         The constructed class.
 
     """
-    # import pdb
-    #
-    # pdb.set_trace()
     pickle_class = data.get("_pickled_class")
     if pickle_class is not None:
         transformer = _unpickle_inline_repr(pickle_class)
@@ -236,9 +230,6 @@ class BaseTransformerSerializer:
             ValueError: If the method is not in `OPTIONS`
 
         """
-        # import pdb
-        #
-        # pdb.set_trace()
         method = data.pop("_method")  # TODO: add malformed serialization error
         _ = data.pop("_class", None)
         if method in cls.OPTIONS:
@@ -301,13 +292,7 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             object: A re-constructed transformer
 
         """
-        # import pdb
-        #
-        # pdb.set_trace()
         params = _make_deserializable(data)
-        # TODO here we will need to reconstruct the params so it becomes usable
-        # by the set_params.
-        # import pdb; pdb.set_trace()
         pickle_class = params.pop("_pickled_class", None)
         if pickle_class is not None:
             pickle_class = _unpickle_inline_repr(pickle_class)
@@ -317,15 +302,9 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             # for Pipelines and therefore we cannot use default
             # init method (assuming no required args) to initialize
             # an instance then call set_params.
-            import pdb
-
-            pdb.set_trace()
             if issubclass(cls, PipelineSerializerMixin):
                 return cls(**params)
             else:
-                import pdb
-
-                pdb.set_trace()
                 ret_tf = cls()
                 ret_tf.set_params(**params)
 
@@ -468,10 +447,21 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
 class PipelineSerializerMixin(ConcreteSerializerMixin):
     """An custom serialization method to allow pipelines serialization."""
 
-    def dict_serialize(self, deep=False):  # noqa
+    def dict_serialize(self, deep=False):
+        """Serialize a pipeline by serializing selected fields.
+
+        Steps in the pipeline are reformatted as {"step_name": step}
+
+        Args:
+            deep: see super
+
+        Returns:
+            dict: serialized pipeline
+
+        """
         to_serialize = {}
         all_params = self.get_params(deep=deep)
-        to_serialize["memory"] = all_params.pop("memory")
+        to_serialize["memory"] = all_params.pop("memory", None)
         to_serialize["steps"] = all_params.pop("steps")
         serialized = _make_serializable(
             to_serialize, serialize_args=self.serialize_params
@@ -482,12 +472,20 @@ class PipelineSerializerMixin(ConcreteSerializerMixin):
         return serialized
 
     @classmethod
-    def dict_deserialize(cls, data):  # noqa
+    def dict_deserialize(cls, data):
+        """Deserialize pipeline from JSON.
+
+        Steps in the pipeline are reformatted to [("step_name": step), ...]
+
+        Args:
+            data: the serailzied pipeline.
+
+        Returns:
+            a reconstructed pipeline
+
+        """
         params = _make_deserializable(data)
         params["steps"] = [list(step.items())[0] for step in params["steps"]]
-        import pdb
-
-        pdb.set_trace()
         return cls(**params)
 
 

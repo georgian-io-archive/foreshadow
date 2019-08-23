@@ -142,11 +142,6 @@ class SmartTransformer(
 
         self._transformer = value
 
-    # def dict_serialize(self, deep=True):
-    #     params = self.get_params(deep=deep)
-    #     import pdb;
-    #     return super().dict_serialize(deep=deep)
-
     def get_params(self, deep=True):
         """Get parameters for this estimator.
 

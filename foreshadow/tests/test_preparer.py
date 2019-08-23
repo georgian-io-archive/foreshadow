@@ -88,14 +88,11 @@ def test_data_preparer_serialization_has_one_column_sharer():
 
     boston_path = get_file_path("data", "boston_housing.csv")
     data = pd.read_csv(boston_path)
-    # data = data.drop(columns=["indus", "ptratio", "tax"])
-    data = data[["crim"]]
 
     cs = ColumnSharer()
     dp = DataPreparer(cs)
     dp.fit(data)
 
-    dp.to_json("data_preparerer_deep_true3.json", deep=True)
     dp_serialized = dp.serialize(method="dict", deep=True)
 
     key_name = "column_sharer"
@@ -114,15 +111,8 @@ def test_data_preparer_serialization_has_one_column_sharer():
 
     check_has_no_column_sharer(dp_serialized, key_name)
 
-    # cs.to_json("column_sharer.json", deep=True)
-    # cs2 = ColumnSharer.from_json("column_sharer.json")
-    #
-    # assert cs == cs2
-    # dp.to_json("data_preparerer_deep_true3.json", deep=True)
-    # dp.to_yaml("data_preparerer_deep_true2.yaml", deep=True)
 
-
-@pytest.mark.skip(reason="still in progress on fixing one tricky issue")
+@pytest.mark.skip(reason="skipped due to tuple/list deserialization")
 def test_data_preparer_deserialization():
     from foreshadow.preparer import DataPreparer
     from foreshadow.columnsharer import ColumnSharer
@@ -130,40 +120,17 @@ def test_data_preparer_deserialization():
 
     boston_path = get_file_path("data", "boston_housing.csv")
     data = pd.read_csv(boston_path)
-    # data = data.drop(columns=["indus", "ptratio", "tax"])
-    data = data[["crim", "indus", "ptratio"]]
 
     cs = ColumnSharer()
     dp = DataPreparer(cs)
     dp.fit(data)
-    data_transformed = dp.transform(data)
-    print(data_transformed)
 
     dp.steps[0][1]._parallel_process.to_json(
         "parallel_process.json", deep=True
     )
     dp.to_json("data_preparerer_deep_true4.json", deep=True)
-    import pdb
+    # dp2 = DataPreparer.from_json("data_preparerer_deep_true4.json")
 
-    pdb.set_trace()
-    dp2 = DataPreparer.from_json("data_preparerer_deep_true4.json")
-    dp2.to_json("data_preparerer_deep_true5.json", deep=True)
-    import pdb
-
-    pdb.set_trace()
-    dp2_serialized = dp2.serialize(deep=True)
-    dp_serialized = dp.serialize(deep=True)
-
-    import json
-
-    with open("dp_serialized.json", "w") as f1:
-        json.dump(dp_serialized, f1)
-
-    with open("dp_serialized2.json", "w") as f2:
-        json.dump(dp2_serialized, f2)
-
-    import pdb
-
-    pdb.set_trace()
-
-    assert dp_serialized == dp2_serialized
+    # dp2_serialized = dp2.serialize(deep=True)
+    # dp_serialized = dp.serialize(deep=True)
+    # assert dp_serialized == dp2_serialized
