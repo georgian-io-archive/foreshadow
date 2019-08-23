@@ -59,6 +59,7 @@ sphinx_rtd_theme = { version ="^0.4.1", optional = true }
 sphinxcontrib-plantuml = { version ="^0.16.1", optional = true }
 docutils = { version ="<0.15.1", optional= true }  # hot fix: https://github.com/sdispater/poetry/issues/1194
 patchy = "^1.5"
+hyperopt = "^0.1.2"
 
 [tool.poetry.dev-dependencies]
 # Linting
