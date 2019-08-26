@@ -112,7 +112,6 @@ def test_data_preparer_serialization_has_one_column_sharer():
     check_has_no_column_sharer(dp_serialized, key_name)
 
 
-@pytest.mark.skip(reason="skipped due to tuple/list deserialization")
 def test_data_preparer_deserialization():
     from foreshadow.preparer import DataPreparer
     from foreshadow.columnsharer import ColumnSharer
@@ -120,17 +119,19 @@ def test_data_preparer_deserialization():
 
     boston_path = get_file_path("data", "boston_housing.csv")
     data = pd.read_csv(boston_path)
+    # data = data[["crim", "indus", "ptratio", "tax", "zn"]]
+    # data = data[["nox"]]
 
     cs = ColumnSharer()
     dp = DataPreparer(cs)
     dp.fit(data)
+    data_transformed = dp.transform(data)
+    dp.to_json("data_preparerer_deep_true.json", deep=True)
 
-    dp.steps[0][1]._parallel_process.to_json(
-        "parallel_process.json", deep=True
-    )
-    dp.to_json("data_preparerer_deep_true4.json", deep=True)
-    # dp2 = DataPreparer.from_json("data_preparerer_deep_true4.json")
+    dp2 = DataPreparer.from_json("data_preparerer_deep_true.json")
+    dp2.fit(data)
+    data_transformed2 = dp2.transform(data)
 
-    # dp2_serialized = dp2.serialize(deep=True)
-    # dp_serialized = dp.serialize(deep=True)
-    # assert dp_serialized == dp2_serialized
+    from pandas.util.testing import assert_frame_equal
+
+    assert_frame_equal(data_transformed, data_transformed2)
