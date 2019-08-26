@@ -79,8 +79,7 @@ class SmartTransformer(
 
     def dict_serialize(self, deep=True):  # noqa
         serialized = super().dict_serialize(deep=True)
-        if isinstance(self.transformer, SerializablePipeline):
-            self.__remove_redundant_transformer_item(serialized)
+        self.__remove_redundant_transformer_item(serialized)
         return serialized
 
     @staticmethod

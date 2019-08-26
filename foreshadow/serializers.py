@@ -74,9 +74,8 @@ def _make_deserializable(data):
     if isinstance(data, dict):
         if any("py/" in s for s in data.keys()):
             return _unpickler.restore(data)
-        if any("method" in s for s in data.keys()):
-            # TODO why is this?
-            # return _obj_deserializer_helper(data)
+        if any("_method" == s for s in data.keys()):
+            # TODO add test, watch out for keys like 'hash_method'
             return deserialize(data)
         else:
             new_data = {}
