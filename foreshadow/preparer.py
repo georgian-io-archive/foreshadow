@@ -52,7 +52,7 @@ def _none_to_dict(name, val, column_sharer=None):
 class DataPreparer(
     Pipeline, PipelineSerializerMixin, ConfigureColumnSharerMixin
 ):
-    """Predefined pipeline for the foreshadow workflow."""
+    """Predefined pipeline for the foreshadow workflow.
 
     1. Cleaning
     2. Intent selection (data type, one of Categorical, Numerical, and Text)
