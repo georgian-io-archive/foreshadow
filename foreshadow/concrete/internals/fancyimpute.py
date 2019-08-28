@@ -43,7 +43,7 @@ class FancyImputer(BaseEstimator, TransformerMixin):
         self.imputer = self.cls(**self.impute_kwargs)
 
     def get_params(self, deep=True):
-        """Get parameters for this estimator.
+        """Get parameters for this transformer.
 
         Args:
             deep (bool): If True, will return the parameters for this estimator
@@ -56,7 +56,7 @@ class FancyImputer(BaseEstimator, TransformerMixin):
         return super().get_params(deep=deep)
 
     def set_params(self, **params):
-        """Set the parameters of this estimator.
+        """Set the parameters of this transformer.
 
         Valid parameter keys can be listed with :meth:`get_params()`.
 

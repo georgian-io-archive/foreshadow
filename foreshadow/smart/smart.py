@@ -98,11 +98,6 @@ class SmartTransformer(
         """
         return self._transformer
 
-    def unset_resolve(self):
-        """Unset resolving for all passes."""
-        self.should_resolve = False
-        self.force_reresolve = False
-
     @transformer.setter
     def transformer(self, value):
         """Validate transformer initialization.
@@ -141,36 +136,10 @@ class SmartTransformer(
 
         self._transformer = value
 
-    def get_params(self, deep=True):
-        """Get parameters for this estimator.
-
-        Note: self.name and self.keep_columns are provided by the wrapping
-            method
-
-        Args:
-            deep (bool): If True, will return the parameters for this estimator
-                and contained sub-objects that are estimators.
-
-        Returns:
-            Parameter names mapped to their values.
-
-        """
-        params = super().get_params(deep=deep)
-        return params
-
-    def set_params(self, **params):
-        """Set the parameters of this estimator.
-
-        Valid parameter keys can be listed with :meth:`get_params()`.
-
-        Args:
-            **params (dict): any valid parameter of this estimator
-
-        Returns:
-            see super.
-
-        """
-        return super().set_params(**params)
+    def unset_resolve(self):
+        """Unset resolving for all passes."""
+        self.should_resolve = False
+        self.force_reresolve = False
 
     @abstractmethod
     def pick_transformer(self, X, y=None, **fit_params):

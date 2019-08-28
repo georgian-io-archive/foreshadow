@@ -54,6 +54,24 @@ class DataPreparer(
 ):
     """Predefined pipeline for the foreshadow workflow."""
 
+    1. Cleaning
+    2. Intent selection (data type, one of Categorical, Numerical, and Text)
+    3. Engineering (Based on intent. Feature generation and reduction)
+    4. Preprocessing (Based on intent. Scaling, one hot encoding, etc.)
+    5. Reducing (loosely based on intent. Dimensionality reduction).
+
+    In customizing any of the components within these steps:
+        concrete transformers, SmartTransformers, their params, etc.,
+    the produced columns may change. This entire workflow uses column
+    names to assign steps to their associated columns, so, changing
+    components of this workflow may change the column names in the case
+    that column names were generated for your column based on the
+    processing step. In this event, if the we will reinstantiate the
+    entire step (cleaner, intent, etc.) for the column only when necessary.
+    """
+
+    # TODO In the future, we will attempt to make this smarter by only
+    #  modifiying the specific transformers needed within each step.
     def __init__(
         self,
         column_sharer=None,
@@ -62,7 +80,6 @@ class DataPreparer(
         engineerer_kwargs=None,
         preprocessor_kwargs=None,
         reducer_kwargs=None,
-        modeler_kwargs=None,
         y_var=None,
         **kwargs
     ):

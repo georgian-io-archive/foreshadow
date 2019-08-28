@@ -114,7 +114,6 @@ def test_json():
             "json_random",
         ],
     )
-    print(data.values, check.values)
     assert np.all(
         np.equal(data.values[data.notna()], check.values[check.notna()])
     )

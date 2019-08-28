@@ -64,13 +64,13 @@ class FixedLabelEncoder(BaseEstimator, TransformerMixin):
         return self.encoder.inverse_transform(X)
 
     def get_params(self, deep=True):
-        """Get parameters for this estimator. See super.
+        """Get parameters for this transformer. See super.
 
         Args:
             deep: deep to super get_params
 
         Returns:
-            Params for this estimator. See super.
+            Params for this transformer. See super.
 
         """
         params = super().get_params(deep=deep)
@@ -81,10 +81,10 @@ class FixedLabelEncoder(BaseEstimator, TransformerMixin):
         return params
 
     def set_params(self, **params):
-        """Set parameters for this estimator. See super.
+        """Set parameters for this transformer. See super.
 
         Args:
-            **params: params to set on this estimator.
+            **params: params to set on this transformer.
 
         """
         self.encoder = params.pop("encoder")
