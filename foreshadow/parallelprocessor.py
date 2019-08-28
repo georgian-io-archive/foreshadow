@@ -16,8 +16,6 @@ from foreshadow.utils.common import ConfigureColumnSharerMixin
 
 from .serializers import PipelineSerializerMixin, _make_serializable
 
-from .serializers import ConcreteSerializerMixin
-
 
 class ParallelProcessor(
     FeatureUnion, PipelineSerializerMixin, ConfigureColumnSharerMixin
