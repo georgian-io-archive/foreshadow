@@ -1,8 +1,14 @@
 """Data preparation and foreshadow pipeline."""
 
+import inspect
+
 from sklearn.pipeline import Pipeline
 
-from foreshadow.pipeline import PipelineSerializerMixin
+from foreshadow.serializers import (
+    PipelineSerializerMixin,
+    _make_deserializable,
+    _make_serializable,
+)
 from foreshadow.steps import (
     CleanerMapper,
     FeatureEngineererMapper,
@@ -10,6 +16,7 @@ from foreshadow.steps import (
     IntentMapper,
     Preprocessor,
 )
+from foreshadow.utils.common import ConfigureColumnSharerMixin
 
 from .concrete import NoTransform
 
@@ -42,8 +49,10 @@ def _none_to_dict(name, val, column_sharer=None):
     return val
 
 
-class DataPreparer(Pipeline, PipelineSerializerMixin):
-    """Predefined pipeline for foreshadow workflow. This Pipeline has 5 steps.
+class DataPreparer(
+    Pipeline, PipelineSerializerMixin, ConfigureColumnSharerMixin
+):
+    """Predefined pipeline for the foreshadow workflow.
 
     1. Cleaning
     2. Intent selection (data type, one of Categorical, Numerical, and Text)
@@ -72,7 +81,7 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         preprocessor_kwargs=None,
         reducer_kwargs=None,
         y_var=None,
-        **kwargs,
+        **kwargs
     ):
         cleaner_kwargs_ = _none_to_dict(
             "cleaner_kwargs", cleaner_kwargs, column_sharer
@@ -117,3 +126,106 @@ class DataPreparer(Pipeline, PipelineSerializerMixin):
         out.update({"steps": steps})  # manually
         # adding steps to the get_params()
         return out
+
+    def dict_serialize(self, deep=True):
+        """Serialize the data preparer.
+
+        Args:
+            deep: see super.
+
+        Returns:
+            dict: serialized data preparer.
+
+        """
+        params = self.get_params(deep=deep)
+        selected_params = self.__create_selected_params(params)
+        serialized = _make_serializable(
+            selected_params, serialize_args=self.serialize_params
+        )
+        column_sharer_serialized = serialized.pop("column_sharer", None)
+        serialized = self.__remove_key_from(serialized, target="column_sharer")
+        # Add back the column_sharer in the end only once.
+        serialized["column_sharer"] = column_sharer_serialized
+        steps = serialized["steps"]
+        steps_reformatted = [{step[0]: step[1]} for step in steps]
+        serialized["steps"] = steps_reformatted
+        return serialized
+
+    @classmethod
+    def dict_deserialize(cls, data):
+        """Deserialize the data preparer.
+
+        Args:
+            data: serialized data preparer in JSON format.
+
+        Returns:
+            a reconstructed data preparer.
+
+        """
+        params = _make_deserializable(data)
+        params["steps"] = [list(step.items())[0] for step in params["steps"]]
+        deserialized = cls(**params)
+
+        deserialized.configure_column_sharer(deserialized.column_sharer)
+
+        return deserialized
+
+    def configure_column_sharer(self, column_sharer):
+        """Configure column sharer for all the underlying components recursively.
+
+        Args:
+            column_sharer: the column sharer instance.
+
+        """
+        for step in self.steps:
+            step[1].configure_column_sharer(column_sharer)
+
+    def __create_selected_params(self, params):
+        """Extract params in the init method signature plus the steps.
+
+        Args:
+            params: params returned from get_params
+
+        Returns:
+            dict: selected params
+
+        """
+        init_params = inspect.signature(self.__init__).parameters
+        selected_params = {
+            name: params.pop(name)
+            for name in init_params
+            if name not in ["self", "kwargs"]
+        }
+        selected_params["steps"] = params.pop("steps")
+        return selected_params
+
+    def __remove_key_from(self, data, target="column_sharer"):
+        """Remove all column sharer block recursively from serialized data preparer.
+
+        Only the column sharer in the data preparer is preserved.
+
+        Args:
+            data: serialized data preparer (raw)
+            target: string that should match as a suffix of a key
+
+        Returns:
+            dict: a cleaned up serialized data preparer
+
+        """
+        if isinstance(data, dict):
+            matching_keys = [key for key in data if key.endswith(target)]
+            for mk in matching_keys:
+                del data[mk]
+            data = {
+                key: self.__remove_key_from(data[key], target=target)
+                for key in data
+            }
+        elif isinstance(data, list):
+            data = [
+                self.__remove_key_from(item, target=target) for item in data
+            ]
+        return data
+
+
+if __name__ == "__main__":
+    pass

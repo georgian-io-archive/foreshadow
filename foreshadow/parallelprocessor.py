@@ -1,5 +1,7 @@
 """Foreshadow extension of feature union for handling dataframes."""
 
+import inspect
+
 import pandas as pd
 from sklearn.externals.joblib import Parallel, delayed
 from sklearn.pipeline import (
@@ -10,11 +12,14 @@ from sklearn.pipeline import (
 )
 
 from foreshadow.base import BaseEstimator
+from foreshadow.utils.common import ConfigureColumnSharerMixin
 
-from .serializers import ConcreteSerializerMixin
+from .serializers import PipelineSerializerMixin, _make_serializable
 
 
-class ParallelProcessor(FeatureUnion, ConcreteSerializerMixin):
+class ParallelProcessor(
+    FeatureUnion, PipelineSerializerMixin, ConfigureColumnSharerMixin
+):
     """Class to support parallel operation on dataframes.
 
     This class functions similarly to a FeatureUnion except it divides a given
@@ -60,6 +65,80 @@ class ParallelProcessor(FeatureUnion, ConcreteSerializerMixin):
         super(ParallelProcessor, self).__init__(
             transformer_list, n_jobs, transformer_weights
         )
+
+    def dict_serialize(self, deep=True):
+        """Serialize the selected params of parallel_process.
+
+        Args:
+            deep (bool): see super
+
+        Returns:
+            dict: parallel_process serialized in customized form.
+
+        """
+        params = self.get_params(deep=deep)
+        selected_params = self.__create_selected_params(params)
+
+        return _make_serializable(
+            selected_params, serialize_args=self.serialize_params
+        )
+
+    def configure_column_sharer(self, column_sharer):
+        """Configure column sharer in each dynamic pipeline of the transformer_list.
+
+        Args:
+            column_sharer: a column_sharer instance
+
+        """
+        for transformer_triple in self.transformer_list:
+            dynamic_pipeline = transformer_triple[1]
+            for step in dynamic_pipeline.steps:
+                step[1].column_sharer = column_sharer
+
+    def __create_selected_params(self, params):
+        """Select only the params in the init signature.
+
+        Args:
+            params: params returned from the get_params method.
+
+        Returns:
+            dict: params that are in the init method signature.
+
+        """
+        init_params = inspect.signature(self.__init__).parameters
+        selected_params = {
+            name: params.pop(name) for name in init_params if name != "self"
+        }
+        selected_params["transformer_list"] = self.__convert_transformer_list(
+            selected_params["transformer_list"]
+        )
+        return selected_params
+
+    @staticmethod
+    def __convert_transformer_list(transformer_list):
+        """Convert the transformer list into a desired form.
+
+        Initially the transformer list has a form of
+        [("group_num", dynamic_pipeline, ["col1", "col2", ...]), ...].
+
+        We convert it into a form of
+        [{"col1,col2,col3,...": dynamic_pipeline}, ...].
+
+        Args:
+            transformer_list: the transformer list in the parallel_processor
+
+        Returns:
+            list: converted transformer list.
+
+        """
+        result = []
+        for transformer_triple in transformer_list:
+            converted = {}
+            column_groups = transformer_triple[2]
+            dynamic_pipeline = transformer_triple[1]
+            converted[",".join(column_groups)] = dynamic_pipeline
+            result.append(converted)
+        return result
 
     def get_params(self, deep=True):
         """Return parameters of internal transformers.

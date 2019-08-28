@@ -38,12 +38,13 @@ def _make_serializable(data, serialize_args={}):
         return data
     except TypeError:
         if isinstance(data, dict):
-            return {
+            result = {
                 k: _make_serializable(v, serialize_args=serialize_args)
                 for k, v in data.items()
             }
-        elif hasattr(data, "__next__"):
-            return [
+        # elif hasattr(data, "__iter__"):  # I don't think __next__ is correct
+        elif isinstance(data, (list, tuple)):
+            result = [
                 _make_serializable(v, serialize_args=serialize_args)
                 for v in data
             ]
@@ -52,9 +53,11 @@ def _make_serializable(data, serialize_args={}):
             # serialize it using the same args that were passed into the top
             # level serialize method
             if hasattr(data, "serialize"):
-                return data.serialize(**serialize_args)
+                result = data.serialize(**serialize_args)
             else:
-                return _pickler.flatten(data)
+                result = _pickler.flatten(data)
+
+        return result
 
 
 def _make_deserializable(data):
@@ -71,8 +74,9 @@ def _make_deserializable(data):
     if isinstance(data, dict):
         if any("py/" in s for s in data.keys()):
             return _unpickler.restore(data)
-        if any("method" in s for s in data.keys()):
-            return _obj_deserializer_helper(data)
+        if any("_method" == s for s in data.keys()):
+            # TODO add test, watch out for keys like 'hash_method'
+            return deserialize(data)
         else:
             new_data = {}
             for k, v in data.items():
@@ -271,8 +275,9 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
             dict: The initialization parameters of the transformer.
 
         """
+        to_serialize = self.get_params(deep)
         return _make_serializable(
-            self.get_params(deep), serialize_args=self.serialize_params
+            to_serialize, serialize_args=self.serialize_params
         )
 
     @classmethod
@@ -440,21 +445,45 @@ class PipelineSerializerMixin(ConcreteSerializerMixin):
     """An custom serialization method to allow pipelines serialization."""
 
     def dict_serialize(self, deep=False):
-        """Serialize the init parameters (dictionary form) of a pipeline.
+        """Serialize a pipeline by serializing selected fields.
 
-        Note:
-            This recursively serializes the individual steps to facilitate a
-            human readable form.
+        Steps in the pipeline are reformatted as {"step_name": step}
 
         Args:
-            deep (bool): If True, will return the parameters for this estimator
-                recursively
+            deep: see super
 
         Returns:
-            dict: The initialization parameters of the pipeline.
+            dict: serialized pipeline
 
         """
-        return super().dict_serialize(deep=deep)
+        to_serialize = {}
+        all_params = self.get_params(deep=deep)
+        to_serialize["memory"] = all_params.pop("memory", None)
+        to_serialize["steps"] = all_params.pop("steps")
+        serialized = _make_serializable(
+            to_serialize, serialize_args=self.serialize_params
+        )
+        serialized["steps"] = [
+            {step[0]: step[1]} for step in serialized["steps"]
+        ]
+        return serialized
+
+    @classmethod
+    def dict_deserialize(cls, data):
+        """Deserialize pipeline from JSON.
+
+        Steps in the pipeline are reformatted to [("step_name": step), ...]
+
+        Args:
+            data: the serailzied pipeline.
+
+        Returns:
+            a reconstructed pipeline
+
+        """
+        params = _make_deserializable(data)
+        params["steps"] = [list(step.items())[0] for step in params["steps"]]
+        return cls(**params)
 
 
 def deserialize(data):

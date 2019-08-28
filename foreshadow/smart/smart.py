@@ -5,6 +5,7 @@ from abc import ABCMeta, abstractmethod
 from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.logging import logging
 from foreshadow.pipeline import SerializablePipeline
+from foreshadow.serializers import ConcreteSerializerMixin
 from foreshadow.utils import (
     check_df,
     get_transformer,
@@ -13,7 +14,9 @@ from foreshadow.utils import (
 )
 
 
-class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
+class SmartTransformer(
+    BaseEstimator, TransformerMixin, ConcreteSerializerMixin, metaclass=ABCMeta
+):
     """Abstract transformer class for meta transformer selection decisions.
 
     This class contains the logic necessary to determine a single transformer
@@ -73,6 +76,17 @@ class SmartTransformer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         # Needs to be declared last as this overrides the resolve parameters
         self.transformer = transformer
         self.check_wrapped = check_wrapped
+
+    def dict_serialize(self, deep=True):  # noqa
+        serialized = super().dict_serialize(deep=True)
+        self.__remove_redundant_transformer_item(serialized)
+        return serialized
+
+    @staticmethod
+    def __remove_redundant_transformer_item(data):
+        keys = [key for key in data if key.startswith("transformer__")]
+        for key in keys:
+            data.pop(key)
 
     @property
     def transformer(self):

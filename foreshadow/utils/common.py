@@ -75,6 +75,8 @@ def get_transformer(class_name, source_lib=None):
                 "foreshadow.intents",
                 "foreshadow.steps",
                 "foreshadow.parallelprocessor",
+                "foreshadow.columnsharer",
+                "foreshadow.pipeline",
             ]
         )
 
@@ -90,3 +92,17 @@ def get_transformer(class_name, source_lib=None):
             )
 
     return getattr(module, class_name)
+
+
+class ConfigureColumnSharerMixin:
+    """Mxin that configure column sharer."""
+
+    def configure_column_sharer(self, column_sharer):
+        """Configure the column sharer attribute if exists.
+
+        Args:
+            column_sharer:  a column sharer instance
+
+        """
+        if hasattr(self, "column_sharer"):
+            self.column_sharer = column_sharer
