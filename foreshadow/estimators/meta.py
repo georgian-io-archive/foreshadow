@@ -1,10 +1,13 @@
 """Wrapped Estimator."""
 
+import inspect
+
 from foreshadow.base import BaseEstimator
+from foreshadow.serializers import ConcreteSerializerMixin, _make_serializable
 from foreshadow.utils import check_df
 
 
-class MetaEstimator(BaseEstimator):
+class MetaEstimator(BaseEstimator, ConcreteSerializerMixin):
     """Wrapper that allows data preprocessing on the response variable(s).
 
     Args:
@@ -18,6 +21,32 @@ class MetaEstimator(BaseEstimator):
     def __init__(self, estimator, preprocessor):
         self.estimator = estimator
         self.preprocessor = preprocessor
+
+    def dict_serialize(self, deep=True):  # noqa
+        params = self.get_params(deep)
+        selected_params = self.__create_selected_params(params)
+        serialized = _make_serializable(
+            selected_params, serialize_args=self.serialize_params
+        )
+        return serialized
+
+    def __create_selected_params(self, params):
+        """Extract params in the init method signature.
+
+        Args:
+            params: params returned from get_params
+
+        Returns:
+            dict: selected params
+
+        """
+        init_params = inspect.signature(self.__init__).parameters
+        selected_params = {
+            name: params.pop(name)
+            for name in init_params
+            if name not in ["self", "kwargs"]
+        }
+        return selected_params
 
     def fit(self, X, y=None):
         """Fit the AutoEstimator instance using a selected AutoML estimator.

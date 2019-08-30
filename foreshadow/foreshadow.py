@@ -12,10 +12,11 @@ from foreshadow.estimators.meta import MetaEstimator
 from foreshadow.optimizers import ParamSpec, Tuner
 from foreshadow.pipeline import SerializablePipeline
 from foreshadow.preparer import DataPreparer
+from foreshadow.serializers import ConcreteSerializerMixin, _make_serializable
 from foreshadow.utils import check_df
 
 
-class Foreshadow(BaseEstimator):
+class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
     """An end-to-end pipeline to preprocess and tune a machine learning model.
 
     Example:
@@ -310,6 +311,33 @@ class Foreshadow(BaseEstimator):
         y_df = check_df(y_df)
         self._prepare_predict(data_df.columns)
         return self.pipeline.score(data_df, y_df, sample_weight)
+
+    def dict_serialize(self, deep=True):  # noqa
+        params = self.get_params(deep)
+        selected_params = self.__create_selected_params(params)
+        serialized = _make_serializable(
+            selected_params, serialize_args=self.serialize_params
+        )
+        return serialized
+
+    def __create_selected_params(self, params):
+        """Extract params in the init method signature plus the steps.
+
+        Args:
+            params: params returned from get_params
+
+        Returns:
+            dict: selected params
+
+        """
+        init_params = inspect.signature(self.__init__).parameters
+        selected_params = {
+            name: params.pop(name)
+            for name in init_params
+            if name not in ["self", "kwargs", ""]
+        }
+        selected_params["data_columns"] = params.pop("data_columns")
+        return selected_params
 
     def get_params(self, deep=True):
         """Get params for this object. See super.

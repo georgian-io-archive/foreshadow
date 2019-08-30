@@ -660,3 +660,26 @@ def test_foreshadow_get_params_keys(deep):
     ]
     for key in desired_keys:
         assert key in params
+
+
+def test_foreshadow_serialization():
+    from foreshadow.foreshadow import Foreshadow
+    import pandas as pd
+    import numpy as np
+    from sklearn.datasets import load_breast_cancer
+    from sklearn.model_selection import train_test_split
+    from sklearn.linear_model import LogisticRegression
+
+    np.random.seed(1337)
+
+    cancer = load_breast_cancer()
+    cancerX_df = pd.DataFrame(cancer.data, columns=cancer.feature_names)
+    cancery_df = pd.DataFrame(cancer.target, columns=["target"])
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        cancerX_df, cancery_df, test_size=0.2
+    )
+    shadow = Foreshadow(estimator=LogisticRegression())
+    shadow.fit(X_train, y_train)
+
+    shadow.to_json("foreshadow.json", deep=True)
