@@ -1,7 +1,5 @@
 """Data preparation and foreshadow pipeline."""
 
-import inspect
-
 from sklearn.pipeline import Pipeline
 
 from foreshadow.serializers import (
@@ -16,7 +14,7 @@ from foreshadow.steps import (
     IntentMapper,
     Preprocessor,
 )
-from foreshadow.utils.common import ConfigureColumnSharerMixin
+from foreshadow.utils import ConfigureColumnSharerMixin, CustomizeParamsMixin
 
 from .concrete import NoTransform
 
@@ -50,7 +48,10 @@ def _none_to_dict(name, val, column_sharer=None):
 
 
 class DataPreparer(
-    Pipeline, PipelineSerializerMixin, ConfigureColumnSharerMixin
+    Pipeline,
+    PipelineSerializerMixin,
+    ConfigureColumnSharerMixin,
+    CustomizeParamsMixin,
 ):
     """Predefined pipeline for the foreshadow workflow.
 
@@ -138,7 +139,7 @@ class DataPreparer(
 
         """
         params = self.get_params(deep=deep)
-        selected_params = self.__create_selected_params(params)
+        selected_params = self.customize_serialization_params(params)
         serialized = _make_serializable(
             selected_params, serialize_args=self.serialize_params
         )
@@ -181,7 +182,7 @@ class DataPreparer(
             if hasattr(step[1], "configure_column_sharer"):
                 step[1].configure_column_sharer(column_sharer)
 
-    def __create_selected_params(self, params):
+    def customize_serialization_params(self, params):
         """Extract params in the init method signature plus the steps.
 
         Args:
@@ -191,12 +192,7 @@ class DataPreparer(
             dict: selected params
 
         """
-        init_params = inspect.signature(self.__init__).parameters
-        selected_params = {
-            name: params.pop(name)
-            for name in init_params
-            if name not in ["self", "kwargs"]
-        }
+        selected_params = super().customize_serialization_params(params)
         selected_params["steps"] = params.pop("steps")
         return selected_params
 

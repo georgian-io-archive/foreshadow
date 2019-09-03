@@ -1,7 +1,5 @@
 """Foreshadow extension of feature union for handling dataframes."""
 
-import inspect
-
 import pandas as pd
 from sklearn.externals.joblib import Parallel, delayed
 from sklearn.pipeline import (
@@ -12,13 +10,16 @@ from sklearn.pipeline import (
 )
 
 from foreshadow.base import BaseEstimator
-from foreshadow.utils.common import ConfigureColumnSharerMixin
+from foreshadow.utils import ConfigureColumnSharerMixin, CustomizeParamsMixin
 
 from .serializers import PipelineSerializerMixin, _make_serializable
 
 
 class ParallelProcessor(
-    FeatureUnion, PipelineSerializerMixin, ConfigureColumnSharerMixin
+    FeatureUnion,
+    PipelineSerializerMixin,
+    ConfigureColumnSharerMixin,
+    CustomizeParamsMixin,
 ):
     """Class to support parallel operation on dataframes.
 
@@ -77,7 +78,7 @@ class ParallelProcessor(
 
         """
         params = self.get_params(deep=deep)
-        selected_params = self.__create_selected_params(params)
+        selected_params = self.customize_serialization_params(params)
 
         return _make_serializable(
             selected_params, serialize_args=self.serialize_params
@@ -95,7 +96,7 @@ class ParallelProcessor(
             for step in dynamic_pipeline.steps:
                 step[1].column_sharer = column_sharer
 
-    def __create_selected_params(self, params):
+    def customize_serialization_params(self, params):
         """Select only the params in the init signature.
 
         Args:
@@ -105,10 +106,7 @@ class ParallelProcessor(
             dict: params that are in the init method signature.
 
         """
-        init_params = inspect.signature(self.__init__).parameters
-        selected_params = {
-            name: params.pop(name) for name in init_params if name != "self"
-        }
+        selected_params = super().customize_serialization_params(params)
         selected_params["transformer_list"] = self.__convert_transformer_list(
             selected_params["transformer_list"]
         )

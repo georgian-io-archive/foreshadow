@@ -96,7 +96,7 @@ def get_transformer(class_name, source_lib=None):
 
 
 class ConfigureColumnSharerMixin:
-    """Mxin that configure column sharer."""
+    """Mixin that configure column sharer."""
 
     def configure_column_sharer(self, column_sharer):
         """Configure the column sharer attribute if exists.
@@ -107,3 +107,27 @@ class ConfigureColumnSharerMixin:
         """
         if hasattr(self, "column_sharer"):
             self.column_sharer = column_sharer
+
+
+class CustomizeParamsMixin:
+    """Mixin that customizes params returned from get_params."""
+
+    def customize_serialization_params(self, params):
+        """Select params that are only necessary.
+
+        Args:
+            params: the params returned from get_params
+
+        Returns:
+            selected_params: params that are selected.
+
+        """
+        import inspect
+
+        init_params = inspect.signature(self.__init__).parameters
+        selected_params = {
+            name: params.pop(name)
+            for name in init_params
+            if name not in ["self", "kwargs"]
+        }
+        return selected_params
