@@ -12,8 +12,12 @@ from foreshadow.estimators.meta import MetaEstimator
 from foreshadow.optimizers import ParamSpec, Tuner
 from foreshadow.pipeline import SerializablePipeline
 from foreshadow.preparer import DataPreparer
-from foreshadow.serializers import ConcreteSerializerMixin, _make_serializable
-from foreshadow.utils import check_df
+from foreshadow.serializers import (
+    ConcreteSerializerMixin,
+    _make_deserializable,
+    _make_serializable,
+)
+from foreshadow.utils import check_df, get_transformer
 
 
 class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
@@ -318,7 +322,72 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         serialized = _make_serializable(
             selected_params, serialize_args=self.serialize_params
         )
+        serialized["estimator"] = self.__customize_serialized_estimator(
+            serialized["estimator"]
+        )
         return serialized
+
+    def __customize_serialized_estimator(self, estimator):
+        if "MetaEstimator" == estimator["_class"]:
+            estimator["preprocessor"] = "_y_preparer"
+        wrapped_estimator = {
+            key: value
+            for key, value in estimator["estimator"]["py/state"].items()
+            if self.__is_valid(key)
+        }
+        wrapped_estimator["_class"] = estimator["estimator"]["py/object"]
+        wrapped_estimator["_method"] = "dict"
+        estimator["estimator"] = wrapped_estimator
+        return estimator
+
+    def __is_valid(self, key):
+        if key.endswith("_"):
+            return False
+        return True
+
+    @classmethod
+    def dict_deserialize(cls, data):
+        """Deserialize the dictionary form of a foreshadow object.
+
+        Args:
+            data: The dictionary to parse as foreshadow object is constructed.
+
+        Returns:
+            object: A re-constructed foreshadow object.
+
+        """
+        serialized_estimator = data.pop("estimator")
+        is_meta_estimator = "MetaEstimator" == serialized_estimator["_class"]
+        estimator = cls.__reconstruct_estimator(
+            serialized_estimator, is_meta_estimator
+        )
+
+        params = _make_deserializable(data)
+        data_columns = params.pop("data_columns")
+        params["estimator"] = estimator
+
+        ret_tf = cls(**params)
+        ret_tf.data_columns = data_columns
+        if is_meta_estimator:
+            ret_tf.estimator = MetaEstimator(
+                estimator=estimator, preprocessor=ret_tf.y_preparer
+            )
+        return ret_tf
+
+    @classmethod
+    def __reconstruct_estimator(cls, data, is_meta_estimator):
+        # TODO untested on non-meta-estimator
+        if is_meta_estimator:
+            data = data["estimator"]
+        estimator_type = data.pop("_class")
+        _ = data.pop("_method")
+        _ = data.pop("_sklearn_version", None)
+
+        class_name = estimator_type.split(".")[-1]
+        module_path = ".".join(estimator_type.split(".")[0:-1])
+
+        estimator_class = get_transformer(class_name, source_lib=module_path)
+        return estimator_class(**data)
 
     def __create_selected_params(self, params):
         """Extract params in the init method signature plus the steps.

@@ -178,7 +178,8 @@ class DataPreparer(
 
         """
         for step in self.steps:
-            step[1].configure_column_sharer(column_sharer)
+            if hasattr(step[1], "configure_column_sharer"):
+                step[1].configure_column_sharer(column_sharer)
 
     def __create_selected_params(self, params):
         """Extract params in the init method signature plus the steps.

@@ -680,6 +680,18 @@ def test_foreshadow_serialization():
         cancerX_df, cancery_df, test_size=0.2
     )
     shadow = Foreshadow(estimator=LogisticRegression())
+
     shadow.fit(X_train, y_train)
 
     shadow.to_json("foreshadow.json", deep=True)
+
+    shadow2 = Foreshadow.from_json("foreshadow.json")
+    shadow2.fit(X_train, y_train)
+
+    score1 = shadow.score(X_test, y_test)
+    score2 = shadow2.score(X_test, y_test)
+
+    import unittest
+
+    assertions = unittest.TestCase("__init__")
+    assertions.assertAlmostEqual(score1, score2, places=7)
