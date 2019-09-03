@@ -670,6 +670,9 @@ def test_foreshadow_serialization():
     from sklearn.model_selection import train_test_split
     from sklearn.linear_model import LogisticRegression
 
+    # from sklearn.svm import LinearSVC
+    # from sklearn.ensemble import AdaBoostClassifier
+
     np.random.seed(1337)
 
     cancer = load_breast_cancer()
@@ -680,6 +683,8 @@ def test_foreshadow_serialization():
         cancerX_df, cancery_df, test_size=0.2
     )
     shadow = Foreshadow(estimator=LogisticRegression())
+    # shadow = Foreshadow(estimator=LinearSVC())
+    # shadow = Foreshadow(estimator=AdaBoostClassifier())
 
     shadow.fit(X_train, y_train)
 
