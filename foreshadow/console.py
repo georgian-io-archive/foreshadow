@@ -198,23 +198,20 @@ def execute_model(fs, X_train, y_train, X_test, y_test):
     print("Final Results: ")
     print(score)
 
-    # Store final results
-    all_results = {
-        "X_Model": fs.X_preparer.serialize(),
-        # "X_Summary": fs.X_preparer.summarize(X_train),
-        "y_Model": fs.y_preparer.serialize(),
-        # "y_summary": fs.y_preparer.summarize(y_train),
-    }
-
-    # with open("model.json", "w") as outfile:
-    #     json.dump(all_results, outfile, indent=4)
-
+    fs.to_json("foreshadow.json", deep=True)
     print(
-        "Results of model fiting have been saved to model.json. "
+        "Serialized foreshadow pipeline has been saved to foreshadow.json. "
         "Refer to docs to read and process."
     )
-
-    return all_results
+    # TODO serialize the foreshadow object and summarize the X and y stats.
+    # Store final results
+    # all_results = {
+    #     "X_Model": fs.X_preparer.serialize(),
+    #     # "X_Summary": fs.X_preparer.summarize(X_train),
+    #     "y_Model": fs.y_preparer.serialize(),
+    #     # "y_summary": fs.y_preparer.summarize(y_train),
+    # }
+    # return all_results
 
 
 def cmd():  # pragma: no cover
