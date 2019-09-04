@@ -36,7 +36,7 @@ class Preprocessor(PreparerStep, AutoIntentMixin):
                 ]
             else:
                 transformer_list = None  # None or []
-            pm.add([c], transformer_list)
+            pm.add([c], transformer_list, i)
         return pm
 
     def get_mapping(self, X):

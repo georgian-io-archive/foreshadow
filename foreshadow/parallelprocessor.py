@@ -122,7 +122,10 @@ class ParallelProcessor(
         [("group_num", dynamic_pipeline, ["col1", "col2", ...]), ...].
 
         We convert it into a form of
-        [{"col1,col2,col3,...": dynamic_pipeline}, ...].
+        [{"col": {"pipeline": dynamic_pipeline}}, ...] for a single column
+        or
+        [{"group: GROUP_NAME": {"pipeline": dynamic_pipeline,
+        "columns":["col1", "col2", ...]}}]
 
         Args:
             transformer_list: the transformer list in the parallel_processor
@@ -134,11 +137,61 @@ class ParallelProcessor(
         result = []
         for transformer_triple in transformer_list:
             converted = {}
-            column_groups = transformer_triple[2]
-            dynamic_pipeline = transformer_triple[1]
-            converted[",".join(column_groups)] = dynamic_pipeline
+            group_name, dynamic_pipeline, column_group = transformer_triple
+            if len(column_group) > 1:
+                converted[group_name] = {
+                    "processing_pipeline": dynamic_pipeline,
+                    "columns": column_group,
+                }
+            else:
+                converted[",".join(column_group)] = {
+                    "processing_pipeline": dynamic_pipeline
+                }
             result.append(converted)
         return result
+
+    @classmethod
+    def reconstruct_parallel_process(cls, data):
+        """Reconstruct the parallel process in a preparestep.
+
+        Args:
+            data: serialized block of a parallel process
+
+        Returns:
+            a reconstructed parallel processor
+
+        """
+        n_jobs = data["n_jobs"]
+        transformer_weights = data["transformer_weights"]
+        collapse_index = data["collapse_index"]
+
+        transformer_list = []
+        for i, transformation in enumerate(
+            data["transformation_by_column_group"]
+        ):
+            transformer_list.append(
+                (
+                    cls.__extract_elements_for_parallel_process(
+                        i, transformation
+                    )
+                )
+            )
+
+        return ParallelProcessor(
+            transformer_list, n_jobs, transformer_weights, collapse_index
+        )
+
+    @classmethod
+    def __extract_elements_for_parallel_process(cls, i, transformation):
+        item = list(transformation.values())[0]
+        dynamic_pipeline = item["processing_pipeline"]
+        if "columns" in item:
+            column_groups = item["columns"]
+            group_name = list(transformation.keys())[0]
+        else:
+            column_groups = list(transformation.keys())[0].split(",")
+            group_name = "group: {}".format(str(i))
+        return group_name, dynamic_pipeline, column_groups
 
     def get_params(self, deep=True):
         """Return parameters of internal transformers.

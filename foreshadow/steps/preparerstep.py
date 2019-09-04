@@ -82,7 +82,7 @@ class PreparerMapping(MutableMapping):
         """
         return len(self.store)
 
-    def add(self, inputs, transformers):
+    def add(self, inputs, transformers, group_name):
         """Add another group_process defined by inputs and transformers.
 
         Main API method to be used by subclasses of PreparerStep.
@@ -92,6 +92,7 @@ class PreparerMapping(MutableMapping):
                 of lists representing the groups of columns for each
                 transformer.
             transformers: the transformers.
+            group_name: the name of the group
 
         Raises:
             ValueError: if invalid input format.
@@ -107,11 +108,11 @@ class PreparerMapping(MutableMapping):
             inputs = [inputs]
         if not isinstance(inputs[0], (list, tuple)):
             # one set of inputs at the beginning.
-            self[len(self)] = GroupProcess(inputs, None, transformers)
+            self[group_name] = GroupProcess(inputs, None, transformers)
             # leverage setitem of self.
         elif len(inputs) == len(transformers):  # defined inputs for each
             # transformer
-            self[len(self)] = GroupProcess(None, inputs, transformers)
+            self[group_name] = GroupProcess(None, inputs, transformers)
             # leverage setitem of self.
         else:
             raise ValueError(
@@ -120,7 +121,7 @@ class PreparerMapping(MutableMapping):
             )
 
 
-def _check_parallelizable_batch(group_process, group_number):
+def _check_parallelizable_batch(group_process, group_name):
     """See if the group of cols 'group_number' is parallelizable.
 
     'group_number' in column_mapping is parallelizable if the cols across
@@ -131,7 +132,7 @@ def _check_parallelizable_batch(group_process, group_number):
     Args:
         group_process: an item from self.get_mapping(), a GroupProcess
             namedtupled
-        group_number: the group number
+        group_name: the group name
 
     Returns:
         transformer_list if parallelizable, else None.
@@ -151,7 +152,7 @@ def _check_parallelizable_batch(group_process, group_number):
         # everything else as its inputs are never dependent on the
         # result from any step in another pipeline.
         transformer_list = [
-            "group: {}".format(group_number),
+            "group: {}".format(group_name),
             DynamicPipeline(steps),
             inputs,
         ]
@@ -193,7 +194,7 @@ def _batch_parallelize(column_mapping):
     all_cols = set()
     for step_number in range(total_steps):
         groups = []
-        for group_number, group_process in column_mapping:
+        for group_name, group_process in column_mapping:
             if group_process.step_inputs is not None:  # we do not have a
                 # transformer_list yet for this group.
                 inputs = column_mapping["inputs"]
@@ -203,22 +204,22 @@ def _batch_parallelize(column_mapping):
                         "number of inputs: {} does not equal "
                         "number of steps: {}".format(len(inputs), len(steps))
                     )
-                list_of_steps = column_mapping[group_number]
+                list_of_steps = column_mapping[group_name]
                 step_for_group = list_of_steps[step_number]
                 transformer = step_for_group[0]
                 cols = step_for_group[1]
-                groups.append((group_number, transformer, cols))
+                groups.append((group_name, transformer, cols))
                 for col in cols:
                     all_cols.add(col)
         transformer_list = [
             [
                 "group: {}, transformer: {}".format(
-                    group_number, transformer.__name__
+                    group_name, transformer.__name__
                 ),
                 transformer,
                 cols,
             ]
-            for group_number, transformer, cols in groups
+            for group_name, transformer, cols in groups
         ]  # this is one step parallelized across the columns (dim1
         # parallelized across dim2).
         steps.append(
@@ -306,8 +307,7 @@ class PreparerStep(
         serialized = _make_serializable(
             selected_params, serialize_args=self.serialize_params
         )
-        transformer_list = serialized["transformer_list"]
-        serialized.pop("transformer_list")
+        transformer_list = serialized.pop("transformer_list")
         serialized["transformation_by_column_group"] = transformer_list
         return serialized
 
@@ -323,44 +323,16 @@ class PreparerStep(
 
         """
         params = _make_deserializable(data)
-        parallel_processor = cls.reconstruct_parallel_process(params)
+        parallel_processor = ParallelProcessor.reconstruct_parallel_process(
+            params
+        )
         reconstructed_params = {"_parallel_process": parallel_processor}
         ret_tf = cls()
         ret_tf.set_params(**reconstructed_params)
         return ret_tf
 
-    @classmethod
-    def reconstruct_parallel_process(cls, data):
-        """Reconstruct the parallel process in a preparestep.
-
-        Args:
-            data: serialized block of a parallel process
-
-        Returns:
-            a reconstructed parallel processor
-
-        """
-        n_jobs = data["n_jobs"]
-        transformer_weights = data["transformer_weights"]
-        collapse_index = data["collapse_index"]
-
-        transformer_list = []
-        for i, transformation in enumerate(
-            data["transformation_by_column_group"]
-        ):
-            group_name = "group: {}".format(str(i))
-            dynamic_pipeline = list(transformation.values())[0]
-            column_groups = list(transformation.keys())[0].split(",")
-            transformer_list.append(
-                (group_name, dynamic_pipeline, column_groups)
-            )
-
-        return ParallelProcessor(
-            transformer_list, n_jobs, transformer_weights, collapse_index
-        )
-
     @staticmethod
-    def separate_cols(transformers, cols):
+    def separate_cols(transformers, cols, criterion=None):
         """Return a valid mapping where each col has a separate transformer.
 
         Define the groups of cols that will have their pipeline by
@@ -372,6 +344,7 @@ class PreparerStep(
                 len(cols).
             cols: DataFrame.columns, list of columns. See description for
                 when to pass.
+            criterion: column grouping criterion.
 
         Returns:
             A dict where each entry can be used to separately access an
@@ -394,7 +367,11 @@ class PreparerStep(
                 if not isinstance(group_col, (list, tuple))
                 else group_col
             )
-            pm.add(group_col, transformers[i])
+            pm.add(
+                group_col,
+                transformers[i],
+                (criterion[i] if criterion is not None else i),
+            )
         return pm
 
     @classmethod
@@ -410,7 +387,7 @@ class PreparerStep(
     def parallelize_mapping(self, column_mapping):
         """Create parallelized workflow for column_mapping.
 
-        Each group of cols that is separated has the key: 'group_number' and a
+        Each group of cols that is separated has the key: 'group_name' and a
         valid transformer_list for ParallelProcessor.
         The rest that are batch parallelized has key: 'grouped_pipeline' and
         a valid transformer_list for ParallelProcessor.
@@ -428,13 +405,13 @@ class PreparerStep(
         # interdependencies with other groups. Then, we will do all the rest
         # of the groups after as they will be performed step-by-step
         # parallelized.
-        for group_number, group_process in column_mapping.items():
+        for group_name, group_process in column_mapping.items():
 
             transformer_list = _check_parallelizable_batch(
-                group_process, group_number
+                group_process, group_name
             )
             if transformer_list is not None:
-                final_mapping[group_number] = transformer_list
+                final_mapping[group_name] = transformer_list
         # if len(final_mapping) < len(column_mapping):  # then there
         #     # must be groups of columns that have interdependcies.
         #     # CURRENTLy DISABLED.
