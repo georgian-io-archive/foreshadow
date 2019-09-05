@@ -55,9 +55,6 @@ def test_feature_reducer_get_mapping_by_intent():
 
     fr = FeatureReducerMapper(column_sharer=cs)
     column_mapping = fr.get_mapping(data)
-    import pdb
-
-    pdb.set_trace()
 
     check = PreparerMapping()
     check.add(
