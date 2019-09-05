@@ -1,6 +1,7 @@
 """Categorical intent."""
 
 from foreshadow.metrics import num_valid, unique_heur
+from foreshadow.utils import standard_col_summary
 
 from .base import BaseIntent
 
@@ -40,3 +41,7 @@ class Categoric(BaseIntent):
 
         """
         return X
+
+    @classmethod
+    def column_summary(cls, df):  # noqa
+        return standard_col_summary(df)

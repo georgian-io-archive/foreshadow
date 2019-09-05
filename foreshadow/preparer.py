@@ -13,6 +13,7 @@ from foreshadow.steps import (
     CleanerMapper,
     FeatureEngineererMapper,
     FeatureReducerMapper,
+    FeatureSummarizerMapper,
     IntentMapper,
     Preprocessor,
 )
@@ -77,6 +78,7 @@ class DataPreparer(
         column_sharer=None,
         cleaner_kwargs=None,
         intent_kwargs=None,
+        summarizer_kwargs=None,
         engineerer_kwargs=None,
         preprocessor_kwargs=None,
         reducer_kwargs=None,
@@ -88,6 +90,9 @@ class DataPreparer(
         )
         intent_kwargs_ = _none_to_dict(
             "intent_kwargs", intent_kwargs, column_sharer
+        )
+        summarizer_kwargs_ = _none_to_dict(
+            "summarizer_kwargs", summarizer_kwargs, column_sharer
         )
         engineerer_kwargs_ = _none_to_dict(
             "engineerer_kwargs", engineerer_kwargs, column_sharer
@@ -102,6 +107,10 @@ class DataPreparer(
             steps = [
                 ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
                 ("intent", IntentMapper(**intent_kwargs_)),
+                (
+                    "feature_summarizer",
+                    FeatureSummarizerMapper(**summarizer_kwargs_),
+                ),
                 (
                     "feature_engineerer",
                     FeatureEngineererMapper(**engineerer_kwargs_),
