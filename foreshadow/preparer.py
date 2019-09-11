@@ -138,6 +138,9 @@ class DataPreparer(
             dict: serialized data preparer.
 
         """
+        import pdb
+
+        pdb.set_trace()
         params = self.get_params(deep=deep)
         selected_params = self.customize_serialization_params(params)
         serialized = _make_serializable(

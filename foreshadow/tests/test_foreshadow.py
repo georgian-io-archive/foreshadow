@@ -684,8 +684,7 @@ def test_foreshadow_serialization_non_auto_estimator():
 
     shadow.fit(X_train, y_train)
 
-    # shadow.to_json("foreshadow_logisticRegression.json", deep=True)
-    shadow.to_json("foreshadow_logisticRegression.json", deep=False)
+    shadow.to_json("foreshadow_logisticRegression.json")
 
     shadow2 = Foreshadow.from_json("foreshadow_logisticRegression.json")
     shadow2.fit(X_train, y_train)
@@ -699,7 +698,6 @@ def test_foreshadow_serialization_non_auto_estimator():
     assertions.assertAlmostEqual(score1, score2, places=7)
 
 
-@pytest.mark.skip
 def test_foreshadow_serialization_tpot():
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
@@ -729,7 +727,7 @@ def test_foreshadow_serialization_tpot():
 
     shadow.fit(X_train, y_train)
 
-    shadow.to_json("foreshadow_tpot.json", deep=True)
+    shadow.to_json("foreshadow_tpot.json")
 
     shadow2 = Foreshadow.from_json("foreshadow_tpot.json")
     assert isinstance(shadow2.estimator, AutoEstimator)

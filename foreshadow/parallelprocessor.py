@@ -64,7 +64,7 @@ class ParallelProcessor(
             transformer_list, n_jobs, transformer_weights
         )
 
-    def dict_serialize(self, deep=True):
+    def dict_serialize(self, deep=False):
         """Serialize the selected params of parallel_process.
 
         Args:
