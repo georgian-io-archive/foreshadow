@@ -1,7 +1,5 @@
 """Foreshadow extension of feature union for handling dataframes."""
 
-import inspect
-
 import pandas as pd
 from sklearn.externals.joblib import Parallel, delayed
 from sklearn.pipeline import (
@@ -76,12 +74,12 @@ class ParallelProcessor(
             dict: parallel_process serialized in customized form.
 
         """
-        params = self.get_params(deep=deep)
-        selected_params = self.__create_selected_params(params)
-
-        return _make_serializable(
-            selected_params, serialize_args=self.serialize_params
+        params = self.get_params(deep=False)
+        params["transformer_list"] = self._convert_transformer_list(
+            params["transformer_list"]
         )
+
+        return _make_serializable(params, serialize_args=self.serialize_params)
 
     def configure_column_sharer(self, column_sharer):
         """Configure column sharer in each dynamic pipeline of the transformer_list.
@@ -95,27 +93,8 @@ class ParallelProcessor(
             for step in dynamic_pipeline.steps:
                 step[1].column_sharer = column_sharer
 
-    def __create_selected_params(self, params):
-        """Select only the params in the init signature.
-
-        Args:
-            params: params returned from the get_params method.
-
-        Returns:
-            dict: params that are in the init method signature.
-
-        """
-        init_params = inspect.signature(self.__init__).parameters
-        selected_params = {
-            name: params.pop(name) for name in init_params if name != "self"
-        }
-        selected_params["transformer_list"] = self.__convert_transformer_list(
-            selected_params["transformer_list"]
-        )
-        return selected_params
-
     @staticmethod
-    def __convert_transformer_list(transformer_list):
+    def _convert_transformer_list(transformer_list):
         """Convert the transformer list into a desired form.
 
         Initially the transformer list has a form of
