@@ -1,7 +1,7 @@
 """Wrapped Estimator."""
 
 from foreshadow.base import BaseEstimator
-from foreshadow.serializers import ConcreteSerializerMixin, _make_serializable
+from foreshadow.serializers import ConcreteSerializerMixin
 from foreshadow.utils import CustomizeParamsMixin, check_df
 
 
@@ -23,11 +23,7 @@ class MetaEstimator(
         self.preprocessor = preprocessor
 
     def dict_serialize(self, deep=False):  # noqa
-        params = self.get_params(deep=False)
-        serialized = _make_serializable(
-            params, serialize_args=self.serialize_params
-        )
-        return serialized
+        return super().dict_serialize(deep=False)
 
     def fit(self, X, y=None):
         """Fit the AutoEstimator instance using a selected AutoML estimator.

@@ -6,7 +6,7 @@ from foreshadow.concrete.internals.notransform import NoTransform
 from foreshadow.logging import logging
 from foreshadow.parallelprocessor import ParallelProcessor
 from foreshadow.pipeline import DynamicPipeline
-from foreshadow.serializers import _make_deserializable, _make_serializable
+from foreshadow.serializers import _make_deserializable
 from foreshadow.utils.common import ConfigureColumnSharerMixin
 
 from ..columnsharer import ColumnSharer
@@ -302,10 +302,7 @@ class PreparerStep(
             a serialized preparestep.
 
         """
-        selected_params = self.get_params(deep=deep)["_parallel_process"]
-        serialized = _make_serializable(
-            selected_params, serialize_args=self.serialize_params
-        )
+        serialized = super().dict_serialize(deep=deep)["_parallel_process"]
         transformer_list = serialized["transformer_list"]
         serialized.pop("transformer_list")
         serialized["transformation_by_column_group"] = transformer_list
