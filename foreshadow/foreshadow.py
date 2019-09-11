@@ -15,7 +15,6 @@ from foreshadow.preparer import DataPreparer
 from foreshadow.serializers import (
     ConcreteSerializerMixin,
     _make_deserializable,
-    _make_serializable,
 )
 from foreshadow.utils import check_df, get_transformer
 
@@ -316,8 +315,8 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         self._prepare_predict(data_df.columns)
         return self.pipeline.score(data_df, y_df, sample_weight)
 
-    def dict_serialize(self, deep=True):
-        """Serialize the init parameters of the foreshaow object.
+    def dict_serialize(self, deep=False):
+        """Serialize the init parameters of the foreshadow object.
 
         Args:
             deep (bool): If True, will return the parameters for this estimator
@@ -327,10 +326,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             dict: The initialization parameters of the foreshadow object.
 
         """
-        params = self.get_params(deep=False)
-        serialized = _make_serializable(
-            params, serialize_args=self.serialize_params
-        )
+        serialized = super().dict_serialize(deep=False)
         serialized["estimator"] = self._customize_serialized_estimator(
             self.estimator
         )

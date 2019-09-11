@@ -23,7 +23,7 @@ class MetaEstimator(
         self.preprocessor = preprocessor
 
     def dict_serialize(self, deep=False):  # noqa
-        params = self.get_params(deep)
+        params = self.get_params(deep=False)
         serialized = _make_serializable(
             params, serialize_args=self.serialize_params
         )
