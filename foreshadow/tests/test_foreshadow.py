@@ -684,7 +684,8 @@ def test_foreshadow_serialization_non_auto_estimator():
 
     shadow.fit(X_train, y_train)
 
-    shadow.to_json("foreshadow_logisticRegression.json", deep=True)
+    # shadow.to_json("foreshadow_logisticRegression.json", deep=True)
+    shadow.to_json("foreshadow_logisticRegression.json", deep=False)
 
     shadow2 = Foreshadow.from_json("foreshadow_logisticRegression.json")
     shadow2.fit(X_train, y_train)

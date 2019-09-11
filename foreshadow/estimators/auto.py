@@ -6,7 +6,7 @@ import numpy as np
 
 from foreshadow.base import BaseEstimator
 from foreshadow.estimators.config import get_tpot_config
-from foreshadow.serializers import ConcreteSerializerMixin, _make_serializable
+from foreshadow.serializers import ConcreteSerializerMixin
 from foreshadow.utils import (
     CustomizeParamsMixin,
     check_df,
@@ -48,11 +48,7 @@ class AutoEstimator(
         self.estimator = None
 
     def dict_serialize(self, deep=True):  # noqa
-        params = self.get_params(deep=False)
-        serialized = _make_serializable(
-            params, serialize_args=self.serialize_params
-        )
-        return serialized
+        return super().dict_serialize(deep=False)
 
     @property
     def problem_type(self):

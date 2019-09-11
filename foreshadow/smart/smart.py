@@ -81,12 +81,6 @@ class SmartTransformer(
         serialized = super().dict_serialize(deep=False)
         return serialized
 
-    @staticmethod
-    def __remove_redundant_transformer_item(data):
-        keys = [key for key in data if key.startswith("transformer__")]
-        for key in keys:
-            data.pop(key)
-
     @property
     def transformer(self):
         """Get the selected transformer from the SmartTransformer.

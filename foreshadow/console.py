@@ -212,7 +212,7 @@ def execute_model(fs, X_train, y_train, X_test, y_test):
     print("Final Results: ")
     print(score)
 
-    fs.to_json("foreshadow.json", deep=True)
+    fs.to_json("foreshadow.json")
     print(
         "Serialized foreshadow pipeline has been saved to foreshadow.json. "
         "Refer to docs to read and process."
