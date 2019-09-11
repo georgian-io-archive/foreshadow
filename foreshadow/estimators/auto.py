@@ -6,10 +6,17 @@ import numpy as np
 
 from foreshadow.base import BaseEstimator
 from foreshadow.estimators.config import get_tpot_config
-from foreshadow.utils import check_df, check_module_installed
+from foreshadow.serializers import ConcreteSerializerMixin, _make_serializable
+from foreshadow.utils import (
+    CustomizeParamsMixin,
+    check_df,
+    check_module_installed,
+)
 
 
-class AutoEstimator(BaseEstimator):
+class AutoEstimator(
+    BaseEstimator, ConcreteSerializerMixin, CustomizeParamsMixin
+):
     """A wrapped estimator that selects the solution for a given problem.
 
     By default each automatic machine learning solution runs for 1 minute but
@@ -39,6 +46,13 @@ class AutoEstimator(BaseEstimator):
         self.estimator_kwargs = estimator_kwargs
         self.estimator_class = None
         self.estimator = None
+
+    def dict_serialize(self, deep=True):  # noqa
+        params = self.get_params(deep=False)
+        serialized = _make_serializable(
+            params, serialize_args=self.serialize_params
+        )
+        return serialized
 
     @property
     def problem_type(self):
@@ -224,7 +238,7 @@ class AutoEstimator(BaseEstimator):
 
         return self.estimator_kwargs
 
-    def _setup_estimator(self, y):
+    def configure_estimator(self, y):
         """Construct and return the auto estimator instance.
 
         Args:
@@ -262,7 +276,7 @@ class AutoEstimator(BaseEstimator):
         """
         X = check_df(X)
         y = check_df(y)
-        self.estimator = self._setup_estimator(y)
+        self.estimator = self.configure_estimator(y)
         self.estimator.fit(X, y)
 
         return self.estimator

@@ -662,16 +662,13 @@ def test_foreshadow_get_params_keys(deep):
         assert key in params
 
 
-def test_foreshadow_serialization():
+def test_foreshadow_serialization_non_auto_estimator():
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
     import numpy as np
     from sklearn.datasets import load_breast_cancer
     from sklearn.model_selection import train_test_split
     from sklearn.linear_model import LogisticRegression
-
-    # from sklearn.svm import LinearSVC
-    # from sklearn.ensemble import AdaBoostClassifier
 
     np.random.seed(1337)
 
@@ -682,16 +679,70 @@ def test_foreshadow_serialization():
     X_train, X_test, y_train, y_test = train_test_split(
         cancerX_df, cancery_df, test_size=0.2
     )
+
     shadow = Foreshadow(estimator=LogisticRegression())
-    # shadow = Foreshadow(estimator=LinearSVC())
-    # shadow = Foreshadow(estimator=AdaBoostClassifier())
 
     shadow.fit(X_train, y_train)
 
-    shadow.to_json("foreshadow.json", deep=True)
+    shadow.to_json("foreshadow_logisticRegression.json", deep=True)
 
-    shadow2 = Foreshadow.from_json("foreshadow.json")
+    shadow2 = Foreshadow.from_json("foreshadow_logisticRegression.json")
     shadow2.fit(X_train, y_train)
+
+    score1 = shadow.score(X_test, y_test)
+    score2 = shadow2.score(X_test, y_test)
+
+    import unittest
+
+    assertions = unittest.TestCase("__init__")
+    assertions.assertAlmostEqual(score1, score2, places=7)
+
+
+@pytest.mark.skip
+def test_foreshadow_serialization_tpot():
+    from foreshadow.foreshadow import Foreshadow
+    import pandas as pd
+    import numpy as np
+    from sklearn.datasets import load_breast_cancer
+    from sklearn.model_selection import train_test_split
+
+    np.random.seed(1337)
+
+    cancer = load_breast_cancer()
+    cancerX_df = pd.DataFrame(cancer.data, columns=cancer.feature_names)
+    cancery_df = pd.DataFrame(cancer.target, columns=["target"])
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        cancerX_df, cancery_df, test_size=0.2
+    )
+
+    from foreshadow.estimators import AutoEstimator
+
+    estimator = AutoEstimator(problem_type="classification", auto="tpot")
+    estimator.configure_estimator(y_train)
+
+    estimator_kwargs = {"max_time_mins": 1, **estimator.estimator_kwargs}
+    estimator.estimator_kwargs = estimator_kwargs
+
+    shadow = Foreshadow(estimator=estimator)
+
+    shadow.fit(X_train, y_train)
+
+    shadow.to_json("foreshadow_tpot.json", deep=True)
+
+    shadow2 = Foreshadow.from_json("foreshadow_tpot.json")
+    assert isinstance(shadow2.estimator, AutoEstimator)
+    shadow2.estimator.configure_estimator(y_train)
+    shadow2.estimator.estimator_kwargs = estimator_kwargs
+    shadow2.fit(X_train, y_train)
+    import pdb
+
+    pdb.set_trace()
+
+    assert (
+        estimator.estimator_kwargs
+        == shadow2.estimator.estimator.estimator_kwargs
+    )
 
     score1 = shadow.score(X_test, y_test)
     score2 = shadow2.score(X_test, y_test)

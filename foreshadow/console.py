@@ -1,5 +1,6 @@
 """Foreshadow console wrapper."""
 # flake8: noqa
+# isort: noqa
 import argparse
 import json
 import sys
@@ -10,7 +11,6 @@ from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.model_selection import GridSearchCV, train_test_split
 
 from foreshadow.estimators import AutoEstimator
-from foreshadow.estimators.auto import determine_problem_type
 from foreshadow.foreshadow import Foreshadow
 
 
@@ -36,6 +36,13 @@ def generate_model(args):  # noqa: C901
     )
     parser.add_argument(
         "target", type=str, help="Name of target column to predict in dataset"
+    )
+    parser.add_argument(
+        "problem_type",
+        default="classification",
+        type=str,
+        choices=["classification", "regression"],
+        help="Problem type, choosing from classification or regression, default to classification.",
     )
     parser.add_argument(
         "--level",
@@ -74,10 +81,10 @@ def generate_model(args):  # noqa: C901
     )
     cargs = parser.parse_args(args)
 
-    # if cargs.level == 3 and cargs.method is not None:
-    #     warnings.warn(
-    #         "WARNING: Level 3 model search enabled. Method will be ignored."
-    #     )
+    if cargs.level == 3 and cargs.method is not None:
+        warnings.warn(
+            "WARNING: Level 3 model search enabled. Method will be ignored."
+        )
 
     if cargs.level != 3 and cargs.time != 10:
         warnings.warn(
@@ -104,7 +111,9 @@ def generate_model(args):  # noqa: C901
 
     if cargs.level == 1:
         # Default everything with basic estimator
-        fs = Foreshadow(estimator=get_method(cargs.method, y_train))
+        fs = Foreshadow(
+            estimator=get_method(cargs.method, cargs.problem_type, y_train)
+        )
 
     # elif cargs.level == 2:
     #     # Parameter search on all matched intents
@@ -145,26 +154,31 @@ def generate_model(args):  # noqa: C901
     #         optimizer=GridSearchCV,
     #     )
     #
-    # elif cargs.level == 3:
-    #     # Default intent and advanced model search using 3rd party AutoML
-    #
-    #     estimator = AutoEstimator()
-    #     estimator._setup_estimator(y_train)
-    #
-    #     kwargs = (
-    #         "max_time_mins"
-    #         if estimator.problem_type == "regression"
-    #         else "time_left_for_this_task"
-    #     )
-    #     estimator.estimator_kwargs = {
-    #         kwargs: cargs.time,
-    #         **estimator.estimator_kwargs,
-    #     }
-    #
-    #     fs = Foreshadow(estimator=estimator)
+    elif cargs.level == 3:
+        # Default intent and advanced model search using 3rd party AutoML
+
+        estimator = AutoEstimator(problem_type=cargs.problem_type, auto="tpot")
+        estimator.configure_estimator(y_train)
+
+        # TODO move this into the configure_estimator method
+        # TODO "max_time_mins" is an argument for the TPOT library. We cannot
+        # TODO assign it based on the problem type here. For testing purpose,
+        # TODO I'm going to hardcode it for TPOT.
+        # kwargs = (
+        #     "max_time_mins"
+        #     if estimator.problem_type == "regression"
+        #     else "time_left_for_this_task"
+        # )
+        kwargs = "max_time_mins"
+        estimator.estimator_kwargs = {
+            kwargs: cargs.time,
+            **estimator.estimator_kwargs,
+        }
+
+        fs = Foreshadow(estimator=estimator)
 
     else:
-        raise ValueError("Invalid Level. Levels 1 supported.")
+        raise ValueError("Invalid Level. Only levels 1 and 3 supported.")
 
     return fs, X_train, y_train, X_test, y_test
 
@@ -223,14 +237,15 @@ def cmd():  # pragma: no cover
     execute_model(*model)
 
 
-def get_method(arg, y_train):
+def get_method(method, problem_type, y_train):
     """Determine what estimator to use.
 
     Uses set of X data and a passed argument referencing an
     `BaseException <sklearn.base.BaseEstimator>` class.
 
     Args:
-        arg (str): model name
+        method (str): model name
+        problem_type (str): problem type, classification or regression
         y_train (:obj:`DataFrame <pandas.DataFrame>`): The response variable
             data.
 
@@ -241,22 +256,22 @@ def get_method(arg, y_train):
         ValueError: if invalid method is chosen
 
     """
-    if arg is not None:
+    if method is not None:
         try:
             mod = __import__(
                 "sklearn.linear_model", globals(), locals(), ["object"], 0
             )
-            cls = getattr(mod, arg)
+            cls = getattr(mod, method)
             return cls()
         except Exception:
             raise ValueError(
                 "Invalid method. {} is not a valid "
-                "estimator from sklearn.linear_model".format(arg)
+                "estimator from sklearn.linear_model".format(method)
             )
     else:
         return (
             LinearRegression()
-            if determine_problem_type(y_train) == "regression"
+            if problem_type == "regression"
             else LogisticRegression()
         )
 
