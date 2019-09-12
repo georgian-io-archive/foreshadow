@@ -50,21 +50,3 @@ class Preprocessor(PreparerStep, AutoIntentMixin):
 
         """
         return self._def_get_mapping(X)
-
-
-# if __name__ == "__main__":
-#     from foreshadow.utils.testing import debug
-#
-#     debug()
-#     import numpy as np
-#     import pandas as pd
-#     from foreshadow.columnsharer import ColumnSharer
-#
-#     columns = ["financials"]
-#     data = pd.DataFrame({"financials": np.arange(10)}, columns=columns)
-#     cs = ColumnSharer()
-#     p = Preprocessor(cs)
-#     p.fit(data)
-#     import pdb
-#
-#     pdb.set_trace()

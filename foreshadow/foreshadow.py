@@ -364,9 +364,6 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             object: A re-constructed foreshadow object.
 
         """
-        import pdb
-
-        pdb.set_trace()
         serialized_estimator = data.pop("estimator")
         estimator = cls._reconstruct_estimator(serialized_estimator)
 
@@ -382,9 +379,6 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
     def _reconstruct_estimator(cls, data):
         estimator_type = data.pop("_class")
         _ = data.pop("_method")
-        import pdb
-
-        pdb.set_trace()
 
         if estimator_type == AutoEstimator.__name__:
             class_name = estimator_type

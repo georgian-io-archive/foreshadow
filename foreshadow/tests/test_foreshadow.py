@@ -9,13 +9,15 @@ def test_foreshadow_defaults():
     from foreshadow.foreshadow import Foreshadow
     from foreshadow.preparer import DataPreparer
     from foreshadow.estimators import AutoEstimator
+    from foreshadow.estimators import MetaEstimator
 
     foreshadow = Foreshadow()
     # defaults
     assert (
         isinstance(foreshadow.X_preparer, DataPreparer)
         and isinstance(foreshadow.y_preparer, DataPreparer)
-        and isinstance(foreshadow.estimator, AutoEstimator)
+        and isinstance(foreshadow.estimator, MetaEstimator)
+        and isinstance(foreshadow.estimator.estimator, AutoEstimator)
         and foreshadow.optimizer is None
         and foreshadow.pipeline is None
         and foreshadow.data_columns is None
@@ -696,6 +698,18 @@ def test_foreshadow_serialization_non_auto_estimator():
     assertions.assertAlmostEqual(score1, score2, places=7)
 
 
+def check_slow():
+    import os
+
+    return os.environ.get("FORESHADOW_TESTS") != "ALL"
+
+
+slow = pytest.mark.skipif(
+    check_slow(), reason="Skipping long-runnning integration tests"
+)
+
+
+@slow
 def test_foreshadow_serialization_tpot():
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
@@ -728,13 +742,13 @@ def test_foreshadow_serialization_tpot():
     shadow.to_json("foreshadow_tpot.json")
 
     shadow2 = Foreshadow.from_json("foreshadow_tpot.json")
-    assert isinstance(shadow2.estimator, AutoEstimator)
-    shadow2.estimator.configure_estimator(y_train)
-    shadow2.estimator.estimator_kwargs = estimator_kwargs
-    shadow2.fit(X_train, y_train)
-    import pdb
 
-    pdb.set_trace()
+    from foreshadow.estimators import MetaEstimator
+
+    assert isinstance(shadow2.estimator, MetaEstimator)
+    shadow2.estimator.estimator.configure_estimator(y_train)
+    shadow2.estimator.estimator.estimator_kwargs = estimator_kwargs
+    shadow2.fit(X_train, y_train)
 
     assert (
         estimator.estimator_kwargs
