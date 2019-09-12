@@ -2,12 +2,10 @@
 
 from foreshadow.base import BaseEstimator
 from foreshadow.serializers import ConcreteSerializerMixin
-from foreshadow.utils import CustomizeParamsMixin, check_df
+from foreshadow.utils import check_df
 
 
-class MetaEstimator(
-    BaseEstimator, ConcreteSerializerMixin, CustomizeParamsMixin
-):
+class MetaEstimator(BaseEstimator, ConcreteSerializerMixin):
     """Wrapper that allows data preprocessing on the response variable(s).
 
     Args:

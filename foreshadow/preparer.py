@@ -14,7 +14,7 @@ from foreshadow.steps import (
     IntentMapper,
     Preprocessor,
 )
-from foreshadow.utils import ConfigureColumnSharerMixin, CustomizeParamsMixin
+from foreshadow.utils import ConfigureColumnSharerMixin
 
 from .concrete import NoTransform
 
@@ -48,10 +48,7 @@ def _none_to_dict(name, val, column_sharer=None):
 
 
 class DataPreparer(
-    Pipeline,
-    PipelineSerializerMixin,
-    ConfigureColumnSharerMixin,
-    CustomizeParamsMixin,
+    Pipeline, PipelineSerializerMixin, ConfigureColumnSharerMixin
 ):
     """Predefined pipeline for the foreshadow workflow.
 
@@ -138,13 +135,9 @@ class DataPreparer(
             dict: serialized data preparer.
 
         """
-        import pdb
-
-        pdb.set_trace()
-        params = self.get_params(deep=deep)
-        selected_params = self.customize_serialization_params(params)
+        params = self.get_params(deep=False)
         serialized = _make_serializable(
-            selected_params, serialize_args=self.serialize_params
+            params, serialize_args=self.serialize_params
         )
         column_sharer_serialized = serialized.pop("column_sharer", None)
         serialized = self.__remove_key_from(serialized, target="column_sharer")
@@ -184,20 +177,6 @@ class DataPreparer(
         for step in self.steps:
             if hasattr(step[1], "configure_column_sharer"):
                 step[1].configure_column_sharer(column_sharer)
-
-    def customize_serialization_params(self, params):
-        """Extract params in the init method signature plus the steps.
-
-        Args:
-            params: params returned from get_params
-
-        Returns:
-            dict: selected params
-
-        """
-        selected_params = super().customize_serialization_params(params)
-        selected_params["steps"] = params.pop("steps")
-        return selected_params
 
     def __remove_key_from(self, data, target="column_sharer"):
         """Remove all column sharer block recursively from serialized data preparer.

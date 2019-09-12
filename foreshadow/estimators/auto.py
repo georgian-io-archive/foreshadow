@@ -7,16 +7,10 @@ import numpy as np
 from foreshadow.base import BaseEstimator
 from foreshadow.estimators.config import get_tpot_config
 from foreshadow.serializers import ConcreteSerializerMixin
-from foreshadow.utils import (
-    CustomizeParamsMixin,
-    check_df,
-    check_module_installed,
-)
+from foreshadow.utils import check_df, check_module_installed
 
 
-class AutoEstimator(
-    BaseEstimator, ConcreteSerializerMixin, CustomizeParamsMixin
-):
+class AutoEstimator(BaseEstimator, ConcreteSerializerMixin):
     """A wrapped estimator that selects the solution for a given problem.
 
     By default each automatic machine learning solution runs for 1 minute but

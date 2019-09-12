@@ -67,6 +67,9 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             )
             self.optimizer = None
 
+        if self.y_preparer is not None:
+            self.estimator = MetaEstimator(self.estimator, self.y_preparer)
+
     @property
     def X_preparer(self):
         """Preprocessor object for performing feature engineering on X data.
@@ -199,10 +202,6 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         X_df = check_df(data_df)
         y_df = check_df(y_df)
         self.data_columns = X_df.columns.values.tolist()
-
-        # setup MetaEstimator if y_preparer is passed in
-        if self.y_preparer is not None:
-            self.estimator = MetaEstimator(self.estimator, self.y_preparer)
 
         if self.X_preparer is not None:
             self.pipeline = SerializablePipeline(

@@ -3,7 +3,6 @@
 
 from foreshadow.utils.common import (
     ConfigureColumnSharerMixin,
-    CustomizeParamsMixin,
     get_cache_path,
     get_config_path,
     get_transformer,
@@ -33,5 +32,4 @@ __all__ = [
     "is_wrapped",
     "dynamic_import",
     "ConfigureColumnSharerMixin",
-    "CustomizeParamsMixin",
 ]
