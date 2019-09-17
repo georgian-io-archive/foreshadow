@@ -119,8 +119,8 @@ def test_data_preparer_deserialization():
 
     boston_path = get_file_path("data", "boston_housing.csv")
     data = pd.read_csv(boston_path)
-    data = data[["crim", "indus", "ptratio", "tax", "zn"]]
-    # data = data[["tax", "zn"]]
+    # data = data[["crim", "indus", "ptratio", "tax", "zn"]]
+    # data = data[["nox"]]
 
     cs = ColumnSharer()
     dp = DataPreparer(cs)

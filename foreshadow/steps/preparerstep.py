@@ -5,12 +5,13 @@ from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.concrete.internals.notransform import NoTransform
 from foreshadow.logging import logging
 from foreshadow.parallelprocessor import ParallelProcessor
-from foreshadow.pipeline import DynamicPipeline
+
 from foreshadow.serializers import _make_deserializable
 from foreshadow.utils.common import ConfigureColumnSharerMixin
 
 from ..columnsharer import ColumnSharer
 from ..serializers import ConcreteSerializerMixin
+from ..pipeline import DynamicPipeline
 
 
 GroupProcess = namedtuple(
