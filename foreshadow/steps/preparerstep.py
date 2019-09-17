@@ -5,12 +5,13 @@ from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.concrete.internals.notransform import NoTransform
 from foreshadow.logging import logging
 from foreshadow.parallelprocessor import ParallelProcessor
-from foreshadow.pipeline import DynamicPipeline
+
 from foreshadow.serializers import _make_deserializable, _make_serializable
 from foreshadow.utils.common import ConfigureColumnSharerMixin
 
 from ..columnsharer import ColumnSharer
 from ..serializers import ConcreteSerializerMixin
+from ..pipeline import DynamicPipeline
 
 
 GroupProcess = namedtuple(
@@ -572,6 +573,7 @@ class PreparerStep(
             Result from .transform()
 
         """
+        import pdb;pdb.set_trace()
         try:
             return self._parallel_process.fit_transform(X, y=y, **fit_params)
         except AttributeError:

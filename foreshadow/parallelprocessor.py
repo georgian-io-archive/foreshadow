@@ -51,9 +51,10 @@ class ParallelProcessor(
     def __init__(
         self,
         transformer_list,
-        n_jobs=1,
+        n_jobs=2,
         transformer_weights=None,
         collapse_index=False,
+
     ):
 
         self.collapse_index = collapse_index
@@ -344,6 +345,28 @@ class ParallelProcessor(
                 pass
         return Xs
 
+    def _get_original_column_sharer(self):
+        _, transformers, _ = zip(*self.transformer_list)
+        for transformer in transformers:
+            for step in transformer.steps:
+                if hasattr(step[1], "column_sharer"):
+                    return step[1].column_sharer
+        # steps like Imputer don't have column_sharer
+        return None
+
+    @staticmethod
+    def _update_original_column_sharer(column_sharer, transformers):
+        for transformer in transformers:
+            modified_cs = transformer.steps[0][1].column_sharer
+            column_sharer.update_with(modified_cs)
+
+    @staticmethod
+    def _update_transformers_with_updated_column_sharer(transformers,
+                                                        column_sharer):
+        for transformer in transformers:
+            for step in transformer.steps:
+                step[1].column_sharer = column_sharer
+
     def fit_transform(self, X, y=None, **fit_params):
         """Perform both a fit and a transform.
 
@@ -357,7 +380,15 @@ class ParallelProcessor(
             :obj:`pandas.DataFrame`: All transformations concatenated
 
         """
+        update_column_sharer = True
+        # TODO extract the column_sharer before executing parallel processing
         self._validate_transformers()
+
+        column_sharer = self._get_original_column_sharer()
+        update_column_sharer = self.n_jobs > 1 and update_column_sharer and (
+                column_sharer is  not None)
+        import pdb;
+        pdb.set_trace()
 
         result = Parallel(n_jobs=self.n_jobs)(
             delayed(_pandas_fit_transform_one)(
@@ -371,12 +402,24 @@ class ParallelProcessor(
             )
             for name, trans, cols, weight in self._iter()
         )
+        # TODO add code to update column_sharer here?
+        # TODO the only info added is for a particular column and we know
+        # TODO what that is. We can iterate over the acceptable keys with
+        # TODO that column. Well NO, we cannot. The col here is not a single
+        #  column but a column group. We have to update every key in column
+        #  sharer.
 
         if not result:
             # All transformers are None
             return X[[]]
 
         Xs, transformers = zip(*result)
+        if update_column_sharer:
+            import pdb;
+            pdb.set_trace()
+            self._update_original_column_sharer(column_sharer, transformers)
+            self._update_transformers_with_updated_column_sharer(transformers,
+                                                                 column_sharer)
         self._update_transformer_list(transformers)
 
         Xo = X[self._get_other_cols(X)]
