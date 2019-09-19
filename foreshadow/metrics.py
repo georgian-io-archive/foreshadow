@@ -8,6 +8,13 @@ from foreshadow.utils import check_series
 
 
 class MetricWrapper:
+    """Class that wraps around the metric calculation function.
+
+    Add default_return value as well as the option to calculate the
+    inverted metric.
+
+    """
+
     def __init__(self, fn, default_return=0, invert=False):
         self.fn = fn
         self.default_return = default_return
@@ -15,6 +22,23 @@ class MetricWrapper:
         self._last_call = None
 
     def calculate(self, feature, **kwargs):
+        """Use the metric function passed at initialization.
+
+        Note:
+            If default_return was set, the wrapper will suppress any errors
+            raised by the wrapped function.
+
+        Args:
+            feature: feature/column of pandas dataset requires it.
+            **kwargs: any keyword arguments to metric function
+
+        Returns:
+            The metric computation defined by the metric.
+
+        Raises:
+            re_raise: If default return
+
+        """
         try:
             self._last_call = self.fn(feature, **kwargs)
         except Exception as re_raise:
