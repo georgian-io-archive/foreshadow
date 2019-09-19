@@ -1,6 +1,6 @@
 """Categorical intent."""
 
-from foreshadow.metrics import num_valid, unique_heur, MetricWrapper2
+from foreshadow.metrics import MetricWrapper, num_valid, unique_heur
 
 from .base import BaseIntent
 
@@ -15,9 +15,9 @@ class Categoric(BaseIntent):
     """Defines a categoric column type."""
 
     confidence_computation = {
-        MetricWrapper2(num_valid): (1 / 3),
-        MetricWrapper2(unique_heur): (1 / 3),
-        MetricWrapper2(return_one): (1 / 3),
+        MetricWrapper(num_valid): (1 / 3),
+        MetricWrapper(unique_heur): (1 / 3),
+        MetricWrapper(return_one): (1 / 3),
     }
 
     def fit(self, X, y=None, **fit_params):
