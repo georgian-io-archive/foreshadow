@@ -36,7 +36,7 @@ class MetricWrapper:
             The metric computation defined by the metric.
 
         Raises:
-            re_raise: If default return
+            re_raise: If default return is not set the metric then re-raise
 
         """
         try:
