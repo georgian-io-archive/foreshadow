@@ -1,7 +1,5 @@
 """Numeric intent."""
 
-from functools import partial
-
 import pandas as pd
 
 from foreshadow.metrics import (

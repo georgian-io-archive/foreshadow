@@ -6,15 +6,33 @@ from foreshadow.serializers import ConcreteSerializerMixin
 
 
 # TODO: Make this multi processor safe using managers
-def get_none():
+def get_none():  # noqa: D401
+    """Method that returns None.
+
+    Returns:
+        None
+
+    """
     return None
 
 
-def get_pretty_default_dict():
+def get_pretty_default_dict():  # noqa: D401
+    """Method that returns a pretty defaultdict with factory set to get_none.
+
+    Returns:
+        a pretty defaultdict as described.
+
+    """
     return PrettyDefaultDict(get_none)
 
 
-def get_false():
+def get_false():  # noqa: D401
+    """Method that returns False.
+
+    Returns:
+        False
+
+    """
     return False
 
 

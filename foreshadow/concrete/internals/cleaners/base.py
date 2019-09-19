@@ -13,7 +13,16 @@ from foreshadow.utils import check_df
 CleanerReturn = namedtuple("CleanerReturn", ["row", "match_lens"])
 
 
-def return_original_row(x):
+def return_original_row(x):  # noqa: D401
+    """Method that returns the row as is.
+
+    Args:
+        x: a row of data
+
+    Returns:
+        the row itself untouched.
+
+    """
     return x
 
 
@@ -77,13 +86,13 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
             float: confidence value.
 
         """
-        return sum(
-            [
+        scores = []
+        for metric_wrapper, weight in self.confidence_computation.items():
+            scores.append(
                 metric_wrapper.calculate(X, cleaner=self.transform_row)
                 * weight
-                for metric_wrapper, weight in self.confidence_computation.items()
-            ]
-        )
+            )
+        return sum(scores)
 
     def transform_row(self, row_of_feature, return_tuple=True):
         """Perform clean operations on text, that is a row of feature.
