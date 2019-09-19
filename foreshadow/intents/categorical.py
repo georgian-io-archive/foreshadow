@@ -7,7 +7,16 @@ from .base import BaseIntent
 
 # Due to pickling issue in Parallel process, the lambda x: 1 needs to be
 # rewritten as a public method.
-def return_one(X):
+def return_one(X):  # noqa: D401
+    """Method that always return 1.
+
+    Args:
+        X: input data frame
+
+    Returns:
+        the value 1
+
+    """
     return 1
 
 

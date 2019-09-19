@@ -363,7 +363,8 @@ class ParallelProcessor(
         for transformer in transformers:
             modified_cs = transformer.steps[0][1].column_sharer
             ParallelProcessor._update_original_column_sharer_with_another(
-                column_sharer, modified_cs)
+                column_sharer, modified_cs
+            )
 
     @staticmethod
     def _update_transformers_with_updated_column_sharer(
@@ -374,14 +375,16 @@ class ParallelProcessor(
                 step[1].column_sharer = column_sharer
 
     @staticmethod
-    def _update_original_column_sharer_with_another(column_sharer,
-                                                    modified_cs):
+    def _update_original_column_sharer_with_another(
+        column_sharer, modified_cs
+    ):
         """Update the column_sharer with another column_sharer in place.
+
         Only values that are not None are assigned back to the column_sharer.
 
         Args:
-            modified_cs: a modified column_sharer by a
-            parallel_process.
+            column_sharer: the original column_sharer.
+            modified_cs: a modified column_sharer by a parallel_process.
 
         """
         for combined_key in modified_cs:
@@ -408,9 +411,8 @@ class ParallelProcessor(
         #  is something we may be able to improve by specifying the
         #  update_column_sharer params through the fit_params (we need to
         #  pop it).
-        update_column_sharer = (
-            (self.n_jobs > 1 or self.n_jobs == -1)
-            and (column_sharer is not None)
+        update_column_sharer = (self.n_jobs > 1 or self.n_jobs == -1) and (
+            column_sharer is not None
         )
 
         result = Parallel(n_jobs=self.n_jobs)(

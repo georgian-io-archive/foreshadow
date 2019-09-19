@@ -1,7 +1,5 @@
 """Text intent."""
 
-from functools import partial
-
 from foreshadow.metrics import (
     MetricWrapper,
     is_numeric,
