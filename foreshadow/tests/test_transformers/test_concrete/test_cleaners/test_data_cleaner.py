@@ -1,6 +1,8 @@
 """Test data_cleaner.py"""
+import pytest
 
 
+# @pytest.mark.skip("Need further investigation")
 def test_data_cleaner_fit():
     """Test basic fit call."""
     import pandas as pd
@@ -51,6 +53,7 @@ def test_data_cleaner_fit():
     )
 
 
+# @pytest.mark.skip("Need further investigation")
 def test_financials():
     """Test financial column cleaned correctly."""
     import pandas as pd
@@ -77,6 +80,7 @@ def test_financials():
     )
 
 
+# @pytest.mark.skip("Need further investigation")
 def test_json():
     """Test json input cleaned correctly."""
     import pandas as pd
@@ -119,6 +123,7 @@ def test_json():
     )
 
 
+# @pytest.mark.skip("Need further investigation")
 def test_drop():
     """Test drop called when expected to."""
     import pandas as pd

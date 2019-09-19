@@ -30,6 +30,21 @@ def _split_to_new_cols(t):
     return texts, res
 
 
+# Due to Parallel processing issue, this method cannot be a local method.
+def make_list_of_three(x):
+    """Return default output which must have 3 columns.
+
+    Args:
+        x: initial row.
+
+    Returns:
+        list of three with initial row as first element, 2 empty
+        elements.
+
+    """
+    return [x, "", ""]
+
+
 class YYYYMMDDDateCleaner(BaseCleaner):
     """Clean financial data.
 
@@ -39,19 +54,5 @@ class YYYYMMDDDateCleaner(BaseCleaner):
 
     def __init__(self):
         transformations = [_split_to_new_cols]
-
-        def make_list_of_three(x):
-            """Return default output which must have 3 columns.
-
-            Args:
-                x: initial row.
-
-            Returns:
-                list of three with initial row as first element, 2 empty
-                elements.
-
-            """
-            return [x, "", ""]
-
         default = make_list_of_three
         super().__init__(transformations, default=default)

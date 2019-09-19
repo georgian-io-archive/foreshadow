@@ -10,8 +10,8 @@ from foreshadow.serializers import _make_deserializable
 from foreshadow.utils.common import ConfigureColumnSharerMixin
 
 from ..columnsharer import ColumnSharer
-from ..serializers import ConcreteSerializerMixin
 from ..pipeline import DynamicPipeline
+from ..serializers import ConcreteSerializerMixin
 
 
 GroupProcess = namedtuple(

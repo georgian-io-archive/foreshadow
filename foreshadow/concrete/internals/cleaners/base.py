@@ -6,11 +6,15 @@ import pandas as pd
 
 from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.exceptions import InvalidDataFrame
-from foreshadow.metrics import avg_col_regex, regex_rows
+from foreshadow.metrics import avg_col_regex, regex_rows, MetricWrapper2
 from foreshadow.utils import check_df
 
 
 CleanerReturn = namedtuple("CleanerReturn", ["row", "match_lens"])
+
+
+def return_original_row(x):
+    return x
 
 
 class BaseCleaner(BaseEstimator, TransformerMixin):
@@ -21,7 +25,7 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         transformations,
         output_columns=None,
         confidence_computation=None,
-        default=lambda x: x,
+        default=return_original_row,
         # column_sharer=None,
     ):
         """Construct any cleaner/flattener.
@@ -50,7 +54,9 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         self.default = default
         self.output_columns = output_columns
         self.transformations = transformations
-        self.confidence_computation = {regex_rows: 0.8, avg_col_regex: 0.2}
+        self.confidence_computation = {MetricWrapper2(regex_rows): 0.8,
+                                       MetricWrapper2(avg_col_regex): 0.2}
+        # self.confidence_computation = {regex_rows: 0.8, avg_col_regex: 0.2}
         # self.column_sharer = column_sharer
         if confidence_computation is not None:
             self.confidence_computation = confidence_computation
@@ -71,8 +77,10 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         """
         return sum(
             [
-                metric_fn(X, cleaner=self.transform_row) * weight
-                for metric_fn, weight in self.confidence_computation.items()
+                metric_wrapper.calculate(X, cleaner=self.transform_row) *
+                weight
+                for metric_wrapper, weight in
+                self.confidence_computation.items()
             ]
         )
 

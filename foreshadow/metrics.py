@@ -118,7 +118,57 @@ class metric:
         return MetricWrapper(fn, self.default_return)
 
 
-@metric()
+class MetricWrapper2:
+    def __init__(self, fn, default_return=0, invert=False):
+        self.fn = fn
+        self.default_return = default_return
+        self.invert = invert
+        self._last_call = None
+
+    def calculate(self, feature, **kwargs):
+        try:
+            self._last_call = self.fn(feature, **kwargs)
+        except Exception as re_raise:
+            logging.debug(
+                "There was an exception when calling {}".format(self.fn)
+            )
+            if self.default_return is not None:
+                return self.default_return
+            else:
+                raise re_raise
+
+        return self._last_call if not self.invert else (1.0 - self._last_call)
+
+    def last_call(self):
+        """Value from previous call to metric function.
+
+        Returns:
+            Last call to metric_fn (self.fn)
+
+        """
+        return self._last_call
+
+    def __str__(self):
+        """Pretty print.
+
+        Returns:
+            $class.$fn
+
+        """
+        return "{0}.{1}".format(self.__class__.__name__, self.fn.__name__)
+
+    def __repr__(self):
+        """Unambiguous print.
+
+        Returns:
+            <$class, $fn, $id>
+
+        """
+        return "{0} with function '{1}' object at {2}>".format(
+            str(self.__class__)[:-1], self.fn.__name__, id(self)
+        )
+
+# @metric()
 def unique_count(feature):
     """Count number of unique values in feature.
 
@@ -132,7 +182,7 @@ def unique_count(feature):
     return len(feature.value_counts())
 
 
-@metric()
+# @metric()
 def unique_count_bias(feature):
     """Difference of count of unique values relative to the length of feature.
 
@@ -146,7 +196,7 @@ def unique_count_bias(feature):
     return len(feature) - len(feature.value_counts())
 
 
-@metric()
+# @metric()
 def unique_count_weight(feature):
     """Normalize count number of unique values relative to length of feature.
 
@@ -160,7 +210,7 @@ def unique_count_weight(feature):
     return len(feature.value_counts()) / len(feature)
 
 
-@metric()
+# @metric()
 def regex_rows(feature, cleaner):
     """Return percentage of rows matched by regex transformations.
 
@@ -184,7 +234,7 @@ def regex_rows(feature, cleaner):
     return sum([min(list_lens) for list_lens in matched_lens]) / len(feature)
 
 
-@metric()
+# @metric()
 def avg_col_regex(feature, cleaner, mode=min):
     """Return average percentage of each row's text transformed by cleaner.
 
@@ -225,7 +275,7 @@ def avg_col_regex(feature, cleaner, mode=min):
     ) / len(feature)
 
 
-@metric(default_return=0)
+# @metric(default_return=0)
 def num_valid(X):
     """Count the number of valid numbers in an input.
 
@@ -242,7 +292,7 @@ def num_valid(X):
     return float(data.sum()) / data.size
 
 
-@metric(default_return=0)
+# @metric(default_return=0)
 def unique_heur(X):
     """Compute the ratio of unique numbers to the total size of the input.
 
@@ -258,7 +308,7 @@ def unique_heur(X):
     return 1 - (1.0 * X.nunique() / X.count())
 
 
-@metric(default_return=0)
+# @metric(default_return=0)
 def is_numeric(X):
     """Check if an input is numeric.
 
@@ -277,7 +327,7 @@ def is_numeric(X):
     return is_numeric_dtype(X)
 
 
-@metric(default_return=0)
+# @metric(default_return=0)
 def is_string(X):
     """Check if an input is a string.
 
