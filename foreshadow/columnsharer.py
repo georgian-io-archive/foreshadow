@@ -50,9 +50,7 @@ class ColumnSharer(MutableMapping, ConcreteSerializerMixin):
             "metastat": True,
             "graph": True,
         }
-        self.__acceptable_keys = PrettyDefaultDict(
-            get_false, acceptable_keys
-        )
+        self.__acceptable_keys = PrettyDefaultDict(get_false, acceptable_keys)
 
     def dict_serialize(self, deep=True):
         """Serialize the init parameters (dictionary form) of a columnsharer.
@@ -86,18 +84,6 @@ class ColumnSharer(MutableMapping, ConcreteSerializerMixin):
             ret[key] = store[key]
 
         return ret
-
-    def update_with(self, another_column_sharer):
-        """Update the column_sharer with another column_sharer in place.
-        Only values that are not None are assigned back to the column_sharer.
-
-        Args:
-            another_column_sharer:
-
-        """
-        for combined_key in another_column_sharer:
-            if another_column_sharer[combined_key] is not None:
-                self[combined_key] = another_column_sharer[combined_key]
 
     def __getitem__(self, key_list):
         """Override getitem to support multi key accessing simultaneously.

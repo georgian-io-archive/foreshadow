@@ -28,7 +28,8 @@ class BaseIntent(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
         """
         return sum(
             [
-                metric_fn(X) * weight
-                for metric_fn, weight in cls.confidence_computation.items()
+                metric_wrapper.calculate(X) * weight
+                for metric_wrapper, weight in
+                cls.confidence_computation.items()
             ]
         )

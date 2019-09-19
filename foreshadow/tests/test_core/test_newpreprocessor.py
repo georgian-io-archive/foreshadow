@@ -3,6 +3,7 @@
 import pytest
 
 from foreshadow.utils import dynamic_import
+from foreshadow.base import BaseEstimator, TransformerMixin
 
 
 @pytest.mark.skip("This is waiting on a patch to the Base class")
@@ -51,7 +52,15 @@ def test_preprocessor_none_config(mocker):
     p.fit(data)
     _ = p.transform(data)
 
-    # import pdb; pdb.set_trace()
+
+class DummyIntent(BaseEstimator, TransformerMixin):
+    # In order to work with joblib.Parallel, DummyIntent cannot be a local
+    # class defined inside a function.
+    def fit(self, X, y=None, **fit_params):
+        return self
+
+    def transform(self, X, y=None):
+        return X
 
 
 def test_preprocessor_numbers(mocker):
@@ -65,17 +74,7 @@ def test_preprocessor_numbers(mocker):
     import pandas as pd
     from foreshadow.columnsharer import ColumnSharer
     from foreshadow.steps import Preprocessor
-
-    from foreshadow.base import BaseEstimator, TransformerMixin
-
     from foreshadow.concrete import StandardScaler
-
-    class DummyIntent(BaseEstimator, TransformerMixin):
-        def fit(self, X, y=None, **fit_params):
-            return self
-
-        def transform(self, X, y=None):
-            return X
 
     dummy_config = {
         "Cleaner": [],
@@ -132,16 +131,7 @@ def test_preprocessor_columnsharer(mocker, column_sharer):
     import pandas as pd
     from foreshadow.steps import Preprocessor
 
-    from foreshadow.base import BaseEstimator, TransformerMixin
-
     from foreshadow.concrete import StandardScaler
-
-    class DummyIntent(BaseEstimator, TransformerMixin):
-        def fit(self, X, y=None, **fit_params):
-            return self
-
-        def transform(self, X, y=None):
-            return X
 
     dummy_config = {
         "Cleaner": [],

@@ -16,7 +16,6 @@ class AutoIntentMixin:
             RuntimeError: If there is no self.column_sharer.
 
         """
-        import pdb;pdb.set_trace()
         if getattr(self, "column_sharer", None) is None:
             raise RuntimeError(
                 "Column Sharer was somehow None. Please make "
