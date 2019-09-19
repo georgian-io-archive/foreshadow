@@ -4,8 +4,13 @@ from functools import partial
 
 import pandas as pd
 
-from foreshadow.metrics import is_numeric, is_string, num_valid, \
-    unique_heur, MetricWrapper2
+from foreshadow.metrics import (
+    MetricWrapper,
+    is_numeric,
+    is_string,
+    num_valid,
+    unique_heur,
+)
 
 from .base import BaseIntent
 
@@ -14,10 +19,10 @@ class Numeric(BaseIntent):
     """Defines a numeric column type."""
 
     confidence_computation = {
-        MetricWrapper2(num_valid): 0.25,
-        MetricWrapper2(unique_heur, invert=True): 0.25,
-        MetricWrapper2(is_numeric): 0.25,
-        MetricWrapper2(is_string, invert=True): 0.25,
+        MetricWrapper(num_valid): 0.25,
+        MetricWrapper(unique_heur, invert=True): 0.25,
+        MetricWrapper(is_numeric): 0.25,
+        MetricWrapper(is_string, invert=True): 0.25,
     }
 
     def fit(self, X, y=None, **fit_params):

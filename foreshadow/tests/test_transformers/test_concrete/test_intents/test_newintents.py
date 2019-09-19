@@ -2,7 +2,7 @@
 
 import pytest
 
-from foreshadow.metrics import MetricWrapper2
+from foreshadow.metrics import MetricWrapper
 
 
 def test_base_intent_get_confidence():
@@ -11,8 +11,8 @@ def test_base_intent_get_confidence():
     from foreshadow.intents import BaseIntent
 
     BaseIntent.confidence_computation = {
-        MetricWrapper2(lambda x: 1): 0.5,
-        MetricWrapper2(lambda x: 1): 0.5,
+        MetricWrapper(lambda x: 1): 0.5,
+        MetricWrapper(lambda x: 1): 0.5,
     }
 
     assert BaseIntent.get_confidence([]) == 1
