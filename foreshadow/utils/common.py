@@ -77,6 +77,8 @@ def get_transformer(class_name, source_lib=None):
                 "foreshadow.parallelprocessor",
                 "foreshadow.columnsharer",
                 "foreshadow.pipeline",
+                "foreshadow.preparer",
+                "foreshadow.estimators",
             ]
         )
 
@@ -95,7 +97,7 @@ def get_transformer(class_name, source_lib=None):
 
 
 class ConfigureColumnSharerMixin:
-    """Mxin that configure column sharer."""
+    """Mixin that configure column sharer."""
 
     def configure_column_sharer(self, column_sharer):
         """Configure the column sharer attribute if exists.
