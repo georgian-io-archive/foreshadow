@@ -2,8 +2,8 @@
 
 import pytest
 
-from foreshadow.utils import dynamic_import
 from foreshadow.base import BaseEstimator, TransformerMixin
+from foreshadow.utils import dynamic_import
 
 
 @pytest.mark.skip("This is waiting on a patch to the Base class")
