@@ -51,8 +51,6 @@ def test_preprocessor_none_config(mocker):
     p.fit(data)
     _ = p.transform(data)
 
-    # import pdb; pdb.set_trace()
-
 
 def test_preprocessor_numbers(mocker):
     """Test a standard work flow with preprocessor.

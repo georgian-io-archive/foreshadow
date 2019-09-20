@@ -9,13 +9,15 @@ def test_foreshadow_defaults():
     from foreshadow.foreshadow import Foreshadow
     from foreshadow.preparer import DataPreparer
     from foreshadow.estimators import AutoEstimator
+    from foreshadow.estimators import MetaEstimator
 
     foreshadow = Foreshadow()
     # defaults
     assert (
         isinstance(foreshadow.X_preparer, DataPreparer)
         and isinstance(foreshadow.y_preparer, DataPreparer)
-        and isinstance(foreshadow.estimator, AutoEstimator)
+        and isinstance(foreshadow.estimator, MetaEstimator)
+        and isinstance(foreshadow.estimator.estimator, AutoEstimator)
         and foreshadow.optimizer is None
         and foreshadow.pipeline is None
         and foreshadow.data_columns is None
@@ -607,8 +609,6 @@ def test_core_foreshadow_example_regression():
     X_train, X_test, y_train, y_test = train_test_split(
         bostonX_df, bostony_df, test_size=0.2
     )
-    # print(X_train)
-    # print(X_train.iloc[0])
     model = Foreshadow(estimator=LinearRegression())
     model.fit(X_train, y_train)
     score = r2_score(y_test, model.predict(X_test))
@@ -660,3 +660,105 @@ def test_foreshadow_get_params_keys(deep):
     ]
     for key in desired_keys:
         assert key in params
+
+
+def test_foreshadow_serialization_non_auto_estimator():
+    from foreshadow.foreshadow import Foreshadow
+    import pandas as pd
+    import numpy as np
+    from sklearn.datasets import load_breast_cancer
+    from sklearn.model_selection import train_test_split
+    from sklearn.linear_model import LogisticRegression
+
+    np.random.seed(1337)
+
+    cancer = load_breast_cancer()
+    cancerX_df = pd.DataFrame(cancer.data, columns=cancer.feature_names)
+    cancery_df = pd.DataFrame(cancer.target, columns=["target"])
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        cancerX_df, cancery_df, test_size=0.2
+    )
+
+    shadow = Foreshadow(estimator=LogisticRegression())
+
+    shadow.fit(X_train, y_train)
+
+    shadow.to_json("foreshadow_logisticRegression.json")
+
+    shadow2 = Foreshadow.from_json("foreshadow_logisticRegression.json")
+    shadow2.fit(X_train, y_train)
+
+    score1 = shadow.score(X_test, y_test)
+    score2 = shadow2.score(X_test, y_test)
+
+    import unittest
+
+    assertions = unittest.TestCase("__init__")
+    assertions.assertAlmostEqual(score1, score2, places=7)
+
+
+def check_slow():
+    import os
+
+    return os.environ.get("FORESHADOW_TESTS") != "ALL"
+
+
+slow = pytest.mark.skipif(
+    check_slow(), reason="Skipping long-runnning integration tests"
+)
+
+
+@slow
+def test_foreshadow_serialization_tpot():
+    from foreshadow.foreshadow import Foreshadow
+    import pandas as pd
+    import numpy as np
+    from sklearn.datasets import load_breast_cancer
+    from sklearn.model_selection import train_test_split
+
+    np.random.seed(1337)
+
+    cancer = load_breast_cancer()
+    cancerX_df = pd.DataFrame(cancer.data, columns=cancer.feature_names)
+    cancery_df = pd.DataFrame(cancer.target, columns=["target"])
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        cancerX_df, cancery_df, test_size=0.2
+    )
+
+    from foreshadow.estimators import AutoEstimator
+
+    estimator = AutoEstimator(problem_type="classification", auto="tpot")
+    estimator.configure_estimator(y_train)
+
+    estimator_kwargs = {"max_time_mins": 1, **estimator.estimator_kwargs}
+    estimator.estimator_kwargs = estimator_kwargs
+
+    shadow = Foreshadow(estimator=estimator)
+
+    shadow.fit(X_train, y_train)
+
+    shadow.to_json("foreshadow_tpot.json")
+
+    shadow2 = Foreshadow.from_json("foreshadow_tpot.json")
+
+    from foreshadow.estimators import MetaEstimator
+
+    assert isinstance(shadow2.estimator, MetaEstimator)
+    shadow2.estimator.estimator.configure_estimator(y_train)
+    shadow2.estimator.estimator.estimator_kwargs = estimator_kwargs
+    shadow2.fit(X_train, y_train)
+
+    assert (
+        estimator.estimator_kwargs
+        == shadow2.estimator.estimator.estimator_kwargs
+    )
+
+    score1 = shadow.score(X_test, y_test)
+    score2 = shadow2.score(X_test, y_test)
+    # given the randomness of the tpot algorithm and the short run
+    # time we configured, there is no guarantee the performance can
+    # converge. The test here aims to evaluate if both cases have
+    # produced a reasonable score and the difference is small.
+    assert score1 > 0.9 and score2 > 0.9
