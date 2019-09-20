@@ -26,10 +26,7 @@ class BaseIntent(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
             float: A confidence value bounded between 0.0 and 1.0
 
         """
-        return sum(
-            [
-                metric_wrapper.calculate(X) * weight
-                for metric_wrapper, weight in
-                cls.confidence_computation.items()
-            ]
-        )
+        scores = []
+        for metric_wrapper, weight in cls.confidence_computation.items():
+            scores.append(metric_wrapper.calculate(X) * weight)
+        return sum(scores)
