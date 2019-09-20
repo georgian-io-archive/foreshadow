@@ -95,7 +95,13 @@ class FeatureReducerMapper(PreparerStep, AutoIntentMixin):
             return result
 
         columns = X.columns.values.tolist()
-        columns_by_intent = list(group_by(columns, "intent").values())
+        columns_by_intent = group_by(columns, "intent")
+
+        column_groups = []
+        group_criterion = []
+        for key, val in columns_by_intent.items():
+            group_criterion.append(key)
+            column_groups.append(val)
 
         """Not sure where the drop_feature functionality would apply.
         Would reducer produce empty columns? If yes, the concrete reducer
@@ -105,7 +111,8 @@ class FeatureReducerMapper(PreparerStep, AutoIntentMixin):
         return self.separate_cols(
             transformers=[
                 [_FeatureReducer(column_sharer=self.column_sharer)]
-                for col_group in columns_by_intent
+                for col_group in column_groups
             ],
-            cols=columns_by_intent,
+            cols=column_groups,
+            criterion=group_criterion,
         )

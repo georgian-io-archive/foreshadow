@@ -47,21 +47,23 @@ class FeatureEngineererMapper(PreparerStep, AutoIntentMixin):
             columns_by_intent = group_by(columns_by_domain[domain], "intent")
             for intent in columns_by_intent:
                 columns_by_domain_and_intent[
-                    str(domain) + "_" + intent
+                    str(domain) + "_" + str(intent)
                 ] += columns_by_intent[intent]
         """Instead of using i as the outer layer key,
         should we use some more specific like the key
         in columns_by_domain_and_intent, which is ${domain}_${intent}?
         """
-
-        columns_by_domain_and_intent = list(
-            columns_by_domain_and_intent.values()
-        )
+        column_groups = []
+        group_criterion = []
+        for key, val in columns_by_domain_and_intent.items():
+            group_criterion.append(key)
+            column_groups.append(val)
 
         return self.separate_cols(
             transformers=[
                 [_FeatureEngineerer(column_sharer=self.column_sharer)]
-                for col_group in columns_by_domain_and_intent
+                for col_group in column_groups
             ],
-            cols=columns_by_domain_and_intent,
+            cols=column_groups,
+            criterion=group_criterion,
         )
