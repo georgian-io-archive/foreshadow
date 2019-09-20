@@ -49,7 +49,7 @@ class ParallelProcessor(
     def __init__(
         self,
         transformer_list,
-        n_jobs=-1,
+        n_jobs=1,
         transformer_weights=None,
         collapse_index=False,
     ):

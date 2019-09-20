@@ -3,9 +3,9 @@ from collections import MutableMapping, defaultdict, namedtuple
 
 from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.concrete.internals.notransform import NoTransform
+from foreshadow.config import config
 from foreshadow.logging import logging
 from foreshadow.parallelprocessor import ParallelProcessor
-
 from foreshadow.serializers import _make_deserializable
 from foreshadow.utils.common import ConfigureColumnSharerMixin
 
@@ -226,7 +226,11 @@ def _batch_parallelize(column_mapping):
         steps.append(
             (
                 "step: {}".format(step_number),
-                ParallelProcessor(transformer_list, collapse_index=True),
+                ParallelProcessor(
+                    transformer_list,
+                    n_jobs=config.get_n_jobs_config(),
+                    collapse_index=True,
+                ),
             )
         )  # list of steps for final pipeline.
     return steps, list(all_cols)
@@ -457,7 +461,11 @@ class PreparerStep(
         ]
         if len(group_transformer_list) == 0:
             return NoTransform()
-        return ParallelProcessor(group_transformer_list, collapse_index=True)
+        return ParallelProcessor(
+            group_transformer_list,
+            n_jobs=config.get_n_jobs_config(),
+            collapse_index=True,
+        )
 
     def get_mapping(self, X):
         """Return a PreparerMapping object.
