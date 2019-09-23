@@ -41,8 +41,8 @@ class AutoEstimator(BaseEstimator, ConcreteSerializerMixin):
         self.estimator_class = None
         self.estimator = None
 
-    def dict_serialize(self, deep=True):  # noqa
-        return super().dict_serialize(deep=False)
+    # def dict_serialize(self, deep=False):  # noqa
+    #     return super().dict_serialize(deep=False)
 
     @property
     def problem_type(self):
