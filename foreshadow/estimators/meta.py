@@ -1,10 +1,11 @@
 """Wrapped Estimator."""
 
 from foreshadow.base import BaseEstimator
+from foreshadow.serializers import ConcreteSerializerMixin
 from foreshadow.utils import check_df
 
 
-class MetaEstimator(BaseEstimator):
+class MetaEstimator(BaseEstimator, ConcreteSerializerMixin):
     """Wrapper that allows data preprocessing on the response variable(s).
 
     Args:
@@ -18,6 +19,9 @@ class MetaEstimator(BaseEstimator):
     def __init__(self, estimator, preprocessor):
         self.estimator = estimator
         self.preprocessor = preprocessor
+
+    def dict_serialize(self, deep=False):  # noqa
+        return super().dict_serialize(deep=False)
 
     def fit(self, X, y=None):
         """Fit the AutoEstimator instance using a selected AutoML estimator.

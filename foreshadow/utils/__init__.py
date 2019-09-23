@@ -2,6 +2,7 @@
 
 
 from foreshadow.utils.common import (
+    ConfigureColumnSharerMixin,
     get_cache_path,
     get_config_path,
     get_transformer,
@@ -38,4 +39,5 @@ __all__ = [
     "mode_freq",
     "get_outliers",
     "standard_col_summary",
+    "ConfigureColumnSharerMixin",
 ]

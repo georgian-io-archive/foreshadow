@@ -57,8 +57,12 @@ def test_feature_reducer_get_mapping_by_intent():
     column_mapping = fr.get_mapping(data)
 
     check = PreparerMapping()
-    check.add(["age", "weights"], [FeatureReducer(column_sharer=cs)])
-    check.add(["occupation"], [FeatureReducer(column_sharer=cs)])
+    check.add(
+        ["age", "weights"], [FeatureReducer(column_sharer=cs)], "Numeric"
+    )
+    check.add(
+        ["occupation"], [FeatureReducer(column_sharer=cs)], "Categorical"
+    )
 
     for key in column_mapping.store:
         assert key in check.store

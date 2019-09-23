@@ -62,8 +62,16 @@ def test_feature_engineerer_get_mapping():
     column_mapping = fem.get_mapping(data)
 
     check_pm = PreparerMapping()
-    check_pm.add(["age", "weights"], [FeatureEngineerer(column_sharer=cs)])
-    check_pm.add(["financials"], [FeatureEngineerer(column_sharer=cs)])
+    check_pm.add(
+        ["age", "weights"],
+        [FeatureEngineerer(column_sharer=cs)],
+        "personal_Numeric",
+    )
+    check_pm.add(
+        ["financials"],
+        [FeatureEngineerer(column_sharer=cs)],
+        "financial_Numeric",
+    )
 
     for key in column_mapping.store:
         assert key in check_pm.store

@@ -67,7 +67,7 @@ def test_override_kwarg_dict():
         estimator_kwargs={"include_preprocessors": ["kitchen_sinks"]},
     )
 
-    est = ae._setup_estimator([1, 2, 3])
+    est = ae.configure_estimator([1, 2, 3])
 
     assert est.include_preprocessors == ["kitchen_sinks"]
 
@@ -80,7 +80,7 @@ def test_temp():
 
     y = pd.DataFrame(np.array([0] * 50 + [1] * 50))
     ae1 = AutoEstimator()
-    _ = ae1._setup_estimator(y)
+    _ = ae1.configure_estimator(y)
     _ = AutoEstimator()
 
 
@@ -99,7 +99,7 @@ def test_default_estimator_setup_classification():
 
     y = pd.DataFrame(np.array([0] * 50 + [1] * 50))
     ae = AutoEstimator()
-    est = ae._setup_estimator(y)
+    est = ae.configure_estimator(y)
     assert isinstance(est, AutoSklearnClassifier)
 
 
@@ -117,7 +117,7 @@ def test_default_estimator_setup_classification_autosklearn_not_installed(
     y = pd.DataFrame(np.array([0] * 50 + [1] * 50))
     ae = AutoEstimator()
     with pytest.warns(Warning) as w:
-        est = ae._setup_estimator(y)
+        est = ae.configure_estimator(y)
 
     assert isinstance(est, TPOTClassifier)
     assert "is not available, defaulting to" in str(w[0].message)
@@ -132,7 +132,7 @@ def test_default_estimator_setup_regression():
 
     y = pd.DataFrame(np.random.normal(0, 1, 200))
     ae = AutoEstimator()
-    est = ae._setup_estimator(y)
+    est = ae.configure_estimator(y)
     assert isinstance(est, TPOTRegressor)
 
 

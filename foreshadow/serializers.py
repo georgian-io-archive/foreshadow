@@ -264,7 +264,7 @@ class ConcreteSerializerMixin(BaseTransformerSerializer):
         else:
             return {}
 
-    def dict_serialize(self, deep=True):
+    def dict_serialize(self, deep=False):
         """Serialize the init parameters (dictionary form) of a transformer.
 
         Args:
