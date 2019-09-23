@@ -388,23 +388,32 @@ class ParallelProcessor(
                     # steps like Imputer don't have column_sharer
                     if hasattr(step[1], "column_sharer"):
                         return step[1].column_sharer
+            elif hasattr(transformer, "column_sharer"):
+                return transformer.column_sharer
         return None
 
     @staticmethod
     def _update_original_column_sharer(column_sharer, transformers):
         for transformer in transformers:
-            modified_cs = transformer.steps[0][1].column_sharer
-            ParallelProcessor._update_original_column_sharer_with_another(
-                column_sharer, modified_cs
-            )
+            if hasattr(transformer, "steps"):
+                modified_cs = transformer.steps[0][1].column_sharer
+            elif hasattr(transformer, "column_sharer"):
+                modified_cs = transformer.column_sharer
+            if modified_cs:
+                ParallelProcessor._update_original_column_sharer_with_another(
+                    column_sharer, modified_cs
+                )
 
     @staticmethod
     def _update_transformers_with_updated_column_sharer(
         transformers, column_sharer
     ):
         for transformer in transformers:
-            for step in transformer.steps:
-                step[1].column_sharer = column_sharer
+            if hasattr(transformer, "steps"):
+                for step in transformer.steps:
+                    step[1].column_sharer = column_sharer
+            elif hasattr(transformer, "column_sharer"):
+                transformer.column_sharer = column_sharer
 
     @staticmethod
     def _update_original_column_sharer_with_another(
@@ -497,6 +506,11 @@ class ParallelProcessor(
 
     def inverse_transform(self, X, **inverse_params):
         """Perform both a fit and a transform.
+
+        Inverse transform should not update the column_sharer as it is
+        only used in prediction in case the target column has been
+        transformed during the training process. Once the model is trained,
+        the column_sharer should not be touched during prediction process.
 
         Args:
             X (:obj:`pandas.DataFrame`): Input X data

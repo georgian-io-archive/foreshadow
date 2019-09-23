@@ -92,7 +92,7 @@ def test_transformer_parallel_empty():
     assert tf.equals(df[[]])
 
 
-def test_transformer_parallel():
+def test_transformer_parallel_single_process():
     import pandas as pd
 
     from foreshadow.parallelprocessor import ParallelProcessor
@@ -128,6 +128,120 @@ def test_transformer_parallel():
     tf_test = pd.concat([tf_norm, tf_others], axis=1)
 
     assert tf.equals(tf_test)
+
+
+def test_transformer_multiprocess_dynamic_pipelines_update_column_sharer():
+    import pandas as pd
+
+    from foreshadow.parallelprocessor import ParallelProcessor
+    from foreshadow.smart import IntentResolver
+    from foreshadow.columnsharer import ColumnSharer
+
+    boston_path = get_file_path("data", "boston_housing.csv")
+
+    raw_data = pd.read_csv(boston_path)
+    df = raw_data[["crim", "zn", "indus"]]
+
+    cs = ColumnSharer()
+    from foreshadow.pipeline import DynamicPipeline
+
+    proc = ParallelProcessor(
+        [
+            (
+                "group1",
+                DynamicPipeline(
+                    [("resolver", IntentResolver(column_sharer=cs))]
+                ),
+                ["crim"],
+            ),
+            (
+                "group2",
+                DynamicPipeline(
+                    [("resolver", IntentResolver(column_sharer=cs))]
+                ),
+                ["zn"],
+            ),
+            (
+                "group3",
+                DynamicPipeline(
+                    [("resolver", IntentResolver(column_sharer=cs))]
+                ),
+                ["indus"],
+            ),
+        ],
+        n_jobs=-1,
+        collapse_index=True,
+    )
+
+    Xs = proc.fit_transform(df)
+    assert Xs.equals(df)
+    assert len(cs["intent"]) == len(list(df.columns.values))
+    assert (
+        cs["intent", "crim"] == "Numeric"
+        and cs["intent", "zn"] == "Categoric"
+        and cs["intent", "indus"] == "Categoric"
+    )
+
+
+def test_transformer_multiprocess_smart_transformers_update_column_sharer():
+    import pandas as pd
+
+    from foreshadow.parallelprocessor import ParallelProcessor
+    from foreshadow.concrete import StandardScaler
+    from foreshadow.columnsharer import ColumnSharer
+
+    boston_path = get_file_path("data", "boston_housing.csv")
+
+    raw_data = pd.read_csv(boston_path)
+    df = raw_data[["crim", "zn", "indus"]]
+
+    cs = ColumnSharer()
+    proc = ParallelProcessor(
+        [
+            ("group1", StandardScaler(), ["crim"]),
+            ("group2", StandardScaler(), ["zn"]),
+            ("group3", StandardScaler(), ["indus"]),
+        ],
+        n_jobs=-1,
+        collapse_index=True,
+    )
+
+    proc.fit_transform(df)
+    assert len(cs) == 0
+
+
+def test_transformer_multiprocess_imputer_not_update_column_sharer():
+    import pandas as pd
+
+    from foreshadow.parallelprocessor import ParallelProcessor
+    from foreshadow.smart import IntentResolver
+    from foreshadow.columnsharer import ColumnSharer
+
+    boston_path = get_file_path("data", "boston_housing.csv")
+
+    raw_data = pd.read_csv(boston_path)
+    df = raw_data[["crim", "zn", "indus"]]
+
+    cs = ColumnSharer()
+
+    proc = ParallelProcessor(
+        [
+            ("group1", IntentResolver(column_sharer=cs), ["crim"]),
+            ("group2", IntentResolver(column_sharer=cs), ["zn"]),
+            ("group3", IntentResolver(column_sharer=cs), ["indus"]),
+        ],
+        n_jobs=-1,
+        collapse_index=True,
+    )
+
+    Xs = proc.fit_transform(df)
+    assert Xs.equals(df)
+    assert len(cs["intent"]) == len(list(df.columns.values))
+    assert (
+        cs["intent", "crim"] == "Numeric"
+        and cs["intent", "zn"] == "Categoric"
+        and cs["intent", "indus"] == "Categoric"
+    )
 
 
 def test_transformer_pipeline():
