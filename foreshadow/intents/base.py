@@ -30,3 +30,7 @@ class BaseIntent(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
         for metric_wrapper, weight in cls.confidence_computation.items():
             scores.append(metric_wrapper.calculate(X) * weight)
         return sum(scores)
+
+    @classmethod
+    def column_summary(cls, df):  # noqa
+        return {}

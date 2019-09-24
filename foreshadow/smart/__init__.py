@@ -11,6 +11,7 @@ from foreshadow.smart.all import (  # noqa: F401
 from foreshadow.smart.cleaner import Cleaner  # noqa: F401
 from foreshadow.smart.feature_engineerer import FeatureEngineerer  # noqa: F401
 from foreshadow.smart.feature_reducer import FeatureReducer
+from foreshadow.smart.feature_summarizer import FeatureSummarizer  # noqa: F401
 from foreshadow.smart.flatten import Flatten  # noqa: F401
 from foreshadow.smart.intentresolver import IntentResolver
 from foreshadow.smart.smart import SmartTransformer  # noqa: F401
@@ -28,4 +29,5 @@ __all__ = [
     "IntentResolver",
     "FeatureReducer",
     "FeatureEngineerer",
+    "FeatureSummarizer",
 ]
