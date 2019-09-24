@@ -2,6 +2,8 @@
 
 import pytest
 
+from foreshadow.metrics import MetricWrapper
+
 
 def test_base_intent_get_confidence():
     """Test base intent get_confidence."""
@@ -9,8 +11,8 @@ def test_base_intent_get_confidence():
     from foreshadow.intents import BaseIntent
 
     BaseIntent.confidence_computation = {
-        (lambda x: 1): 0.5,
-        (lambda x: 1): 0.5,
+        MetricWrapper(lambda x: 1): 0.5,
+        MetricWrapper(lambda x: 1): 0.5,
     }
 
     assert BaseIntent.get_confidence([]) == 1
@@ -24,6 +26,7 @@ def test_intent_ordering_confidence():
 
     from foreshadow.intents import Numeric, Categoric, Text
 
+    available_intents = [Numeric, Categoric, Text]
     validation_data = {
         Numeric: pd.DataFrame(np.arange(100)),
         Categoric: pd.DataFrame([1, 2, 3, 4, 5] * 4),
@@ -33,7 +36,7 @@ def test_intent_ordering_confidence():
     for val_intent, data in validation_data.items():
         scores = {
             sel_intent: sel_intent.get_confidence(data)
-            for sel_intent in validation_data.keys()
+            for sel_intent in available_intents
         }
         assert max(scores, key=scores.get) == val_intent
 

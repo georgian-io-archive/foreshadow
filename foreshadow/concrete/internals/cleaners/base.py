@@ -6,11 +6,24 @@ import pandas as pd
 
 from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.exceptions import InvalidDataFrame
-from foreshadow.metrics import avg_col_regex, regex_rows
+from foreshadow.metrics import MetricWrapper, avg_col_regex, regex_rows
 from foreshadow.utils import check_df
 
 
 CleanerReturn = namedtuple("CleanerReturn", ["row", "match_lens"])
+
+
+def return_original_row(x):  # noqa: D401
+    """Method that returns the row as is.
+
+    Args:
+        x: a row of data
+
+    Returns:
+        the row itself untouched.
+
+    """
+    return x
 
 
 class BaseCleaner(BaseEstimator, TransformerMixin):
@@ -21,7 +34,7 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         transformations,
         output_columns=None,
         confidence_computation=None,
-        default=lambda x: x,
+        default=return_original_row,
         # column_sharer=None,
     ):
         """Construct any cleaner/flattener.
@@ -50,7 +63,11 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         self.default = default
         self.output_columns = output_columns
         self.transformations = transformations
-        self.confidence_computation = {regex_rows: 0.8, avg_col_regex: 0.2}
+        self.confidence_computation = {
+            MetricWrapper(regex_rows): 0.8,
+            MetricWrapper(avg_col_regex): 0.2,
+        }
+        # self.confidence_computation = {regex_rows: 0.8, avg_col_regex: 0.2}
         # self.column_sharer = column_sharer
         if confidence_computation is not None:
             self.confidence_computation = confidence_computation
@@ -69,12 +86,13 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
             float: confidence value.
 
         """
-        return sum(
-            [
-                metric_fn(X, cleaner=self.transform_row) * weight
-                for metric_fn, weight in self.confidence_computation.items()
-            ]
-        )
+        scores = []
+        for metric_wrapper, weight in self.confidence_computation.items():
+            scores.append(
+                metric_wrapper.calculate(X, cleaner=self.transform_row)
+                * weight
+            )
+        return sum(scores)
 
     def transform_row(self, row_of_feature, return_tuple=True):
         """Perform clean operations on text, that is a row of feature.

@@ -318,6 +318,9 @@ class ParallelProcessor(
             self
 
         """
+        # TODO this method may need to add multiprocess column_sharer
+        #  updates if we decide to use it somewhere in the code. Currently
+        #  it is only used in a unit test.
         self.transformer_list = list(self.transformer_list)
         self._validate_transformers()
 
@@ -376,6 +379,59 @@ class ParallelProcessor(
                 pass
         return Xs
 
+    def _get_original_column_sharer(self):
+        _, transformers, _ = zip(*self.transformer_list)
+        for transformer in transformers:
+            # in case the transformer does not have steps
+            if hasattr(transformer, "steps"):
+                for step in transformer.steps:
+                    # steps like Imputer don't have column_sharer
+                    if hasattr(step[1], "column_sharer"):
+                        return step[1].column_sharer
+            elif hasattr(transformer, "column_sharer"):
+                return transformer.column_sharer
+        return None
+
+    @staticmethod
+    def _update_original_column_sharer(column_sharer, transformers):
+        for transformer in transformers:
+            if hasattr(transformer, "steps"):
+                modified_cs = transformer.steps[0][1].column_sharer
+            elif hasattr(transformer, "column_sharer"):
+                modified_cs = transformer.column_sharer
+            if modified_cs:
+                ParallelProcessor._update_original_column_sharer_with_another(
+                    column_sharer, modified_cs
+                )
+
+    @staticmethod
+    def _update_transformers_with_updated_column_sharer(
+        transformers, column_sharer
+    ):
+        for transformer in transformers:
+            if hasattr(transformer, "steps"):
+                for step in transformer.steps:
+                    step[1].column_sharer = column_sharer
+            elif hasattr(transformer, "column_sharer"):
+                transformer.column_sharer = column_sharer
+
+    @staticmethod
+    def _update_original_column_sharer_with_another(
+        column_sharer, modified_cs
+    ):
+        """Update the column_sharer with another column_sharer in place.
+
+        Only values that are not None are assigned back to the column_sharer.
+
+        Args:
+            column_sharer: the original column_sharer.
+            modified_cs: a modified column_sharer by a parallel_process.
+
+        """
+        for combined_key in modified_cs:
+            if modified_cs[combined_key] is not None:
+                column_sharer[combined_key] = modified_cs[combined_key]
+
     def fit_transform(self, X, y=None, **fit_params):
         """Perform both a fit and a transform.
 
@@ -391,6 +447,15 @@ class ParallelProcessor(
         """
         self._validate_transformers()
 
+        column_sharer = self._get_original_column_sharer()
+        # TODO not all preparesteps need to update the column_sharer. This
+        #  is something we may be able to improve by specifying the
+        #  update_column_sharer params through the fit_params (we need to
+        #  pop it).
+        update_column_sharer = (self.n_jobs > 1 or self.n_jobs == -1) and (
+            column_sharer is not None
+        )
+
         result = Parallel(n_jobs=self.n_jobs)(
             delayed(_pandas_fit_transform_one)(
                 trans,
@@ -403,12 +468,16 @@ class ParallelProcessor(
             )
             for name, trans, cols, weight in self._iter()
         )
-
         if not result:
             # All transformers are None
             return X[[]]
 
         Xs, transformers = zip(*result)
+        if update_column_sharer:
+            self._update_original_column_sharer(column_sharer, transformers)
+            self._update_transformers_with_updated_column_sharer(
+                transformers, column_sharer
+            )
         self._update_transformer_list(transformers)
 
         Xo = X[self._get_other_cols(X)]
@@ -437,6 +506,11 @@ class ParallelProcessor(
 
     def inverse_transform(self, X, **inverse_params):
         """Perform both a fit and a transform.
+
+        Inverse transform should not update the column_sharer as it is
+        only used in prediction in case the target column has been
+        transformed during the training process. Once the model is trained,
+        the column_sharer should not be touched during prediction process.
 
         Args:
             X (:obj:`pandas.DataFrame`): Input X data

@@ -10,6 +10,7 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.model_selection import GridSearchCV, train_test_split
 
+from foreshadow.config import config
 from foreshadow.estimators import AutoEstimator
 from foreshadow.foreshadow import Foreshadow
 
@@ -42,7 +43,15 @@ def generate_model(args):  # noqa: C901
         default="classification",
         type=str,
         choices=["classification", "regression"],
-        help="Problem type, choosing from classification or regression, default to classification.",
+        help="Problem type, choosing from classification or regression, "
+        "default to classification.",
+    )
+    parser.add_argument(
+        "--multiprocess",
+        default=False,
+        type=bool,
+        help="Whether to enable multiprocessing on the dataset, useful for "
+        "large datasets and/or computational heavy transformations.",
     )
     parser.add_argument(
         "--level",
@@ -179,6 +188,10 @@ def generate_model(args):  # noqa: C901
 
     else:
         raise ValueError("Invalid Level. Only levels 1 and 3 supported.")
+
+    if cargs.multiprocess:
+        config.set_multiprocess(True)
+        print("multiprocessing enabled.")
 
     return fs, X_train, y_train, X_test, y_test
 

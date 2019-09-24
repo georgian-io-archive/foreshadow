@@ -66,6 +66,25 @@ class ConfigStore(MutableMapping):
         self.system_config = _DEFAULT_CONFIG
         self.user_config = load_config(get_config_path())
         self._cfg_list = {}  # key is path
+        self._multiprocess = False
+
+    def get_n_jobs_config(self):
+        """Determine the number of processes to use for ParallelProcessor.
+
+        Returns:
+            The number of processes to use by the ParallelProcessor.
+
+        """
+        return -1 if self._multiprocess else 1
+
+    def set_multiprocess(self, status):
+        """Configure whether to enable multiprocessing.
+
+        Args:
+            status: bool value.
+
+        """
+        self._multiprocess = status
 
     def get_config(self):
         """Resolve a config instance.

@@ -6,6 +6,34 @@ from foreshadow.serializers import ConcreteSerializerMixin
 
 
 # TODO: Make this multi processor safe using managers
+def get_none():  # noqa: D401
+    """Method that returns None.
+
+    Returns:
+        None
+
+    """
+    return None
+
+
+def get_pretty_default_dict():  # noqa: D401
+    """Method that returns a pretty defaultdict with factory set to get_none.
+
+    Returns:
+        a pretty defaultdict as described.
+
+    """
+    return PrettyDefaultDict(get_none)
+
+
+def get_false():  # noqa: D401
+    """Method that returns False.
+
+    Returns:
+        False
+
+    """
+    return False
 
 
 class PrettyDefaultDict(defaultdict):
@@ -30,7 +58,7 @@ class ColumnSharer(MutableMapping, ConcreteSerializerMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.store = PrettyDefaultDict(lambda: PrettyDefaultDict(lambda: None))
+        self.store = PrettyDefaultDict(get_pretty_default_dict)
         # will have a nested PrettyDefaultDict for every key, which holds
         # {column: key-column info} and gives None by default. It is the users
         # responsibility to make sure returned values are useful.
@@ -40,9 +68,7 @@ class ColumnSharer(MutableMapping, ConcreteSerializerMixin):
             "metastat": True,
             "graph": True,
         }
-        self.__acceptable_keys = PrettyDefaultDict(
-            lambda: False, acceptable_keys
-        )
+        self.__acceptable_keys = PrettyDefaultDict(get_false, acceptable_keys)
 
     def dict_serialize(self, deep=False):
         """Serialize the init parameters (dictionary form) of a columnsharer.

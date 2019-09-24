@@ -10,46 +10,6 @@ simple_dataframe = pd.Series([i for i in range(10)])
 
 
 @pytest.mark.parametrize(
-    "metric_fn", [(lambda x: 1), (lambda x, y: 1,), (lambda x, y, z: 1)]
-)
-def test_metric_decorate(metric_fn):
-    """Test arbitrary function can be converted to Metric using metric.
-
-    Args:
-        metric_fn: arbitrary metric function
-
-    """
-    from foreshadow.metrics import metric
-    from foreshadow.metrics import MetricWrapper
-
-    metric_fn = metric()(metric_fn)  # applying decorator
-    assert isinstance(metric_fn, MetricWrapper)
-
-
-@pytest.mark.parametrize(
-    "metric_fn,arg,kwargs",
-    [
-        (lambda x: 1, 1, {}),
-        (lambda x, y: 1, 1, {"y": 1}),
-        (lambda x, encoder: 1, 1, {"encoder": 1}),
-    ],
-)
-def test_metric_call(metric_fn, arg, kwargs):
-    """Test arbitrary function can be called after being Metric using metric.
-
-    Args:
-        metric_fn: arbitrary metric function
-        arg: arg to metric call
-        kwargs: any kwargs to metric call
-
-    """
-    from foreshadow.metrics import metric
-
-    metric_fn = metric()(metric_fn)
-    assert metric_fn(arg, **kwargs) == 1
-
-
-@pytest.mark.parametrize(
     "metric_fn,arg,kwargs",
     [
         (lambda x: 1, 1, {}),
@@ -66,11 +26,11 @@ def test_metric_last_call(metric_fn, arg, kwargs):
         kwargs: any kwargs to metric call
 
     """
-    from foreshadow.metrics import metric
+    from foreshadow.metrics import MetricWrapper
 
-    metric_fn = metric()(metric_fn)
-    _ = metric_fn(arg, **kwargs)
-    assert metric_fn.last_call() == 1
+    metric_wrapper = MetricWrapper(metric_fn)
+    _ = metric_wrapper.calculate(arg, **kwargs)
+    assert metric_wrapper.last_call() == 1
 
 
 @pytest.mark.parametrize(
@@ -144,26 +104,26 @@ def test_unique_count_weight(column, ret):
 def test_metric_default_return():
     """Test metric default return value when a function errors."""
 
-    from foreshadow.metrics import metric
+    from foreshadow.metrics import MetricWrapper
 
     def test(X):
         raise Exception
 
-    metric_fn = metric(0)(test)
-    assert 0 == metric_fn([1, 2, 3])
+    metric_wrapper = MetricWrapper(test, 0)
+    assert 0 == metric_wrapper.calculate([1, 2, 3])
 
 
 @pytest.mark.parametrize("retval", [0, 1])
 def test_metric_invert(retval):
     """Test metric invert computation."""
 
-    from foreshadow.metrics import metric
+    from foreshadow.metrics import MetricWrapper
 
     def test(X):
         return retval
 
-    metric_fn = metric()(test)
-    assert (1 - retval) == metric_fn([1, 2, 3], invert=True)
+    metric_wrapper = MetricWrapper(test, 0, invert=True)
+    assert (1 - retval) == metric_wrapper.calculate([1, 2, 3])
 
 
 # TODO: write tests for intents used in internals

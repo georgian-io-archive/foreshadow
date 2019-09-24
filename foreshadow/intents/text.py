@@ -1,8 +1,12 @@
 """Text intent."""
 
-from functools import partial
-
-from foreshadow.metrics import is_numeric, is_string, num_valid, unique_heur
+from foreshadow.metrics import (
+    MetricWrapper,
+    is_numeric,
+    is_string,
+    num_valid,
+    unique_heur,
+)
 from foreshadow.utils import standard_col_summary
 
 from .base import BaseIntent
@@ -12,10 +16,10 @@ class Text(BaseIntent):
     """Defines a text column type."""
 
     confidence_computation = {
-        num_valid: 0.25,
-        unique_heur: 0.25,
-        partial(is_numeric, invert=True): 0.25,
-        is_string: 0.25,
+        MetricWrapper(num_valid): 0.25,
+        MetricWrapper(unique_heur): 0.25,
+        MetricWrapper(is_numeric, invert=True): 0.25,
+        MetricWrapper(is_string): 0.25,
     }
 
     def fit(self, X, y=None, **fit_params):

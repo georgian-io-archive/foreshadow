@@ -1,18 +1,33 @@
 """Categorical intent."""
 
-from foreshadow.metrics import num_valid, unique_heur
+from foreshadow.metrics import MetricWrapper, num_valid, unique_heur
 from foreshadow.utils import standard_col_summary
 
 from .base import BaseIntent
+
+
+# Due to pickling issue in Parallel process, the lambda x: 1 needs to be
+# rewritten as a public method.
+def return_one(X):  # noqa: D401
+    """Method that always return 1.
+
+    Args:
+        X: input data frame
+
+    Returns:
+        the value 1
+
+    """
+    return 1
 
 
 class Categoric(BaseIntent):
     """Defines a categoric column type."""
 
     confidence_computation = {
-        num_valid: (1 / 3),
-        unique_heur: (1 / 3),
-        lambda x: 1: (1 / 3),
+        MetricWrapper(num_valid): (1 / 3),
+        MetricWrapper(unique_heur): (1 / 3),
+        MetricWrapper(return_one): (1 / 3),
     }
 
     def fit(self, X, y=None, **fit_params):
