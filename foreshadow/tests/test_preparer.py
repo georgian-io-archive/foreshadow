@@ -126,9 +126,9 @@ def test_data_preparer_deserialization():
     dp = DataPreparer(cs)
     dp.fit(data)
     data_transformed = dp.transform(data)
-    dp.to_json("data_preparerer_deep_true.json", deep=True)
+    dp.to_json("data_preparerer.json")
 
-    dp2 = DataPreparer.from_json("data_preparerer_deep_true.json")
+    dp2 = DataPreparer.from_json("data_preparerer.json")
     dp2.fit(data)
     data_transformed2 = dp2.transform(data)
 
