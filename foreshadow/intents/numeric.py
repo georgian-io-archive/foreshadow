@@ -1,10 +1,12 @@
 """Numeric intent."""
 
+from collections import OrderedDict
 from functools import partial
 
 import pandas as pd
 
 from foreshadow.metrics import is_numeric, is_string, num_valid, unique_heur
+from foreshadow.utils import get_outliers, mode_freq
 
 from .base import BaseIntent
 
@@ -45,3 +47,31 @@ class Numeric(BaseIntent):
 
         """
         return X.apply(pd.to_numeric, errors="coerce")
+
+    @classmethod
+    def column_summary(cls, df):  # noqa
+        data = df.iloc[:, 0]
+        nan_num = int(data.isnull().sum())
+        invalid_num = int(
+            pd.to_numeric(df.iloc[:, 0], errors="coerce").isnull().sum()
+            - nan_num
+        )
+        outliers = get_outliers(data).values.tolist()
+        mode, top10 = mode_freq(data)
+
+        return OrderedDict(
+            [
+                ("nan", nan_num),
+                ("invalid", invalid_num),
+                ("mean", float(data.mean())),
+                ("std", float(data.std())),
+                ("min", float(data.min())),
+                ("25th", float(data.quantile(0.25))),
+                ("median", float(data.quantile(0.5))),
+                ("75th", float(data.quantile(0.75))),
+                ("max", float(data.max())),
+                ("mode", mode),
+                ("top10", top10),
+                ("10outliers", outliers),
+            ]
+        )

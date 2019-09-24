@@ -32,3 +32,7 @@ class BaseIntent(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
                 for metric_fn, weight in cls.confidence_computation.items()
             ]
         )
+
+    @classmethod
+    def column_summary(cls, df):  # noqa
+        return {}
