@@ -183,7 +183,7 @@ def test_transformer_multiprocess_dynamic_pipelines_update_column_sharer():
     )
 
 
-def test_transformer_multiprocess_smart_transformers_update_column_sharer():
+def test_transformer_multiprocess_imputer_not_update_column_sharer():
     import pandas as pd
 
     from foreshadow.parallelprocessor import ParallelProcessor
@@ -210,7 +210,7 @@ def test_transformer_multiprocess_smart_transformers_update_column_sharer():
     assert len(cs) == 0
 
 
-def test_transformer_multiprocess_imputer_not_update_column_sharer():
+def test_transformer_multiprocess_smart_transformers_update_column_sharer():
     import pandas as pd
 
     from foreshadow.parallelprocessor import ParallelProcessor
