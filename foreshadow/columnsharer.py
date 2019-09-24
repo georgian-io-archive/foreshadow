@@ -70,7 +70,7 @@ class ColumnSharer(MutableMapping, ConcreteSerializerMixin):
         }
         self.__acceptable_keys = PrettyDefaultDict(get_false, acceptable_keys)
 
-    def dict_serialize(self, deep=True):
+    def dict_serialize(self, deep=False):
         """Serialize the init parameters (dictionary form) of a columnsharer.
 
         Args:

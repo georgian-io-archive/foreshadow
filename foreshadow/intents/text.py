@@ -7,6 +7,7 @@ from foreshadow.metrics import (
     num_valid,
     unique_heur,
 )
+from foreshadow.utils import standard_col_summary
 
 from .base import BaseIntent
 
@@ -47,3 +48,7 @@ class Text(BaseIntent):
 
         """
         return X.astype(str)
+
+    @classmethod
+    def column_summary(cls, df):  # noqa
+        return standard_col_summary(df)
