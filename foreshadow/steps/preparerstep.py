@@ -291,7 +291,7 @@ class PreparerStep(
         super().configure_column_sharer(column_sharer)
         self._parallel_process.configure_column_sharer(column_sharer)
 
-    def dict_serialize(self, deep=True):
+    def dict_serialize(self, deep=False):
         """Serialize the preparestep.
 
         It renames transformer_list to transformation_by_column_group.

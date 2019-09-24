@@ -77,10 +77,6 @@ class SmartTransformer(
         self.transformer = transformer
         self.check_wrapped = check_wrapped
 
-    def dict_serialize(self, deep=True):  # noqa
-        serialized = super().dict_serialize(deep=False)
-        return serialized
-
     @property
     def transformer(self):
         """Get the selected transformer from the SmartTransformer.

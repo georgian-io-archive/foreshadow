@@ -125,7 +125,7 @@ class DataPreparer(
         # adding steps to the get_params()
         return out
 
-    def dict_serialize(self, deep=True):
+    def dict_serialize(self, deep=False):
         """Serialize the data preparer.
 
         Args:
