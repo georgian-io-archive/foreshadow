@@ -2,6 +2,16 @@
 
 .. towncrier release notes start
 
+Foreshadow 0.2.1 (2019-09-26)
+=============================
+
+Features
+--------
+
+- Bug fix of pick_transformer may transform dataframe in place, causing
+  inconsistency between the data and intended downstream logic. (bug-fix)
+
+
 Foreshadow 0.2.0 (2019-09-24)
 =============================
 
