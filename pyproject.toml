@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "foreshadow"
-version = "0.2.0"
+version = "0.2.1"
 description = "Peer into the future of a data science project"
 authors = [
     "Adithya Balaji <adithyabsk@gmail.com>",
