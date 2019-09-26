@@ -20,10 +20,10 @@ class Numeric(BaseIntent):
     """Defines a numeric column type."""
 
     confidence_computation = {
-        MetricWrapper(num_valid): 0.25,
-        MetricWrapper(unique_heur, invert=True): 0.25,
-        MetricWrapper(is_numeric): 0.25,
-        MetricWrapper(is_string, invert=True): 0.25,
+        MetricWrapper(num_valid): 0.3,
+        MetricWrapper(unique_heur, invert=True): 0.2,
+        MetricWrapper(is_numeric): 0.4,
+        MetricWrapper(is_string, invert=True): 0.1,
     }
 
     def fit(self, X, y=None, **fit_params):

@@ -1,0 +1,4992 @@
+{
+  "X_preparer": {
+    "cleaner_kwargs": null,
+    "engineerer_kwargs": null,
+    "intent_kwargs": null,
+    "preprocessor_kwargs": null,
+    "reducer_kwargs": null,
+    "summarizer_kwargs": null,
+    "y_var": null,
+    "steps": [
+      {
+        "data_cleaner": {
+          "collapse_index": true,
+          "n_jobs": 1,
+          "transformer_weights": null,
+          "_class": "CleanerMapper",
+          "_method": "dict",
+          "transformation_by_column_group": [
+            {
+              "mean radius": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean texture": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean perimeter": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean area": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean smoothness": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean compactness": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean concavity": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean concave points": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean symmetry": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean fractal dimension": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "radius error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "texture error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "perimeter error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "area error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "smoothness error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "compactness error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "concavity error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "concave points error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "symmetry error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "fractal dimension error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst radius": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst texture": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst perimeter": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst area": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst smoothness": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst compactness": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst concavity": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst concave points": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst symmetry": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst fractal dimension": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "intent": {
+          "collapse_index": true,
+          "n_jobs": 1,
+          "transformer_weights": null,
+          "_class": "IntentMapper",
+          "_method": "dict",
+          "transformation_by_column_group": [
+            {
+              "mean radius": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean texture": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean perimeter": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean area": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean smoothness": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean compactness": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean concavity": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean concave points": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean symmetry": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean fractal dimension": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "radius error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "texture error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "perimeter error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "area error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "smoothness error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "compactness error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "concavity error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "concave points error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "symmetry error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "fractal dimension error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst radius": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst texture": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst perimeter": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst area": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst smoothness": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst compactness": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst concavity": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst concave points": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst symmetry": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst fractal dimension": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "feature_summarizer": {
+          "collapse_index": true,
+          "n_jobs": 1,
+          "transformer_weights": null,
+          "_class": "FeatureSummarizerMapper",
+          "_method": "dict",
+          "transformation_by_column_group": [
+            {
+              "mean radius": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean texture": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean perimeter": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean area": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean smoothness": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean compactness": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean concavity": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean concave points": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean symmetry": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean fractal dimension": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "radius error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "texture error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "perimeter error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "area error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "smoothness error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "compactness error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "concavity error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "concave points error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "symmetry error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "fractal dimension error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst radius": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst texture": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst perimeter": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst area": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst smoothness": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst compactness": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst concavity": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst concave points": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst symmetry": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst fractal dimension": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "feature_engineerer": {
+          "collapse_index": true,
+          "n_jobs": 1,
+          "transformer_weights": null,
+          "_class": "FeatureEngineererMapper",
+          "_method": "dict",
+          "transformation_by_column_group": [
+            {
+              "group: NoTransform_Numeric": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureEngineerer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureEngineerer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureEngineerer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                },
+                "columns": [
+                  "mean radius",
+                  "mean texture",
+                  "mean perimeter",
+                  "mean area",
+                  "mean smoothness",
+                  "mean compactness",
+                  "mean concavity",
+                  "mean concave points",
+                  "mean symmetry",
+                  "mean fractal dimension",
+                  "radius error",
+                  "texture error",
+                  "perimeter error",
+                  "area error",
+                  "smoothness error",
+                  "compactness error",
+                  "concavity error",
+                  "concave points error",
+                  "symmetry error",
+                  "fractal dimension error",
+                  "worst radius",
+                  "worst texture",
+                  "worst perimeter",
+                  "worst area",
+                  "worst smoothness",
+                  "worst compactness",
+                  "worst concavity",
+                  "worst concave points",
+                  "worst symmetry",
+                  "worst fractal dimension"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "feature_preprocessor": {
+          "collapse_index": true,
+          "n_jobs": 1,
+          "transformer_weights": null,
+          "_class": "Preprocessor",
+          "_method": "dict",
+          "transformation_by_column_group": [
+            {
+              "mean radius": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean texture": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "copy": true,
+                          "with_mean": true,
+                          "with_std": true,
+                          "_class": "StandardScaler",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean perimeter": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean area": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean smoothness": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "copy": true,
+                          "with_mean": true,
+                          "with_std": true,
+                          "_class": "StandardScaler",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean compactness": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean concavity": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean concave points": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean symmetry": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "copy": true,
+                          "with_mean": true,
+                          "with_std": true,
+                          "_class": "StandardScaler",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "mean fractal dimension": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "radius error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "texture error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "perimeter error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "area error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "smoothness error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "compactness error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "concavity error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "concave points error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "symmetry error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "fractal dimension error": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst radius": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst texture": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "copy": true,
+                          "with_mean": true,
+                          "with_std": true,
+                          "_class": "StandardScaler",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst perimeter": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst area": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst smoothness": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "copy": true,
+                          "with_mean": true,
+                          "with_std": true,
+                          "_class": "StandardScaler",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst compactness": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst concavity": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst concave points": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst symmetry": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "worst fractal dimension": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "feature_reducer": {
+          "collapse_index": true,
+          "n_jobs": 1,
+          "transformer_weights": null,
+          "_class": "FeatureReducerMapper",
+          "_method": "dict",
+          "transformation_by_column_group": [
+            {
+              "group: Numeric": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureReducer": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureReducer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureReducer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                },
+                "columns": [
+                  "mean radius",
+                  "mean texture",
+                  "mean perimeter",
+                  "mean area",
+                  "mean smoothness",
+                  "mean compactness",
+                  "mean concavity",
+                  "mean concave points",
+                  "mean symmetry",
+                  "mean fractal dimension",
+                  "radius error",
+                  "texture error",
+                  "perimeter error",
+                  "area error",
+                  "smoothness error",
+                  "compactness error",
+                  "concavity error",
+                  "concave points error",
+                  "symmetry error",
+                  "fractal dimension error",
+                  "worst radius",
+                  "worst texture",
+                  "worst perimeter",
+                  "worst area",
+                  "worst smoothness",
+                  "worst compactness",
+                  "worst concavity",
+                  "worst concave points",
+                  "worst symmetry",
+                  "worst fractal dimension"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "column_sharer": {
+      "store": {
+        "domain": {
+          "mean radius": "NoTransform",
+          "mean texture": "NoTransform",
+          "mean perimeter": "NoTransform",
+          "mean area": "NoTransform",
+          "mean smoothness": "NoTransform",
+          "mean compactness": "NoTransform",
+          "mean concavity": "NoTransform",
+          "mean concave points": "NoTransform",
+          "mean symmetry": "NoTransform",
+          "mean fractal dimension": "NoTransform",
+          "radius error": "NoTransform",
+          "texture error": "NoTransform",
+          "perimeter error": "NoTransform",
+          "area error": "NoTransform",
+          "smoothness error": "NoTransform",
+          "compactness error": "NoTransform",
+          "concavity error": "NoTransform",
+          "concave points error": "NoTransform",
+          "symmetry error": "NoTransform",
+          "fractal dimension error": "NoTransform",
+          "worst radius": "NoTransform",
+          "worst texture": "NoTransform",
+          "worst perimeter": "NoTransform",
+          "worst area": "NoTransform",
+          "worst smoothness": "NoTransform",
+          "worst compactness": "NoTransform",
+          "worst concavity": "NoTransform",
+          "worst concave points": "NoTransform",
+          "worst symmetry": "NoTransform",
+          "worst fractal dimension": "NoTransform"
+        },
+        "intent": {
+          "mean radius": "Numeric",
+          "mean texture": "Numeric",
+          "mean perimeter": "Numeric",
+          "mean area": "Numeric",
+          "mean smoothness": "Numeric",
+          "mean compactness": "Numeric",
+          "mean concavity": "Numeric",
+          "mean concave points": "Numeric",
+          "mean symmetry": "Numeric",
+          "mean fractal dimension": "Numeric",
+          "radius error": "Numeric",
+          "texture error": "Numeric",
+          "perimeter error": "Numeric",
+          "area error": "Numeric",
+          "smoothness error": "Numeric",
+          "compactness error": "Numeric",
+          "concavity error": "Numeric",
+          "concave points error": "Numeric",
+          "symmetry error": "Numeric",
+          "fractal dimension error": "Numeric",
+          "worst radius": "Numeric",
+          "worst texture": "Numeric",
+          "worst perimeter": "Numeric",
+          "worst area": "Numeric",
+          "worst smoothness": "Numeric",
+          "worst compactness": "Numeric",
+          "worst concavity": "Numeric",
+          "worst concave points": "Numeric",
+          "worst symmetry": "Numeric",
+          "worst fractal dimension": "Numeric"
+        }
+      },
+      "_class": "ColumnSharer",
+      "_method": "dict"
+    },
+    "_class": "DataPreparer",
+    "_method": "dict"
+  },
+  "estimator": {
+    "C": 1.0,
+    "class_weight": null,
+    "dual": false,
+    "fit_intercept": true,
+    "intercept_scaling": 1,
+    "max_iter": 100,
+    "multi_class": "ovr",
+    "n_jobs": 1,
+    "penalty": "l2",
+    "random_state": null,
+    "solver": "liblinear",
+    "tol": 0.0001,
+    "verbose": 0,
+    "warm_start": false,
+    "_class": "sklearn.linear_model.logistic.LogisticRegression",
+    "_method": "dict"
+  },
+  "optimizer": null,
+  "optimizer_kwargs": {},
+  "y_preparer": {
+    "cleaner_kwargs": null,
+    "engineerer_kwargs": null,
+    "intent_kwargs": null,
+    "preprocessor_kwargs": null,
+    "reducer_kwargs": null,
+    "summarizer_kwargs": null,
+    "y_var": true,
+    "steps": [
+      {
+        "output": {
+          "_class": "NoTransform",
+          "_method": "dict"
+        }
+      }
+    ],
+    "column_sharer": {
+      "store": {},
+      "_class": "ColumnSharer",
+      "_method": "dict"
+    },
+    "_class": "DataPreparer",
+    "_method": "dict"
+  },
+  "data_columns": [
+    "mean radius",
+    "mean texture",
+    "mean perimeter",
+    "mean area",
+    "mean smoothness",
+    "mean compactness",
+    "mean concavity",
+    "mean concave points",
+    "mean symmetry",
+    "mean fractal dimension",
+    "radius error",
+    "texture error",
+    "perimeter error",
+    "area error",
+    "smoothness error",
+    "compactness error",
+    "concavity error",
+    "concave points error",
+    "symmetry error",
+    "fractal dimension error",
+    "worst radius",
+    "worst texture",
+    "worst perimeter",
+    "worst area",
+    "worst smoothness",
+    "worst compactness",
+    "worst concavity",
+    "worst concave points",
+    "worst symmetry",
+    "worst fractal dimension"
+  ],
+  "_class": "Foreshadow",
+  "_method": "dict"
+}

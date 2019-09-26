@@ -162,7 +162,11 @@ class SmartTransformer(
 
         # Only resolve if transformer is not set or re-resolve is requested.
         if self.should_resolve:
-            self.transformer = self.pick_transformer(X, y, **fit_params)
+            self.transformer = self.pick_transformer(
+                X.copy() if X is not None else X,
+                y.copy() if y is not None else y,
+                **fit_params,
+            )
             if getattr(self.transformer, "name", None) is None:
                 self.transformer.name = self.name
             self.transformer.keep_columns = self.keep_columns

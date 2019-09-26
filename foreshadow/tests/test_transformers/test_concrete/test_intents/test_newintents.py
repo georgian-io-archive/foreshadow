@@ -29,8 +29,10 @@ def test_intent_ordering_confidence():
     available_intents = [Numeric, Categoric, Text]
     validation_data = {
         Numeric: pd.DataFrame(np.arange(100)),
-        Categoric: pd.DataFrame([1, 2, 3, 4, 5] * 4),
-        Text: pd.DataFrame(["hello", "unit", "test", "reader"]),
+        Categoric: pd.DataFrame(["a", "bc", "s", "w", "p"] * 4),
+        Text: pd.DataFrame(
+            ["hello world", "unit test", "test cases", "reader"]
+        ),
     }
 
     for val_intent, data in validation_data.items():

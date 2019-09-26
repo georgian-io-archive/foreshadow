@@ -2,6 +2,7 @@
 
 from foreshadow.metrics import (
     MetricWrapper,
+    has_long_text,
     is_numeric,
     is_string,
     num_valid,
@@ -16,10 +17,11 @@ class Text(BaseIntent):
     """Defines a text column type."""
 
     confidence_computation = {
-        MetricWrapper(num_valid): 0.25,
-        MetricWrapper(unique_heur): 0.25,
-        MetricWrapper(is_numeric, invert=True): 0.25,
-        MetricWrapper(is_string): 0.25,
+        MetricWrapper(num_valid): 0.2,
+        MetricWrapper(unique_heur): 0.2,
+        MetricWrapper(is_numeric, invert=True): 0.2,
+        MetricWrapper(is_string): 0.2,
+        MetricWrapper(has_long_text): 0.2,
     }
 
     def fit(self, X, y=None, **fit_params):
