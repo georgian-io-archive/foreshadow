@@ -249,3 +249,18 @@ def is_string(X):
     """
     X = check_series(X)
     return is_string_dtype(X)
+
+
+def has_long_text(X):
+    """Check if an input has long text, meaning with more than 1 words.
+
+    Args:
+        X (iterable): Input data
+
+    Returns:
+        A proportion of the data that evaluated as long text.
+
+    """
+    X = check_series(X)
+    result = X.iloc[:, 0].apply(lambda x: len(x.split()) > 1)
+    return sum(result) / X.count()
