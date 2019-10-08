@@ -2,17 +2,16 @@
 # flake8: noqa
 # isort: noqa
 import argparse
-import json
 import sys
 import warnings
 
 import pandas as pd
-from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.model_selection import train_test_split
 
 from foreshadow.config import config
 from foreshadow.estimators import AutoEstimator
 from foreshadow.foreshadow import Foreshadow
+from foreshadow.utils import EstimatorFactory
 
 
 def generate_model(args):  # noqa: C901
@@ -70,6 +69,17 @@ def generate_model(args):  # noqa: C901
         "and LinearRegression for regression",
     )
     parser.add_argument(
+        "--family",
+        default="Linear",
+        type=str,
+        choices=["Linear", "SVM", "RF", "NN"],
+        help="The algorithm family in Sklearn to train the model. Linear "
+        "includes LinearRegression and LogisticRegression. SVM includes "
+        "LinearSVC and LinearSVR. RF includes RandomForestClassifier "
+        "and RandomForestRegression. NN includes MLPClassifier and "
+        "MLPRegressor.",
+    )
+    parser.add_argument(
         "--time",
         default=10,
         type=int,
@@ -121,7 +131,9 @@ def generate_model(args):  # noqa: C901
     if cargs.level == 1:
         # Default everything with basic estimator
         fs = Foreshadow(
-            estimator=get_method(cargs.method, cargs.problem_type, y_train)
+            estimator=get_method(
+                cargs.method, cargs.family, cargs.problem_type, y_train
+            )
         )
 
     # elif cargs.level == 2:
@@ -250,7 +262,7 @@ def cmd():  # pragma: no cover
     execute_model(*model)
 
 
-def get_method(method, problem_type, y_train):
+def get_method(method, family, problem_type, y_train):
     """Determine what estimator to use.
 
     Uses set of X data and a passed argument referencing an
@@ -258,6 +270,7 @@ def get_method(method, problem_type, y_train):
 
     Args:
         method (str): model name
+        family: the algorithm family type
         problem_type (str): problem type, classification or regression
         y_train (:obj:`DataFrame <pandas.DataFrame>`): The response variable
             data.
@@ -269,6 +282,7 @@ def get_method(method, problem_type, y_train):
         ValueError: if invalid method is chosen
 
     """
+
     if method is not None:
         try:
             mod = __import__(
@@ -282,10 +296,14 @@ def get_method(method, problem_type, y_train):
                 "estimator from sklearn.linear_model".format(method)
             )
     else:
-        return (
-            LinearRegression()
-            if problem_type == "regression"
-            else LogisticRegression()
+        # return (
+        #     LinearRegression()
+        #     if problem_type == "regression"
+        #     else LogisticRegression()
+        # )
+        estimator_factory = EstimatorFactory()
+        return estimator_factory.get_estimator(
+            family=family, problem_type=problem_type
         )
 
 
