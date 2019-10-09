@@ -718,7 +718,6 @@ def test_foreshadow_serialization_adults_small_classification():
     )
 
     shadow = Foreshadow(estimator=LogisticRegression())
-
     shadow.fit(X_train, y_train)
     shadow.to_json("foreshadow_adults_small_logistic_regression.json")
 

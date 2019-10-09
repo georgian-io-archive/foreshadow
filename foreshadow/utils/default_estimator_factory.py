@@ -53,4 +53,13 @@ class EstimatorFactory:
         }
 
     def get_estimator(self, family, problem_type):
-        return self.registered_estimator_families[family][problem_type]
+        if family not in self.registered_estimator_families:
+            raise KeyError("Unknown model family type: {}".format(family))
+        if problem_type not in ["classification", "regression"]:
+            raise KeyError(
+                "Only classification and regression are "
+                "supported, unknown operation type: {}".format(problem_type)
+            )
+        return self.registered_estimator_families[
+            family
+        ].get_estimator_by_type(problem_type)

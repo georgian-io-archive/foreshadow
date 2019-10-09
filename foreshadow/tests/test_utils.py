@@ -1,4 +1,8 @@
 import pytest
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.neural_network import MLPClassifier, MLPRegressor
+from sklearn.svm import LinearSVC, LinearSVR
 
 
 def test_check_df_passthrough():
@@ -115,3 +119,40 @@ def test_is_wrapped(transformer_name):
 
     assert not is_wrapped(sk_tf)
     assert is_wrapped(fs_tf)
+
+
+@pytest.mark.parametrize(
+    "family, problem_type, estimator",
+    [
+        ("Linear", "classification", LogisticRegression),
+        ("Linear", "regression", LinearRegression),
+        ("SVM", "classification", LinearSVC),
+        ("SVM", "regression", LinearSVR),
+        ("RF", "classification", RandomForestClassifier),
+        ("RF", "regression", RandomForestRegressor),
+        ("NN", "classification", MLPClassifier),
+        ("NN", "regression", MLPRegressor),
+    ],
+)
+def test_get_estimator(family, problem_type, estimator):
+    from foreshadow.utils import EstimatorFactory
+
+    estimator_factory = EstimatorFactory()
+    assert isinstance(
+        estimator_factory.get_estimator(family, problem_type), estimator
+    )
+
+
+@pytest.mark.parametrize(
+    "family, problem_type, exception",
+    [
+        ("Unknown", "classification", pytest.raises(KeyError)),
+        ("Linear", "cluster", pytest.raises(KeyError)),
+    ],
+)
+def test_get_estimator_exception(family, problem_type, exception):
+    from foreshadow.utils import EstimatorFactory
+
+    estimator_factory = EstimatorFactory()
+    with exception:
+        estimator_factory.get_estimator(family, problem_type)

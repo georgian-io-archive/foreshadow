@@ -132,7 +132,7 @@ def generate_model(args):  # noqa: C901
         # Default everything with basic estimator
         fs = Foreshadow(
             estimator=get_method(
-                cargs.method, cargs.family, cargs.problem_type, y_train
+                cargs.method, y_train, cargs.family, cargs.problem_type
             )
         )
 
@@ -181,10 +181,10 @@ def generate_model(args):  # noqa: C901
         estimator = AutoEstimator(problem_type=cargs.problem_type, auto="tpot")
         estimator.configure_estimator(y_train)
 
-        # TODO move this into the configure_estimator method
-        # TODO "max_time_mins" is an argument for the TPOT library. We cannot
-        # TODO assign it based on the problem type here. For testing purpose,
-        # TODO I'm going to hardcode it for TPOT.
+        # TODO move this into the configure_estimator method "max_time_mins"
+        #  is an argument for the TPOT library. We cannot assign it
+        #   based on the problem type here. For testing purpose, I'm going
+        #   to hardcode it for TPOT.
         # kwargs = (
         #     "max_time_mins"
         #     if estimator.problem_type == "regression"
@@ -262,7 +262,9 @@ def cmd():  # pragma: no cover
     execute_model(*model)
 
 
-def get_method(method, family, problem_type, y_train):
+def get_method(
+    method, y_train, family="Linear", problem_type="classification"
+):
     """Determine what estimator to use.
 
     Uses set of X data and a passed argument referencing an
@@ -270,10 +272,10 @@ def get_method(method, family, problem_type, y_train):
 
     Args:
         method (str): model name
-        family: the algorithm family type
-        problem_type (str): problem type, classification or regression
         y_train (:obj:`DataFrame <pandas.DataFrame>`): The response variable
             data.
+        family: the algorithm family type
+        problem_type (str): problem type, classification or regression
 
     Returns:
         Estimator
@@ -282,7 +284,6 @@ def get_method(method, family, problem_type, y_train):
         ValueError: if invalid method is chosen
 
     """
-
     if method is not None:
         try:
             mod = __import__(

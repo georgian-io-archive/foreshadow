@@ -1,4 +1,8 @@
 import pytest
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.neural_network import MLPClassifier, MLPRegressor
+from sklearn.svm import LinearSVC, LinearSVR
 
 from foreshadow.utils.testing import get_file_path
 
@@ -212,8 +216,7 @@ def test_console_execute():
     )
 
 
-@pytest.mark.skip("console broken until parametrization is implemented")
-def test_console_get_method_default():
+def test_console_get_method_default_regression():
     import pandas as pd
 
     from foreshadow.console import get_method
@@ -230,13 +233,41 @@ def test_console_get_method_default():
         X_df, y_df, test_size=0.2
     )
 
-    result = get_method(None, X_train)
+    result = get_method(
+        None, y_train, family="Linear", problem_type="regression"
+    )
 
     assert isinstance(result, LinearRegression)
 
 
-@pytest.mark.skip("console broken until parametrization is implemented")
+def test_console_get_method_default_classification():
+    import pandas as pd
+
+    from foreshadow.console import get_method
+
+    from sklearn.datasets import load_breast_cancer
+    from sklearn.model_selection import train_test_split
+    from sklearn.linear_model import LogisticRegression
+
+    cancer = load_breast_cancer()
+    X_df = pd.DataFrame(cancer.data, columns=cancer.feature_names)
+    y_df = pd.DataFrame(cancer.target, columns=["target"])
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_df, y_df, test_size=0.2
+    )
+
+    result = get_method(
+        None, y_train, family="Linear", problem_type="classification"
+    )
+
+    assert isinstance(result, LogisticRegression)
+
+
 def test_console_get_method_override():
+    # TODO may not need this method in the future if we decide to not
+    #  allow the user to provide method override as it opens a lot of
+    #  potential issues.
     from foreshadow.console import get_method
 
     from sklearn.linear_model import LogisticRegression
@@ -246,11 +277,64 @@ def test_console_get_method_override():
     assert isinstance(result, LogisticRegression)
 
 
-@pytest.mark.skip("console broken until parametrization is implemented")
 def test_console_get_method_error():
+    # TODO may not need this test. Same reason above.
     from foreshadow.console import get_method
 
     with pytest.raises(ValueError) as e:
         get_method("InvalidRegression", None)
 
     assert "Invalid method." in str(e.value)
+
+
+@pytest.mark.parametrize(
+    "filename, family, y_var, problem_type, estimator",
+    [
+        (
+            "breast_cancer.csv",
+            "Linear",
+            "target",
+            "classification",
+            LogisticRegression,
+        ),
+        (
+            "boston_housing.csv",
+            "Linear",
+            "medv",
+            "regression",
+            LinearRegression,
+        ),
+        ("breast_cancer.csv", "SVM", "target", "classification", LinearSVC),
+        ("boston_housing.csv", "SVM", "medv", "regression", LinearSVR),
+        (
+            "breast_cancer.csv",
+            "RF",
+            "target",
+            "classification",
+            RandomForestClassifier,
+        ),
+        (
+            "boston_housing.csv",
+            "RF",
+            "medv",
+            "regression",
+            RandomForestRegressor,
+        ),
+        ("breast_cancer.csv", "NN", "target", "classification", MLPClassifier),
+        ("boston_housing.csv", "NN", "medv", "regression", MLPRegressor),
+    ],
+)
+def test_console_generate_and_execute_model(
+    filename, family, y_var, problem_type, estimator
+):
+    from foreshadow.console import generate_model, execute_model
+
+    data_path = get_file_path("data", filename)
+
+    args = ["--family", family, data_path, y_var, problem_type]
+
+    model = generate_model(args)
+
+    assert isinstance(model[0].estimator.estimator, estimator)
+
+    execute_model(*model)

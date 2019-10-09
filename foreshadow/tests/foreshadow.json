@@ -1,0 +1,2345 @@
+{
+  "X_preparer": {
+    "cleaner_kwargs": null,
+    "engineerer_kwargs": null,
+    "intent_kwargs": null,
+    "preprocessor_kwargs": null,
+    "reducer_kwargs": null,
+    "summarizer_kwargs": null,
+    "y_var": null,
+    "steps": [
+      {
+        "data_cleaner": {
+          "collapse_index": true,
+          "n_jobs": 1,
+          "transformer_weights": null,
+          "_class": "CleanerMapper",
+          "_method": "dict",
+          "transformation_by_column_group": [
+            {
+              "crim": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "zn": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "indus": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "chas": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "nox": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "rm": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "age": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "dis": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "rad": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "tax": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "ptratio": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "b": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "lstat": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Flatten": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Flatten",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Flatten",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Cleaner": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Cleaner",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Cleaner",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "intent": {
+          "collapse_index": true,
+          "n_jobs": 1,
+          "transformer_weights": null,
+          "_class": "IntentMapper",
+          "_method": "dict",
+          "transformation_by_column_group": [
+            {
+              "crim": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "zn": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Categoric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "indus": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "chas": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Categoric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "nox": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "rm": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "age": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "dis": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "rad": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Categoric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "tax": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "ptratio": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Categoric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "b": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "lstat": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "IntentResolver": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "IntentResolver",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "Numeric",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "IntentResolver",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "feature_summarizer": {
+          "collapse_index": true,
+          "n_jobs": 1,
+          "transformer_weights": null,
+          "_class": "FeatureSummarizerMapper",
+          "_method": "dict",
+          "transformation_by_column_group": [
+            {
+              "crim": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "zn": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "indus": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "chas": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "nox": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "rm": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "age": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "dis": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "rad": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "tax": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "ptratio": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "b": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "lstat": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureSummarizer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureSummarizer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureSummarizer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "feature_engineerer": {
+          "collapse_index": true,
+          "n_jobs": 1,
+          "transformer_weights": null,
+          "_class": "FeatureEngineererMapper",
+          "_method": "dict",
+          "transformation_by_column_group": [
+            {
+              "group: NoTransform_Numeric": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureEngineerer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureEngineerer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureEngineerer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                },
+                "columns": [
+                  "crim",
+                  "indus",
+                  "nox",
+                  "rm",
+                  "age",
+                  "dis",
+                  "tax",
+                  "b",
+                  "lstat"
+                ]
+              }
+            },
+            {
+              "group: NoTransform_Categoric": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureEngineerer": {
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureEngineerer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureEngineerer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                },
+                "columns": [
+                  "zn",
+                  "chas",
+                  "rad",
+                  "ptratio"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "feature_preprocessor": {
+          "collapse_index": true,
+          "n_jobs": 1,
+          "transformer_weights": null,
+          "_class": "Preprocessor",
+          "_method": "dict",
+          "transformation_by_column_group": [
+            {
+              "crim": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "indus": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "nox": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "rm": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "age": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "dis": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "tax": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "b": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "lstat": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "Imputer": {
+                        "axis": 0,
+                        "copy": true,
+                        "missing_values": "NaN",
+                        "strategy": "mean",
+                        "verbose": 0,
+                        "_class": "Imputer",
+                        "_method": "dict"
+                      }
+                    },
+                    {
+                      "Scaler": {
+                        "p_val": 0.05,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "Scaler",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "box_cox": {
+                                "_class": "BoxCox",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "robust_scaler": {
+                                "copy": true,
+                                "quantile_range": [
+                                  25.0,
+                                  75.0
+                                ],
+                                "with_centering": true,
+                                "with_scaling": true,
+                                "_class": "RobustScaler",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "Scaler",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "zn": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "CategoricalEncoder": {
+                        "merge_thresh": 0.01,
+                        "unique_num_cutoff": 30,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "CategoricalEncoder",
+                        "should_resolve": false,
+                        "transformer": {
+                          "cols": [],
+                          "drop_invariant": false,
+                          "handle_unknown": "ignore",
+                          "impute_missing": true,
+                          "return_df": true,
+                          "use_cat_names": true,
+                          "verbose": 0,
+                          "_class": "OneHotEncoder",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "CategoricalEncoder",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "chas": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "CategoricalEncoder": {
+                        "merge_thresh": 0.01,
+                        "unique_num_cutoff": 30,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "CategoricalEncoder",
+                        "should_resolve": false,
+                        "transformer": {
+                          "cols": [],
+                          "drop_invariant": false,
+                          "handle_unknown": "ignore",
+                          "impute_missing": true,
+                          "return_df": true,
+                          "use_cat_names": true,
+                          "verbose": 0,
+                          "_class": "OneHotEncoder",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "CategoricalEncoder",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "rad": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "CategoricalEncoder": {
+                        "merge_thresh": 0.01,
+                        "unique_num_cutoff": 30,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "CategoricalEncoder",
+                        "should_resolve": false,
+                        "transformer": {
+                          "cols": [],
+                          "drop_invariant": false,
+                          "handle_unknown": "ignore",
+                          "impute_missing": true,
+                          "return_df": true,
+                          "use_cat_names": true,
+                          "verbose": 0,
+                          "_class": "OneHotEncoder",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "CategoricalEncoder",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            },
+            {
+              "ptratio": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "CategoricalEncoder": {
+                        "merge_thresh": 0.01,
+                        "unique_num_cutoff": 30,
+                        "check_wrapped": true,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "CategoricalEncoder",
+                        "should_resolve": false,
+                        "transformer": {
+                          "memory": null,
+                          "steps": [
+                            {
+                              "ur": {
+                                "replacement": "UncommonRemover_Other",
+                                "threshold": 0.01,
+                                "_class": "UncommonRemover",
+                                "_method": "dict"
+                              }
+                            },
+                            {
+                              "ohe": {
+                                "cols": [
+                                  "ptratio"
+                                ],
+                                "drop_invariant": false,
+                                "handle_unknown": "ignore",
+                                "impute_missing": true,
+                                "return_df": true,
+                                "use_cat_names": true,
+                                "verbose": 0,
+                                "_class": "OneHotEncoder",
+                                "_method": "dict"
+                              }
+                            }
+                          ],
+                          "_class": "SerializablePipeline",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "CategoricalEncoder",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "feature_reducer": {
+          "collapse_index": true,
+          "n_jobs": 1,
+          "transformer_weights": null,
+          "_class": "FeatureReducerMapper",
+          "_method": "dict",
+          "transformation_by_column_group": [
+            {
+              "group: Numeric": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureReducer": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureReducer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureReducer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                },
+                "columns": [
+                  "crim",
+                  "indus",
+                  "nox",
+                  "rm",
+                  "age",
+                  "dis",
+                  "tax",
+                  "b",
+                  "lstat"
+                ]
+              }
+            },
+            {
+              "group: Categoric": {
+                "processing_pipeline": {
+                  "memory": null,
+                  "steps": [
+                    {
+                      "FeatureReducer": {
+                        "check_wrapped": false,
+                        "force_reresolve": false,
+                        "keep_columns": false,
+                        "name": "FeatureReducer",
+                        "should_resolve": false,
+                        "transformer": {
+                          "_class": "NoTransform",
+                          "_method": "dict"
+                        },
+                        "y_var": false,
+                        "_class": "FeatureReducer",
+                        "_method": "dict"
+                      }
+                    }
+                  ],
+                  "_class": "DynamicPipeline",
+                  "_method": "dict"
+                },
+                "columns": [
+                  "zn",
+                  "chas",
+                  "rad",
+                  "ptratio_20.2",
+                  "ptratio_17.8",
+                  "ptratio_16.6",
+                  "ptratio_19.2",
+                  "ptratio_17.9",
+                  "ptratio_UncommonRemover_Other",
+                  "ptratio_18.6",
+                  "ptratio_21.2",
+                  "ptratio_18.0",
+                  "ptratio_21.0",
+                  "ptratio_15.2",
+                  "ptratio_14.7",
+                  "ptratio_18.4",
+                  "ptratio_17.6",
+                  "ptratio_13.0",
+                  "ptratio_17.4",
+                  "ptratio_19.7",
+                  "ptratio_19.6",
+                  "ptratio_20.9",
+                  "ptratio_19.1",
+                  "ptratio_18.7",
+                  "ptratio_16.4"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "column_sharer": {
+      "store": {
+        "domain": {
+          "crim": "NoTransform",
+          "zn": "NoTransform",
+          "indus": "NoTransform",
+          "chas": "NoTransform",
+          "nox": "NoTransform",
+          "rm": "NoTransform",
+          "age": "NoTransform",
+          "dis": "NoTransform",
+          "rad": "NoTransform",
+          "tax": "NoTransform",
+          "ptratio": "NoTransform",
+          "b": "NoTransform",
+          "lstat": "NoTransform"
+        },
+        "intent": {
+          "crim": "Numeric",
+          "zn": "Categoric",
+          "indus": "Numeric",
+          "chas": "Categoric",
+          "nox": "Numeric",
+          "rm": "Numeric",
+          "age": "Numeric",
+          "dis": "Numeric",
+          "rad": "Categoric",
+          "tax": "Numeric",
+          "ptratio": "Categoric",
+          "b": "Numeric",
+          "lstat": "Numeric",
+          "ptratio_20.2": "Categoric",
+          "ptratio_17.8": "Categoric",
+          "ptratio_16.6": "Categoric",
+          "ptratio_19.2": "Categoric",
+          "ptratio_17.9": "Categoric",
+          "ptratio_UncommonRemover_Other": "Categoric",
+          "ptratio_18.6": "Categoric",
+          "ptratio_21.2": "Categoric",
+          "ptratio_18.0": "Categoric",
+          "ptratio_21.0": "Categoric",
+          "ptratio_15.2": "Categoric",
+          "ptratio_14.7": "Categoric",
+          "ptratio_18.4": "Categoric",
+          "ptratio_17.6": "Categoric",
+          "ptratio_13.0": "Categoric",
+          "ptratio_17.4": "Categoric",
+          "ptratio_19.7": "Categoric",
+          "ptratio_19.6": "Categoric",
+          "ptratio_20.9": "Categoric",
+          "ptratio_19.1": "Categoric",
+          "ptratio_18.7": "Categoric",
+          "ptratio_16.4": "Categoric"
+        }
+      },
+      "_class": "ColumnSharer",
+      "_method": "dict"
+    },
+    "_class": "DataPreparer",
+    "_method": "dict"
+  },
+  "estimator": {
+    "activation": "relu",
+    "alpha": 0.0001,
+    "batch_size": "auto",
+    "beta_1": 0.9,
+    "beta_2": 0.999,
+    "early_stopping": false,
+    "epsilon": 1e-08,
+    "hidden_layer_sizes": [
+      100
+    ],
+    "learning_rate": "constant",
+    "learning_rate_init": 0.001,
+    "max_iter": 200,
+    "momentum": 0.9,
+    "nesterovs_momentum": true,
+    "power_t": 0.5,
+    "random_state": null,
+    "shuffle": true,
+    "solver": "adam",
+    "tol": 0.0001,
+    "validation_fraction": 0.1,
+    "verbose": false,
+    "warm_start": false,
+    "_class": "sklearn.neural_network.multilayer_perceptron.MLPRegressor",
+    "_method": "dict"
+  },
+  "optimizer": null,
+  "optimizer_kwargs": {},
+  "y_preparer": {
+    "cleaner_kwargs": null,
+    "engineerer_kwargs": null,
+    "intent_kwargs": null,
+    "preprocessor_kwargs": null,
+    "reducer_kwargs": null,
+    "summarizer_kwargs": null,
+    "y_var": true,
+    "steps": [
+      {
+        "output": {
+          "_class": "NoTransform",
+          "_method": "dict"
+        }
+      }
+    ],
+    "column_sharer": {
+      "store": {},
+      "_class": "ColumnSharer",
+      "_method": "dict"
+    },
+    "_class": "DataPreparer",
+    "_method": "dict"
+  },
+  "data_columns": [
+    "crim",
+    "zn",
+    "indus",
+    "chas",
+    "nox",
+    "rm",
+    "age",
+    "dis",
+    "rad",
+    "tax",
+    "ptratio",
+    "b",
+    "lstat"
+  ],
+  "_class": "Foreshadow",
+  "_method": "dict"
+}
