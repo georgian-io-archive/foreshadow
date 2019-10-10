@@ -2,31 +2,26 @@
 # flake8: noqa
 # isort: noqa
 import argparse
-import json
 import sys
 import warnings
 
 import pandas as pd
 from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.model_selection import train_test_split
 
 from foreshadow.config import config
 from foreshadow.estimators import AutoEstimator
 from foreshadow.foreshadow import Foreshadow
 
 
-def generate_model(args):  # noqa: C901
-    """Process command line args and generate a Foreshadow model to fit.
+def process_argument(args):  # noqa: C901
+    """Process command line args.
 
     Args:
         args (list): A list of string arguments to process
 
     Returns:
-        tuple: A tuple of `fs, X_train, y_train, X_test, y_test` which \
-            represents the foreshadow model along with the split data.
-
-    Raises:
-        ValueError: if invalid file or invalid y.
+        cargs: processed arguments from the parser
 
     """
     parser = argparse.ArgumentParser(
@@ -49,7 +44,7 @@ def generate_model(args):  # noqa: C901
     parser.add_argument(
         "--multiprocess",
         default=False,
-        type=bool,
+        action="store_true",
         help="Whether to enable multiprocessing on the dataset, useful for "
         "large datasets and/or computational heavy transformations.",
     )
@@ -89,6 +84,25 @@ def generate_model(args):  # noqa: C901
         help="Path to JSON configuration file for y Preprocessor",
     )
     cargs = parser.parse_args(args)
+
+    return cargs
+
+
+def generate_model(args):  # noqa: C901
+    """Process command line args and generate a Foreshadow model to fit.
+
+    Args:
+        args (list): A list of string arguments to process
+
+    Returns:
+        tuple: A tuple of `fs, X_train, y_train, X_test, y_test` which \
+            represents the foreshadow model along with the split data.
+
+    Raises:
+        ValueError: if invalid file or invalid y.
+
+    """
+    cargs = process_argument(args)
 
     if cargs.level == 3 and cargs.method is not None:
         warnings.warn(
