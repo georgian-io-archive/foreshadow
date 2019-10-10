@@ -82,6 +82,9 @@ class EstimatorFactory:
     """Factory class that retrieves an estimator.
 
     Retrieval is based on the model family and the problem type.
+
+    TODO we can add a register method if we decide to add more model
+    algorithm family here.
     """
 
     def __init__(self):
