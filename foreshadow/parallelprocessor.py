@@ -57,6 +57,7 @@ class ParallelProcessor(
 
         self.collapse_index = collapse_index
         self.default_transformer_list = None
+        self.processing_step_name = self.__class__.__name__
 
         for item in transformer_list:
             self._set_names(item)
@@ -64,6 +65,15 @@ class ParallelProcessor(
         super(ParallelProcessor, self).__init__(
             transformer_list, n_jobs, transformer_weights
         )
+
+    def configure_step_name(self, name):
+        """Configure the processing step name of this parallel processor.
+
+        Args:
+            name: step name
+
+        """
+        self.processing_step_name = name
 
     def dict_serialize(self, deep=False):
         """Serialize the selected params of parallel_process.
@@ -465,6 +475,7 @@ class ParallelProcessor(
                 y,
                 cols,
                 self.collapse_index,
+                self.processing_step_name,
                 **fit_params,
             )
             for name, trans, cols, weight in self._iter()
@@ -666,7 +677,7 @@ def _pandas_transform_one(transformer, weight, X, cols, collapse_index):
 
 
 def _pandas_fit_transform_one(
-    transformer, weight, X, y, cols, collapse_index, **fit_params
+    transformer, weight, X, y, cols, collapse_index, step_name="", **fit_params
 ):
     """Fit dataframe, executes transformation, then adds multi-index.
 
@@ -677,20 +688,21 @@ def _pandas_fit_transform_one(
         y: input labels
         cols: column names as list
         collapse_index: collapse multi-index to single-index
+        step_name: name of the processing step owning the parallel processor
         **fit_params: params to transformer fit
 
     Returns:
         output from _fit_transform_one
 
     """
+    logging_template = "{} processing an individual column [{}]"
     if len(cols) > 1:
-        logging.info(
-            "Processing a group of columns [{}]".format(",".join(cols))
+        logging_template = "{} processing a group of columns [{}]"
+    logging.info(
+        logging_template.format(
+            step_name, ",".join(map(lambda x: str(x), cols))
         )
-    else:
-        logging.info(
-            "Processing an individual column [{}]".format(",".join(cols))
-        )
+    )
     colname = sorted(cols)[0]
     # Run original fit_transform function
     res, t = _fit_transform_one(transformer, weight, X, y, **fit_params)

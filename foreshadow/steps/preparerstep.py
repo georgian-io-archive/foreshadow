@@ -542,6 +542,11 @@ class PreparerStep(
         )
         self._parallel_process = self.parallelize_smart_steps(X)
 
+    def _fit_transform(self, X, y=None, **fit_params):
+        if isinstance(self._parallel_process, ParallelProcessor):
+            self._parallel_process.configure_step_name(self.__class__.__name__)
+        return self._parallel_process.fit_transform(X, y=y, **fit_params)
+
     def fit_transform(self, X, y=None, **fit_params):
         """Fit then transform this PreparerStep.
 
@@ -558,13 +563,14 @@ class PreparerStep(
         """
         if not X.empty:
             logging.info(
-                "DataPreparerStep {} processing [{}]".format(
-                    self.__class__.__name__, ",".join(list(X.columns))
+                "DataPreparerStep {} to process [{}]".format(
+                    self.__class__.__name__,
+                    ",".join(map(lambda x: str(x), list(X.columns))),
                 )
             )
 
         try:
-            return self._parallel_process.fit_transform(X, y=y, **fit_params)
+            return self._fit_transform(X, y, **fit_params)
         except AttributeError:
             if getattr(self, "_parallel_process", None) is None:
                 self.check_process(X)
@@ -576,7 +582,7 @@ class PreparerStep(
                 # so that the best pipeline for this step will be found.
                 self.check_process(X)
         finally:
-            return self._parallel_process.fit_transform(X, y=y, **fit_params)
+            return self._fit_transform(X, y, **fit_params)
 
     def transform(self, X, *args, **kwargs):
         """Transform X using this PreparerStep.
