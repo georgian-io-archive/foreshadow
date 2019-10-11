@@ -556,6 +556,13 @@ class PreparerStep(
             Result from .transform()
 
         """
+        if not X.empty:
+            logging.info(
+                "DataPreparerStep {} processing [{}]".format(
+                    self.__class__.__name__, ",".join(list(X.columns))
+                )
+            )
+
         try:
             return self._parallel_process.fit_transform(X, y=y, **fit_params)
         except AttributeError:

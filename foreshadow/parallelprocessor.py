@@ -10,6 +10,7 @@ from sklearn.pipeline import (
 )
 
 from foreshadow.base import BaseEstimator
+from foreshadow.logging import logging
 from foreshadow.utils.common import ConfigureColumnSharerMixin
 
 from .serializers import PipelineSerializerMixin, _make_serializable
@@ -682,6 +683,14 @@ def _pandas_fit_transform_one(
         output from _fit_transform_one
 
     """
+    if len(cols) > 1:
+        logging.info(
+            "Processing a group of columns [{}]".format(",".join(cols))
+        )
+    else:
+        logging.info(
+            "Processing an individual column [{}]".format(",".join(cols))
+        )
     colname = sorted(cols)[0]
     # Run original fit_transform function
     res, t = _fit_transform_one(transformer, weight, X, y, **fit_params)

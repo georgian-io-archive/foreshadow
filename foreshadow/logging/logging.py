@@ -28,6 +28,9 @@ LEVELS = {
 
 HIGHEST_LEVEL = "critical"
 LOWEST_LEVEL = "debug"
+LOGGING_FORMATTER = logging.Formatter(
+    "%(asctime)s - %(name)s - %(" "levelname)s - %(process)d - %(" "message)s"
+)
 
 
 def get_logger():
@@ -55,22 +58,24 @@ def get_logger():
         # Get scoped Foreshadow logger.
         my_logger = logging.getLogger("foreshadow")
 
-        interactive = False
-        if hasattr(sys, "ps1"):
-            interactive = True
-            # check python -i
-        elif hasattr(sys.flags, "interactive"):
-            interactive = sys.flags.interactive
+        # interactive = False
+        # if hasattr(sys, "ps1"):
+        #     interactive = True
+        #     # check python -i
+        # elif hasattr(sys.flags, "interactive"):
+        #     interactive = sys.flags.interactive
 
-        if interactive:
-            my_logger.setLevel(LEVELS["info"])
-        else:
-            my_logger.setLevel(LEVELS["warning"])
+        # if interactive:
+        #     my_logger.setLevel(LEVELS["info"])
+        # else:
+        #     my_logger.setLevel(LEVELS["warning"])
+        my_logger.setLevel(LEVELS["info"])
         stream_target = sys.stderr
 
         # Add Stream Handler based on if interactive or not.
         handler = logging.StreamHandler(stream_target)
-        handler.setFormatter(logging.Formatter(logging.BASIC_FORMAT, None))
+        # handler.setFormatter(logging.Formatter(logging.BASIC_FORMAT, None))
+        handler.setFormatter(LOGGING_FORMATTER)
         my_logger.addHandler(handler)
 
         _logger = my_logger
