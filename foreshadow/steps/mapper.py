@@ -1,6 +1,6 @@
 """Resolver module that computes the intents for input data."""
 
-from foreshadow.smart import IntentResolver
+from foreshadow.smart.intent_resolving import IntentResolver
 
 from .preparerstep import PreparerStep
 

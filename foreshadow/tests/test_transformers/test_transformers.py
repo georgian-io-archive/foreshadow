@@ -134,7 +134,7 @@ def test_transformer_multiprocess_dynamic_pipelines_update_column_sharer():
     import pandas as pd
 
     from foreshadow.parallelprocessor import ParallelProcessor
-    from foreshadow.smart import IntentResolver
+    from foreshadow.smart.intent_resolving import IntentResolver
     from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
@@ -214,7 +214,7 @@ def test_transformer_multiprocess_smart_transformers_update_column_sharer():
     import pandas as pd
 
     from foreshadow.parallelprocessor import ParallelProcessor
-    from foreshadow.smart import IntentResolver
+    from foreshadow.smart.intent_resolving import IntentResolver
     from foreshadow.columnsharer import ColumnSharer
 
     boston_path = get_file_path("data", "boston_housing.csv")
