@@ -135,8 +135,8 @@ def test_transformer_multiprocess_dynamic_pipelines_update_cache_manager():
     import pandas as pd
 
     from foreshadow.parallelprocessor import ParallelProcessor
-    from foreshadow.smart import IntentResolver
     from foreshadow.cachemanager import CacheManager
+    from foreshadow.smart.intent_resolving import IntentResolver
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
@@ -215,8 +215,8 @@ def test_transformer_multiprocess_smart_transformers_update_cache_manager():
     import pandas as pd
 
     from foreshadow.parallelprocessor import ParallelProcessor
-    from foreshadow.smart import IntentResolver
     from foreshadow.cachemanager import CacheManager
+    from foreshadow.smart.intent_resolving import IntentResolver
 
     boston_path = get_file_path("data", "boston_housing.csv")
 

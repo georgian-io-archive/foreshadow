@@ -25,6 +25,7 @@ _DEFAULT_CONFIG = {
     # "Numeric": {"Preprocessor": ["Imputer", "Scaler"]},
     "Categorical": {"Preprocessor": ["CategoricalEncoder"]},
     "Text": {"Preprocessor": ["TextEncoder"]},
+    "Neither": {"Preprocessor": ["NeitherProcessor"]},
 }
 
 

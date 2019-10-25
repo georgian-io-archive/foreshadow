@@ -4,6 +4,7 @@ from foreshadow.smart.all import (  # noqa: F401
     CategoricalEncoder,
     FinancialCleaner,
     MultiImputer,
+    NeitherProcessor,
     Scaler,
     SimpleImputer,
     TextEncoder,
@@ -13,7 +14,9 @@ from foreshadow.smart.feature_engineerer import FeatureEngineerer  # noqa: F401
 from foreshadow.smart.feature_reducer import FeatureReducer
 from foreshadow.smart.feature_summarizer import FeatureSummarizer  # noqa: F401
 from foreshadow.smart.flatten import Flatten  # noqa: F401
-from foreshadow.smart.intentresolver import IntentResolver
+
+# from foreshadow.smart.intentresolver import IntentResolver
+from foreshadow.smart.intent_resolving import IntentResolver
 from foreshadow.smart.smart import SmartTransformer  # noqa: F401
 
 
@@ -24,6 +27,7 @@ __all__ = [
     "Scaler",
     "SimpleImputer",
     "TextEncoder",
+    "NeitherProcessor",
     "Flatten",
     "Cleaner",
     "IntentResolver",

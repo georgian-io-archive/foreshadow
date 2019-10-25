@@ -13,6 +13,7 @@ import pandas as pd
 import scipy.stats as ss
 
 from foreshadow.concrete import Imputer
+from foreshadow.concrete import NoTransform
 from foreshadow.concrete.externals import (
     HashingEncoder,
     MinMaxScaler,
@@ -32,6 +33,7 @@ from foreshadow.concrete.internals import (
     ToString,
     UncommonRemover,
 )
+from foreshadow.logging import logging
 from foreshadow.pipeline import SerializablePipeline
 from foreshadow.utils import check_df
 
@@ -371,3 +373,109 @@ class TextEncoder(SmartTransformer):
             return tfidf
         else:
             return SerializablePipeline(steps)
+
+
+class NeitherProcessor(SmartTransformer):
+    """A temporary no transform processor for the Neither intent."""
+
+    def __init__(self, html_cutoff=0.4, **kwargs):
+        self.html_cutoff = html_cutoff
+
+        super().__init__(**kwargs)
+
+    def pick_transformer(self, X, y=None, **fit_params):
+        """Determine the appropriate preprocessing method for Neither intent.
+
+        Args:
+            X (:obj:`pandas.DataFrame`): Input X data
+            y (:obj: 'pandas.DataFrame'): labels Y for data
+            **fit_params (dict): Parameters to apply to transformers when
+                fitting
+
+        Returns:
+            A NoTransformer
+
+        """
+        return self._pick_transformer(X, y, **fit_params)
+
+    def _pick_transformer(self, X, y=None, **fit_params):
+        """Determine the appropriate nlp method.
+
+        Args:
+            X (:obj:`pandas.DataFrame`): Input X data
+            y (:obj: 'pandas.DataFrame'): labels Y for data
+            **fit_params (dict): Parameters to apply to transformers when
+                fitting
+
+        Returns:
+            An initialized nlp transformer
+
+        """
+        data = X.iloc[:, 0]
+
+        steps = []
+
+        if (data.dtype.type is not np.str_) and not all(
+            [isinstance(i, str) for i in data]
+        ):
+            steps.append(("num", ToString()))
+
+        html_ratio = (
+            data.astype("str").apply(HTMLRemover.is_html).sum()
+        ) / len(data)
+        if html_ratio > self.html_cutoff:
+            steps.append(("hr", HTMLRemover()))
+
+        # TODO: find heuristic for finding optimal values for values
+        tfidf = TfidfVectorizer(
+            decode_error="replace",
+            strip_accents="unicode",
+            stop_words="english",
+            ngram_range=(1, 2),
+            max_df=0.9,
+            min_df=0.05,
+            max_features=None,
+            sublinear_tf=True,
+        )
+        steps.append(("tfidf", tfidf))
+
+        if len(steps) == 1:
+            transformer = tfidf
+        else:
+            transformer = SerializablePipeline(steps)
+
+        return self._can_fit(transformer, X)
+
+    def _can_fit(self, transformer, X, y=None, sampling_threshold=0.1):
+        """Check if the TFIDF can be fitted on the sampled data.
+
+        If not, it will default back to NoTransform.
+        TODO: At this moment TFIDF is broken so it always default back to
+         NoTransform.
+
+        Args:
+            transformer: selected transformer with TFIDF vectorizor
+            X: the data frame
+            y: the y variable data frame
+            sampling_threshold: the threshold of the sampling
+
+        Returns:
+            Either the original transformer or the NoTransform
+
+        """
+        if len(X) * sampling_threshold < 30:
+            # the rule of 30 to be statistically significant
+            sampling_threshold = 1
+        sample_df = X.sample(
+            frac=sampling_threshold, replace=True, random_state=1
+        )
+        try:
+            transformer.fit(sample_df)
+            return transformer
+        except Exception:
+            # TODO change to ValueError once TFIDF is fixed.
+            # logging.warning("Error during fit: ".format(str(e)))
+            logging.warning(
+                "Revert to NoTransform for Neither " "Type temporarily."
+            )
+            return NoTransform()
