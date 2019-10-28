@@ -746,7 +746,6 @@ def test_foreshadow_serialization_adults_small_classification():
     assertions.assertAlmostEqual(score1, score2, places=7)
 
 
-@slow
 def test_foreshadow_serialization_adults_classification():
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
@@ -820,6 +819,55 @@ def test_foreshadow_serialization_boston_housing_regression():
 
     assertions = unittest.TestCase("__init__")
     assertions.assertAlmostEqual(score1, score2, places=7)
+
+
+def test_foreshadow_serialization_boston_housing_regression_override():
+    from foreshadow.foreshadow import Foreshadow
+    import pandas as pd
+    import numpy as np
+    from sklearn.datasets import load_boston
+    from sklearn.model_selection import train_test_split
+
+    # from sklearn.linear_model import LinearRegression
+
+    np.random.seed(1337)
+
+    boston = load_boston()
+    X_df = pd.DataFrame(boston.data, columns=boston.feature_names)
+    y_df = pd.DataFrame(boston.target, columns=["target"])
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_df, y_df, test_size=0.2
+    )
+    #
+    # shadow = Foreshadow(estimator=LinearRegression())
+    #
+    # shadow.fit(X_train, y_train)
+    # shadow.to_json("foreshadow_boston_housing_linear_regression.json")
+
+    shadow2 = Foreshadow.from_json(
+        "foreshadow_boston_housing_linear_regression_override.json"
+    )
+    shadow2.fit(X_train, y_train)
+
+    # score1 = shadow.score(X_test, y_test)
+    # score2 = shadow2.score(X_test, y_test)
+
+    # import unittest
+    #
+    # assertions = unittest.TestCase("__init__")
+    # assertions.assertAlmostEqual(score1, score2, places=7)
+
+
+def check_slow():
+    import os
+
+    return os.environ.get("FORESHADOW_TESTS") != "ALL"
+
+
+slow = pytest.mark.skipif(
+    check_slow(), reason="Skipping long-runnning integration tests"
+)
 
 
 @slow
