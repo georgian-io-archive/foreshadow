@@ -29,7 +29,7 @@ def test_get_config_exists(data, mocker):
     assert load_config("test") == test_data
 
 
-# @pytest.mark.skip("config switched")
+@pytest.mark.skip("config changed temporarily")
 def test_get_config_only_sys():
     import pickle
 

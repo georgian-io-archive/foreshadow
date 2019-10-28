@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats as ss
 
+from foreshadow.concrete import NoTransform
 from foreshadow.concrete.externals import (
     HashingEncoder,
     MinMaxScaler,
@@ -370,3 +371,22 @@ class TextEncoder(SmartTransformer):
             return tfidf
         else:
             return SerializablePipeline(steps)
+
+
+class NeitherProcessor(SmartTransformer):
+    """A temporary no transform processor for the Neither intent."""
+
+    def pick_transformer(self, X, y=None, **fit_params):
+        """Determine the appropriate preprocessing method for Neither intent.
+
+        Args:
+            X (:obj:`pandas.DataFrame`): Input X data
+            y (:obj: 'pandas.DataFrame'): labels Y for data
+            **fit_params (dict): Parameters to apply to transformers when
+                fitting
+
+        Returns:
+            A NoTransformer
+
+        """
+        return NoTransform()

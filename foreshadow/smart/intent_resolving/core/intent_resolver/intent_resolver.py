@@ -7,7 +7,11 @@ from typing import Union
 import pandas as pd
 
 from .. import io
-from ..data_set_parser import DataFrameDataSetParser
+from ..data_set_parsers import DataFrameDataSetParser
+from ..secondary_featurizers import (
+    FeaturizerCurator,
+    RawDataSetFeaturizerViaLambda,
+)
 
 
 class IntentResolver:
@@ -68,14 +72,21 @@ class IntentResolver:
         components = io.from_pickle(self.components_path)
         self.model = components["model"]
         self.scaler = components["scaler"]
-        self.parser.featurizers = components["featurizers"]
+        self.parser.featurizers = FeaturizerCurator.from_config(
+            func_config=components["function_featurizers_config"],
+            text_config=components["text_featurizer_config"],
+        )
 
         # Reset `RawDataSetFeaturizerViaLambda` attributes so that
         # featurization triggers properly for new data sets
         for f in self.parser.featurizers:
-            if type(f).__name__ == "RawDataSetFeaturizerViaLambda":
-                f.fast_load = False
-                f.save_dir = None
+            if isinstance(f, RawDataSetFeaturizerViaLambda):
+                if f.fast_load != False or f.save_dir is not None:
+                    raise ValueError(
+                        "RawDataSetFeaturizerViaLambda has incorrectly set "
+                        "attrbutes. This means was not saved properly during "
+                        "the training phase."
+                    )
 
         self.__initialise_parser()
 

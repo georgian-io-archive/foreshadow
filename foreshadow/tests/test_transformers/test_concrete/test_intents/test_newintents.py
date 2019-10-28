@@ -18,6 +18,7 @@ def test_base_intent_get_confidence():
     assert BaseIntent.get_confidence([]) == 1
 
 
+@pytest.mark.skip("No longer using this type of intent resolving")
 def test_intent_ordering_confidence():
     """Test numeric intent get_confidence."""
 

@@ -1,7 +1,28 @@
 """SmartResolver for ResolverMapper step."""
 
 from foreshadow.config import config
+from foreshadow.intents import Categoric, Neither, Numeric
+from foreshadow.smart.intent_resolving.core import (
+    IntentResolver as AutoIntentResolver,
+)
 from foreshadow.smart.smart import SmartTransformer
+from foreshadow.utils import get_transformer
+
+
+_temporary_naming_conversion = {
+    "Numerical": Numeric.__name__,
+    "Categorical": Categoric.__name__,
+    "Neither": Neither.__name__,
+}
+
+
+def _temporary_naming_convert(auto_ml_intent_name):
+    if auto_ml_intent_name in _temporary_naming_conversion:
+        return _temporary_naming_conversion[auto_ml_intent_name]
+    else:
+        raise KeyError(
+            "No such intent type {} exists.".format(auto_ml_intent_name)
+        )
 
 
 class IntentResolver(SmartTransformer):
@@ -34,11 +55,11 @@ class IntentResolver(SmartTransformer):
         """
         # TODO this is where the automl intent resolver could chime in
         #  without changing the framework too much.
-        # auto_intent_resolver = AutoIntentResolver(X)
-        # TODO we need to get the class of the intent, not just the string
-        #  name and we need to extract the class name from the pd.Serie object.
-        intent_list = config.get_intents()
-        return max(intent_list, key=lambda intent: intent.get_confidence(X))
+        auto_intent_resolver = AutoIntentResolver(X)
+        intent_pd_series = auto_intent_resolver.predict()
+        return intent_pd_series[[0]].values[0]
+        # intent_list = config.get_intents()
+        # return max(intent_list, key=lambda intent: intent.get_confidence(X))
 
     def resolve(self, X, *args, **kwargs):
         """Pick the appropriate transformer if necessary.
@@ -75,6 +96,9 @@ class IntentResolver(SmartTransformer):
             Best intent transformer.
 
         """
-        intent_class = self._resolve_intent(X, y=y)
+        intent_class_name = self._resolve_intent(X, y=y)
+        intent_class = get_transformer(
+            _temporary_naming_convert(intent_class_name)
+        )
 
         return intent_class()
