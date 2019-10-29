@@ -698,11 +698,7 @@ def _pandas_fit_transform_one(
     logging_template = "{} processing an individual column [{}]"
     if len(cols) > 1:
         logging_template = "{} processing a group of columns [{}]"
-    logging.info(
-        logging_template.format(
-            step_name, ",".join(map(lambda x: str(x), cols))
-        )
-    )
+    logging.info(logging_template.format(step_name, ",".join(map(str, cols))))
     colname = sorted(cols)[0]
     # Run original fit_transform function
     res, t = _fit_transform_one(transformer, weight, X, y, **fit_params)
