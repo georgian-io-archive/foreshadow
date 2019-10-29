@@ -9,7 +9,7 @@ from foreshadow.serializers import ConcreteSerializerMixin
 from foreshadow.utils import check_df, is_transformer
 
 
-def pandas_wrap(transformer):  # noqa: C901
+def pandas_wrap(transformer):  # noqa
     """Wrap a scikit-learn transformer to support pandas DataFrames.
 
     Args:
@@ -70,6 +70,7 @@ def pandas_wrap(transformer):  # noqa: C901
         """Wrapper to Enable parent transformer to handle DataFrames."""
 
         def __init__(self, *args, name=None, keep_columns=False, **kwargs):
+            # noqa
             """Initialize parent Transformer.
 
             Args:

@@ -263,7 +263,7 @@ class PreparerStep(
 
     """
 
-    def __init__(self, column_sharer=None, **kwargs):
+    def __init__(self, column_sharer=None, **kwargs):  # noqa
         """Set the original pipeline steps internally.
 
         Takes a list of desired SmartTransformer steps and stores them as
@@ -467,7 +467,7 @@ class PreparerStep(
             collapse_index=True,
         )
 
-    def get_mapping(self, X):
+    def get_mapping(self, X):  # noqa
         """Return a PreparerMapping object.
 
         The return has 2 major components:

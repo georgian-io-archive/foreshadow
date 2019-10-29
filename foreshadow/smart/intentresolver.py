@@ -17,7 +17,7 @@ class IntentResolver(SmartTransformer):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def _resolve_intent(self, X, y=None):
+    def _resolve_intent(self, X, y=None):  # noqa
         """Pick the intent with the highest confidence score.
 
         Note:

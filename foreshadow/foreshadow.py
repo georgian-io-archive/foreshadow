@@ -71,7 +71,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             self.estimator = MetaEstimator(self.estimator, self.y_preparer)
 
     @property
-    def X_preparer(self):
+    def X_preparer(self):  # noqa
         """Preprocessor object for performing feature engineering on X data.
 
         :getter: Returns Preprocessor object
@@ -100,7 +100,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             self._X_preprocessor = DataPreparer(column_sharer=ColumnSharer())
 
     @property
-    def y_preparer(self):
+    def y_preparer(self):  # noqa
         """Preprocessor object for performing scaling and encoding on Y data.
 
         :getter: Returns Preprocessor object
@@ -129,7 +129,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             )
 
     @property
-    def estimator(self):
+    def estimator(self):  # noqa
         """Estimator object for fitting preprocessed data.
 
         :getter: Returns Estimator object
@@ -159,7 +159,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             )
 
     @property
-    def optimizer(self):
+    def optimizer(self):  # noqa
         """Optimizer class that will fit the model.
 
         Performs a grid or random search algorithm on the parameter space from
