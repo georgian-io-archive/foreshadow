@@ -55,7 +55,8 @@ class IntentResolver(SmartTransformer):
         """
         # TODO this is where the automl intent resolver could chime in
         #  without changing the framework too much.
-        auto_intent_resolver = AutoIntentResolver(X)
+        X_subset = X.head(1000)
+        auto_intent_resolver = AutoIntentResolver(X_subset)
         intent_pd_series = auto_intent_resolver.predict()
         return intent_pd_series[[0]].values[0]
         # intent_list = config.get_intents()
