@@ -1,26 +1,29 @@
 #!/usr/bin/env python
 
-import pandas as pd
 import os
-from sklearn.model_selection import train_test_split
+
+import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+
 from foreshadow.config import config
-from foreshadow.foreshadow import Foreshadow
 from foreshadow.estimators import AutoEstimator
+from foreshadow.foreshadow import Foreshadow
+
 
 TRAINING_DATA_FOLDER_PATH = "YOUR_TRAIN_DATA_FOLDER_PATH"
 MODEL_FOLDER_PATH = "YOUR_TRAINED_MODEL_FOLDER_PATH"
 TEST_DATA_FOLDER_PATH = "YOUR_TEST_DATA_FOLDER_PATH"
 PREDICTION_FOLDER_PATH = "YOUR_FINAL_PREDICTION_FOLDER_PATH"
 
-TARGET = 'label'
+TARGET = "label"
 
 
 def load_individual_file(filepath):
     try:
         df = pd.read_csv(filepath)
-        del df['SymbolId']
-        del df['SequenceTime']
+        del df["SymbolId"]
+        del df["SequenceTime"]
         return df
     except Exception:
         raise ValueError(
@@ -46,8 +49,9 @@ def train_test_split(df, shuffle=False, stratify=None):
     return X_train, X_test, y_train, y_test
 
 
-def construct_foreshadow(estimator=RandomForestClassifier(n_jobs=10),
-                         multiprocess=False, auto=False):
+def construct_foreshadow(
+    estimator=RandomForestClassifier(n_jobs=10), multiprocess=False, auto=False
+):
     if auto:
         estimator = AutoEstimator(problem_type="classification", auto="tpot")
     if multiprocess:
@@ -56,8 +60,7 @@ def construct_foreshadow(estimator=RandomForestClassifier(n_jobs=10),
     return Foreshadow(estimator=estimator)
 
 
-def train_model(X_train, y_train, multiprocess=False,
-                auto=False):
+def train_model(X_train, y_train, multiprocess=False, auto=False):
     fs = construct_foreshadow(multiprocess=multiprocess, auto=auto)
     fs.fit(X_train, y_train)
     return fs
@@ -66,6 +69,7 @@ def train_model(X_train, y_train, multiprocess=False,
 def evaluate_model(X_test, y_test, model):
     y_scores = model.predict_proba(X_test)[:, 1]
     from sklearn.metrics import roc_auc_score
+
     auc = roc_auc_score(y_test, y_scores)
     print("Final AUC: {}".format(str(auc)))
     return auc
@@ -73,12 +77,14 @@ def evaluate_model(X_test, y_test, model):
 
 def save_models(models, tickers, folder=MODEL_FOLDER_PATH):
     import pickle
+
     for model, ticker in zip(models, tickers):
-        pickle.dump(model, open(os.path.join(folder, ticker)+".p", "wb"))
+        pickle.dump(model, open(os.path.join(folder, ticker) + ".p", "wb"))
 
 
 def load_model(ticker, folder=MODEL_FOLDER_PATH):
     import pickle
+
     return pickle.load(open(os.path.join(folder, ticker), "rb"))
 
 
@@ -90,12 +96,12 @@ if __name__ == "__main__":
     # TODO Version 2, assuming we are handling one file for all, or one for
     #  each exchange.
     filename = "YOUR_TRAINING_DATA"
-    df = load_individual_file(os.path.join(TRAINING_DATA_FOLDER_PATH,
-                                           filename))
-    X_train, X_test, y_train, y_test = train_test_split(df, shuffle=False,
-                                                        stratify=None)
+    df = load_individual_file(
+        os.path.join(TRAINING_DATA_FOLDER_PATH, filename)
+    )
+    X_train, X_test, y_train, y_test = train_test_split(
+        df, shuffle=False, stratify=None
+    )
     fs = train_model(X_train, y_train, multiprocess=False)
     save_models([fs], ["YOUR_MODEL_NAME"])
     evaluate_model(X_test, y_test, fs)
-
-
