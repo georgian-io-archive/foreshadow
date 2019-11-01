@@ -33,8 +33,10 @@ def load_individual_file(filepath):
 def load_data_per_file(folder):
     files_to_load = get_data_filepath_from_folder(folder)
     # Assuming the test data is formated as {ticker}_test.csv
-    return [(load_individual_file(file), file.split("_")[0]) for file in
-            files_to_load]
+    return [
+        (load_individual_file(file), file.split("_")[0])
+        for file in files_to_load
+    ]
 
 
 def get_data_filepath_from_folder(folder):
@@ -80,11 +82,11 @@ def evaluate_model(X_test, y_test, model):
     return auc
 
 
-def save_models(models, tickers, folder=MODEL_FOLDER_PATH):
+def save_models(models, names, folder=MODEL_FOLDER_PATH):
     import pickle
 
-    for model, ticker in zip(models, tickers):
-        pickle.dump(model, open(os.path.join(folder, ticker) + ".p", "wb"))
+    for model, name in zip(models, names):
+        pickle.dump(model, open(os.path.join(folder, name), "wb"))
 
 
 def load_model(ticker, folder=MODEL_FOLDER_PATH):
@@ -119,10 +121,9 @@ if __name__ == "__main__":
     to_predict_per_ticker = load_data_per_file(PREDICTION_FOLDER_PATH)
     for df, ticker in to_predict_per_ticker:
         pred = fs.predict(df)
-        pred_filename = os.path.join(PREDICTION_FOLDER_PATH,
-                                     "foreshadow_predictions",
-                                     "_".join([ticker, "pred.csv"]))
+        pred_filename = os.path.join(
+            PREDICTION_FOLDER_PATH,
+            "foreshadow_predictions",
+            "_".join([ticker, "pred.csv"]),
+        )
         pred.to_csv(pred_filename, index=False, header=False)
-
-
-
