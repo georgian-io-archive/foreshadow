@@ -13,7 +13,6 @@ from foreshadow.foreshadow import Foreshadow
 
 TRAINING_DATA_FOLDER_PATH = "YOUR_TRAIN_DATA_FOLDER_PATH"
 MODEL_FOLDER_PATH = "YOUR_TRAINED_MODEL_FOLDER_PATH"
-TEST_DATA_FOLDER_PATH = "YOUR_TEST_DATA_FOLDER_PATH"
 PREDICTION_FOLDER_PATH = "YOUR_FINAL_PREDICTION_FOLDER_PATH"
 
 TARGET = "label"
@@ -31,12 +30,19 @@ def load_individual_file(filepath):
         )
 
 
+def load_data_per_file(folder):
+    files_to_load = get_data_filepath_from_folder(folder)
+    # Assuming the test data is formated as {ticker}_test.csv
+    return [(load_individual_file(file), file.split("_")[0]) for file in
+            files_to_load]
+
+
 def get_data_filepath_from_folder(folder):
 
     return [os.path.join(folder, filename) for filename in os.listdir(folder)]
 
 
-def train_test_split(df, shuffle=False, stratify=None):
+def split_train_test_df(df, test_size=0.2, shuffle=False, stratify=None):
     try:
         X_df = df.drop(columns=TARGET)
         y_df = df[[TARGET]]
@@ -44,7 +50,7 @@ def train_test_split(df, shuffle=False, stratify=None):
         raise ValueError("Invalid target variable")
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X_df, y_df, test_size=0.2, shuffle=shuffle, stratify=stratify
+        X_df, y_df, test_size=test_size, shuffle=shuffle, stratify=stratify
     )
     return X_train, X_test, y_train, y_test
 
@@ -71,7 +77,6 @@ def evaluate_model(X_test, y_test, model):
     from sklearn.metrics import roc_auc_score
 
     auc = roc_auc_score(y_test, y_scores)
-    print("Final AUC: {}".format(str(auc)))
     return auc
 
 
@@ -93,15 +98,31 @@ def predict(model, X_test):
 
 
 if __name__ == "__main__":
-    # TODO Version 2, assuming we are handling one file for all, or one for
-    #  each exchange.
     filename = "YOUR_TRAINING_DATA"
     df = load_individual_file(
         os.path.join(TRAINING_DATA_FOLDER_PATH, filename)
     )
-    X_train, X_test, y_train, y_test = train_test_split(
-        df, shuffle=False, stratify=None
+    # If we are not considering the time series factor, then
+    # shuffle should be True
+    X_train, X_test, y_train, y_test = split_train_test_df(
+        df, test_size=0.2, shuffle=False, stratify=None
     )
-    fs = train_model(X_train, y_train, multiprocess=False)
+    # multiprocess may or may not work. If it is stuck, set it
+    # back to False
+    fs = train_model(X_train, y_train, multiprocess=True)
     save_models([fs], ["YOUR_MODEL_NAME"])
-    evaluate_model(X_test, y_test, fs)
+    auc = evaluate_model(X_test, y_test, fs)
+    print("Final AUC: {}".format(str(auc)))
+
+    # Load the prediction data from test folder
+    # a list: [(df, ticker1), (df, ticker2), ..., (df, tickerN)]
+    to_predict_per_ticker = load_data_per_file(PREDICTION_FOLDER_PATH)
+    for df, ticker in to_predict_per_ticker:
+        pred = fs.predict(df)
+        pred_filename = os.path.join(PREDICTION_FOLDER_PATH,
+                                     "foreshadow_predictions",
+                                     "_".join([ticker, "pred.csv"]))
+        pred.to_csv(pred_filename, index=False, header=False)
+
+
+
