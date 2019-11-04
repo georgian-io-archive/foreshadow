@@ -1,7 +1,7 @@
 """Intents package used by IntentMapper PreparerStep."""
 from .base import BaseIntent
 from .categorical import Categoric
-from .Neither import Neither
+from .neither import Neither
 from .numeric import Numeric
 from .text import Text
 
