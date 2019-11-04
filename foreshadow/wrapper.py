@@ -79,9 +79,6 @@ def pandas_wrap(transformer):  # noqa
                 keep_columns: keep original column names in the graph.
                 **kwargs: kwargs to the parent constructor
 
-            Raises:
-                TypeError: if the init for Transformer cannot be called.
-
             ..# noqa: I401
             ..# noqa: I402
 

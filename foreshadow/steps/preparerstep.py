@@ -271,8 +271,6 @@ class PreparerStep(
 
         Args:
             column_sharer: ColumnSharer instance to be shared across all steps.
-            use_single_pipeline: Creates pipelines using SingleInputPipeline
-                class instead of normal Pipelines.  .. #noqa: I102
             **kwargs: kwargs to PIpeline constructor.
 
         """
@@ -499,9 +497,6 @@ class PreparerStep(
 
         Args:
             X: DataFrame
-
-        Returns:
-            third order list of lists, then None when finished.
 
         Raises:
             NotImplementedError: If child did not override and implement.

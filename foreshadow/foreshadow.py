@@ -81,6 +81,9 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
 
         :type: :obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`
 
+        Returns:
+            the X_preparer object
+
         .. # noqa: I201
         """
         return self._X_preprocessor
@@ -109,6 +112,9 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             Preprocessor
 
         :type: :obj:`Preprocessor <foreshadow.preprocessor.Preprocessor>`
+
+        Returns:
+            the y_preparer object
 
         .. # noqa: I201
         """
@@ -140,6 +146,9 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
 
         :type: :obj:`sklearn.base.BaseEstimator`
 
+        Returns:
+            the estimator object
+
         .. # noqa: I201
         """
         return self._estimator
@@ -168,6 +177,9 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         :getter: Returns optimizer class
 
         :setter: Verifies Optimizer class, defaults to None
+
+        Returns:
+            the optimizer object
 
         .. # noqa: I201
         """

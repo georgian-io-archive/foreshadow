@@ -26,7 +26,11 @@ class IntentResolver(SmartTransformer):
             config list is chosen, the priority order is defined by the config
             file `resolver` section.
 
-        Return:
+        Args:
+            X: input observations
+            y: not used
+
+        Returns:
             The intent class that best matches the input data.
 
         .. # noqa: S001
