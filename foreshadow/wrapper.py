@@ -20,7 +20,7 @@ def pandas_wrap(transformer):  # noqa
     Returns:
         The wrapped form of a transformer
 
-    ..#noqa: I401
+    ..# noqa: I401
 
     """
     # use the same base metaclass as the transformer, otherwise we will get
