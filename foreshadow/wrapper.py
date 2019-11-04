@@ -9,7 +9,7 @@ from foreshadow.serializers import ConcreteSerializerMixin
 from foreshadow.utils import check_df, is_transformer
 
 
-def pandas_wrap(transformer):  # noqa: C901
+def pandas_wrap(transformer):  # noqa
     """Wrap a scikit-learn transformer to support pandas DataFrames.
 
     Args:
@@ -20,7 +20,8 @@ def pandas_wrap(transformer):  # noqa: C901
     Returns:
         The wrapped form of a transformer
 
-    ..#noqa: I401
+    ..# noqa: I401
+    ..# noqa: DAR401
 
     """
     # use the same base metaclass as the transformer, otherwise we will get
@@ -70,6 +71,7 @@ def pandas_wrap(transformer):  # noqa: C901
         """Wrapper to Enable parent transformer to handle DataFrames."""
 
         def __init__(self, *args, name=None, keep_columns=False, **kwargs):
+            # noqa
             """Initialize parent Transformer.
 
             Args:
@@ -77,9 +79,6 @@ def pandas_wrap(transformer):  # noqa: C901
                 name: name of the transformer.
                 keep_columns: keep original column names in the graph.
                 **kwargs: kwargs to the parent constructor
-
-            Raises:
-                TypeError: if the init for Transformer cannot be called.
 
             ..# noqa: I401
             ..# noqa: I402
