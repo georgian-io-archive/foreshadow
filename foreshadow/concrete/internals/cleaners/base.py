@@ -6,9 +6,9 @@ import pandas as pd
 
 from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.exceptions import InvalidDataFrame
+from foreshadow.logging import logging
 from foreshadow.metrics import MetricWrapper, avg_col_regex, regex_rows
 from foreshadow.utils import check_df
-from foreshadow.logging import logging
 
 
 CleanerReturn = namedtuple("CleanerReturn", ["row", "match_lens"])
