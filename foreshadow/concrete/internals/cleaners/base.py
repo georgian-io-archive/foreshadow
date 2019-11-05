@@ -8,6 +8,7 @@ from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.exceptions import InvalidDataFrame
 from foreshadow.metrics import MetricWrapper, avg_col_regex, regex_rows
 from foreshadow.utils import check_df
+from foreshadow.logging import logging
 
 
 CleanerReturn = namedtuple("CleanerReturn", ["row", "match_lens"])
@@ -86,12 +87,15 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
             float: confidence value.
 
         """
+        # TODO can we also do a sampling here?
+        logging.info("Calculating scores....")
         scores = []
         for metric_wrapper, weight in self.confidence_computation.items():
             scores.append(
                 metric_wrapper.calculate(X, cleaner=self.transform_row)
                 * weight
             )
+        logging.info("End calculating scores...")
         return sum(scores)
 
     def transform_row(self, row_of_feature, return_tuple=True):
@@ -185,7 +189,9 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         # over each row for a given column on my own, which requires me to
         # leave
 
+        logging.info("Starting cleaning rows...")
         out = X[X.columns[0]].apply(self.transform_row, return_tuple=False)
+        logging.info("Ending cleaning rows...")
         # access single column as series and apply the list of
         # transformations to each row in the series.
         if any(

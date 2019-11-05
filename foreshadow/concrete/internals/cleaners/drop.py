@@ -19,6 +19,7 @@ def drop_transform(text):
         Otherwise: None, original text.
 
     """
+    # TODO may want to optimize, no need for regex.
     regex = "^$"
     text = str(text)
     res = re.search(regex, text)
