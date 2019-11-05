@@ -17,7 +17,7 @@ class IntentResolver(SmartTransformer):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def _resolve_intent(self, X, y=None):
+    def _resolve_intent(self, X, y=None):  # noqa
         """Pick the intent with the highest confidence score.
 
         Note:
@@ -26,7 +26,11 @@ class IntentResolver(SmartTransformer):
             config list is chosen, the priority order is defined by the config
             file `resolver` section.
 
-        Return:
+        Args:
+            X: input observations
+            y: not used
+
+        Returns:
             The intent class that best matches the input data.
 
         .. # noqa: S001

@@ -369,3 +369,16 @@ def test_console_generate_and_execute_model(
     assert isinstance(model[0].estimator.estimator, estimator)
 
     execute_model(*model)
+
+def test_console_parse_args_multiprocess():
+    from foreshadow.console import process_argument
+
+    data_path = get_file_path("data", "boston_housing.csv")
+
+    args = ["--level", "1", data_path, "medv", "regression"]
+    cargs = process_argument(args)
+    assert cargs.multiprocess is False
+
+    args = ["--level", "1", "--multiprocess", data_path, "medv", "regression"]
+    cargs = process_argument(args)
+    assert cargs.multiprocess is True

@@ -6,26 +6,24 @@ import sys
 import warnings
 
 import pandas as pd
+from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.model_selection import train_test_split
 
 from foreshadow.config import config
 from foreshadow.estimators import AutoEstimator
 from foreshadow.foreshadow import Foreshadow
 from foreshadow.utils import EstimatorFactory, EstimatorFamily, ProblemType
+from foreshadow.logging import logging
 
 
-def generate_model(args):  # noqa: C901
-    """Process command line args and generate a Foreshadow model to fit.
+def process_argument(args):  # noqa: C901
+    """Process command line args.
 
     Args:
         args (list): A list of string arguments to process
 
     Returns:
-        tuple: A tuple of `fs, X_train, y_train, X_test, y_test` which \
-            represents the foreshadow model along with the split data.
-
-    Raises:
-        ValueError: if invalid file or invalid y.
+        cargs: processed arguments from the parser
 
     """
     parser = argparse.ArgumentParser(
@@ -48,7 +46,7 @@ def generate_model(args):  # noqa: C901
     parser.add_argument(
         "--multiprocess",
         default=False,
-        type=bool,
+        action="store_true",
         help="Whether to enable multiprocessing on the dataset, useful for "
         "large datasets and/or computational heavy transformations.",
     )
@@ -104,6 +102,25 @@ def generate_model(args):  # noqa: C901
         help="Path to JSON configuration file for y Preprocessor",
     )
     cargs = parser.parse_args(args)
+
+    return cargs
+
+
+def generate_model(args):  # noqa: C901
+    """Process command line args and generate a Foreshadow model to fit.
+
+    Args:
+        args (list): A list of string arguments to process
+
+    Returns:
+        tuple: A tuple of `fs, X_train, y_train, X_test, y_test` which \
+            represents the foreshadow model along with the split data.
+
+    Raises:
+        ValueError: if invalid file or invalid y.
+
+    """
+    cargs = process_argument(args)
 
     if cargs.level == 3 and cargs.method is not None:
         warnings.warn(
@@ -208,7 +225,7 @@ def generate_model(args):  # noqa: C901
 
     if cargs.multiprocess:
         config.set_multiprocess(True)
-        print("multiprocessing enabled.")
+        logging.info("multiprocessing enabled.")
 
     return fs, X_train, y_train, X_test, y_test
 
@@ -233,17 +250,17 @@ def execute_model(fs, X_train, y_train, X_test, y_test):
             and summarized forms of each of those steps.
 
     """
-    print("Fitting final model...")
+    logging.info("Fitting final model...")
     fs.fit(X_train, y_train)
 
-    print("Scoring final model...")
+    logging.info("Scoring final model...")
     score = fs.score(X_test, y_test)
 
-    print("Final Results: ")
-    print(score)
+    logging.info("Final Results: ")
+    logging.info(score)
 
     fs.to_json("foreshadow.json")
-    print(
+    logging.info(
         "Serialized foreshadow pipeline has been saved to foreshadow.json. "
         "Refer to docs to read and process."
     )
