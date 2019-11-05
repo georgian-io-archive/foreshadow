@@ -11,9 +11,13 @@ from foreshadow.estimators import AutoEstimator
 from foreshadow.foreshadow import Foreshadow
 
 
-TRAINING_DATA_FOLDER_PATH = "/home/ec2-user/hackathon/eddie_data/2019.07.02/{}_labeled.csv.v10"
+TRAINING_DATA_FOLDER_PATH = (
+    "/home/ec2-user/hackathon/eddie_data/2019.07.02/{}_labeled.csv.v10"
+)
 MODEL_FOLDER_PATH = "YOUR_TRAINED_MODEL_FOLDER_PATH"
-PREDICTION_FOLDER_PATH = "/home/ec2-user/hackathon/eddie_data/2019.07.30/{}_test.csv.v11"
+PREDICTION_FOLDER_PATH = (
+    "/home/ec2-user/hackathon/eddie_data/2019.07.30/{}_test.csv.v11"
+)
 
 TARGET = "label"
 
@@ -35,8 +39,9 @@ def load_all_data(folder_path_template):
     processed_dfs = []
     for ticker in tickers:
         print("loading data from ticker {}".format(str(ticker)))
-        ticker_df = load_data_per_ticker(folder_path_template.format(
-            str(ticker)))
+        ticker_df = load_data_per_ticker(
+            folder_path_template.format(str(ticker))
+        )
         ticker_df = preprocessing_df_before_feeding_to_foreshadow(ticker_df)
         processed_dfs.append(ticker_df)
     total_df = pd.concat(processed_dfs)
@@ -62,34 +67,69 @@ def load_data_per_ticker(folder):
 def preprocessing_df_before_feeding_to_foreshadow(df):
     del df["id"]
     del df["timestamp"]
-    for col in ['bid_BATS', 'bid_BATY', 'bid_EDGA', 'bid_EDGX', 'bid_XBOS',
-                'bid_XNGS']:
-        df[f'_{col}_div_best_bid'] = df[col] / df['best_bid']
+    for col in [
+        "bid_BATS",
+        "bid_BATY",
+        "bid_EDGA",
+        "bid_EDGX",
+        "bid_XBOS",
+        "bid_XNGS",
+    ]:
+        df[f"_{col}_div_best_bid"] = df[col] / df["best_bid"]
 
-    for col in ['ask_BATS', 'ask_BATY', 'ask_EDGA', 'ask_EDGX', 'ask_XBOS',
-                'ask_XNGS']:
-        df[f'_{col}_div_best_ask'] = df[col] / df['best_ask']
+    for col in [
+        "ask_BATS",
+        "ask_BATY",
+        "ask_EDGA",
+        "ask_EDGX",
+        "ask_XBOS",
+        "ask_XNGS",
+    ]:
+        df[f"_{col}_div_best_ask"] = df[col] / df["best_ask"]
 
-    for timing in ['1ms', '2ms', '5ms', '10ms']:
+    for timing in ["1ms", "2ms", "5ms", "10ms"]:
         for col in [
-            'AskBidDiff',
-            'bid_BATS', 'bid_BATY', 'bid_EDGA', 'bid_EDGX', 'bid_XBOS',
-            'bid_XNGS',
-            'ask_BATS', 'ask_BATY', 'ask_EDGA', 'ask_EDGX', 'ask_XBOS',
-            'ask_XNGS',
-            'best_bid', 'best_ask',
-            'total_at_best_ask',
-            'total_at_best_bid',
+            "AskBidDiff",
+            "bid_BATS",
+            "bid_BATY",
+            "bid_EDGA",
+            "bid_EDGX",
+            "bid_XBOS",
+            "bid_XNGS",
+            "ask_BATS",
+            "ask_BATY",
+            "ask_EDGA",
+            "ask_EDGX",
+            "ask_XBOS",
+            "ask_XNGS",
+            "best_bid",
+            "best_ask",
+            "total_at_best_ask",
+            "total_at_best_bid",
         ]:
             # Replace the values with historical ratios.
-            df[f'{col}_{timing}'] = df[col] / df[f'{col}_{timing}']
+            df[f"{col}_{timing}"] = df[col] / df[f"{col}_{timing}"]
 
-    df = df.drop([
-        'AskBidDiff',
-        'bid_BATS', 'bid_BATY', 'bid_EDGA', 'bid_EDGX', 'bid_XBOS', 'bid_XNGS',
-        'ask_BATS', 'ask_BATY', 'ask_EDGA', 'ask_EDGX', 'ask_XBOS', 'ask_XNGS',
-        'best_bid', 'best_ask',
-    ], axis=1)
+    df = df.drop(
+        [
+            "AskBidDiff",
+            "bid_BATS",
+            "bid_BATY",
+            "bid_EDGA",
+            "bid_EDGX",
+            "bid_XBOS",
+            "bid_XNGS",
+            "ask_BATS",
+            "ask_BATY",
+            "ask_EDGA",
+            "ask_EDGX",
+            "ask_XBOS",
+            "ask_XNGS",
+            "best_bid",
+            "best_ask",
+        ],
+        axis=1,
+    )
     return df
 
 
@@ -174,12 +214,12 @@ if __name__ == "__main__":
     print("Start prediction...")
     for ticker in tickers:
         print("Prediction for ticker {}".format(str(ticker)))
-        ticker_df = load_data_per_ticker(PREDICTION_FOLDER_PATH.format(
-            str(ticker)))
+        ticker_df = load_data_per_ticker(
+            PREDICTION_FOLDER_PATH.format(str(ticker))
+        )
         ticker_df = preprocessing_df_before_feeding_to_foreshadow(ticker_df)
         pred = fs.predict(ticker_df)
         pred_filename = os.path.join(
-            "foreshadow_predictions",
-            "_".join([str(ticker), "pred.csv"]),
+            "foreshadow_predictions", "_".join([str(ticker), "pred.csv"])
         )
         pred.to_csv(pred_filename, index=False, header=False)
