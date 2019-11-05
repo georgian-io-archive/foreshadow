@@ -5,6 +5,17 @@ import pytest
 from foreshadow.utils.testing import get_file_path
 
 
+def check_slow():
+    import os
+
+    return os.environ.get("FORESHADOW_TESTS") != "ALL"
+
+
+slow = pytest.mark.skipif(
+    check_slow(), reason="Skipping long-runnning integration tests"
+)
+
+
 def test_foreshadow_defaults():
     from foreshadow.foreshadow import Foreshadow
     from foreshadow.preparer import DataPreparer
@@ -735,6 +746,7 @@ def test_foreshadow_serialization_adults_small_classification():
     assertions.assertAlmostEqual(score1, score2, places=7)
 
 
+@slow
 def test_foreshadow_serialization_adults_classification():
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
@@ -808,17 +820,6 @@ def test_foreshadow_serialization_boston_housing_regression():
 
     assertions = unittest.TestCase("__init__")
     assertions.assertAlmostEqual(score1, score2, places=7)
-
-
-def check_slow():
-    import os
-
-    return os.environ.get("FORESHADOW_TESTS") != "ALL"
-
-
-slow = pytest.mark.skipif(
-    check_slow(), reason="Skipping long-runnning integration tests"
-)
 
 
 @slow

@@ -1,9 +1,13 @@
 """Estimator factory and supported estimators."""
 
+from typing import Dict
+
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.neural_network import MLPClassifier, MLPRegressor
 from sklearn.svm import LinearSVC, LinearSVR
+
+from .constants import EstimatorFamily, ProblemType
 
 
 class EstimatorFamilyMixin:
@@ -12,6 +16,9 @@ class EstimatorFamilyMixin:
     Retrieve is based on the type of the problem (classification or
     regression).
     """
+
+    def initialize_estimators(self) -> Dict:  # noqa
+        pass
 
     def get_estimator_by_type(self, problem_type):
         """Retrieve an estimator based on the problem type.
@@ -23,7 +30,7 @@ class EstimatorFamilyMixin:
             an estimator of a particular model family
 
         """
-        return self.estimators[problem_type]
+        return self.initialize_estimators()[problem_type]
 
 
 class LinearEstimatorFamily(EstimatorFamilyMixin):
@@ -32,10 +39,16 @@ class LinearEstimatorFamily(EstimatorFamilyMixin):
     Estimators include LinearRegression and LogisticRegression.
     """
 
-    def __init__(self):
-        self.estimators = {
-            "classification": LogisticRegression(),
-            "regression": LinearRegression(),
+    def initialize_estimators(self) -> Dict:
+        """Initialize estimators for all estimator types and return as a dict.
+
+        Returns:
+            A dictionary of problem type to estimator
+
+        """
+        return {
+            ProblemType.CLASSIFICATION: LogisticRegression(),
+            ProblemType.REGRESSION: LinearRegression(),
         }
 
 
@@ -45,10 +58,16 @@ class SVMEstimatorFamily(EstimatorFamilyMixin):
     Estimators include LinearSVC and LinearSVR.
     """
 
-    def __init__(self):
-        self.estimators = {
-            "classification": LinearSVC(),
-            "regression": LinearSVR(),
+    def initialize_estimators(self) -> Dict:
+        """Initialize estimators for all estimator types and return as a dict.
+
+        Returns:
+            A dictionary of problem type to estimator
+
+        """
+        return {
+            ProblemType.CLASSIFICATION: LinearSVC(),
+            ProblemType.REGRESSION: LinearSVR(),
         }
 
 
@@ -58,10 +77,16 @@ class RFEstimatorFamily(EstimatorFamilyMixin):
     Estimators include RandomForestClassifier and RandomForestRegressor.
     """
 
-    def __init__(self):
-        self.estimators = {
-            "classification": RandomForestClassifier(),
-            "regression": RandomForestRegressor(),
+    def initialize_estimators(self) -> Dict:
+        """Initialize estimators for all estimator types and return as a dict.
+
+        Returns:
+            A dictionary of problem type to estimator
+
+        """
+        return {
+            ProblemType.CLASSIFICATION: RandomForestClassifier(),
+            ProblemType.REGRESSION: RandomForestRegressor(),
         }
 
 
@@ -71,10 +96,16 @@ class NNEstimatorFamily(EstimatorFamilyMixin):
     Estimators include MLPClassifier and MLPRegressor
     """
 
-    def __init__(self):
-        self.estimators = {
-            "classification": MLPClassifier(),
-            "regression": MLPRegressor(),
+    def initialize_estimators(self) -> Dict:
+        """Initialize estimators for all estimator types and return as a dict.
+
+        Returns:
+            A dictionary of problem type to estimator
+
+        """
+        return {
+            ProblemType.CLASSIFICATION: MLPClassifier(),
+            ProblemType.REGRESSION: MLPRegressor(),
         }
 
 
@@ -89,10 +120,10 @@ class EstimatorFactory:
 
     def __init__(self):
         self.registered_estimator_families = {
-            "Linear": LinearEstimatorFamily(),
-            "SVM": SVMEstimatorFamily(),
-            "RF": RFEstimatorFamily(),
-            "NN": NNEstimatorFamily(),
+            EstimatorFamily.LINEAR: LinearEstimatorFamily(),
+            EstimatorFamily.SVM: SVMEstimatorFamily(),
+            EstimatorFamily.RF: RFEstimatorFamily(),
+            EstimatorFamily.NN: NNEstimatorFamily(),
         }
 
     def get_estimator(self, family, problem_type):
@@ -111,7 +142,10 @@ class EstimatorFactory:
         """
         if family not in self.registered_estimator_families:
             raise KeyError("Unknown model family type: {}".format(family))
-        if problem_type not in ["classification", "regression"]:
+        if problem_type not in [
+            ProblemType.CLASSIFICATION,
+            ProblemType.REGRESSION,
+        ]:
             raise KeyError(
                 "Only classification and regression are "
                 "supported, unknown operation type: {}".format(problem_type)

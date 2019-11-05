@@ -7,6 +7,7 @@ from foreshadow.utils.common import (
     get_config_path,
     get_transformer,
 )
+from foreshadow.utils.constants import EstimatorFamily, ProblemType
 from foreshadow.utils.data_summary import (
     get_outliers,
     mode_freq,
@@ -42,4 +43,6 @@ __all__ = [
     "standard_col_summary",
     "ConfigureColumnSharerMixin",
     "EstimatorFactory",
+    "ProblemType",
+    "EstimatorFamily",
 ]

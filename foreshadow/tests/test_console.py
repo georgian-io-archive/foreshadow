@@ -4,6 +4,7 @@ from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.neural_network import MLPClassifier, MLPRegressor
 from sklearn.svm import LinearSVC, LinearSVR
 
+from foreshadow.utils import EstimatorFamily, ProblemType
 from foreshadow.utils.testing import get_file_path
 
 
@@ -234,7 +235,10 @@ def test_console_get_method_default_regression():
     )
 
     result = get_method(
-        None, y_train, family="Linear", problem_type="regression"
+        None,
+        y_train,
+        family=EstimatorFamily.LINEAR,
+        problem_type=ProblemType.REGRESSION,
     )
 
     assert isinstance(result, LinearRegression)
@@ -258,7 +262,10 @@ def test_console_get_method_default_classification():
     )
 
     result = get_method(
-        None, y_train, family="Linear", problem_type="classification"
+        None,
+        y_train,
+        family=EstimatorFamily.LINEAR,
+        problem_type=ProblemType.CLASSIFICATION,
     )
 
     assert isinstance(result, LogisticRegression)
@@ -292,36 +299,60 @@ def test_console_get_method_error():
     [
         (
             "breast_cancer.csv",
-            "Linear",
+            EstimatorFamily.LINEAR,
             "target",
-            "classification",
+            ProblemType.CLASSIFICATION,
             LogisticRegression,
         ),
         (
             "boston_housing.csv",
-            "Linear",
+            EstimatorFamily.LINEAR,
             "medv",
-            "regression",
+            ProblemType.REGRESSION,
             LinearRegression,
         ),
-        ("breast_cancer.csv", "SVM", "target", "classification", LinearSVC),
-        ("boston_housing.csv", "SVM", "medv", "regression", LinearSVR),
         (
             "breast_cancer.csv",
-            "RF",
+            EstimatorFamily.SVM,
             "target",
-            "classification",
+            ProblemType.CLASSIFICATION,
+            LinearSVC,
+        ),
+        (
+            "boston_housing.csv",
+            EstimatorFamily.SVM,
+            "medv",
+            ProblemType.REGRESSION,
+            LinearSVR,
+        ),
+        (
+            "breast_cancer.csv",
+            EstimatorFamily.RF,
+            "target",
+            ProblemType.CLASSIFICATION,
             RandomForestClassifier,
         ),
         (
             "boston_housing.csv",
-            "RF",
+            EstimatorFamily.RF,
             "medv",
-            "regression",
+            ProblemType.REGRESSION,
             RandomForestRegressor,
         ),
-        ("breast_cancer.csv", "NN", "target", "classification", MLPClassifier),
-        ("boston_housing.csv", "NN", "medv", "regression", MLPRegressor),
+        (
+            "breast_cancer.csv",
+            EstimatorFamily.NN,
+            "target",
+            ProblemType.CLASSIFICATION,
+            MLPClassifier,
+        ),
+        (
+            "boston_housing.csv",
+            EstimatorFamily.NN,
+            "medv",
+            ProblemType.REGRESSION,
+            MLPRegressor,
+        ),
     ],
 )
 def test_console_generate_and_execute_model(

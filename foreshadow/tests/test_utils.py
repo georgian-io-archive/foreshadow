@@ -4,6 +4,8 @@ from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.neural_network import MLPClassifier, MLPRegressor
 from sklearn.svm import LinearSVC, LinearSVR
 
+from foreshadow.utils import EstimatorFamily, ProblemType
+
 
 def test_check_df_passthrough():
     import pandas as pd
@@ -124,14 +126,22 @@ def test_is_wrapped(transformer_name):
 @pytest.mark.parametrize(
     "family, problem_type, estimator",
     [
-        ("Linear", "classification", LogisticRegression),
-        ("Linear", "regression", LinearRegression),
-        ("SVM", "classification", LinearSVC),
-        ("SVM", "regression", LinearSVR),
-        ("RF", "classification", RandomForestClassifier),
-        ("RF", "regression", RandomForestRegressor),
-        ("NN", "classification", MLPClassifier),
-        ("NN", "regression", MLPRegressor),
+        (
+            EstimatorFamily.LINEAR,
+            ProblemType.CLASSIFICATION,
+            LogisticRegression,
+        ),
+        (EstimatorFamily.LINEAR, ProblemType.REGRESSION, LinearRegression),
+        (EstimatorFamily.SVM, ProblemType.CLASSIFICATION, LinearSVC),
+        (EstimatorFamily.SVM, ProblemType.REGRESSION, LinearSVR),
+        (
+            EstimatorFamily.RF,
+            ProblemType.CLASSIFICATION,
+            RandomForestClassifier,
+        ),
+        (EstimatorFamily.RF, ProblemType.REGRESSION, RandomForestRegressor),
+        (EstimatorFamily.NN, ProblemType.CLASSIFICATION, MLPClassifier),
+        (EstimatorFamily.NN, ProblemType.REGRESSION, MLPRegressor),
     ],
 )
 def test_get_estimator(family, problem_type, estimator):
@@ -146,8 +156,8 @@ def test_get_estimator(family, problem_type, estimator):
 @pytest.mark.parametrize(
     "family, problem_type, exception",
     [
-        ("Unknown", "classification", pytest.raises(KeyError)),
-        ("Linear", "cluster", pytest.raises(KeyError)),
+        ("Unknown", ProblemType.CLASSIFICATION, pytest.raises(KeyError)),
+        (EstimatorFamily.LINEAR, "cluster", pytest.raises(KeyError)),
     ],
 )
 def test_get_estimator_exception(family, problem_type, exception):

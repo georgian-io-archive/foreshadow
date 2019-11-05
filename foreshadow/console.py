@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 from foreshadow.config import config
 from foreshadow.estimators import AutoEstimator
 from foreshadow.foreshadow import Foreshadow
-from foreshadow.utils import EstimatorFactory
+from foreshadow.utils import EstimatorFactory, EstimatorFamily, ProblemType
 
 
 def generate_model(args):  # noqa: C901
@@ -39,9 +39,9 @@ def generate_model(args):  # noqa: C901
     )
     parser.add_argument(
         "problem_type",
-        default="classification",
+        default=ProblemType.CLASSIFICATION,
         type=str,
-        choices=["classification", "regression"],
+        choices=[ProblemType.CLASSIFICATION, ProblemType.REGRESSION],
         help="Problem type, choosing from classification or regression, "
         "default to classification.",
     )
@@ -70,9 +70,14 @@ def generate_model(args):  # noqa: C901
     )
     parser.add_argument(
         "--family",
-        default="Linear",
+        default=EstimatorFamily.LINEAR,
         type=str,
-        choices=["Linear", "SVM", "RF", "NN"],
+        choices=[
+            EstimatorFamily.LINEAR,
+            EstimatorFamily.SVM,
+            EstimatorFamily.RF,
+            EstimatorFamily.NN,
+        ],
         help="The algorithm family in Sklearn to train the model. Linear "
         "includes LinearRegression and LogisticRegression. SVM includes "
         "LinearSVC and LinearSVR. RF includes RandomForestClassifier "
@@ -187,7 +192,7 @@ def generate_model(args):  # noqa: C901
         #   to hardcode it for TPOT.
         # kwargs = (
         #     "max_time_mins"
-        #     if estimator.problem_type == "regression"
+        #     if estimator.problem_type == ProblemType.REGRESSION
         #     else "time_left_for_this_task"
         # )
         kwargs = "max_time_mins"
@@ -263,7 +268,10 @@ def cmd():  # pragma: no cover
 
 
 def get_method(
-    method, y_train, family="Linear", problem_type="classification"
+    method,
+    y_train,
+    family=EstimatorFamily.LINEAR,
+    problem_type=ProblemType.CLASSIFICATION,
 ):
     """Determine what estimator to use.
 
@@ -299,7 +307,7 @@ def get_method(
     else:
         # return (
         #     LinearRegression()
-        #     if problem_type == "regression"
+        #     if problem_type == ProblemType.REGRESSION
         #     else LogisticRegression()
         # )
         estimator_factory = EstimatorFactory()
