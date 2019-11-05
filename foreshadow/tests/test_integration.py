@@ -26,6 +26,7 @@ def test_integration_binary_classification():
     from sklearn.datasets import load_breast_cancer
     from sklearn.model_selection import train_test_split
     from sklearn.linear_model import LogisticRegression
+    from foreshadow.utils import ProblemType
 
     np.random.seed(1337)
 
@@ -36,7 +37,9 @@ def test_integration_binary_classification():
     X_train, X_test, y_train, y_test = train_test_split(
         cancerX_df, cancery_df, test_size=0.2
     )
-    shadow = fs.Foreshadow(estimator=LogisticRegression())
+    shadow = fs.Foreshadow(
+        problem_type=ProblemType.CLASSIFICATION, estimator=LogisticRegression()
+    )
     shadow.fit(X_train, y_train)
 
     baseline = 0.9824561403508771
@@ -53,6 +56,7 @@ def test_integration_multiclass_classification():
     from sklearn.datasets import load_iris
     from sklearn.model_selection import train_test_split
     from sklearn.linear_model import LogisticRegression
+    from foreshadow.utils import ProblemType
 
     np.random.seed(1337)
 
@@ -63,7 +67,9 @@ def test_integration_multiclass_classification():
     X_train, X_test, y_train, y_test = train_test_split(
         irisX_df, irisy_df, test_size=0.2
     )
-    shadow = fs.Foreshadow(estimator=LogisticRegression())
+    shadow = fs.Foreshadow(
+        problem_type=ProblemType.CLASSIFICATION, estimator=LogisticRegression()
+    )
     shadow.fit(X_train, y_train)
 
     baseline = 0.9666666666666667
@@ -79,6 +85,7 @@ def test_integration_regression():
     from sklearn.datasets import load_boston
     from sklearn.model_selection import train_test_split
     from sklearn.linear_model import LinearRegression
+    from foreshadow.utils import ProblemType
 
     boston = load_boston()
     bostonX_df = pd.DataFrame(boston.data, columns=boston.feature_names)
@@ -87,7 +94,9 @@ def test_integration_regression():
     X_train, X_test, y_train, y_test = train_test_split(
         bostonX_df, bostony_df, test_size=0.2
     )
-    shadow = fs.Foreshadow(estimator=LinearRegression())
+    shadow = fs.Foreshadow(
+        problem_type=ProblemType.REGRESSION, estimator=LinearRegression()
+    )
     shadow.fit(X_train, y_train)
 
     baseline = 0.6953024611269096
