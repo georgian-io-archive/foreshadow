@@ -7,6 +7,7 @@ from foreshadow.serializers import (
     _make_deserializable,
     _make_serializable,
 )
+from foreshadow.smart import CategoricalEncoder
 from foreshadow.steps import (
     CleanerMapper,
     FeatureEngineererMapper,
@@ -15,7 +16,7 @@ from foreshadow.steps import (
     IntentMapper,
     Preprocessor,
 )
-from foreshadow.utils import ConfigureColumnSharerMixin
+from foreshadow.utils import ConfigureColumnSharerMixin, ProblemType
 
 from .concrete import NoTransform
 
@@ -80,6 +81,7 @@ class DataPreparer(
         engineerer_kwargs=None,
         preprocessor_kwargs=None,
         reducer_kwargs=None,
+        problem_type=None,
         y_var=None,
         **kwargs
     ):
@@ -117,13 +119,21 @@ class DataPreparer(
                 ("feature_reducer", FeatureReducerMapper(**reducer_kwargs_)),
             ]
         else:
-            steps = [("output", NoTransform())]
+            if problem_type == ProblemType.REGRESSION:
+                steps = [("output", NoTransform())]
+            elif problem_type == ProblemType.CLASSIFICATION:
+                steps = [("output", CategoricalEncoder(y_var=True))]
+            else:
+                raise ValueError(
+                    "Invalid Problem " "Type {}".format(problem_type)
+                )
         if "steps" in kwargs:  # needed for sklearn estimator clone,
             # which will try to init the object using get_params.
             steps = kwargs.pop("steps")
 
         self.column_sharer = column_sharer
         self.y_var = y_var
+        self.problem_type = problem_type
         super().__init__(steps, **kwargs)
 
     def _get_params(self, attr, deep=True):
