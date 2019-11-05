@@ -7,11 +7,13 @@ from foreshadow.utils.common import (
     get_config_path,
     get_transformer,
 )
+from foreshadow.utils.constants import EstimatorFamily, ProblemType
 from foreshadow.utils.data_summary import (
     get_outliers,
     mode_freq,
     standard_col_summary,
 )
+from foreshadow.utils.default_estimator_factory import EstimatorFactory
 from foreshadow.utils.testing import dynamic_import
 from foreshadow.utils.validation import (
     PipelineStep,
@@ -40,4 +42,7 @@ __all__ = [
     "get_outliers",
     "standard_col_summary",
     "ConfigureColumnSharerMixin",
+    "EstimatorFactory",
+    "ProblemType",
+    "EstimatorFamily",
 ]

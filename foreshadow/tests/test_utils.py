@@ -1,4 +1,10 @@
 import pytest
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.neural_network import MLPClassifier, MLPRegressor
+from sklearn.svm import LinearSVC, LinearSVR
+
+from foreshadow.utils import EstimatorFamily, ProblemType
 
 
 def test_check_df_passthrough():
@@ -115,3 +121,48 @@ def test_is_wrapped(transformer_name):
 
     assert not is_wrapped(sk_tf)
     assert is_wrapped(fs_tf)
+
+
+@pytest.mark.parametrize(
+    "family, problem_type, estimator",
+    [
+        (
+            EstimatorFamily.LINEAR,
+            ProblemType.CLASSIFICATION,
+            LogisticRegression,
+        ),
+        (EstimatorFamily.LINEAR, ProblemType.REGRESSION, LinearRegression),
+        (EstimatorFamily.SVM, ProblemType.CLASSIFICATION, LinearSVC),
+        (EstimatorFamily.SVM, ProblemType.REGRESSION, LinearSVR),
+        (
+            EstimatorFamily.RF,
+            ProblemType.CLASSIFICATION,
+            RandomForestClassifier,
+        ),
+        (EstimatorFamily.RF, ProblemType.REGRESSION, RandomForestRegressor),
+        (EstimatorFamily.NN, ProblemType.CLASSIFICATION, MLPClassifier),
+        (EstimatorFamily.NN, ProblemType.REGRESSION, MLPRegressor),
+    ],
+)
+def test_get_estimator(family, problem_type, estimator):
+    from foreshadow.utils import EstimatorFactory
+
+    estimator_factory = EstimatorFactory()
+    assert isinstance(
+        estimator_factory.get_estimator(family, problem_type), estimator
+    )
+
+
+@pytest.mark.parametrize(
+    "family, problem_type, exception",
+    [
+        ("Unknown", ProblemType.CLASSIFICATION, pytest.raises(KeyError)),
+        (EstimatorFamily.LINEAR, "cluster", pytest.raises(KeyError)),
+    ],
+)
+def test_get_estimator_exception(family, problem_type, exception):
+    from foreshadow.utils import EstimatorFactory
+
+    estimator_factory = EstimatorFactory()
+    with exception:
+        estimator_factory.get_estimator(family, problem_type)
