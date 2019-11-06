@@ -1,6 +1,5 @@
 """SmartResolver for ResolverMapper step."""
 
-from foreshadow.config import config
 from foreshadow.intents import Categoric, Neither, Numeric
 from foreshadow.smart.intent_resolving.core import (
     IntentResolver as AutoIntentResolver,
@@ -53,14 +52,10 @@ class IntentResolver(SmartTransformer):
         .. # noqa: S001
 
         """
-        # TODO this is where the automl intent resolver could chime in
-        #  without changing the framework too much.
-        X_subset = X.head(1000)
-        auto_intent_resolver = AutoIntentResolver(X_subset)
+        # TODO Add sampling on X to reduce run time if the dataset is big
+        auto_intent_resolver = AutoIntentResolver(X)
         intent_pd_series = auto_intent_resolver.predict()
         return intent_pd_series[[0]].values[0]
-        # intent_list = config.get_intents()
-        # return max(intent_list, key=lambda intent: intent.get_confidence(X))
 
     def resolve(self, X, *args, **kwargs):
         """Pick the appropriate transformer if necessary.
