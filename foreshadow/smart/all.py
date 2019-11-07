@@ -21,7 +21,6 @@ from foreshadow.concrete.externals import (
     TfidfVectorizer,
 )
 from foreshadow.concrete.internals import (
-    BoxCox,
     ConvertFinancial,
     DummyEncoder,
     FancyImputer,
@@ -83,7 +82,14 @@ class Scaler(SmartTransformer):
         best_dist = best_dist if p_vals[best_dist] >= self.p_val else None
         if best_dist is None:
             return SerializablePipeline(
-                [("box_cox", BoxCox()), ("robust_scaler", RobustScaler())]
+                [
+                    # Turning off the BoxCox transformer because if the test
+                    # dataset has an even smaller negative min, it will
+                    # break the pipeline.
+                    # TODO add a different transformer if necessary
+                    # ("box_cox", BoxCox()),
+                    ("robust_scaler", RobustScaler())
+                ]
             )
         else:
             return distributions[best_dist]
