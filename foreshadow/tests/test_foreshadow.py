@@ -721,8 +721,15 @@ def test_foreshadow_serialization_adults_small_classification():
 
     np.random.seed(1337)
 
+    # from sklearn.datasets import fetch_20newsgroups
+    # cats = ['alt.atheism', 'sci.space']
+    # newsgroups_train = fetch_20newsgroups(subset='train', categories=cats)
+    # extra_text_data = newsgroups_train.data
+
     adult = pd.read_csv("examples/adult_small.csv")
+    # adult = adult.head(len(extra_text_data))
     X_df = adult.loc[:, "age":"workclass"]
+    # X_df["text"] = extra_text_data
     y_df = adult.loc[:, "class"]
 
     X_train, X_test, y_train, y_test = train_test_split(
