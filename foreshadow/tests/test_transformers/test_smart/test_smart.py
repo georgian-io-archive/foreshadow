@@ -50,9 +50,7 @@ def test_smart_get_params_default(smart_child, smart_params, deep):
     assert smart_params == params
 
 
-@pytest.mark.parametrize(
-    "initial_transformer", [None, "BoxCox", "StandardScaler"]
-)
+@pytest.mark.parametrize("initial_transformer", [None, "StandardScaler"])
 def test_smart_get_params_deep(smart_child, smart_params, initial_transformer):
     """Test that smart.get_params(deep=True) functions as desired.
 
@@ -78,9 +76,7 @@ def test_smart_get_params_deep(smart_child, smart_params, initial_transformer):
     assert smart.get_params(True) == smart_params
 
 
-@pytest.mark.parametrize(
-    "initial_transformer", [None, "BoxCox", "StandardScaler"]
-)
+@pytest.mark.parametrize("initial_transformer", [None, "StandardScaler"])
 def test_smart_set_params_default(smart_child, initial_transformer):
     """Test setting both transformer and its parameters simultaneously works.
 
