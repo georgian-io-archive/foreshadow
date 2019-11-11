@@ -8,6 +8,7 @@ from foreshadow.logging import logging
 from foreshadow.parallelprocessor import ParallelProcessor
 from foreshadow.serializers import _make_deserializable
 from foreshadow.utils.common import ConfigureColumnSharerMixin
+from utils.override_substitute import Override
 
 from ..columnsharer import ColumnSharer
 from ..pipeline import DynamicPipeline
@@ -535,7 +536,31 @@ class PreparerStep(
                 self.__class__.__name__
             )
         )
-        self._parallel_process = self.parallelize_smart_steps(X)
+
+        default_parallel_process = self.parallelize_smart_steps(X)
+        if self._parallel_process is None:
+            self._parallel_process = default_parallel_process
+        else:
+            self._fill_missing_transformation_with_default(
+                default_parallel_process)
+
+        # self._parallel_process = self.parallelize_smart_steps(X)
+
+    def _fill_missing_transformation_with_default(self,
+                                                  default_parallel_process):
+        if len(self._parallel_process.transformer_list) != len(
+                default_parallel_process.transformer_list):
+            raise ValueError("Unaligned number of transformers in the "
+                             "parallel process.")
+        # TODO the following code depends on the order of the columns. An
+        #  alternative is to do a matching on the cols but we have to
+        #  iterate over all to find a match based on current implementation,
+        #  which is no ideal. 
+        for i in range(len(default_parallel_process.transformer_list)):
+            name, trans, cols = default_parallel_process.transformer_list[i]
+            existing_pipeline = self._parallel_process.transformer_list[i]
+            if existing_pipeline[1] == Override.TRANSFORMER:
+                existing_pipeline[1] = trans
 
     def _fit_transform(self, X, y=None, **fit_params):
         if isinstance(self._parallel_process, ParallelProcessor):
@@ -563,6 +588,12 @@ class PreparerStep(
                     ",".join(map(lambda x: str(x), list(X.columns))),
                 )
             )
+        # TODO we should always check process:
+        #   - If does not exist, create the process
+        #   - else check if the pipeline for each column is present
+        #        - if not, create one by leverage column_sharer and get_mapping
+        #  Or in the create proess, we do the per column check. Missing
+        #  columns get a default pipeline.
 
         try:
             return self._fit_transform(X, y, **fit_params)

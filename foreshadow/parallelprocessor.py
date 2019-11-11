@@ -12,7 +12,7 @@ from sklearn.pipeline import (
 from foreshadow.base import BaseEstimator
 from foreshadow.logging import logging
 from foreshadow.utils.common import ConfigureColumnSharerMixin
-
+from foreshadow.utils.override_substitute import Override
 from .serializers import PipelineSerializerMixin, _make_serializable
 
 
@@ -174,8 +174,13 @@ class ParallelProcessor(
     @classmethod
     def __extract_elements_for_parallel_process(cls, i, transformation):
         item = list(transformation.values())[0]
-        dynamic_pipeline = item["processing_pipeline"]
-        if "columns" in item:
+        # TODO if item is None, we may want to do something about the
+        #  dynamic_pipeline part, for example, set it to None.
+        if item == Override.TRANSFORMER:
+            dynamic_pipeline = Override.TRANSFORMER
+        else:
+            dynamic_pipeline = item["processing_pipeline"]
+        if item != Override.TRANSFORMER and "columns" in item:
             column_groups = item["columns"]
             group_name = list(transformation.keys())[0]
         else:
@@ -266,6 +271,9 @@ class ParallelProcessor(
         # validate estimators
         for t in transformers:
             if t is None:
+                # TODO why are we allowing None in Transformer? To skip columns
+                #  we don't transform on?
+                #  Then we can't use None as the flag.
                 continue
             if not (
                 hasattr(t, "fit") or hasattr(t, "fit_transform")
@@ -284,7 +292,9 @@ class ParallelProcessor(
 
         """
         get_weight = (self.transformer_weights or {}).get
-
+        # TODO this means transformer can be None, and we need to use a new
+        #  internal object to represent this. For example, an overriden()
+        #  object in the JSON file.
         return (
             (name, trans, cols, get_weight(name))
             for name, trans, cols in self.transformer_list

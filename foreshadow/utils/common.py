@@ -79,6 +79,7 @@ def get_transformer(class_name, source_lib=None):
                 "foreshadow.pipeline",
                 "foreshadow.preparer",
                 "foreshadow.estimators",
+                "foreshadow.utils"
             ]
         )
 
