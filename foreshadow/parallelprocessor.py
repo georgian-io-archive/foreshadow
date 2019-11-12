@@ -153,6 +153,12 @@ class ParallelProcessor(
             a reconstructed parallel processor
 
         """
+        # TODO this requires the override mechnism to reset the
+        #  transformation_by_column_group to null in the JSON file.
+        if "transformation_by_column_group" not in data or \
+                data["transformation_by_column_group"] is None:
+            return None
+
         n_jobs = data["n_jobs"]
         transformer_weights = data["transformer_weights"]
         collapse_index = data["collapse_index"]

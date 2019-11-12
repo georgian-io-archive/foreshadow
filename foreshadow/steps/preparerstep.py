@@ -556,7 +556,9 @@ class PreparerStep(
         # TODO the following code depends on the order of the columns. An
         #  alternative is to do a matching on the cols but we have to
         #  iterate over all to find a match based on current implementation,
-        #  which is no ideal.
+        #  which is no ideal. Can we think about changing the
+        #  transformer_list to a dictionary instead? This requires more
+        #  changes on the smart steps.
         has_override = False
         for i in range(len(default_parallel_process.transformer_list)):
             name, trans, cols = default_parallel_process.transformer_list[i]
