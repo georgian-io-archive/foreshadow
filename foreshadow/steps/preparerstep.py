@@ -543,6 +543,7 @@ class PreparerStep(
         else:
             self._fill_missing_transformation_with_default(
                 default_parallel_process)
+        # TODO do we need to reconfigure the column_sharer here?
 
         # self._parallel_process = self.parallelize_smart_steps(X)
 
@@ -555,12 +556,19 @@ class PreparerStep(
         # TODO the following code depends on the order of the columns. An
         #  alternative is to do a matching on the cols but we have to
         #  iterate over all to find a match based on current implementation,
-        #  which is no ideal. 
+        #  which is no ideal.
+        has_override = False
         for i in range(len(default_parallel_process.transformer_list)):
             name, trans, cols = default_parallel_process.transformer_list[i]
+            print(cols)
             existing_pipeline = self._parallel_process.transformer_list[i]
             if existing_pipeline[1] == Override.TRANSFORMER:
-                existing_pipeline[1] = trans
+                self._parallel_process.transformer_list[i] = (name,
+                                                              trans,
+                                                              cols)
+                has_override = True
+        if has_override:
+            self.configure_column_sharer(self.column_sharer)
 
     def _fit_transform(self, X, y=None, **fit_params):
         if isinstance(self._parallel_process, ParallelProcessor):
@@ -594,21 +602,23 @@ class PreparerStep(
         #        - if not, create one by leverage column_sharer and get_mapping
         #  Or in the create proess, we do the per column check. Missing
         #  columns get a default pipeline.
+        self.check_process(X)
+        return self._fit_transform(X, y, **fit_params)
 
-        try:
-            return self._fit_transform(X, y, **fit_params)
-        except AttributeError:
-            if getattr(self, "_parallel_process", None) is None:
-                self.check_process(X)
-        except KeyError as e:
-            if str(e).find("not in index") != -1:
-                # This indicates that a transformation step was changed and
-                # now does not correctly reflect the generated DataFrame as
-                # this step. We will thus reinitialize the _parallel_process
-                # so that the best pipeline for this step will be found.
-                self.check_process(X)
-        finally:
-            return self._fit_transform(X, y, **fit_params)
+        # try:
+        #     return self._fit_transform(X, y, **fit_params)
+        # except AttributeError:
+        #     if getattr(self, "_parallel_process", None) is None:
+        #         self.check_process(X)
+        # except KeyError as e:
+        #     if str(e).find("not in index") != -1:
+        #         # This indicates that a transformation step was changed and
+        #         # now does not correctly reflect the generated DataFrame as
+        #         # this step. We will thus reinitialize the _parallel_process
+        #         # so that the best pipeline for this step will be found.
+        #         self.check_process(X)
+        # finally:
+        #     return self._fit_transform(X, y, **fit_params)
 
     def transform(self, X, *args, **kwargs):
         """Transform X using this PreparerStep.

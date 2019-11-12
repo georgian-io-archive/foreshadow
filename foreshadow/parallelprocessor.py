@@ -101,6 +101,8 @@ class ParallelProcessor(
         """
         for transformer_triple in self.transformer_list:
             dynamic_pipeline = transformer_triple[1]
+            if dynamic_pipeline is Override.TRANSFORMER:
+                continue
             for step in dynamic_pipeline.steps:
                 step[1].column_sharer = column_sharer
 
@@ -270,7 +272,7 @@ class ParallelProcessor(
 
         # validate estimators
         for t in transformers:
-            if t is None:
+            if t is None or t == Override.TRANSFORMER:
                 # TODO why are we allowing None in Transformer? To skip columns
                 #  we don't transform on?
                 #  Then we can't use None as the flag.

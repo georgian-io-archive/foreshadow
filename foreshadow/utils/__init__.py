@@ -24,7 +24,7 @@ from foreshadow.utils.validation import (
     is_transformer,
     is_wrapped,
 )
-from foreshadow.utils.override_substitute import OverridePipeline
+from foreshadow.utils.override_substitute import Override
 
 
 __all__ = [
@@ -46,5 +46,5 @@ __all__ = [
     "EstimatorFactory",
     "ProblemType",
     "EstimatorFamily",
-    "OverridePipeline"
+    "Override"
 ]
