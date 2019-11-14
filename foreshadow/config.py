@@ -21,7 +21,8 @@ _DEFAULT_CONFIG = {
         ],
     },
     "Tiebreak": ["Numeric", "Categoric", "Text"],
-    "Numeric": {"Preprocessor": ["Imputer", "Scaler"]},
+    "Numeric": {"Preprocessor": ["SimpleImputer", "Scaler"]},
+    # "Numeric": {"Preprocessor": ["Imputer", "Scaler"]},
     "Categoric": {"Preprocessor": ["CategoricalEncoder"]},
     "Text": {"Preprocessor": ["TextEncoder"]},
 }

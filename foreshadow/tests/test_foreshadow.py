@@ -765,15 +765,16 @@ def test_foreshadow_serialization_adults_small_classification_override():
 
     shadow = Foreshadow(estimator=LogisticRegression())
     shadow.fit(X_train, y_train)
+    shadow.to_json("foreshadow_adults_small_logistic_regression_1.json")
     score1 = shadow.score(X_test, y_test)
 
     shadow.override_intent("age", "Numeric")
     shadow.fit(X_train, y_train)
+    shadow.to_json("foreshadow_adults_small_logistic_regression_2.json")
     score2 = shadow.score(X_test, y_test)
 
     print(score1)
     print(score2)
-
 
 
 def test_foreshadow_serialization_adults_classification():
