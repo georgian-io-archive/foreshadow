@@ -746,6 +746,36 @@ def test_foreshadow_serialization_adults_small_classification():
     assertions.assertAlmostEqual(score1, score2, places=7)
 
 
+def test_foreshadow_serialization_adults_small_classification_override():
+    from foreshadow.foreshadow import Foreshadow
+    import pandas as pd
+    import numpy as np
+    from sklearn.model_selection import train_test_split
+    from sklearn.linear_model import LogisticRegression
+
+    np.random.seed(1337)
+
+    adult = pd.read_csv("examples/adult_small.csv")
+    X_df = adult.loc[:, "age":"workclass"]
+    y_df = adult.loc[:, "class"]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_df, y_df, test_size=0.2
+    )
+
+    shadow = Foreshadow(estimator=LogisticRegression())
+    shadow.fit(X_train, y_train)
+    score1 = shadow.score(X_test, y_test)
+
+    shadow.override_intent("age", "Numeric")
+    shadow.fit(X_train, y_train)
+    score2 = shadow.score(X_test, y_test)
+
+    print(score1)
+    print(score2)
+
+
+
 def test_foreshadow_serialization_adults_classification():
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
