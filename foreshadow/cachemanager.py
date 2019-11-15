@@ -67,7 +67,7 @@ class CacheManager(MutableMapping, ConcreteSerializerMixin):
             "domain": True,
             "metastat": True,
             "graph": True,
-            "override": True
+            "override": True,
         }
         self.__acceptable_keys = PrettyDefaultDict(get_false, acceptable_keys)
 

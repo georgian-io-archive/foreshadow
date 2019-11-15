@@ -217,6 +217,7 @@ def test_foreshadow_y_preparer(mocker):
     from sklearn.preprocessing import StandardScaler
     from sklearn.model_selection import train_test_split
     from foreshadow.foreshadow import Foreshadow
+    import pandas as pd
 
     np.random.seed(0)
 
@@ -224,8 +225,12 @@ def test_foreshadow_y_preparer(mocker):
     setattr(y_pipeline, "pipeline", y_pipeline)
     estimator = LinearRegression()
 
-    X = np.array([0] * 50 + [1] * 50).reshape((-1, 1))
-    y = np.random.normal(100, 10, 100).reshape((-1, 1))
+    X = pd.DataFrame(
+        np.array([0] * 50 + [1] * 50).reshape((-1, 1)), columns=["col1"]
+    )
+    y = pd.DataFrame(
+        np.random.normal(100, 10, 100).reshape((-1, 1)), columns=["y"]
+    )
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
 
     # Let foreshadow set to defaults, we will overwrite them
@@ -796,9 +801,11 @@ def test_foreshadow_adults_small_classification_override_upfront():
 
     shadow = Foreshadow(estimator=LogisticRegression())
     shadow.override_intent("age", "Numeric")
+    shadow.override_intent("workclass", "Categoric")
     shadow.fit(X_train, y_train)
     shadow.to_json(
-        "foreshadow_adults_small_logistic_regression_override_upfront.json")
+        "foreshadow_adults_small_logistic_regression_override_upfront.json"
+    )
     score1 = shadow.score(X_test, y_test)
     print(score1)
 

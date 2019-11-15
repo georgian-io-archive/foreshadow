@@ -77,8 +77,8 @@ class IntentResolver(SmartTransformer):
         """
         column = X.columns[0]
         override_key = "_".join([Override.INTENT, column])
-        intent_override = self.column_sharer["override"][override_key]
-        if intent_override:
+        if override_key in self.column_sharer["override"]:
+            intent_override = self.column_sharer["override"][override_key]
             intent_class = get_transformer(intent_override)
         else:
             intent_class = self._resolve_intent(X, y=y)

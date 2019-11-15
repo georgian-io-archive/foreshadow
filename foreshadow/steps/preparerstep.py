@@ -8,7 +8,6 @@ from foreshadow.logging import logging
 from foreshadow.parallelprocessor import ParallelProcessor
 from foreshadow.serializers import _make_deserializable
 from foreshadow.utils.common import ConfigureColumnSharerMixin
-from foreshadow.utils import Override
 
 from ..cachemanager import CacheManager
 from ..pipeline import DynamicPipeline
@@ -293,7 +292,8 @@ class PreparerStep(
 
         """
         super().configure_column_sharer(column_sharer)
-        self._parallel_process.configure_column_sharer(column_sharer)
+        if isinstance(self._parallel_process, ParallelProcessor):
+            self._parallel_process.configure_column_sharer(column_sharer)
 
     def dict_serialize(self, deep=False):
         """Serialize the preparestep.
@@ -536,41 +536,22 @@ class PreparerStep(
                 self.__class__.__name__
             )
         )
-
         default_parallel_process = self.parallelize_smart_steps(X)
         if self._parallel_process is None:
             self._parallel_process = default_parallel_process
         else:
-            self._fill_missing_transformation_with_default(
-                default_parallel_process)
-        # TODO do we need to reconfigure the column_sharer here?
+            self._handle_intent_override(default_parallel_process)
 
         # self._parallel_process = self.parallelize_smart_steps(X)
 
-    def _fill_missing_transformation_with_default(self,
-                                                  default_parallel_process):
-        if len(self._parallel_process.transformer_list) != len(
-                default_parallel_process.transformer_list):
-            raise ValueError("Unaligned number of transformers in the "
-                             "parallel process.")
-        # TODO the following code depends on the order of the columns. An
-        #  alternative is to do a matching on the cols but we have to
-        #  iterate over all to find a match based on current implementation,
-        #  which is no ideal. Can we think about changing the
-        #  transformer_list to a dictionary instead? This requires more
-        #  changes on the smart steps.
-        has_override = False
-        for i in range(len(default_parallel_process.transformer_list)):
-            name, trans, cols = default_parallel_process.transformer_list[i]
-            print(cols)
-            existing_pipeline = self._parallel_process.transformer_list[i]
-            if existing_pipeline[1] == Override.TRANSFORMER:
-                self._parallel_process.transformer_list[i] = (name,
-                                                              trans,
-                                                              cols)
-                has_override = True
-        if has_override:
-            self.configure_column_sharer(self.column_sharer)
+    def _handle_intent_override(self, default_parallel_process):
+        """Handle intent override and see override in the child classes.
+
+        Args:
+            default_parallel_process: the default_parallel_process
+
+        """
+        pass
 
     def _fit_transform(self, X, y=None, **fit_params):
         if isinstance(self._parallel_process, ParallelProcessor):

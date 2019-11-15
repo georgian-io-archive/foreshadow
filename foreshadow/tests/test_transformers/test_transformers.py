@@ -1,5 +1,6 @@
 import pytest
 
+from foreshadow.cachemanager import CacheManager
 from foreshadow.utils import get_transformer
 from foreshadow.utils.testing import get_file_path
 
@@ -398,7 +399,7 @@ def test_smarttransformer_function(smart_child):
 
     df = pd.read_csv(boston_path)
 
-    smart = smart_child()
+    smart = smart_child(column_sharer=CacheManager())
     smart_data = smart.fit_transform(df[["crim"]])
 
     std = StandardScaler()
@@ -447,7 +448,9 @@ def test_smarttransformer_function_override(smart_child):
     boston_path = get_file_path("data", "boston_housing.csv")
     df = pd.read_csv(boston_path)
 
-    smart = smart_child(transformer="Imputer", name="impute")
+    smart = smart_child(
+        transformer="Imputer", name="impute", column_sharer=CacheManager()
+    )
     smart_data = smart.fit_transform(df[["crim"]])
 
     assert isinstance(smart.transformer, Imputer)
@@ -482,7 +485,7 @@ def test_smarttransformer_function_override_invalid(smart_child):
     from foreshadow.exceptions import TransformerNotFound
 
     with pytest.raises(TransformerNotFound) as e:
-        smart_child(transformer="BAD")
+        smart_child(transformer="BAD", column_sharer=CacheManager())
 
     assert "Could not find transformer BAD in" in str(e.value)
 
@@ -538,8 +541,12 @@ def test_smarttransformer_get_params(smart_child):
         smart_child: A subclass of SmartTransformer.
 
     """
+    cm = CacheManager()
     smart = smart_child(
-        transformer="Imputer", missing_values="NaN", strategy="mean"
+        transformer="Imputer",
+        missing_values="NaN",
+        strategy="mean",
+        column_sharer=cm,
     )
     smart.fit([1, 2, 3])
 
@@ -552,7 +559,7 @@ def test_smarttransformer_get_params(smart_child):
         "y_var": False,
         "force_reresolve": False,
         "should_resolve": False,
-        "column_sharer": None,
+        "column_sharer": cm,
         "check_wrapped": True,
         "transformer__copy": True,
         "transformer__missing_values": "NaN",
@@ -569,7 +576,7 @@ def test_smarttransformer_empty_inverse(smart_child):
         smart_child: A subclass of SmartTransformer.
 
     """
-    smart = smart_child()
+    smart = smart_child(column_sharer=CacheManager())
     smart.fit([1, 2, 10])
 
     smart.inverse_transform([])
@@ -603,7 +610,7 @@ def test_smarttransformer_should_resolve(smart_child, mocker):
         else:
             return MinMaxScaler()
 
-    smart = smart_child()
+    smart = smart_child(column_sharer=CacheManager())
     smart.pick_transformer = pick_transformer
 
     data1 = pd.DataFrame([0])
