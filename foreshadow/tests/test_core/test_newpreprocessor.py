@@ -16,7 +16,7 @@ def test_preprocessor_none_config(mocker):
     """
     import numpy as np
     import pandas as pd
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
     from foreshadow.steps import Preprocessor
 
     from foreshadow.base import BaseEstimator, TransformerMixin
@@ -46,7 +46,7 @@ def test_preprocessor_none_config(mocker):
     )
 
     data = pd.DataFrame({"financials": np.arange(10)})
-    cs = ColumnSharer()
+    cs = CacheManager()
     p = Preprocessor(cs)
 
     p.fit(data)
@@ -72,7 +72,7 @@ def test_preprocessor_numbers(mocker):
     """
     import numpy as np
     import pandas as pd
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
     from foreshadow.steps import Preprocessor
     from foreshadow.concrete import StandardScaler
 
@@ -94,7 +94,7 @@ def test_preprocessor_numbers(mocker):
     )
 
     data = pd.DataFrame({"financials": np.arange(10)})
-    cs = ColumnSharer()
+    cs = CacheManager()
     p = Preprocessor(column_sharer=cs)
     p = p.fit(data)
     tf_data = p.transform(data)
@@ -151,7 +151,7 @@ def test_preprocessor_columnsharer(mocker, column_sharer):
     )
     cs = None
     if column_sharer:
-        cs = dynamic_import("ColumnSharer", "foreshadow.columnsharer")()
+        cs = dynamic_import("CacheManager", "foreshadow.cachemanager")()
 
     data = pd.DataFrame({"financials": np.arange(10)})
     p = Preprocessor(column_sharer=cs)

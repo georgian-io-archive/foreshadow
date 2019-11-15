@@ -6,12 +6,12 @@ def test_resolver_overall():
 
     import numpy as np
     import pandas as pd
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
     from foreshadow.steps import IntentMapper
 
     columns = ["financials"]
     data = pd.DataFrame({"financials": np.arange(100)}, columns=columns)
-    cs = ColumnSharer()
+    cs = CacheManager()
     ir = IntentMapper(column_sharer=cs)
     ir.fit(data)
     assert cs["intent", "financials"] == "Numeric"

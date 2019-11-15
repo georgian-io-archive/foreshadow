@@ -135,14 +135,14 @@ def test_transformer_multiprocess_dynamic_pipelines_update_column_sharer():
 
     from foreshadow.parallelprocessor import ParallelProcessor
     from foreshadow.smart import IntentResolver
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
     raw_data = pd.read_csv(boston_path)
     df = raw_data[["crim", "zn", "indus"]]
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     from foreshadow.pipeline import DynamicPipeline
 
     proc = ParallelProcessor(
@@ -188,14 +188,14 @@ def test_transformer_multiprocess_imputer_not_update_column_sharer():
 
     from foreshadow.parallelprocessor import ParallelProcessor
     from foreshadow.concrete import StandardScaler
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
     raw_data = pd.read_csv(boston_path)
     df = raw_data[["crim", "zn", "indus"]]
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     proc = ParallelProcessor(
         [
             ("group1", StandardScaler(), ["crim"]),
@@ -215,14 +215,14 @@ def test_transformer_multiprocess_smart_transformers_update_column_sharer():
 
     from foreshadow.parallelprocessor import ParallelProcessor
     from foreshadow.smart import IntentResolver
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
     raw_data = pd.read_csv(boston_path)
     df = raw_data[["crim", "zn", "indus"]]
 
-    cs = ColumnSharer()
+    cs = CacheManager()
 
     proc = ParallelProcessor(
         [

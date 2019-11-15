@@ -5,7 +5,7 @@ def test_feature_reducer_fit_no_ops():
     import numpy as np
     import pandas as pd
 
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
     from foreshadow.steps import FeatureReducerMapper
 
     data = pd.DataFrame(
@@ -16,7 +16,7 @@ def test_feature_reducer_fit_no_ops():
         },
         columns=["age", "weights", "occupation"],
     )
-    cs = ColumnSharer()
+    cs = CacheManager()
     cs["intent", "age"] = "Numeric"
     cs["intent", "weights"] = "Numeric"
     cs["intent", "occupation"] = "Categorical"
@@ -35,7 +35,7 @@ def test_feature_reducer_fit_no_ops():
 def test_feature_reducer_get_mapping_by_intent():
     import pandas as pd
 
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
     from foreshadow.steps import FeatureReducerMapper
     from foreshadow.steps.preparerstep import PreparerMapping
     from foreshadow.smart import FeatureReducer
@@ -48,7 +48,7 @@ def test_feature_reducer_get_mapping_by_intent():
         },
         columns=["age", "weights", "occupation"],
     )
-    cs = ColumnSharer()
+    cs = CacheManager()
     cs["intent", "age"] = "Numeric"
     cs["intent", "weights"] = "Numeric"
     cs["intent", "occupation"] = "Categorical"

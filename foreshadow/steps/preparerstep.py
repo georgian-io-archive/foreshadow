@@ -8,9 +8,9 @@ from foreshadow.logging import logging
 from foreshadow.parallelprocessor import ParallelProcessor
 from foreshadow.serializers import _make_deserializable
 from foreshadow.utils.common import ConfigureColumnSharerMixin
-from utils.override_substitute import Override
+from foreshadow.utils import Override
 
-from ..columnsharer import ColumnSharer
+from ..cachemanager import CacheManager
 from ..pipeline import DynamicPipeline
 from ..serializers import ConcreteSerializerMixin
 
@@ -282,7 +282,7 @@ class PreparerStep(
             self._parallel_process = kwargs.pop("_parallel_process")
         self.column_sharer = column_sharer
         if self.column_sharer is None:
-            self.column_sharer = ColumnSharer()
+            self.column_sharer = CacheManager()
         super().__init__(**kwargs)
 
     def configure_column_sharer(self, column_sharer):

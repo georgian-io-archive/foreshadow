@@ -2,6 +2,7 @@
 
 from foreshadow.config import config
 from foreshadow.smart.smart import SmartTransformer
+from foreshadow.utils import Override, get_transformer
 
 
 class IntentResolver(SmartTransformer):
@@ -74,6 +75,12 @@ class IntentResolver(SmartTransformer):
             Best intent transformer.
 
         """
-        intent_class = self._resolve_intent(X, y=y)
+        column = X.columns[0]
+        override_key = "_".join([Override.INTENT, column])
+        intent_override = self.column_sharer["override"][override_key]
+        if intent_override:
+            intent_class = get_transformer(intent_override)
+        else:
+            intent_class = self._resolve_intent(X, y=y)
 
         return intent_class()

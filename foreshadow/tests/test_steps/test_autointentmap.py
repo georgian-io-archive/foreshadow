@@ -13,13 +13,13 @@ def step():
     """
     from foreshadow.steps.preparerstep import PreparerStep
     from foreshadow.steps.autointentmap import AutoIntentMixin
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
     class Step(PreparerStep, AutoIntentMixin):
         def get_mapping(self, X):
             self.check_resolve(X)
 
-    yield Step(column_sharer=ColumnSharer())
+    yield Step(column_sharer=CacheManager())
 
 
 def test_autointentmapping(step):

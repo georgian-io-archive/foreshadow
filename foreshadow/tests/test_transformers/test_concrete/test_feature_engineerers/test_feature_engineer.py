@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 
-from foreshadow.columnsharer import ColumnSharer
+from foreshadow.cachemanager import CacheManager
 from foreshadow.smart.feature_engineerer import FeatureEngineerer
 from foreshadow.steps import FeatureEngineererMapper
 from foreshadow.steps.preparerstep import PreparerMapping
@@ -18,7 +18,7 @@ def test_feature_engineerer_fit():
         },
         columns=["age", "weights", "financials"],
     )
-    cs = ColumnSharer()
+    cs = CacheManager()
     cs["domain", "age"] = "personal"
     cs["domain", "weights"] = "personal"
     cs["domain", "financials"] = "financial"
@@ -49,7 +49,7 @@ def test_feature_engineerer_get_mapping():
         columns=["age", "weights", "financials"],
     )
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     cs["domain", "age"] = "personal"
     cs["domain", "weights"] = "personal"
     cs["domain", "financials"] = "financial"

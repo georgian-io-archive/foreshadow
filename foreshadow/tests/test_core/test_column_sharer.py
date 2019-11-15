@@ -15,9 +15,9 @@ def test_column_sharer_create(args, kwargs):
 
     """
     from collections import MutableMapping
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
-    cs = ColumnSharer(*args, **kwargs)
+    cs = CacheManager(*args, **kwargs)
     assert isinstance(cs, MutableMapping)
 
 
@@ -37,9 +37,9 @@ def test_column_sharer_convert_key(key, expected):
         expected: error if error, result if result.
 
     """
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     try:  # assume expected is an error
         if issubclass(expected, BaseException):  # this will fail if it isn't
             with pytest.raises(expected) as e:
@@ -69,9 +69,9 @@ def test_column_sharer_getitem(key, item_to_set, expected):
         expected: the expected result or error
 
     """
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     if len(key) == 1:
         cs.store[key[0]] = item_to_set
         try:  # assume expected is an error
@@ -117,9 +117,9 @@ def test_column_sharer_checkkey(capsys, key, expected):
         expected: the expected result or error
 
     """
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     cs.check_key(key)
     out, err = capsys.readouterr()
     if expected is not None:
@@ -144,9 +144,9 @@ def test_column_sharer_delitem(key, expected):
         expected: the expected result or error
 
     """
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     cs.store["domain"] = {"test": True}
     if len(key) == 1 or isinstance(key, str):
         with pytest.raises(expected) as e:
@@ -182,9 +182,9 @@ def test_column_sharer_iter(store):
         store: the internal dictionary to use.
 
     """
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     cs.store = store
     expected = {}  # we try to recreate the internal dict using the keys
     for key in iter(cs):
@@ -218,13 +218,13 @@ def test_column_sharer_dict_serialize(store):
         store: the internal dictionary to use.
 
     """
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     for key in store:
         cs[key] = store[key]
 
-    from foreshadow.columnsharer import PrettyDefaultDict
+    from foreshadow.cachemanager import PrettyDefaultDict
 
     expected = {
         "store": PrettyDefaultDict(lambda: PrettyDefaultDict(lambda: None))
@@ -260,15 +260,15 @@ def test_column_sharer_dict_deserialize(store):
         store: the internal dictionary to use.
 
     """
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     for key in store:
         cs[key] = store[key]
 
     serialized = cs.serialize(method="dict")
 
-    expected = ColumnSharer.dict_deserialize(serialized)
+    expected = CacheManager.dict_deserialize(serialized)
 
     assert expected == cs
 
@@ -297,9 +297,9 @@ def test_column_sharer_setitem(capsys, key, item_to_set, expected, warning):
         warning: True to check if should raise warning. False to not.
 
     """
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     if len(key) == 1:
         cs[key[0]] = item_to_set
         assert cs[key[0]] == expected
@@ -343,8 +343,8 @@ def test_column_sharer_len(store, expected):
         store: the internal dictionary to use.
 
     """
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     cs.store = store
     assert len(cs) == expected

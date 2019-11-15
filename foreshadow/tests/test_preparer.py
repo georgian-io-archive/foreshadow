@@ -24,9 +24,9 @@ def test_data_preparer_init(cleaner_kwargs, expected_error):
 
     """
     from foreshadow.preparer import DataPreparer
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     if expected_error is not None:
         with pytest.raises(expected_error) as e:
             DataPreparer(cs, cleaner_kwargs=cleaner_kwargs)
@@ -44,13 +44,13 @@ def test_data_preparer_fit(cleaner_kwargs):
 
     """
     from foreshadow.preparer import DataPreparer
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
     import pandas as pd
 
     boston_path = get_file_path("data", "boston_housing.csv")
     data = pd.read_csv(boston_path)
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     dp = DataPreparer(cs, cleaner_kwargs=cleaner_kwargs)
     dp.fit(data)
 
@@ -83,13 +83,13 @@ def test_data_preparer_serialization_has_one_column_sharer():
 
     """
     from foreshadow.preparer import DataPreparer
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
     import pandas as pd
 
     boston_path = get_file_path("data", "boston_housing.csv")
     data = pd.read_csv(boston_path)
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     dp = DataPreparer(cs)
     dp.fit(data)
 
@@ -114,7 +114,7 @@ def test_data_preparer_serialization_has_one_column_sharer():
 
 def test_data_preparer_deserialization():
     from foreshadow.preparer import DataPreparer
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
     import pandas as pd
 
     boston_path = get_file_path("data", "boston_housing.csv")
@@ -123,7 +123,7 @@ def test_data_preparer_deserialization():
     # data = data[["crim", "indus"]]
     # data = data[["nox"]]
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     dp = DataPreparer(cs)
 
     dp.fit(data)

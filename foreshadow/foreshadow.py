@@ -6,7 +6,7 @@ import warnings
 from sklearn.model_selection._search import BaseSearchCV
 
 from foreshadow.base import BaseEstimator
-from foreshadow.columnsharer import ColumnSharer
+from foreshadow.cachemanager import CacheManager
 from foreshadow.estimators.auto import AutoEstimator
 from foreshadow.estimators.meta import MetaEstimator
 from foreshadow.optimizers import ParamSpec, Tuner
@@ -20,7 +20,7 @@ from foreshadow.utils import check_df, get_transformer
 from foreshadow.logging import logging
 from typing import List, Union, NoReturn
 from foreshadow.intents import Numeric, Categoric, Text
-from utils import Override
+from foreshadow.utils import Override
 
 
 class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
@@ -63,6 +63,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         )
         self.pipeline = None
         self.data_columns = None
+        self.has_fitted = False
 
         if isinstance(self.estimator, AutoEstimator) and optimizer is not None:
             warnings.warn(
@@ -104,7 +105,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
                     "Invalid value: '{}' " "passed as X_preparer".format(dp)
                 )
         else:
-            self._X_preprocessor = DataPreparer(column_sharer=ColumnSharer())
+            self._X_preprocessor = DataPreparer(column_sharer=CacheManager())
 
     @property
     def y_preparer(self):  # noqa
@@ -135,7 +136,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
                 raise ValueError("Invalid value passed as y_preparer")
         else:
             self._y_preprocessor = DataPreparer(
-                column_sharer=ColumnSharer(), y_var=True
+                column_sharer=CacheManager(), y_var=True
             )
 
     @property
@@ -256,6 +257,8 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
                 ].preprocessor
         else:
             self.pipeline.fit(X_df, y_df)
+
+        self.has_fitted = True
 
         return self
 
@@ -451,6 +454,17 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         ]
 
     def has_column(self, column: str) -> bool:
+        # TODO we may want to distinguish between fitted and non-fitted
+        #  cases. For non-fitted case, we can't do much but only provide
+        #  info that the user need to make sure the column exists in the
+        #  data frame. For the fitted case, we can still use the cache
+        #  manager to guard against invalid override in the code.
+        if not self.has_fitted:
+            logging.info("You are overriding intent before the foreshadow "
+                         "object is trained. Please make sure the column {}"
+                         "exist to ensure the override takes "
+                         "effect.".format(column))
+            return True
         column_sharer = self.X_preparer.column_sharer
         return True if column in column_sharer["intent"] else False
 
@@ -462,7 +476,14 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         if not self.has_column(column_name):
             raise ValueError("Invalid Column {}".format(column_name))
         # Update the intent
+        self.X_preparer.column_sharer["override"]["_".join([
+            Override.INTENT, column_name
+        ])] = intent
         self.X_preparer.column_sharer["intent"][column_name] = intent
+
+        if not self.has_fitted:
+            return
+
         intent_resolver = self.X_preparer.steps[1][1]
         ir_parallel_process = intent_resolver._parallel_process
         for i in range(len(ir_parallel_process.transformer_list)):

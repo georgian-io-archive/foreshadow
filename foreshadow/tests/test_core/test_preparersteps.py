@@ -35,6 +35,6 @@ def test_init_columnsharer(step, column_sharer):
     """
     cs = None
     if column_sharer:
-        cs = dynamic_import("ColumnSharer", "foreshadow.columnsharer")()
+        cs = dynamic_import("CacheManager", "foreshadow.cachemanager")()
     step = step(column_sharer=cs)
     assert step.column_sharer is not None
