@@ -184,10 +184,10 @@ def pandas_wrap(transformer):  # noqa
 
                 if getattr(self, "keep_columns", False):
                     out = _keep_columns_process(out, df, name, graph)
-                if getattr(self, "column_sharer", None) is not None:  # only
+                if getattr(self, "cache_manager", None) is not None:  # only
                     # used when part of the Foreshadow flow.
                     for column in X:
-                        self.column_sharer["graph", column] = graph
+                        self.cache_manager["graph", column] = graph
                 else:
                     logging.debug(
                         "column sharer is not set for: " "{}".format(self)
@@ -250,10 +250,10 @@ def pandas_wrap(transformer):  # noqa
 
                 if getattr(self, "keep_columns", False):
                     out = _keep_columns_process(out, df, name, graph)
-                if getattr(self, "column_sharer", None) is not None:  # only
+                if getattr(self, "cache_manager", None) is not None:  # only
                     # used when part of the Foreshadow flow.
                     for column in X:
-                        self.column_sharer["graph", column] = graph
+                        self.cache_manager["graph", column] = graph
                 else:
                     logging.debug(
                         "column sharer is not set for: " "{}".format(self)
@@ -299,10 +299,10 @@ def pandas_wrap(transformer):  # noqa
                     raise ValueError("undefined input {0}".format(type(out)))
                 if getattr(self, "keep_columns", False):
                     out = _keep_columns_process(out, df, name, graph)
-                if getattr(self, "column_sharer", None) is not None:  # only
+                if getattr(self, "cache_manager", None) is not None:  # only
                     # used when part of the Foreshadow flow.
                     for column in X:
-                        self.column_sharer["graph", column] = graph
+                        self.cache_manager["graph", column] = graph
                 else:
                     logging.debug(
                         "column sharer is not set for: " "{}".format(self)

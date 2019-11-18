@@ -131,7 +131,7 @@ def test_transformer_parallel_single_process():
     assert tf.equals(tf_test)
 
 
-def test_transformer_multiprocess_dynamic_pipelines_update_column_sharer():
+def test_transformer_multiprocess_dynamic_pipelines_update_cache_manager():
     import pandas as pd
 
     from foreshadow.parallelprocessor import ParallelProcessor
@@ -151,21 +151,21 @@ def test_transformer_multiprocess_dynamic_pipelines_update_column_sharer():
             (
                 "group1",
                 DynamicPipeline(
-                    [("resolver", IntentResolver(column_sharer=cs))]
+                    [("resolver", IntentResolver(cache_manager=cs))]
                 ),
                 ["crim"],
             ),
             (
                 "group2",
                 DynamicPipeline(
-                    [("resolver", IntentResolver(column_sharer=cs))]
+                    [("resolver", IntentResolver(cache_manager=cs))]
                 ),
                 ["zn"],
             ),
             (
                 "group3",
                 DynamicPipeline(
-                    [("resolver", IntentResolver(column_sharer=cs))]
+                    [("resolver", IntentResolver(cache_manager=cs))]
                 ),
                 ["indus"],
             ),
@@ -184,7 +184,7 @@ def test_transformer_multiprocess_dynamic_pipelines_update_column_sharer():
     )
 
 
-def test_transformer_multiprocess_imputer_not_update_column_sharer():
+def test_transformer_multiprocess_imputer_not_update_cache_manager():
     import pandas as pd
 
     from foreshadow.parallelprocessor import ParallelProcessor
@@ -211,7 +211,7 @@ def test_transformer_multiprocess_imputer_not_update_column_sharer():
     assert len(cs) == 0
 
 
-def test_transformer_multiprocess_smart_transformers_update_column_sharer():
+def test_transformer_multiprocess_smart_transformers_update_cache_manager():
     import pandas as pd
 
     from foreshadow.parallelprocessor import ParallelProcessor
@@ -227,9 +227,9 @@ def test_transformer_multiprocess_smart_transformers_update_column_sharer():
 
     proc = ParallelProcessor(
         [
-            ("group1", IntentResolver(column_sharer=cs), ["crim"]),
-            ("group2", IntentResolver(column_sharer=cs), ["zn"]),
-            ("group3", IntentResolver(column_sharer=cs), ["indus"]),
+            ("group1", IntentResolver(cache_manager=cs), ["crim"]),
+            ("group2", IntentResolver(cache_manager=cs), ["zn"]),
+            ("group3", IntentResolver(cache_manager=cs), ["indus"]),
         ],
         n_jobs=-1,
         collapse_index=True,
@@ -399,7 +399,7 @@ def test_smarttransformer_function(smart_child):
 
     df = pd.read_csv(boston_path)
 
-    smart = smart_child(column_sharer=CacheManager())
+    smart = smart_child(cache_manager=CacheManager())
     smart_data = smart.fit_transform(df[["crim"]])
 
     std = StandardScaler()
@@ -449,7 +449,7 @@ def test_smarttransformer_function_override(smart_child):
     df = pd.read_csv(boston_path)
 
     smart = smart_child(
-        transformer="Imputer", name="impute", column_sharer=CacheManager()
+        transformer="Imputer", name="impute", cache_manager=CacheManager()
     )
     smart_data = smart.fit_transform(df[["crim"]])
 
@@ -485,7 +485,7 @@ def test_smarttransformer_function_override_invalid(smart_child):
     from foreshadow.exceptions import TransformerNotFound
 
     with pytest.raises(TransformerNotFound) as e:
-        smart_child(transformer="BAD", column_sharer=CacheManager())
+        smart_child(transformer="BAD", cache_manager=CacheManager())
 
     assert "Could not find transformer BAD in" in str(e.value)
 
@@ -546,7 +546,7 @@ def test_smarttransformer_get_params(smart_child):
         transformer="Imputer",
         missing_values="NaN",
         strategy="mean",
-        column_sharer=cm,
+        cache_manager=cm,
     )
     smart.fit([1, 2, 3])
 
@@ -559,7 +559,7 @@ def test_smarttransformer_get_params(smart_child):
         "y_var": False,
         "force_reresolve": False,
         "should_resolve": False,
-        "column_sharer": cm,
+        "cache_manager": cm,
         "check_wrapped": True,
         "transformer__copy": True,
         "transformer__missing_values": "NaN",
@@ -576,7 +576,7 @@ def test_smarttransformer_empty_inverse(smart_child):
         smart_child: A subclass of SmartTransformer.
 
     """
-    smart = smart_child(column_sharer=CacheManager())
+    smart = smart_child(cache_manager=CacheManager())
     smart.fit([1, 2, 10])
 
     smart.inverse_transform([])
@@ -610,7 +610,7 @@ def test_smarttransformer_should_resolve(smart_child, mocker):
         else:
             return MinMaxScaler()
 
-    smart = smart_child(column_sharer=CacheManager())
+    smart = smart_child(cache_manager=CacheManager())
     smart.pick_transformer = pick_transformer
 
     data1 = pd.DataFrame([0])

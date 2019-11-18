@@ -27,7 +27,7 @@ def test_feature_engineerer_fit():
     cs["intent", "weights"] = "Numeric"
     cs["intent", "financials"] = "Numeric"
 
-    fem = FeatureEngineererMapper(column_sharer=cs)
+    fem = FeatureEngineererMapper(cache_manager=cs)
     fem.fit(data)
     transformed_data = fem.transform(data)
     assert np.all(
@@ -58,18 +58,18 @@ def test_feature_engineerer_get_mapping():
     cs["intent", "weights"] = "Numeric"
     cs["intent", "financials"] = "Numeric"
 
-    fem = FeatureEngineererMapper(column_sharer=cs)
+    fem = FeatureEngineererMapper(cache_manager=cs)
     column_mapping = fem.get_mapping(data)
 
     check_pm = PreparerMapping()
     check_pm.add(
         ["age", "weights"],
-        [FeatureEngineerer(column_sharer=cs)],
+        [FeatureEngineerer(cache_manager=cs)],
         "personal_Numeric",
     )
     check_pm.add(
         ["financials"],
-        [FeatureEngineerer(column_sharer=cs)],
+        [FeatureEngineerer(cache_manager=cs)],
         "financial_Numeric",
     )
 

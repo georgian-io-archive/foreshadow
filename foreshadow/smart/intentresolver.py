@@ -56,7 +56,7 @@ class IntentResolver(SmartTransformer):
         # column info sharer data when resolving.
         super().resolve(X, *args, **kwargs)
         column_name = X.columns[0]
-        self.column_sharer[
+        self.cache_manager[
             "intent", column_name
         ] = self.transformer.__class__.__name__
 
@@ -64,7 +64,7 @@ class IntentResolver(SmartTransformer):
         """Get best intent transformer for a given column.
 
         Note:
-            This function also sets the column_sharer
+            This function also sets the cache_manager
 
         Args:
             X: input DataFrame
@@ -77,8 +77,8 @@ class IntentResolver(SmartTransformer):
         """
         column = X.columns[0]
         override_key = "_".join([Override.INTENT, column])
-        if override_key in self.column_sharer["override"]:
-            intent_override = self.column_sharer["override"][override_key]
+        if override_key in self.cache_manager["override"]:
+            intent_override = self.cache_manager["override"][override_key]
             intent_class = get_transformer(intent_override)
         else:
             intent_class = self._resolve_intent(X, y=y)

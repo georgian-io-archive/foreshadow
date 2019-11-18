@@ -26,7 +26,7 @@ def smart_params():
     """Get the params for a defined SmartTransformer subclass."""
     yield {
         "check_wrapped": True,
-        "column_sharer": None,
+        "cache_manager": None,
         "force_reresolve": False,
         "keep_columns": False,
         "name": None,
@@ -101,7 +101,7 @@ def test_smart_set_params_default(smart_child, initial_transformer):
     smart.set_params(**params)
     check = {
         "check_wrapped": True,
-        "column_sharer": None,
+        "cache_manager": None,
         "force_reresolve": False,
         "keep_columns": False,
         "name": None,
@@ -349,7 +349,7 @@ def test_preprocessor_hashencoder_no_name_collision():
         }
     )
 
-    dp = DataPreparer(column_sharer=CacheManager())
+    dp = DataPreparer(cache_manager=CacheManager())
     output = dp.fit_transform(input)
     # since the number of categories for each column are above 30,
     # HashingEncoder will be used with 30 components. The transformed output

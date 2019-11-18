@@ -11,13 +11,14 @@ from sklearn.pipeline import (
 
 from foreshadow.base import BaseEstimator
 from foreshadow.logging import logging
-from foreshadow.utils.common import ConfigureColumnSharerMixin
+from foreshadow.utils.common import ConfigureCacheManagerMixin
 from foreshadow.utils.override_substitute import Override
+
 from .serializers import PipelineSerializerMixin, _make_serializable
 
 
 class ParallelProcessor(
-    FeatureUnion, PipelineSerializerMixin, ConfigureColumnSharerMixin
+    FeatureUnion, PipelineSerializerMixin, ConfigureCacheManagerMixin
 ):
     """Class to support parallel operation on dataframes.
 
@@ -92,11 +93,11 @@ class ParallelProcessor(
 
         return _make_serializable(params, serialize_args=self.serialize_params)
 
-    def configure_column_sharer(self, column_sharer):
-        """Configure column sharer in each dynamic pipeline of the transformer_list.
+    def configure_cache_manager(self, cache_manager):
+        """Configure cache_manager in each dynamic pipeline of the transformer_list.
 
         Args:
-            column_sharer: a column_sharer instance
+            cache_manager: a cache_manager instance
 
         """
         for transformer_triple in self.transformer_list:
@@ -104,7 +105,7 @@ class ParallelProcessor(
             if dynamic_pipeline is Override.TRANSFORMER:
                 continue
             for step in dynamic_pipeline.steps:
-                step[1].column_sharer = column_sharer
+                step[1].cache_manager = cache_manager
 
     @staticmethod
     def _convert_transformer_list(transformer_list):
@@ -155,8 +156,10 @@ class ParallelProcessor(
         """
         # TODO this requires the override mechnism to reset the
         #  transformation_by_column_group to null in the JSON file.
-        if "transformation_by_column_group" not in data or \
-                data["transformation_by_column_group"] is None:
+        if (
+            "transformation_by_column_group" not in data
+            or data["transformation_by_column_group"] is None
+        ):
             return None
 
         n_jobs = data["n_jobs"]
@@ -347,7 +350,7 @@ class ParallelProcessor(
             self
 
         """
-        # TODO this method may need to add multiprocess column_sharer
+        # TODO this method may need to add multiprocess cache_manager
         #  updates if we decide to use it somewhere in the code. Currently
         #  it is only used in a unit test.
         self.transformer_list = list(self.transformer_list)
@@ -408,58 +411,58 @@ class ParallelProcessor(
                 pass
         return Xs
 
-    def _get_original_column_sharer(self):
+    def _get_original_cache_manager(self):
         _, transformers, _ = zip(*self.transformer_list)
         for transformer in transformers:
             # in case the transformer does not have steps
             if hasattr(transformer, "steps"):
                 for step in transformer.steps:
-                    # steps like Imputer don't have column_sharer
-                    if hasattr(step[1], "column_sharer"):
-                        return step[1].column_sharer
-            elif hasattr(transformer, "column_sharer"):
-                return transformer.column_sharer
+                    # steps like Imputer don't have cache_manager
+                    if hasattr(step[1], "cache_manager"):
+                        return step[1].cache_manager
+            elif hasattr(transformer, "cache_manager"):
+                return transformer.cache_manager
         return None
 
     @staticmethod
-    def _update_original_column_sharer(column_sharer, transformers):
+    def _update_original_cache_manager(cache_manager, transformers):
         for transformer in transformers:
             if hasattr(transformer, "steps"):
-                modified_cs = transformer.steps[0][1].column_sharer
-            elif hasattr(transformer, "column_sharer"):
-                modified_cs = transformer.column_sharer
+                modified_cs = transformer.steps[0][1].cache_manager
+            elif hasattr(transformer, "cache_manager"):
+                modified_cs = transformer.cache_manager
             if modified_cs:
-                ParallelProcessor._update_original_column_sharer_with_another(
-                    column_sharer, modified_cs
+                ParallelProcessor._update_original_cache_manager_with_another(
+                    cache_manager, modified_cs
                 )
 
     @staticmethod
-    def _update_transformers_with_updated_column_sharer(
-        transformers, column_sharer
+    def _update_transformers_with_updated_cache_manager(
+        transformers, cache_manager
     ):
         for transformer in transformers:
             if hasattr(transformer, "steps"):
                 for step in transformer.steps:
-                    step[1].column_sharer = column_sharer
-            elif hasattr(transformer, "column_sharer"):
-                transformer.column_sharer = column_sharer
+                    step[1].cache_manager = cache_manager
+            elif hasattr(transformer, "cache_manager"):
+                transformer.cache_manager = cache_manager
 
     @staticmethod
-    def _update_original_column_sharer_with_another(
-        column_sharer, modified_cs
+    def _update_original_cache_manager_with_another(
+        cache_manager, modified_cs
     ):
-        """Update the column_sharer with another column_sharer in place.
+        """Update the cache_manager with another cache_manager in place.
 
-        Only values that are not None are assigned back to the column_sharer.
+        Only values that are not None are assigned back to the cache_manager.
 
         Args:
-            column_sharer: the original column_sharer.
-            modified_cs: a modified column_sharer by a parallel_process.
+            cache_manager: the original cache_manager.
+            modified_cs: a modified cache_manager by a parallel_process.
 
         """
         for combined_key in modified_cs:
             if modified_cs[combined_key] is not None:
-                column_sharer[combined_key] = modified_cs[combined_key]
+                cache_manager[combined_key] = modified_cs[combined_key]
 
     def fit_transform(self, X, y=None, **fit_params):
         """Perform both a fit and a transform.
@@ -476,13 +479,13 @@ class ParallelProcessor(
         """
         self._validate_transformers()
 
-        column_sharer = self._get_original_column_sharer()
-        # TODO not all preparesteps need to update the column_sharer. This
+        cache_manager = self._get_original_cache_manager()
+        # TODO not all preparesteps need to update the cache_manager. This
         #  is something we may be able to improve by specifying the
-        #  update_column_sharer params through the fit_params (we need to
+        #  update_cache_manager params through the fit_params (we need to
         #  pop it).
-        update_column_sharer = (self.n_jobs > 1 or self.n_jobs == -1) and (
-            column_sharer is not None
+        update_cache_manager = (self.n_jobs > 1 or self.n_jobs == -1) and (
+            cache_manager is not None
         )
 
         result = Parallel(n_jobs=self.n_jobs)(
@@ -503,10 +506,10 @@ class ParallelProcessor(
             return X[[]]
 
         Xs, transformers = zip(*result)
-        if update_column_sharer:
-            self._update_original_column_sharer(column_sharer, transformers)
-            self._update_transformers_with_updated_column_sharer(
-                transformers, column_sharer
+        if update_cache_manager:
+            self._update_original_cache_manager(cache_manager, transformers)
+            self._update_transformers_with_updated_cache_manager(
+                transformers, cache_manager
             )
         self._update_transformer_list(transformers)
 
@@ -537,10 +540,10 @@ class ParallelProcessor(
     def inverse_transform(self, X, **inverse_params):
         """Perform both a fit and a transform.
 
-        Inverse transform should not update the column_sharer as it is
+        Inverse transform should not update the cache_manager as it is
         only used in prediction in case the target column has been
         transformed during the training process. Once the model is trained,
-        the column_sharer should not be touched during prediction process.
+        the cache_manager should not be touched during prediction process.
 
         Args:
             X (:obj:`pandas.DataFrame`): Input X data

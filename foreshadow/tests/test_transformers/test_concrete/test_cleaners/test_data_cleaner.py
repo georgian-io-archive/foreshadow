@@ -22,7 +22,7 @@ def test_data_cleaner_fit():
         columns=["dates", "json", "financials"],
     )
     cs = CacheManager()
-    dc = CleanerMapper(column_sharer=cs)
+    dc = CleanerMapper(cache_manager=cs)
     dc.fit(data)
     data = dc.transform(data)
     check = pd.DataFrame(
@@ -63,7 +63,7 @@ def test_financials():
         columns=["financials"],
     )
     cs = CacheManager()
-    dc = CleanerMapper(column_sharer=cs)
+    dc = CleanerMapper(cache_manager=cs)
     dc.fit(data)
     transformed_data = dc.transform(data)
     check = pd.DataFrame(
@@ -96,7 +96,7 @@ def test_json():
         columns=["json"],
     )
     cs = CacheManager()
-    dc = CleanerMapper(column_sharer=cs)
+    dc = CleanerMapper(cache_manager=cs)
     dc.fit(data)
     data = dc.transform(data)
     check = pd.DataFrame(
@@ -128,7 +128,7 @@ def test_drop():
     columns = ["financials"]
     data = pd.DataFrame({"financials": ["", "", "", ""]}, columns=columns)
     cs = CacheManager()
-    dc = CleanerMapper(column_sharer=cs)
+    dc = CleanerMapper(cache_manager=cs)
     dc.fit(data)
     transformed_data = dc.transform(data)
     assert transformed_data.empty
@@ -145,7 +145,7 @@ def test_numerical_input():
     columns = ["financials"]
     data = pd.DataFrame({"financials": np.arange(10)}, columns=columns)
     cs = CacheManager()
-    dc = CleanerMapper(column_sharer=cs)
+    dc = CleanerMapper(cache_manager=cs)
     dc.fit(data)
     transformed_data = dc.transform(data)
     assert np.array_equal(transformed_data, data)
@@ -161,7 +161,7 @@ def test_numerical_input_fittransform():
     columns = ["financials"]
     data = pd.DataFrame({"financials": np.arange(10)}, columns=columns)
     cs = CacheManager()
-    dc = CleanerMapper(column_sharer=cs)
+    dc = CleanerMapper(cache_manager=cs)
     transformed_data = dc.fit_transform(data)
     assert np.array_equal(transformed_data, data)
 

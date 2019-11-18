@@ -126,7 +126,7 @@ def test_preprocessor_init_empty():
     from foreshadow.preparer import DataPreparer
     from foreshadow.cachemanager import CacheManager
 
-    proc = DataPreparer(column_sharer=CacheManager())
+    proc = DataPreparer(cache_manager=CacheManager())
 
     assert proc._intent_map == {}
     assert proc._intent_pipelines == {}
@@ -149,7 +149,7 @@ def test_preprocessor_init_json_intent_map():
     )
 
     proc = DataPreparer(
-        column_sharer=CacheManager(),
+        cache_manager=CacheManager(),
         from_json=json.load(open((test_path), "r")),
     )
 
@@ -162,7 +162,7 @@ def test_preprocessor_intent_dependency_order():
     from foreshadow.preparer import DataPreparer
     from foreshadow.cachemanager import CacheManager
 
-    proc = DataPreparer(column_sharer=CacheManager())
+    proc = DataPreparer(cache_manager=CacheManager())
     proc._intent_map = {
         "1": registry_eval("TestIntentOne"),  # noqa: F821
         "2": registry_eval("TestIntentTwo"),  # noqa: F821
@@ -203,7 +203,7 @@ def test_preprocessor_init_json_pipeline_map():
     )
 
     dp = DataPreparer(
-        column_sharer=CacheManager(),
+        cache_manager=CacheManager(),
         from_json=json.load(open((test_path), "r")),
     )
 
@@ -234,7 +234,7 @@ def test_preprocessor_init_json_multi_pipeline():
     test_path = get_file_path("configs", "override_multi_pipeline.json")
 
     proc = DataPreparer(
-        column_sharer=CacheManager(), from_json=json.load(open(test_path, "r"))
+        cache_manager=CacheManager(), from_json=json.load(open(test_path, "r"))
     )
 
     assert len(proc._multi_column_map) == 1
@@ -274,7 +274,7 @@ def test_preprocessor_init_json_intent_override_multi():
     test_path = get_file_path("configs", "override_intent_pipeline_multi.json")
 
     proc = DataPreparer(
-        column_sharer=CacheManager(),
+        cache_manager=CacheManager(),
         from_json=json.load(open((test_path), "r")),
     )
 
@@ -318,7 +318,7 @@ def test_preprocessor_init_json_intent_override_single():
     )
 
     dp = DataPreparer(
-        column_sharer=CacheManager(),
+        cache_manager=CacheManager(),
         from_json=json.load(open((test_path), "r")),
     )
 
@@ -358,7 +358,7 @@ def test_preprocessor_fit_map_intents_default():
 
     df = pd.read_csv(boston_path)
 
-    dp = DataPreparer(column_sharer=CacheManager())
+    dp = DataPreparer(cache_manager=CacheManager())
 
     dp.fit(df.copy(deep=True))
 
@@ -386,7 +386,7 @@ def test_preprocessor_fit_map_intents_override():
     df = pd.read_csv(boston_path)
 
     proc_override = DataPreparer(
-        column_sharer=CacheManager(),
+        cache_manager=CacheManager(),
         from_json=json.load(open((test_path), "r")),
     )
 
@@ -409,7 +409,7 @@ def test_preprocessor_fit_create_single_pipeline_default():
     df = pd.read_csv(boston_path)
     cols = list(df)
 
-    dp = DataPreparer(column_sharer=CacheManager())
+    dp = DataPreparer(cache_manager=CacheManager())
     dp.fit(df.copy(deep=True))
 
     for c in cols:
@@ -444,7 +444,7 @@ def test_preprocessor_fit_create_single_pipeline_override_column():
     cols = list(df)
 
     dp = DataPreparer(
-        column_sharer=CacheManager(),
+        cache_manager=CacheManager(),
         from_json=json.load(open((test_path), "r")),
     )
     dp.fit(df.copy(deep=True))
@@ -507,7 +507,7 @@ def test_preprocessor_make_empty_pipeline():
     orig = df.copy(deep=True)
 
     dp = DataPreparer(
-        column_sharer=CacheManager(), from_json=json.load(open(test_path, "r"))
+        cache_manager=CacheManager(), from_json=json.load(open(test_path, "r"))
     )
     dp.fit(df)
     out = dp.transform(df)
@@ -536,7 +536,7 @@ def test_preprocessor_make_pipeline():
 
     df = pd.read_csv(boston_path)
     dp = DataPreparer(
-        column_sharer=CacheManager(), from_json=json.load(open(test_path, "r"))
+        cache_manager=CacheManager(), from_json=json.load(open(test_path, "r"))
     )
 
     dp.fit(df)
@@ -653,7 +653,7 @@ def test_preprocessor_fit_transform():  # TODO figure out what this test is
 
     truth = pd.read_csv(boston_preprocessed_path, index_col=0)
     dp = DataPreparer(
-        column_sharer=CacheManager(), from_json=json.load(open(test_path, "r"))
+        cache_manager=CacheManager(), from_json=json.load(open(test_path, "r"))
     )
     dp.fit(df)
     out = dp.transform(df)
@@ -687,7 +687,7 @@ def test_preprocessor_inverse_transform():
             }
         }
     }
-    dp = DataPreparer(column_sharer=CacheManager(), from_json=js)
+    dp = DataPreparer(cache_manager=CacheManager(), from_json=js)
     col = df[["medv"]]
     dp.fit(col)
 
@@ -701,7 +701,7 @@ def test_preprocessor_inverse_transform_unfit():
     from foreshadow.preparer import DataPreparer
     from foreshadow.cachemanager import CacheManager
 
-    dp = DataPreparer(column_sharer=CacheManager())
+    dp = DataPreparer(cache_manager=CacheManager())
 
     with pytest.raises(ValueError) as e:
         dp.inverse_transform(pd.DataFrame([1, 2, 3, 4]))
@@ -732,7 +732,7 @@ def test_preprocessor_inverse_transform_multicol():
             }
         }
     }
-    dp = DataPreparer(column_sharer=CacheManager(), from_json=js)
+    dp = DataPreparer(cache_manager=CacheManager(), from_json=js)
     col = df[["medv", "crim"]]
     dp.fit(col)
     out = dp.transform(col)
@@ -763,7 +763,7 @@ def test_preprocessor_get_params():  # TODO figure out what this test is
     # verify the outputs are correct manually and regenerate the pickle
     # truth file.
     proc = DataPreparer(
-        column_sharer=CacheManager(),
+        cache_manager=CacheManager(),
         from_json=json.load(open(test_path2, "r")),
     )
     proc.fit(df)
@@ -795,7 +795,7 @@ def test_preprocessor_set_params():  # TODO figure out what this test is
     # truth file.
     params = pickle.load(open(test_path, "rb"))
     proc = DataPreparer(
-        column_sharer=CacheManager(),
+        cache_manager=CacheManager(),
         from_json=json.load(open(test_path2, "r")),
     )
 
@@ -816,7 +816,7 @@ def test_preprocessor_malformed_json_transformer():
 
     with pytest.raises(ValueError) as e:
         DataPreparer(
-            column_sharer=CacheManager(),
+            cache_manager=CacheManager(),
             from_json=json.load(open((test_path), "r")),
         )
 
@@ -833,7 +833,7 @@ def test_preprocessor_invalid_json_transformer_class():
 
     with pytest.raises(ValueError) as e:
         DataPreparer(
-            column_sharer=CacheManager(),
+            cache_manager=CacheManager(),
             from_json=json.load(open((test_path), "r")),
         )
 
@@ -851,7 +851,7 @@ def test_preprocessor_invalid_json_transformer_params():
 
     with pytest.raises(ValueError) as e:
         DataPreparer(
-            column_sharer=CacheManager(),
+            cache_manager=CacheManager(),
             from_json=json.load(open((test_path), "r")),
         )
 
@@ -865,7 +865,7 @@ def test_preprocessor_get_param_no_pipeline():
     from foreshadow.preparer import DataPreparer
     from foreshadow.cachemanager import CacheManager
 
-    proc = DataPreparer(column_sharer=CacheManager())
+    proc = DataPreparer(cache_manager=CacheManager())
     param = proc.get_params()
 
     assert param == {"from_json": None}
@@ -876,7 +876,7 @@ def test_preprocessor_set_param_no_pipeline():
     from foreshadow.preparer import DataPreparer
     from foreshadow.cachemanager import CacheManager
 
-    dp = DataPreparer(column_sharer=CacheManager())
+    dp = DataPreparer(cache_manager=CacheManager())
     params = dp.get_params()
     dp.set_params(**{})
     nparam = dp.get_params()
@@ -892,7 +892,7 @@ def test_preprocessor_transform_no_pipeline():
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
-    dp = DataPreparer(column_sharer=CacheManager())
+    dp = DataPreparer(cache_manager=CacheManager())
     df = pd.read_csv(boston_path)
     with pytest.raises(ValueError) as e:
         dp.transform(df)
@@ -916,7 +916,7 @@ def test_preprocessor_serialize():
 
     truth = json.load(open(test_path, "r"))
     dp = DataPreparer(
-        column_sharer=CacheManager(),
+        cache_manager=CacheManager(),
         from_json=json.load(open(test_path2, "r")),
     )
     dp.fit(df)
@@ -935,10 +935,10 @@ def test_preprocessor_continuity():
 
     df = pd.read_csv(boston_path)
 
-    dp = DataPreparer(column_sharer=CacheManager())
+    dp = DataPreparer(cache_manager=CacheManager())
     dp.fit(df)
     ser = dp.serialize()
-    _ = DataPreparer(column_sharer=CacheManager(), from_json=ser)
+    _ = DataPreparer(cache_manager=CacheManager(), from_json=ser)
 
     assert ser == dp.serialize()
 
@@ -954,7 +954,7 @@ def test_preprocessor_y_var_filtering():
     df = pd.read_csv(boston_path)
     y_df = df[["medv"]]
 
-    dp = DataPreparer(column_sharer=CacheManager(), y_var=True)
+    dp = DataPreparer(cache_manager=CacheManager(), y_var=True)
 
     df_out = dp.fit_transform(y_df)
 
@@ -973,7 +973,7 @@ def test_preprocessor_summarize():
 
     df = pd.read_csv(boston_path)
     dp = DataPreparer(
-        column_sharer=CacheManager(), from_json=json.load(open(test_path, "r"))
+        cache_manager=CacheManager(), from_json=json.load(open(test_path, "r"))
     )
     dp.fit(df)
 

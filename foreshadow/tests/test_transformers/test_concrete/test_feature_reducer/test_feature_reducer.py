@@ -21,7 +21,7 @@ def test_feature_reducer_fit_no_ops():
     cs["intent", "weights"] = "Numeric"
     cs["intent", "occupation"] = "Categorical"
 
-    fr = FeatureReducerMapper(column_sharer=cs)
+    fr = FeatureReducerMapper(cache_manager=cs)
     fr.fit(data)
     transformed_data = fr.transform(data)
     assert np.all(
@@ -53,15 +53,15 @@ def test_feature_reducer_get_mapping_by_intent():
     cs["intent", "weights"] = "Numeric"
     cs["intent", "occupation"] = "Categorical"
 
-    fr = FeatureReducerMapper(column_sharer=cs)
+    fr = FeatureReducerMapper(cache_manager=cs)
     column_mapping = fr.get_mapping(data)
 
     check = PreparerMapping()
     check.add(
-        ["age", "weights"], [FeatureReducer(column_sharer=cs)], "Numeric"
+        ["age", "weights"], [FeatureReducer(cache_manager=cs)], "Numeric"
     )
     check.add(
-        ["occupation"], [FeatureReducer(column_sharer=cs)], "Categorical"
+        ["occupation"], [FeatureReducer(cache_manager=cs)], "Categorical"
     )
 
     for key in column_mapping.store:

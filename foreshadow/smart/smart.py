@@ -60,7 +60,7 @@ class SmartTransformer(
         transformer=None,
         should_resolve=True,
         force_reresolve=False,
-        column_sharer=None,
+        cache_manager=None,
         name=None,
         keep_columns=False,
         check_wrapped=True,
@@ -69,7 +69,7 @@ class SmartTransformer(
         self.name = name
         self.keep_columns = keep_columns
         self.kwargs = kwargs
-        self.column_sharer = column_sharer
+        self.cache_manager = cache_manager
         # TODO will need to add the above when this is no longer wrapped
         self.y_var = y_var
         self.should_resolve = should_resolve
@@ -168,17 +168,17 @@ class SmartTransformer(
         of columns, we may need to check if there are any columns in the
         override belong to this group, which is defined by X.columns
         """
-        if self._has_fitted() and self.column_sharer.has_override():
+        if self._has_fitted() and self.cache_manager.has_override():
             if len(X.columns) == 1:
                 override_key = "_".join([Override.INTENT, X.columns[0]])
-                if override_key in self.column_sharer["override"]:
+                if override_key in self.cache_manager["override"]:
                     self.force_reresolve = True
             else:
                 """need to iterate over the override dict. Not super
                 efficient but not bad either as we don't expect too many
                 overrides
                 """
-                for key in self.column_sharer["override"]:
+                for key in self.cache_manager["override"]:
                     if key.startswith(Override.INTENT) and key in X.columns:
                         self.force_reresolve = True
                         break

@@ -95,7 +95,7 @@ def test_preprocessor_numbers(mocker):
 
     data = pd.DataFrame({"financials": np.arange(10)})
     cs = CacheManager()
-    p = Preprocessor(column_sharer=cs)
+    p = Preprocessor(cache_manager=cs)
     p = p.fit(data)
     tf_data = p.transform(data)
 
@@ -119,8 +119,8 @@ def test_preprocessor_numbers(mocker):
     assert (tf_data == validate).squeeze().all()
 
 
-@pytest.mark.parametrize("column_sharer", [True, False])
-def test_preprocessor_columnsharer(mocker, column_sharer):
+@pytest.mark.parametrize("cache_manager", [True, False])
+def test_preprocessor_columnsharer(mocker, cache_manager):
     """Test a standard work flow with preprocessor with columnsharer.
 
     Args:
@@ -150,11 +150,11 @@ def test_preprocessor_columnsharer(mocker, column_sharer):
         create=True,
     )
     cs = None
-    if column_sharer:
+    if cache_manager:
         cs = dynamic_import("CacheManager", "foreshadow.cachemanager")()
 
     data = pd.DataFrame({"financials": np.arange(10)})
-    p = Preprocessor(column_sharer=cs)
+    p = Preprocessor(cache_manager=cs)
     p = p.fit(data)
     tf_data = p.transform(data)
 

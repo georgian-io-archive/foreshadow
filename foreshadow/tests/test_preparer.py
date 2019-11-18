@@ -68,7 +68,7 @@ def test_data_preparer_get_params(deep):
     dp = DataPreparer()
     params = dp.get_params(deep=deep)
     assert "cleaner_kwargs" in params
-    assert "column_sharer" in params
+    assert "cache_manager" in params
     assert "engineerer_kwargs" in params
     assert "intent_kwargs" in params
     assert "preprocessor_kwargs" in params
@@ -77,9 +77,9 @@ def test_data_preparer_get_params(deep):
     assert "steps" in params
 
 
-def test_data_preparer_serialization_has_one_column_sharer():
+def test_data_preparer_serialization_has_one_cache_manager():
     """Test DataPreparer serialization after fitting. The serialized
-    object should contain only 1 column_sharer instance.
+    object should contain only 1 cache_manager instance.
 
     """
     from foreshadow.preparer import DataPreparer
@@ -95,21 +95,21 @@ def test_data_preparer_serialization_has_one_column_sharer():
 
     dp_serialized = dp.serialize(method="dict", deep=True)
 
-    key_name = "column_sharer"
+    key_name = "cache_manager"
     assert key_name in dp_serialized
     dp_serialized.pop(key_name)
 
-    def check_has_no_column_sharer(dat, target):
+    def check_has_no_cache_manager(dat, target):
         if isinstance(dat, dict):
             matching_keys = [key for key in dat if key.endswith(target)]
             assert len(matching_keys) == 0
             for key in dat:
-                check_has_no_column_sharer(dat[key], target)
+                check_has_no_cache_manager(dat[key], target)
         elif isinstance(dat, list):
             for item in dat:
-                check_has_no_column_sharer(item, target)
+                check_has_no_cache_manager(item, target)
 
-    check_has_no_column_sharer(dp_serialized, key_name)
+    check_has_no_cache_manager(dp_serialized, key_name)
 
 
 def test_data_preparer_deserialization():

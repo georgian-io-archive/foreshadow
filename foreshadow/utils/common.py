@@ -97,15 +97,15 @@ def get_transformer(class_name, source_lib=None):
     return getattr(module, class_name)
 
 
-class ConfigureColumnSharerMixin:
-    """Mixin that configure column sharer."""
+class ConfigureCacheManagerMixin:
+    """Mixin that configure cache_manager."""
 
-    def configure_column_sharer(self, column_sharer):
+    def configure_cache_manager(self, cache_manager):
         """Configure the column sharer attribute if exists.
 
         Args:
-            column_sharer:  a column sharer instance
+            cache_manager:  a cache_manager instance
 
         """
-        if hasattr(self, "column_sharer"):
-            self.column_sharer = column_sharer
+        if hasattr(self, "cache_manager"):
+            self.cache_manager = cache_manager

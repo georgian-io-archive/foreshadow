@@ -48,7 +48,7 @@ def test_foreshadow_X_preparer_custom():
     from foreshadow.preparer import DataPreparer
     from foreshadow.cachemanager import CacheManager
 
-    dp = DataPreparer(column_sharer=CacheManager())
+    dp = DataPreparer(cache_manager=CacheManager())
     foreshadow = Foreshadow(X_preparer=dp)
     assert foreshadow.X_preparer == dp
 
@@ -503,7 +503,7 @@ def test_foreshadow_param_optimize_no_combinations():
     data = pd.read_csv(boston_path)
 
     fs = Foreshadow(
-        DataPreparer(column_sharer=CacheManager(), from_json={}),
+        DataPreparer(cache_manager=CacheManager(), from_json={}),
         False,
         LinearRegression(),
         GridSearchCV,
@@ -586,7 +586,7 @@ def test_foreshadow_param_optimize_invalid_dict_key():
 
     fs = Foreshadow(
         DataPreparer(
-            column_sharer=CacheManager(),
+            cache_manager=CacheManager(),
             from_json={"combinations": [{"fake.fake": "[1,2]"}]},
         ),
         False,
@@ -774,6 +774,7 @@ def test_foreshadow_serialization_adults_small_classification_override():
     score1 = shadow.score(X_test, y_test)
 
     shadow.override_intent("age", "Numeric")
+    shadow.override_intent("workclass", "Categoric")
     shadow.fit(X_train, y_train)
     shadow.to_json("foreshadow_adults_small_logistic_regression_2.json")
     score2 = shadow.score(X_test, y_test)

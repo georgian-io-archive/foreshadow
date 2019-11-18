@@ -22,19 +22,19 @@ def step():
     yield Step
 
 
-@pytest.mark.parametrize("column_sharer", [True, False])
-def test_init_columnsharer(step, column_sharer):
+@pytest.mark.parametrize("cache_manager", [True, False])
+def test_init_columnsharer(step, cache_manager):
     """Test columnsharer properly init on step.
 
     Args:
         step: fixture
-        column_sharer: True to pass it in, False to not.
+        cache_manager: True to pass it in, False to not.
 
     Returns:
 
     """
     cs = None
-    if column_sharer:
+    if cache_manager:
         cs = dynamic_import("CacheManager", "foreshadow.cachemanager")()
-    step = step(column_sharer=cs)
-    assert step.column_sharer is not None
+    step = step(cache_manager=cs)
+    assert step.cache_manager is not None

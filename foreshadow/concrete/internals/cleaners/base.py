@@ -35,7 +35,7 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         output_columns=None,
         confidence_computation=None,
         default=return_original_row,
-        # column_sharer=None,
+        # cache_manager=None,
     ):
         """Construct any cleaner/flattener.
 
@@ -68,7 +68,7 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
             MetricWrapper(avg_col_regex): 0.2,
         }
         # self.confidence_computation = {regex_rows: 0.8, avg_col_regex: 0.2}
-        # self.column_sharer = column_sharer
+        # self.cache_manager = cache_manager
         if confidence_computation is not None:
             self.confidence_computation = confidence_computation
 

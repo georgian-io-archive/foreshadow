@@ -48,7 +48,7 @@ class Cleaner(SmartTransformer):
     def resolve(self, X, *args, **kwargs):
         """Resolve the underlying concrete transformer.
 
-        Sets self.column_sharer with the domain tag.
+        Sets self.cache_manager with the domain tag.
 
         Args:
             X: input DataFrame
@@ -60,10 +60,10 @@ class Cleaner(SmartTransformer):
 
         """
         ret = super().resolve(X, *args, **kwargs)
-        if self.column_sharer is not None:
-            self.column_sharer[
+        if self.cache_manager is not None:
+            self.cache_manager[
                 "domain", X.columns[0]
             ] = self.transformer.__class__.__name__
         else:
-            logging.debug("column_sharer was None")
+            logging.debug("cache_manager was None")
         return ret

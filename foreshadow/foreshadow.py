@@ -104,7 +104,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
                     "Invalid value: '{}' " "passed as X_preparer".format(dp)
                 )
         else:
-            self._X_preprocessor = DataPreparer(column_sharer=CacheManager())
+            self._X_preprocessor = DataPreparer(cache_manager=CacheManager())
 
     @property
     def y_preparer(self):  # noqa
@@ -135,7 +135,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
                 raise ValueError("Invalid value passed as y_preparer")
         else:
             self._y_preprocessor = DataPreparer(
-                column_sharer=CacheManager(), y_var=True
+                cache_manager=CacheManager(), y_var=True
             )
 
     @property
@@ -437,7 +437,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         self.data_columns = params.pop("data_columns", None)
         return super().set_params(**params)
 
-    def get_intent(self, column_name: str) -> str:
+    def get_intent(self, column_name: str) -> Union[str, None]:
         """Retrieve the intent of a column.
 
         Args:
@@ -447,13 +447,17 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             str: the intent of the column
 
         """
-        # Note: this retrieves intent from column_sharer. Only columns have
+        # Note: this retrieves intent from cache_manager. Only columns have
         # been processed will be visible.
-        column_sharer = self.X_preparer.column_sharer
+        cache_manager = self.X_preparer.cache_manager
         if self._has_column_in_cache_manager(column_name):
-            return column_sharer["intent"][column_name]
+            return cache_manager["intent"][column_name]
         else:
-            logging.info("Invalid column name {}".format(column_name))
+            logging.info(
+                "No intent exists for column {}. Either the column "
+                "doesn't exist or foreshadow object has not "
+                "been fitted yet.".format(column_name)
+            )
             return None
 
     def list_intent(self, column_names: List[str]) -> List[str]:
@@ -488,8 +492,8 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
                 "effect.".format(column)
             )
             return None
-        column_sharer = self.X_preparer.column_sharer
-        return True if column in column_sharer["intent"] else False
+        cache_manager = self.X_preparer.cache_manager
+        return True if column in cache_manager["intent"] else False
 
     def override_intent(
         self, column_name: str, intent: Union[Numeric, Categoric, Text]
@@ -504,55 +508,10 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             ValueError: Invalid column to override.
 
         """
-        # TODO THIS IS ONLY A TEMPORARY IMPLEMENTATION, which is very
-        #  verbose, error prone, hard to read without the debug tool,
-        #  and has potential performance problem due to the implementation
         if self._has_column_in_cache_manager(column_name) is False:
             raise ValueError("Invalid Column {}".format(column_name))
         # Update the intent
-        self.X_preparer.column_sharer["override"][
+        self.X_preparer.cache_manager["override"][
             "_".join([Override.INTENT, column_name])
         ] = intent
-        self.X_preparer.column_sharer["intent"][column_name] = intent
-
-        if not self.has_fitted:
-            return
-
-        # intent_resolver = self.X_preparer.steps[1][1]
-        # ir_parallel_process = intent_resolver._parallel_process
-        # for i in range(len(ir_parallel_process.transformer_list)):
-        #     name, trans, cols = ir_parallel_process.transformer_list[i]
-        #     if column_name in cols:  # given that intent resolving is per
-        #         # column, cols only contains one column
-        #         trans.steps[0][1].transformer = intent
-        #         break
-
-        # Reset the downstream steps:
-        # FeatureSummarizer does not do transformation so need to touch it.
-        # But if we have to do it, this is how:
-        # feature_summarizer = self.X_preparer.steps[2][1]
-        # feature_summarizer._parallel_process = None
-
-        # FeatureEngineerer currently not going to be included but needs to
-        # be completely reset on the parallel_process
-        feature_engineerer = self.X_preparer.steps[3][1]
-        feature_engineerer._parallel_process = None
-
-        # FeaturePreprocessor
-        # TODO in this step, we should be able to just reset the params of
-        #  force reresolve or should resolve.
-        # feature_preprocessor = self.X_preparer.steps[4][1]
-        # fp_parallel_process = feature_preprocessor._parallel_process
-        # for i in range(len(fp_parallel_process.transformer_list)):
-        #     name, trans, cols = fp_parallel_process.transformer_list[i]
-        #     if column_name in cols:
-        #         fp_parallel_process.transformer_list[i] = (
-        #             name,
-        #             Override.TRANSFORMER,
-        #             cols,
-        #         )
-        #         break
-
-        # FeatureReducer
-        feature_reducer = self.X_preparer.steps[5][1]
-        feature_reducer._parallel_process = None
+        self.X_preparer.cache_manager["intent"][column_name] = intent

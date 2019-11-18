@@ -28,7 +28,7 @@ class Preprocessor(PreparerStep, AutoIntentMixin):
         """
         super().check_process(X)
         # This is to pass a few unit tests, which we may we want to rewrite.
-        self.configure_column_sharer(column_sharer=self.column_sharer)
+        self.configure_cache_manager(cache_manager=self.cache_manager)
 
     def _handle_intent_override(self, default_parallel_process):
         for i in range(len(default_parallel_process.transformer_list)):
@@ -36,8 +36,8 @@ class Preprocessor(PreparerStep, AutoIntentMixin):
             column = cols[0]  # Preprocessor is per column based transformation
             override_key = "_".join([Override.INTENT, column])
             if (
-                self.column_sharer.has_override()
-                and override_key in self.column_sharer["override"]
+                self.cache_manager.has_override()
+                and override_key in self.cache_manager["override"]
             ):
                 self._parallel_process.transformer_list[
                     i
@@ -56,13 +56,13 @@ class Preprocessor(PreparerStep, AutoIntentMixin):
         pm = PreparerMapping()
         for i, c in enumerate(X.columns):
             self.check_resolve(X)
-            intent = self.column_sharer["intent", c]
+            intent = self.cache_manager["intent", c]
             transformers_class_list = config.get_preprocessor_steps(intent)
             if (transformers_class_list is not None) or (
                 len(transformers_class_list) > 0
             ):
                 transformer_list = [
-                    # tc(column_sharer=self.column_sharer)
+                    # tc(cache_manager=self.cache_manager)
                     tc()
                     # TODO: Allow kwargs in config
                     for tc in transformers_class_list

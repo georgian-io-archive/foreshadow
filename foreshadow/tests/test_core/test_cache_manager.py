@@ -6,7 +6,7 @@ simple_dataframe = pd.Series([i for i in range(10)])
 
 
 @pytest.mark.parametrize("args,kwargs", [([], {})])
-def test_column_sharer_create(args, kwargs):
+def test_cache_manager_create(args, kwargs):
     """Test creation of a ColumnSharer object.
 
     Args:
@@ -29,7 +29,7 @@ def test_column_sharer_create(args, kwargs):
         (["1", "2", "3"], KeyError),
     ],
 )
-def test_column_sharer_convert_key(key, expected):
+def test_cache_manager_convert_key(key, expected):
     """Test that key conversion and error raising works as expected.
 
     Args:
@@ -59,7 +59,7 @@ def test_column_sharer_convert_key(key, expected):
         (["domain", None], {}, {}),
     ],
 )
-def test_column_sharer_getitem(key, item_to_set, expected):
+def test_cache_manager_getitem(key, item_to_set, expected):
     """Test that getitem works for all valid key combinations or error raised.
 
     Args:
@@ -108,7 +108,7 @@ def test_column_sharer_getitem(key, item_to_set, expected):
         # there is no column info
     ],
 )
-def test_column_sharer_checkkey(capsys, key, expected):
+def test_cache_manager_checkkey(capsys, key, expected):
     """Test that getitem works for all valid key combinations.
 
     Args:
@@ -136,7 +136,7 @@ def test_column_sharer_checkkey(capsys, key, expected):
         (("domain", "test"), None),
     ],
 )
-def test_column_sharer_delitem(key, expected):
+def test_cache_manager_delitem(key, expected):
     """Test that delitem works for all valid key combinations or error raised.
 
     Args:
@@ -175,7 +175,7 @@ def test_column_sharer_delitem(key, expected):
         },
     ],
 )
-def test_column_sharer_iter(store):
+def test_cache_manager_iter(store):
     """Test that iter iterates over entire internal dict properly.
 
     Args:
@@ -211,7 +211,7 @@ def test_column_sharer_iter(store):
         },
     ],
 )
-def test_column_sharer_dict_serialize(store):
+def test_cache_manager_dict_serialize(store):
     """Test that get_params are returning the right content.
 
     Args:
@@ -253,7 +253,7 @@ def test_column_sharer_dict_serialize(store):
         },
     ],
 )
-def test_column_sharer_dict_deserialize(store):
+def test_cache_manager_dict_deserialize(store):
     """Test that set_params are updating the ColumnShare correctly
 
     Args:
@@ -285,7 +285,7 @@ def test_column_sharer_dict_deserialize(store):
         # print warning
     ],
 )
-def test_column_sharer_setitem(capsys, key, item_to_set, expected, warning):
+def test_cache_manager_setitem(capsys, key, item_to_set, expected, warning):
     """Test that getitem works for all valid key combinations or error raised.
 
     Args:
@@ -336,7 +336,7 @@ def test_column_sharer_setitem(capsys, key, item_to_set, expected, warning):
         ),
     ],
 )
-def test_column_sharer_len(store, expected):
+def test_cache_manager_len(store, expected):
     """Test that iter iterates over entire internal dict properly.
 
     Args:

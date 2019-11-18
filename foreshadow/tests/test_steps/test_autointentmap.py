@@ -19,7 +19,7 @@ def step():
         def get_mapping(self, X):
             self.check_resolve(X)
 
-    yield Step(column_sharer=CacheManager())
+    yield Step(cache_manager=CacheManager())
 
 
 def test_autointentmapping(step):
@@ -31,5 +31,5 @@ def test_autointentmapping(step):
         [np.arange(i, i + 2) for i in range(100)], columns=["1", "2"]
     )
     step.get_mapping(df)
-    assert step.column_sharer["intent", "1"] == "Numeric"
-    assert step.column_sharer["intent", "2"] == "Numeric"
+    assert step.cache_manager["intent", "1"] == "Numeric"
+    assert step.cache_manager["intent", "2"] == "Numeric"
