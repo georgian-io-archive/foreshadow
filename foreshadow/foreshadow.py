@@ -10,7 +10,7 @@ from foreshadow.base import BaseEstimator
 from foreshadow.cachemanager import CacheManager
 from foreshadow.estimators.auto import AutoEstimator
 from foreshadow.estimators.meta import MetaEstimator
-from foreshadow.intents import Categoric, Numeric, Text
+from foreshadow.intents import Categorical, Numeric, Text
 from foreshadow.logging import logging
 from foreshadow.optimizers import ParamSpec, Tuner
 from foreshadow.pipeline import SerializablePipeline
@@ -496,7 +496,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         return True if column in cache_manager["intent"] else False
 
     def override_intent(
-        self, column_name: str, intent: Union[Numeric, Categoric, Text]
+        self, column_name: str, intent: Union[Numeric, Categorical, Text]
     ) -> NoReturn:
         """Override the intent of a particular column.
 

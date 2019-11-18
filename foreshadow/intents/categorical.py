@@ -26,7 +26,7 @@ def return_one(X):  # noqa: D401
     return 1
 
 
-class Categoric(BaseIntent):
+class Categorical(BaseIntent):
     """Defines a categoric column type."""
 
     confidence_computation = {

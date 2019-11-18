@@ -774,7 +774,7 @@ def test_foreshadow_serialization_adults_small_classification_override():
     score1 = shadow.score(X_test, y_test)
 
     shadow.override_intent("age", "Numeric")
-    shadow.override_intent("workclass", "Categoric")
+    shadow.override_intent("workclass", "Categorical")
     shadow.fit(X_train, y_train)
     shadow.to_json("foreshadow_adults_small_logistic_regression_2.json")
     score2 = shadow.score(X_test, y_test)
@@ -802,7 +802,7 @@ def test_foreshadow_adults_small_classification_override_upfront():
 
     shadow = Foreshadow(estimator=LogisticRegression())
     shadow.override_intent("age", "Numeric")
-    shadow.override_intent("workclass", "Categoric")
+    shadow.override_intent("workclass", "Categorical")
     shadow.fit(X_train, y_train)
     shadow.to_json(
         "foreshadow_adults_small_logistic_regression_override_upfront.json"
