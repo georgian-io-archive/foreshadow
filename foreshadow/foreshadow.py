@@ -10,7 +10,7 @@ from foreshadow.base import BaseEstimator
 from foreshadow.cachemanager import CacheManager
 from foreshadow.estimators.auto import AutoEstimator
 from foreshadow.estimators.meta import MetaEstimator
-from foreshadow.intents import Categorical, Numeric, Text
+from foreshadow.intents import IntentType
 from foreshadow.logging import logging
 from foreshadow.optimizers import ParamSpec, Tuner
 from foreshadow.pipeline import SerializablePipeline
@@ -495,9 +495,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         cache_manager = self.X_preparer.cache_manager
         return True if column in cache_manager["intent"] else False
 
-    def override_intent(
-        self, column_name: str, intent: Union[Numeric, Categorical, Text]
-    ) -> NoReturn:
+    def override_intent(self, column_name: str, intent: str) -> NoReturn:
         """Override the intent of a particular column.
 
         Args:
@@ -508,6 +506,14 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             ValueError: Invalid column to override.
 
         """
+        if not IntentType.is_valid(intent):
+            raise ValueError(
+                "Invalid intent type {}. "
+                "Supported intent types are {}.".format(
+                    intent, IntentType.list_intents()
+                )
+            )
+
         if self._has_column_in_cache_manager(column_name) is False:
             raise ValueError("Invalid Column {}".format(column_name))
         # Update the intent
