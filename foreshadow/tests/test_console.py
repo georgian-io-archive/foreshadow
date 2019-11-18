@@ -370,6 +370,7 @@ def test_console_generate_and_execute_model(
 
     execute_model(*model)
 
+
 def test_console_parse_args_multiprocess():
     from foreshadow.console import process_argument
 
