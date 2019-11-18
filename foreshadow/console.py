@@ -12,8 +12,8 @@ from sklearn.model_selection import train_test_split
 from foreshadow.config import config
 from foreshadow.estimators import AutoEstimator
 from foreshadow.foreshadow import Foreshadow
-from foreshadow.utils import EstimatorFactory, EstimatorFamily, ProblemType
 from foreshadow.logging import logging
+from foreshadow.utils import EstimatorFactory, EstimatorFamily, ProblemType
 
 
 def process_argument(args):  # noqa: C901
