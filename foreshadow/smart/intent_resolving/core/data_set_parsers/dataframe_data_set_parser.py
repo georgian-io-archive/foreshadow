@@ -4,12 +4,12 @@ from typing import Generator, Tuple
 
 import pandas as pd
 
+from ..heuristics import has_zero_in_leading_decimals
 from .raw_data_set_parser import RawDataSetParser
 
 
 class DataFrameDataSetParser(RawDataSetParser):
-    """
-    Concrete class to extract metafeatures from a DataFrame.
+    """Concrete class to extract metafeatures from a DataFrame.
 
     Attributes:
         raw {pd.DataFrame}
@@ -27,18 +27,30 @@ class DataFrameDataSetParser(RawDataSetParser):
         featurize_base -- Perform base featurization
         featurize_secondary -- Perform secondary featurization
         normalize_features -- Normalize the test metafeatures
+
     """
 
     def __init__(self, raw: pd.DataFrame):
-        """
-        Init function.
-
-        Arguments:
-            raw {pd.DataFrame} -- Raw dataframe to analyze
-        """
         super().__init__()
-        self.raw = raw
+        self.raw = DataFrameDataSetParser.__clean(raw)
         self._DATASET_ID_PLACEHOLDER = "dataset"
+
+    @staticmethod
+    def __clean(df: pd.DataFrame) -> pd.DataFrame:
+        """Convert float columns whose decimals are zero, into int columns.
+
+        Args:
+            df {pd.DataFrame}: Raw dataframe to be cleaned. # noqa S001
+
+        Returns:
+            pd.DataFrame -- A cleaned dataframe.
+
+        """
+        conditions = has_zero_in_leading_decimals(df)
+        for i, col in enumerate(df.columns):
+            if conditions[i]:
+                df[col] = df[col].astype(int)
+        return df
 
     def load_data_set(self) -> None:
         """

@@ -2,6 +2,7 @@
 
 import re
 
+import numpy as np
 import pandas as pd
 from pandas.api import types
 
@@ -14,26 +15,36 @@ def _raise_if_not_pd_series(obj):
 
 
 def convert_to_numeric(series: pd.Series) -> pd.Series:
-    """Retain and convert any numeric data points."""
+    """Retain and convert any numeric data points.
+
+    Args:
+        series: the series to be converted
+
+    Returns:
+        converetd numeric data series
+
+    """
     return pd.to_numeric(series.copy(), errors="coerce").dropna()
 
 
 def is_number_as_string(
     series: pd.Series, shrinkage_threshold: float = 0.5
 ) -> bool:
-    """
-    Check if string can be numerical.
+    """Check if string can be numerical.
 
-    Remove non-numerals from string and calculate relative reduction in string length.
+    Remove non-numerals from string and calculate relative reduction in string
+    length.
 
-    shrinkage_threshold:
-        Numeric-like values that are extractable downstream
-        should have lengths below this value post-numeral removal.
+    Args:
+        series: the series to be checked  # noqa S001
+        shrinkage_threshold: Numeric-like values that are extractable
+        downstream should have lengths below this value post-numeral removal.
 
     Returns:
         True if at least half of the values' relative post-shrinkage length is
-        at least `shrinkage_threshold`, and there is at least one value remaining
-        after numerical conversion.
+        at least `shrinkage_threshold`, and there is at least one value
+        remaining after numerical conversion.
+
     """
     series = series.copy().astype(str)
     nums_removed = series.apply(lambda x: re.sub(r"\D", "", x))
@@ -53,8 +64,13 @@ def castable_as_numeric(series: pd.Series, threshold: float = 0.95) -> bool:
     """
     Check if series values can be casted as numeric dtypes.
 
+    Args:
+        series: series to be processed
+        threshold: threshold to cast the string as numeric.
+
     Returns:
         True if at least `threshold` values can be casted as numerics.
+
     """
     # Columns which are already of numeric dtype are considered not castable
     if series.dtype in ["float", "int"]:
@@ -67,8 +83,13 @@ def numeric_extractable(series: pd.Series, threshold: float = 0.95) -> bool:
     """
     Check if numbers can be extracted from series values.
 
+    Args:
+        series: series to be processed
+        threshold: extraction threshold
+
     Returns:
         True if at least `threshold` values contain numerics.
+
     """
     # Columns which are already of numeric dtype are considered not extractable
     if series.dtype in ["float", "int"]:
@@ -82,43 +103,44 @@ def numeric_extractable(series: pd.Series, threshold: float = 0.95) -> bool:
     return (n_contains_digits / len(series)) >= threshold
 
 
-def normalized_distinct_rate(df: pd.DataFrame) -> pd.Series:
-    """
-    Calculate the % of distinct values relative to the number of non-null entries.
+def normalized_distinct_rate(df: pd.DataFrame) -> pd.Series:  # noqa D205, D400
+    """Calculate % of distinct values relative to the number of non-null
+    entries. # noqa S001
 
     Arguments:
         df {pd.DataFrame} -- Dataframe to analzye.
 
     Returns:
         pd.Series -- Normalized distinct rate.
+
     """
     return df["num_distincts"] / (df["total_val"] - df["num_nans"])
 
 
 def nan_rate(df: pd.DataFrame) -> pd.Series:
-    """
-    Calculate the % of NaNs relative to the total number of data points.
+    """Calculate the % of NaNs relative to the total number of data points.
 
-    Arguments:
-        df {pd.DataFrame} -- Dataframe to analyze.
+    Args:
+        df: Dataframe to analyze.
 
     Returns:
-        pd.Series -- NaN rate.
+        pd.Series: NaN rate
+
     """
     return df["num_nans"] / df["total_val"]
 
 
 def avg_val_len(raw: pd.DataFrame) -> pd.Series:
-    """
-    Get the average length values in the feature column.
+    """Get the average length values in the feature column.
 
-    Returns -1 if feature column is completely empty.
+    Returns -1 if feature column is completely empty. # noqa S001
 
-    Arguments:
-        raw {pd.DataFrame} -- Raw dataframe to analyze.
+    Args:
+        raw: Raw dataframe to analyze.
 
     Returns:
-        pd.Series -- [description]
+        pd.Series
+
     """
     result = []
     for col in raw:
@@ -134,44 +156,48 @@ def avg_val_len(raw: pd.DataFrame) -> pd.Series:
 
 
 def maybe_zipcode(raw: pd.DataFrame, threshold: float = 0.95) -> pd.Series:
-    """
-    Infer if DataFrame might be a zipcode.
+    """Infer if DataFrame might be a zipcode.
 
     The three decision criteria are:
     1. 'zip' appears in the name
     2. At least `threshold` values look like US zipcodes (5 digits).
-    3. At least `threshold` values look like Canadian zipcodes (*#* #*#).
+    3. At least `threshold` values look like Canadian zipcodes (*#* #*#). #
+    noqa S001
 
     Arguments:
         raw {pd.DataFrame} -- Raw pd.Series to analyze.
 
     Keyword Arguments:
-        threshold {float} -- Minimum value for criterion to be considered met. (default: {0.95})
+        threshold {float} -- Minimum value for criterion to be considered
+        met. (default: {0.95})
 
     Returns:
         pd.Series[int] -- Scores for each series in dataframe.
                           A point is given for each criterion met.
+
     """
     return raw.apply(_maybe_zipcode)
 
 
 def _maybe_zipcode(raw_s: pd.Series, threshold: float = 0.95) -> int:
-    """
-    Infer if series might be a zipcode.
+    """Infer if series might be a zipcode.
 
     The three decision criteria are:
     1. 'zip' appears in the name
     2. At least `threshold` values look like US zipcodes (5 digits).
-    3. At least `threshold` values look like Canadian zipcodes (*#* #*#).
+    3. At least `threshold` values look like Canadian zipcodes (*#* #*#). #
+    noqa S001
 
     Arguments:
         raw_s {pd.Series} -- Raw pd.Series to analyze.
 
     Keyword Arguments:
-        threshold {float} -- Minimum value for criterion to be considered met. (default: {0.95})
+        threshold {float} -- Minimum value for criterion to be considered
+        met. (default: {0.95})
 
     Returns:
         int -- Score. A point is given for each criterion met.
+
     """
     _raise_if_not_pd_series(raw_s)
 
@@ -201,82 +227,147 @@ def _maybe_zipcode(raw_s: pd.Series, threshold: float = 0.95) -> int:
 def maybe_real_as_enum(
     df: pd.DataFrame, max_n_distinct: int = 20
 ) -> pd.Series:
-    """
-    Evaluate if feature column might be categorical.
+    """Evaluate if feature column might be categorical.
 
     Check that values are numeric and at most `max_n_distinct` distinct values.
 
-    Arguments:
-        df {pd.DataFrame} -- Metafeatures.
-
-    Keyword Arguments:
-        max_n_distinct {int} -- Maximum number of default categories. (default: {20})
+    Args: # noqa S001
+        df {pd.DataFrame}: Metafeatures
+        max_n_distinct {int}: Maximum number of default categories. (
+        default: {20})
 
     Returns:
-        pd.Series -- A boolean series on whether a model might be categorical or not.
-    """
-    sample_columns = [col for col in df.columns if "sample" in col]
+        pd.Series: A boolean series on whether a model might be categorical
+        or not.
 
-    is_numeric = [
-        types.is_numeric_dtype(df[sample_columns].iloc[i])
-        for i in range(len(df))
+    """
+    # Pick out sample columns, while ignoring other metafeatures including
+    # `samples_set`
+    samples = df[
+        [col for col in df.columns if "sample" in col and "samples" not in col]
     ]
+
+    is_numeric = []
+    for row in samples.itertuples(False):
+        coerced_numeric = pd.Series(
+            pd.to_numeric(row, errors="coerce")
+        ).dropna()
+        if len(coerced_numeric) < samples.shape[1]:
+            is_numeric.append(False)
+        else:
+            is_numeric.append(types.is_numeric_dtype(coerced_numeric))
+
     limited_distinct_values = df["num_distincts"] <= max_n_distinct
 
     return is_numeric & limited_distinct_values
 
 
-def is_int_dtype(df: pd.DataFrame) -> pd.Series:
+def has_zero_in_leading_decimals(df: pd.DataFrame) -> pd.Series:
+    """Check if each column in dataframe contains leading zeros. # noqa D202
+
+    This is an indicator that the column may be better coerced into an int
+    dtype.
+
+    Args:
+        df {pd.DataFrame}: DataFrame
+
+    Returns:
+        pd.Series: Series of booleans.
+
     """
-    Check if each series in DataFrame is of an integer dtype.
+
+    def func(x):
+        return not np.around((10 * np.remainder(x, 1))).astype(int).any()
+
+    return pd.Series(
+        [
+            func(df[col].values) if types.is_float_dtype(df[col]) else False
+            for col in df.columns
+        ]
+    )
+
+
+def is_int_dtype(df: pd.DataFrame) -> pd.Series:
+    """Check if each series in DataFrame is of an integer dtype.
 
     Wrapper function to allow function to be applied on the entire dataframe
-    instead of a series level. This is a workaround to dill which fails to pickle
-    local contexts in nested lambda statements.
+    instead of a series level. This is a workaround to dill which fails to
+    pickle local contexts in nested lambda statements.
+
+    Args:
+        df: a data frame
+
+    Returns:
+        pd.Series: a pandas series
+
     """
     return df.apply(lambda s: types.is_integer_dtype(s), result_type="expand")
 
 
 def is_float_dtype(df: pd.DataFrame) -> pd.Series:
-    """
-    Check if each series in DataFrame is of a float dtype.
+    """Check if each series in DataFrame is of a float dtype.
 
     Wrapper function to allow function to be applied on the entire dataframe
-    instead of a series level. This is a workaround to dill which fails to pickle
-    local contexts in nested lambda statements.
+    instead of a series level. This is a workaround to dill which fails to
+    pickle local contexts in nested lambda statements.
+
+    Args:
+        df: a data frame
+
+    Returns:
+        pd.Series: a pandas series
+
     """
     return df.apply(lambda s: types.is_float_dtype(s), result_type="expand")
 
 
 def is_bool_dtype(df: pd.DataFrame) -> pd.Series:
-    """
-    Check if each series in DataFrame is of a bool dtype.
+    """Check if each series in DataFrame is of a bool dtype.
 
     Wrapper function to allow function to be applied on the entire dataframe
-    instead of a series level. This is a workaround to dill which fails to pickle
-    local contexts in nested lambda statements.
+    instead of a series level. This is a workaround to dill which fails to
+    pickle local contexts in nested lambda statements.
+
+    Args:
+        df: a data frame
+
+    Returns:
+        pd.Series: a pandas series
+
     """
     return df.apply(lambda s: types.is_bool_dtype(s), result_type="expand")
 
 
 def is_string_dtype(df: pd.DataFrame) -> pd.Series:
-    """
-    Check if each series in DataFrame is of a string dtype.
+    """Check if each series in DataFrame is of a string dtype.
 
     Wrapper function to allow function to be applied on the entire dataframe
-    instead of a series level. This is a workaround to dill which fails to pickle
-    local contexts in nested lambda statements.
+    instead of a series level. This is a workaround to dill which fails to
+    pickle local contexts in nested lambda statements.
+
+    Args:
+        df: a data frame
+
+    Returns:
+        pd.Series: a pandas series
+
     """
     return df.apply(lambda s: types.is_string_dtype(s), result_type="expand")
 
 
 def is_datetime_dtype(df: pd.DataFrame) -> pd.Series:
-    """
-    Check if each series in DataFrame is of a datetime dtype.
+    """Check if each series in DataFrame is of a datetime dtype.
 
     Wrapper function to allow function to be applied on the entire dataframe
-    instead of a series level. This is a workaround to dill which fails to pickle
-    local contexts in nested lambda statements.
+    instead of a series level. This is a workaround to dill which fails to
+    pickle local contexts in nested lambda statements.
+
+    Args:
+        df: a data frame
+
+    Returns:
+        pd.Series: a pandas series
+
     """
     return df.apply(
         lambda s: types.is_datetime64_any_dtype(s), result_type="expand"
@@ -284,12 +375,18 @@ def is_datetime_dtype(df: pd.DataFrame) -> pd.Series:
 
 
 def is_timedelta_dtype(df: pd.DataFrame) -> pd.Series:
-    """
-    Check if each series in DataFrame is of a timedelta dtype.
+    """Check if each series in DataFrame is of a timedelta dtype.
 
     Wrapper function to allow function to be applied on the entire dataframe
-    instead of a series level. This is a workaround to dill which fails to pickle
-    local contexts in nested lambda statements.
+    instead of a series level. This is a workaround to dill which fails to
+    pickle local contexts in nested lambda statements.
+
+    Args:
+        df: a data frame
+
+    Returns:
+        pd.Series: a pandas series
+
     """
     return df.apply(
         lambda s: types.is_timedelta64_dtype(s), result_type="expand"
@@ -297,12 +394,18 @@ def is_timedelta_dtype(df: pd.DataFrame) -> pd.Series:
 
 
 def is_category_dtype(df: pd.DataFrame) -> pd.Series:
-    """
-    Check if each series in DataFrame is of a categorical dtype.
+    """Check if each series in DataFrame is of a categorical dtype.
 
     Wrapper function to allow function to be applied on the entire dataframe
-    instead of a series level. This is a workaround to dill which fails to pickle
-    local contexts in nested lambda statements.
+    instead of a series level. This is a workaround to dill which fails to
+    pickle local contexts in nested lambda statements.
+
+    Args:
+        df: a data frame
+
+    Returns:
+        pd.Series: a pandas series
+
     """
     return df.apply(
         lambda s: types.is_categorical_dtype(s), result_type="expand"
@@ -313,10 +416,11 @@ def sample_sets(raw: pd.DataFrame) -> pd.Series:
     """
     Get the samples set.
 
-    Arguments:
-        raw {pd.DataFrame} -- Raw dataframe to analyze.
+    Args: # noqa S001
+        raw {pd.DataFrame}: Raw dataframe to analyze.
 
     Returns:
         pd.Series -- A series of unique sets for each feature column.
+
     """
     return raw.apply(lambda s: set(s.dropna().unique()))

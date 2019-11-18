@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Union
+from typing import Dict, Union
 
 import pandas as pd
 
@@ -15,8 +15,7 @@ from ..secondary_featurizers import (
 
 
 class IntentResolver:
-    """
-    Identify the intent of a feature column.
+    """Identify the intent of a feature column.
 
     Supported intents are listed in the LABEL_MAPPING class attribute.
 
@@ -24,10 +23,12 @@ class IntentResolver:
         raw {pd.DataFrame} -- Raw data set to analyze
         components_path {Path} -- Path to saved and trained components
         model -- Trained intent resolver model, saved in components file
-        scaler -- Trained feature normalization scaler, saved in components file
+        scaler -- Trained feature normalization scaler, saved in components
+        file
 
     Class attributes:
         LABEL_MAPPING -- Supported intents.
+
     """
 
     LABEL_MAPPING = {
@@ -46,8 +47,7 @@ class IntentResolver:
             "resolver_components.pkl"
         ),
     ):
-        """
-        Init function.
+        """Init function. # noqa S001
 
         Arguments:
             raw {pd.DataFrame} -- Raw data set to analyze
@@ -59,6 +59,7 @@ class IntentResolver:
         Raises:
             FileNotFoundError -- If `components_path` file does not exist.
             TypeError -- If `raw` is not a pd.DataFrame.
+
         """
         if not Path(components_path).is_file():
             raise FileNotFoundError
@@ -81,7 +82,7 @@ class IntentResolver:
         # featurization triggers properly for new data sets
         for f in self.parser.featurizers:
             if isinstance(f, RawDataSetFeaturizerViaLambda):
-                if f.fast_load != False or f.save_dir is not None:
+                if f.fast_load is not False or f.save_dir is not None:
                     raise ValueError(
                         "RawDataSetFeaturizerViaLambda has incorrectly set "
                         "attrbutes. This means was not saved properly during "
@@ -96,23 +97,57 @@ class IntentResolver:
         self.parser.featurize_secondary()
 
     def predict(
-        self, threshold: float = 0.7, return_conf: bool = False
+        self,
+        threshold: Union[float, Dict[str, float]] = 0.6,
+        return_conf: bool = False,
     ) -> Union[pd.Series, pd.DataFrame]:
-        """
-        Predict the intents of raw feature columns.
+        """Predict the intents of raw feature columns.
 
-        Keyword Arguments:
-            threshold {float}
-                -- The minimum confidence before classifying a feature column as
-                   numerical or categorical. Default value is "Neither".
-            return_conf {bool}
-                -- Return confidence of predictions. (default: {False})
+        Args: #noqa S001
+            threshold {float}: The minimum confidence before classifying a
+            feature column as numerical or categorical. If confidence does
+            not exceed threshold, reassign prediciton as "Neither".
+
+            If `threshold` is a float, that will be the threshold for all
+            classes. Otherwise, provide a dictionary containing thresholds
+            for each class labels. e.g. {'Numerical': 0.7, 'Categorical': 0.5}
+
+            return_conf {bool}: Return confidence of predictions. (default:
+            {False})
+
+        Raises:
+            KeyError: If `threshold` is a dict and its keys do not match
+            the LABEL_MAPPING class attribute.
+
+            ValueError: If threshold probability / probabilities are not
+            between 0 and 1, inclusive.
 
         Returns:
-            Union[pd.Series, pd.DataFrame]
-            -- A pd.Series of predictions is returned if `return_bool` is False.
-               Otherwise, a dataframe of prediction and confidence is returned.
+            Union[pd.Series, pd.DataFrame]: A pd.Series of predictions is
+            returned if `return_bool` is False. Otherwise, a dataframe of
+            prediction and confidence is returned.
+
         """
+        if isinstance(threshold, dict):
+            if (set(threshold.keys()) | {"Neither"}) != set(
+                IntentResolver.LABEL_MAPPING.values()
+            ):
+                raise KeyError(
+                    "Dictionary keys provided in `threshold` do not "
+                    "correspond to IntentResolver class predictions types "
+                    f"{set(IntentResolver.LABEL_MAPPING.values())}."
+                )
+            if any(not 0 <= prob <= 1 for prob in threshold.values()):
+                raise ValueError(
+                    "Invalid threshold values provided. Ensure that "
+                    "thresholds are between 0 and 1."
+                )
+        elif isinstance(threshold, float) and not 0 <= threshold <= 1:
+            raise ValueError(
+                "Invalid threshold values provided. Ensure that "
+                "thresholds are between 0 and 1."
+            )
+
         X = self.parser.normalize_features(self.scaler)
 
         # Get predictions as pd.Categorical type
@@ -126,9 +161,15 @@ class IntentResolver:
         # Get prediction confidences
         proba = self.model.predict_proba(X).max(axis=1)
 
-        # Modify prediction and confidence for feature columns with unsure predictions
-        for i, prob in enumerate(proba):
-            if prob < threshold:
+        # Modify prediction and confidence for feature columns with unsure
+        # predictions
+        for i, (prob, prediction) in enumerate(zip(proba, predictions)):
+            threshold_ = (
+                threshold[prediction]
+                if isinstance(threshold, dict)
+                else threshold
+            )
+            if prob < threshold_:
                 predictions[i] = IntentResolver.LABEL_MAPPING[-1]
                 proba[i] = 0
 
