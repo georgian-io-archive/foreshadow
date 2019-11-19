@@ -16,14 +16,14 @@ from foreshadow.serializers import (
     ConcreteSerializerMixin,
     _make_deserializable,
 )
-from foreshadow.utils import check_df, get_transformer
+from foreshadow.utils import ProblemType, check_df, get_transformer
 
 
 class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
     """An end-to-end pipeline to preprocess and tune a machine learning model.
 
     Example:
-        >>> shadow = Foreshadow()
+        >>> shadow = Foreshadow(problem_type=ProblemType.CLASSIFICATION)
 
     Args:
         X_preparer \
@@ -47,9 +47,23 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         X_preparer=None,
         y_preparer=None,
         estimator=None,
+        problem_type=None,
         optimizer=None,
         optimizer_kwargs=None,
     ):
+        if problem_type not in [
+            ProblemType.CLASSIFICATION,
+            ProblemType.REGRESSION,
+        ]:
+            raise ValueError(
+                "Unknown Problem Type {}. Please choose from {} "
+                "or {}".format(
+                    problem_type,
+                    ProblemType.CLASSIFICATION,
+                    ProblemType.REGRESSION,
+                )
+            )
+        self.problem_type = problem_type
         self.X_preparer = X_preparer
         self.y_preparer = y_preparer
         self.estimator = estimator
@@ -131,7 +145,9 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
                 raise ValueError("Invalid value passed as y_preparer")
         else:
             self._y_preprocessor = DataPreparer(
-                column_sharer=ColumnSharer(), y_var=True
+                column_sharer=ColumnSharer(),
+                y_var=True,
+                problem_type=self.problem_type,
             )
 
     @property
