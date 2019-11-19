@@ -1,16 +1,14 @@
 """A utility class for the intents."""
 
-from ..intents import Categorical, Numeric, Text
-
 
 class IntentType:
     """A utility class for the intents."""
 
-    Numeric = Numeric.__name__
-    Categorical = Categorical.__name__
-    Text = Text.__name__
+    NUMERIC = "Numeric"
+    CATEGORICAL = "Categorical"
+    TEXT = "Text"
 
-    _registered_types = [Numeric, Categorical, Text]
+    _registered_types = [NUMERIC, CATEGORICAL, TEXT]
 
     @classmethod
     def is_valid(cls, intent):

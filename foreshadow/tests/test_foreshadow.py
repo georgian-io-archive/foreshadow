@@ -775,8 +775,8 @@ def test_foreshadow_serialization_adults_small_classification_override():
 
     from foreshadow.intents import IntentType
 
-    shadow.override_intent("age", IntentType.Numeric)
-    shadow.override_intent("workclass", IntentType.Categorical)
+    shadow.override_intent("age", IntentType.NUMERIC)
+    shadow.override_intent("workclass", IntentType.CATEGORICAL)
     shadow.fit(X_train, y_train)
     shadow.to_json("foreshadow_adults_small_logistic_regression_2.json")
     score2 = shadow.score(X_test, y_test)
@@ -806,8 +806,8 @@ def test_foreshadow_adults_small_classification_override_upfront():
 
     from foreshadow.intents import IntentType
 
-    shadow.override_intent("age", IntentType.Numeric)
-    shadow.override_intent("workclass", IntentType.Categorical)
+    shadow.override_intent("age", IntentType.NUMERIC)
+    shadow.override_intent("workclass", IntentType.CATEGORICAL)
     shadow.fit(X_train, y_train)
     shadow.to_json(
         "foreshadow_adults_small_logistic_regression_override_upfront.json"
