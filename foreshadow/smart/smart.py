@@ -7,7 +7,7 @@ from foreshadow.logging import logging
 from foreshadow.pipeline import SerializablePipeline
 from foreshadow.serializers import ConcreteSerializerMixin
 from foreshadow.utils import (
-    Override,
+    UserOverrideMixin,
     check_df,
     get_transformer,
     is_transformer,
@@ -16,7 +16,11 @@ from foreshadow.utils import (
 
 
 class SmartTransformer(
-    BaseEstimator, TransformerMixin, ConcreteSerializerMixin, metaclass=ABCMeta
+    BaseEstimator,
+    TransformerMixin,
+    ConcreteSerializerMixin,
+    UserOverrideMixin,
+    metaclass=ABCMeta,
 ):
     """Abstract transformer class for meta transformer selection decisions.
 
@@ -162,26 +166,10 @@ class SmartTransformer(
             **fit_params: params to fit
 
         """
-        """
-        Note: If it is fitted and we have an intent override and we are dealing
-        with a single column, then we do the following but if this is a group
-        of columns, we may need to check if there are any columns in the
-        override belong to this group, which is defined by X.columns
-        """
-        if self._has_fitted() and self.cache_manager.has_override():
-            if len(X.columns) == 1:
-                override_key = "_".join([Override.INTENT, X.columns[0]])
-                if override_key in self.cache_manager["override"]:
-                    self.force_reresolve = True
-            else:
-                """need to iterate over the override dict. Not super
-                efficient but not bad either as we don't expect too many
-                overrides
-                """
-                for key in self.cache_manager["override"]:
-                    if key.startswith(Override.INTENT) and key in X.columns:
-                        self.force_reresolve = True
-                        break
+        self.force_reresolve = (
+            self.force_reresolve
+            or self.should_force_reresolve_based_on_override(X)
+        )
 
         if self.force_reresolve:
             self.should_resolve = True

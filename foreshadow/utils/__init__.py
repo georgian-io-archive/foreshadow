@@ -3,6 +3,7 @@
 
 from foreshadow.utils.common import (
     ConfigureCacheManagerMixin,
+    UserOverrideMixin,
     get_cache_path,
     get_config_path,
     get_transformer,
@@ -43,6 +44,7 @@ __all__ = [
     "get_outliers",
     "standard_col_summary",
     "ConfigureCacheManagerMixin",
+    "UserOverrideMixin",
     "EstimatorFactory",
     "ProblemType",
     "EstimatorFamily",

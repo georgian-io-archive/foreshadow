@@ -5,6 +5,7 @@ from collections import OrderedDict
 from importlib import import_module
 
 from foreshadow.exceptions import TransformerNotFound
+from foreshadow.utils.override_substitute import Override
 
 
 CONFIG_DIR = "~/.foreshadow"
@@ -109,3 +110,45 @@ class ConfigureCacheManagerMixin:
         """
         if hasattr(self, "cache_manager"):
             self.cache_manager = cache_manager
+
+
+class UserOverrideMixin:
+    """Mixin that handles applying user override through force reresolve."""
+
+    def should_force_reresolve_based_on_override(self, X):
+        """Check if it should force reresolve based on user override.
+
+        Args:
+            X: the data frame
+
+        Returns:
+            bool: whether we should force reresolve based on user override.
+
+        """
+        if self._has_fitted() and self.cache_manager.has_override():
+            """
+            Note: If it is fitted and we have an intent override and we are
+            dealing with a single column, then we do the following but if
+            this is a group of columns, we may need to check if there are
+            any columns in the override belong to this group, which is
+            defined by X.columns.
+            """
+            if len(X.columns) == 1:
+                override_key = "_".join([Override.INTENT, X.columns[0]])
+                if override_key in self.cache_manager["override"]:
+                    # self.force_reresolve = True
+                    return True
+            else:
+                """need to iterate over the override dict. Not super
+                efficient but not bad either as we don't expect too many
+                overrides
+                """
+                for key in self.cache_manager["override"]:
+                    if (
+                        key.startswith(Override.INTENT)
+                        and key.split("_")[1] in X.columns
+                    ):
+                        # self.force_reresolve = True
+                        return True
+
+        return False

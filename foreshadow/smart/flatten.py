@@ -37,6 +37,21 @@ class Flatten(SmartTransformer):
             return NoTransform()
         return best_flattener
 
+    def should_force_reresolve_based_on_override(self, X):
+        """Check if it should force reresolve based on user override.
+
+        Args:
+            X: the data frame
+
+        Returns:
+            bool: whether we should force reresolve based on user override.
+
+        """
+        # TODO we do not want data cleaners to force reresolve because of
+        #  intent override. We will implement proper override handling for
+        #  them in the future. For now, disable by returning False.
+        return False
+
     def resolve(self, X, *args, **kwargs):
         """Resolve the underlying concrete transformer.
 
