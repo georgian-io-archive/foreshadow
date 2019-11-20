@@ -491,7 +491,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
                 "exist to ensure the override takes "
                 "effect.".format(column)
             )
-            return None
+            return False
         cache_manager = self.X_preparer.cache_manager
         return True if column in cache_manager["intent"] else False
 
@@ -514,7 +514,10 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
                 )
             )
 
-        if self._has_column_in_cache_manager(column_name) is False:
+        if (
+            not self._has_column_in_cache_manager(column_name)
+            and self.has_fitted
+        ):
             raise ValueError("Invalid Column {}".format(column_name))
         # Update the intent
         self.X_preparer.cache_manager["override"][

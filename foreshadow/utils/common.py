@@ -102,7 +102,7 @@ class ConfigureCacheManagerMixin:
     """Mixin that configure cache_manager."""
 
     def configure_cache_manager(self, cache_manager):
-        """Configure the column sharer attribute if exists.
+        """Configure the cache_manager attribute if exists.
 
         Args:
             cache_manager:  a cache_manager instance
@@ -136,7 +136,6 @@ class UserOverrideMixin:
             if len(X.columns) == 1:
                 override_key = "_".join([Override.INTENT, X.columns[0]])
                 if override_key in self.cache_manager["override"]:
-                    # self.force_reresolve = True
                     return True
             else:
                 """need to iterate over the override dict. Not super
@@ -148,7 +147,6 @@ class UserOverrideMixin:
                         key.startswith(Override.INTENT)
                         and key.split("_")[1] in X.columns
                     ):
-                        # self.force_reresolve = True
                         return True
 
         return False

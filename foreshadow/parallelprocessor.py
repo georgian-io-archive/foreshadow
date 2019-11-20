@@ -12,7 +12,6 @@ from sklearn.pipeline import (
 from foreshadow.base import BaseEstimator
 from foreshadow.logging import logging
 from foreshadow.utils.common import ConfigureCacheManagerMixin
-from foreshadow.utils.override_substitute import Override
 
 from .serializers import PipelineSerializerMixin, _make_serializable
 
@@ -102,8 +101,6 @@ class ParallelProcessor(
         """
         for transformer_triple in self.transformer_list:
             dynamic_pipeline = transformer_triple[1]
-            if dynamic_pipeline is Override.TRANSFORMER:
-                continue
             for step in dynamic_pipeline.steps:
                 step[1].cache_manager = cache_manager
 
@@ -154,8 +151,6 @@ class ParallelProcessor(
             a reconstructed parallel processor
 
         """
-        # TODO this requires the override mechnism to reset the
-        #  transformation_by_column_group to null in the JSON file.
         if (
             "transformation_by_column_group" not in data
             or data["transformation_by_column_group"] is None
@@ -185,13 +180,8 @@ class ParallelProcessor(
     @classmethod
     def __extract_elements_for_parallel_process(cls, i, transformation):
         item = list(transformation.values())[0]
-        # TODO if item is None, we may want to do something about the
-        #  dynamic_pipeline part, for example, set it to None.
-        if item == Override.TRANSFORMER:
-            dynamic_pipeline = Override.TRANSFORMER
-        else:
-            dynamic_pipeline = item["processing_pipeline"]
-        if item != Override.TRANSFORMER and "columns" in item:
+        dynamic_pipeline = item["processing_pipeline"]
+        if "columns" in item:
             column_groups = item["columns"]
             group_name = list(transformation.keys())[0]
         else:
@@ -281,10 +271,7 @@ class ParallelProcessor(
 
         # validate estimators
         for t in transformers:
-            if t is None or t == Override.TRANSFORMER:
-                # TODO why are we allowing None in Transformer? To skip columns
-                #  we don't transform on?
-                #  Then we can't use None as the flag.
+            if t is None:
                 continue
             if not (
                 hasattr(t, "fit") or hasattr(t, "fit_transform")
@@ -303,9 +290,6 @@ class ParallelProcessor(
 
         """
         get_weight = (self.transformer_weights or {}).get
-        # TODO this means transformer can be None, and we need to use a new
-        #  internal object to represent this. For example, an overriden()
-        #  object in the JSON file.
         return (
             (name, trans, cols, get_weight(name))
             for name, trans, cols in self.transformer_list

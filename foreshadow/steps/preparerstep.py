@@ -288,7 +288,7 @@ class PreparerStep(
         """Recursively configure cache_manager attribute.
 
         Args:
-            cache_manager:  a column sharer instance.
+            cache_manager:  a cache_manager instance.
 
         """
         super().configure_cache_manager(cache_manager)

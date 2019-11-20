@@ -190,7 +190,7 @@ def pandas_wrap(transformer):  # noqa
                         self.cache_manager["graph", column] = graph
                 else:
                     logging.debug(
-                        "column sharer is not set for: " "{}".format(self)
+                        "cache_manager is not set for: " "{}".format(self)
                     )
             return out
 
@@ -256,7 +256,7 @@ def pandas_wrap(transformer):  # noqa
                         self.cache_manager["graph", column] = graph
                 else:
                     logging.debug(
-                        "column sharer is not set for: " "{}".format(self)
+                        "cache_manager is not set for: " "{}".format(self)
                     )
             return out  # TODO output is a DataFrame, make it detect based
             # TODO on what is passed to fit and give that output.
@@ -305,7 +305,7 @@ def pandas_wrap(transformer):  # noqa
                         self.cache_manager["graph", column] = graph
                 else:
                     logging.debug(
-                        "column sharer is not set for: " "{}".format(self)
+                        "cache_manager is not set for: " "{}".format(self)
                     )
             return out
 

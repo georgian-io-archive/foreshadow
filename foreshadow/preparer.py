@@ -178,7 +178,7 @@ class DataPreparer(
         """Configure cache_manager for all the underlying components recursively.
 
         Args:
-            cache_manager: the column sharer instance.
+            cache_manager: the cache_manager instance.
 
         """
         for step in self.steps:
@@ -188,7 +188,7 @@ class DataPreparer(
     def __remove_key_from(self, data, target="cache_manager"):
         """Remove all cache_manager block recursively from serialized data preparer.
 
-        Only the column sharer in the data preparer is preserved.
+        Only the cache_manager in the data preparer is preserved.
 
         Args:
             data: serialized data preparer (raw)

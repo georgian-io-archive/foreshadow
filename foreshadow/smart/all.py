@@ -240,7 +240,6 @@ class SimpleImputer(SmartTransformer):
         if 0 < ratio <= self.threshold:
             return self._choose_simple(s.values)
         else:
-            # return SerializablePipeline([("null", None)])
             return Imputer()
 
 
