@@ -224,9 +224,7 @@ def generate_model(args):  # noqa: C901
         raise ValueError("Invalid Level. Only levels 1 and 3 supported.")
 
     if cargs.multiprocess:
-        # TODO reconsider this implementation as it will not work if
-        #  foreshadow is used as a library/API.
-        config.set_multiprocess(True)
+        fs.configure_multiprocessing(-1)
         logging.info("multiprocessing enabled.")
 
     return fs, X_train, y_train, X_test, y_test
