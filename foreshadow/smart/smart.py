@@ -7,6 +7,7 @@ from foreshadow.logging import logging
 from foreshadow.pipeline import SerializablePipeline
 from foreshadow.serializers import ConcreteSerializerMixin
 from foreshadow.utils import (
+    UserOverrideMixin,
     check_df,
     get_transformer,
     is_transformer,
@@ -15,7 +16,11 @@ from foreshadow.utils import (
 
 
 class SmartTransformer(
-    BaseEstimator, TransformerMixin, ConcreteSerializerMixin, metaclass=ABCMeta
+    BaseEstimator,
+    TransformerMixin,
+    ConcreteSerializerMixin,
+    UserOverrideMixin,
+    metaclass=ABCMeta,
 ):
     """Abstract transformer class for meta transformer selection decisions.
 
@@ -59,7 +64,7 @@ class SmartTransformer(
         transformer=None,
         should_resolve=True,
         force_reresolve=False,
-        column_sharer=None,
+        cache_manager=None,
         name=None,
         keep_columns=False,
         check_wrapped=True,
@@ -68,7 +73,7 @@ class SmartTransformer(
         self.name = name
         self.keep_columns = keep_columns
         self.kwargs = kwargs
-        self.column_sharer = column_sharer
+        self.cache_manager = cache_manager
         # TODO will need to add the above when this is no longer wrapped
         self.y_var = y_var
         self.should_resolve = should_resolve
@@ -143,6 +148,15 @@ class SmartTransformer(
         """
         pass  # pragma: no cover
 
+    def _has_fitted(self):
+        """Check if the SmartTransformer has resolved or not.
+
+        Returns:
+            bool: has fitted flag
+
+        """
+        return self.should_resolve is False
+
     def resolve(self, X, y=None, **fit_params):
         """Verify transformers have the necessary methods and attributes.
 
@@ -152,11 +166,11 @@ class SmartTransformer(
             **fit_params: params to fit
 
         """
-        # If override is passed in or set, all types of resolves are turned
-        # off.
-        # Otherwise, force_reresolve will always resolve on each fit.
+        self.force_reresolve = (
+            self.force_reresolve
+            or self.should_force_reresolve_based_on_override(X)
+        )
 
-        # If force_reresolve is set, always re-resolve
         if self.force_reresolve:
             self.should_resolve = True
 
@@ -183,9 +197,19 @@ class SmartTransformer(
         Returns:
             transformed X using selected best transformer.
 
+        Raises:
+            ValueError: Transformer should be fitted first.
+
         """
         X = check_df(X)
-        self.resolve(X)
+        # Why do we need to resolve twice? If the transformer is not set,
+        # throw an exception since we should call fit before transform
+        # self.resolve(X)
+        if self.transformer is None:
+            raise ValueError(
+                "The transformer has not been fitted. Please "
+                "call fit first."
+            )
         return self.transformer.transform(X)
 
     def fit(self, X, y=None, **fit_params):

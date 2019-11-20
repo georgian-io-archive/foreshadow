@@ -7,9 +7,9 @@ from foreshadow.config import config
 from foreshadow.logging import logging
 from foreshadow.parallelprocessor import ParallelProcessor
 from foreshadow.serializers import _make_deserializable
-from foreshadow.utils.common import ConfigureColumnSharerMixin
+from foreshadow.utils.common import ConfigureCacheManagerMixin
 
-from ..columnsharer import ColumnSharer
+from ..cachemanager import CacheManager
 from ..pipeline import DynamicPipeline
 from ..serializers import ConcreteSerializerMixin
 
@@ -240,7 +240,7 @@ class PreparerStep(
     BaseEstimator,
     TransformerMixin,
     ConcreteSerializerMixin,
-    ConfigureColumnSharerMixin,
+    ConfigureCacheManagerMixin,
 ):
     """Base class for any pipeline step of DataPreparer.
 
@@ -263,14 +263,14 @@ class PreparerStep(
 
     """
 
-    def __init__(self, column_sharer=None, **kwargs):  # noqa
+    def __init__(self, cache_manager=None, **kwargs):  # noqa
         """Set the original pipeline steps internally.
 
         Takes a list of desired SmartTransformer steps and stores them as
         self._steps. Constructs self an sklearn pipeline object.
 
         Args:
-            column_sharer: ColumnSharer instance to be shared across all steps.
+            cache_manager: ColumnSharer instance to be shared across all steps.
             **kwargs: kwargs to PIpeline constructor.
 
         """
@@ -279,20 +279,21 @@ class PreparerStep(
             # the params from get_params, meaning this will be passed
             # through even though its not a part of the init.
             self._parallel_process = kwargs.pop("_parallel_process")
-        self.column_sharer = column_sharer
-        if self.column_sharer is None:
-            self.column_sharer = ColumnSharer()
+        self.cache_manager = cache_manager
+        if self.cache_manager is None:
+            self.cache_manager = CacheManager()
         super().__init__(**kwargs)
 
-    def configure_column_sharer(self, column_sharer):
-        """Recursively configure column sharer attribute.
+    def configure_cache_manager(self, cache_manager):
+        """Recursively configure cache_manager attribute.
 
         Args:
-            column_sharer:  a column sharer instance.
+            cache_manager:  a cache_manager instance.
 
         """
-        super().configure_column_sharer(column_sharer)
-        self._parallel_process.configure_column_sharer(column_sharer)
+        super().configure_cache_manager(cache_manager)
+        if isinstance(self._parallel_process, ParallelProcessor):
+            self._parallel_process.configure_cache_manager(cache_manager)
 
     def dict_serialize(self, deep=False):
         """Serialize the preparestep.
@@ -535,7 +536,28 @@ class PreparerStep(
                 self.__class__.__name__
             )
         )
-        self._parallel_process = self.parallelize_smart_steps(X)
+        default_parallel_process = self.parallelize_smart_steps(X)
+        if self._parallel_process is None:
+            self._parallel_process = default_parallel_process
+        else:
+            self._handle_intent_override(default_parallel_process)
+
+        # self._parallel_process = self.parallelize_smart_steps(X)
+
+    def _handle_intent_override(self, default_parallel_process):
+        """Handle intent override and see override in the child classes.
+
+        Different preparestep may handle the intent override differently but in
+        general it involves checking if the column groups have changed and need
+        to reset to the default value. TODO it may be beneficial to keep track
+        of both the old and new intents of columns as it may help the update of
+        groups of multiple columns.
+
+        Args:
+            default_parallel_process: the default_parallel_process
+
+        """
+        pass
 
     def _fit_transform(self, X, y=None, **fit_params):
         if isinstance(self._parallel_process, ParallelProcessor):
@@ -563,21 +585,23 @@ class PreparerStep(
                     ",".join(map(lambda x: str(x), list(X.columns))),
                 )
             )
+        self.check_process(X)
+        return self._fit_transform(X, y, **fit_params)
 
-        try:
-            return self._fit_transform(X, y, **fit_params)
-        except AttributeError:
-            if getattr(self, "_parallel_process", None) is None:
-                self.check_process(X)
-        except KeyError as e:
-            if str(e).find("not in index") != -1:
-                # This indicates that a transformation step was changed and
-                # now does not correctly reflect the generated DataFrame as
-                # this step. We will thus reinitialize the _parallel_process
-                # so that the best pipeline for this step will be found.
-                self.check_process(X)
-        finally:
-            return self._fit_transform(X, y, **fit_params)
+        # try:
+        #     return self._fit_transform(X, y, **fit_params)
+        # except AttributeError:
+        #     if getattr(self, "_parallel_process", None) is None:
+        #         self.check_process(X)
+        # except KeyError as e:
+        #     if str(e).find("not in index") != -1:
+        #         # This indicates that a transformation step was changed and
+        #         # now does not correctly reflect the generated DataFrame as
+        #         # this step. We will thus reinitialize the _parallel_process
+        #         # so that the best pipeline for this step will be found.
+        #         self.check_process(X)
+        # finally:
+        #     return self._fit_transform(X, y, **fit_params)
 
     def transform(self, X, *args, **kwargs):
         """Transform X using this PreparerStep.

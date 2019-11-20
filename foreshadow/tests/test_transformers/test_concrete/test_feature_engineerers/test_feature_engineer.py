@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 
-from foreshadow.columnsharer import ColumnSharer
+from foreshadow.cachemanager import CacheManager
 from foreshadow.smart.feature_engineerer import FeatureEngineerer
 from foreshadow.steps import FeatureEngineererMapper
 from foreshadow.steps.preparerstep import PreparerMapping
@@ -18,7 +18,7 @@ def test_feature_engineerer_fit():
         },
         columns=["age", "weights", "financials"],
     )
-    cs = ColumnSharer()
+    cs = CacheManager()
     cs["domain", "age"] = "personal"
     cs["domain", "weights"] = "personal"
     cs["domain", "financials"] = "financial"
@@ -27,7 +27,7 @@ def test_feature_engineerer_fit():
     cs["intent", "weights"] = "Numeric"
     cs["intent", "financials"] = "Numeric"
 
-    fem = FeatureEngineererMapper(column_sharer=cs)
+    fem = FeatureEngineererMapper(cache_manager=cs)
     fem.fit(data)
     transformed_data = fem.transform(data)
     assert np.all(
@@ -49,7 +49,7 @@ def test_feature_engineerer_get_mapping():
         columns=["age", "weights", "financials"],
     )
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     cs["domain", "age"] = "personal"
     cs["domain", "weights"] = "personal"
     cs["domain", "financials"] = "financial"
@@ -58,18 +58,18 @@ def test_feature_engineerer_get_mapping():
     cs["intent", "weights"] = "Numeric"
     cs["intent", "financials"] = "Numeric"
 
-    fem = FeatureEngineererMapper(column_sharer=cs)
+    fem = FeatureEngineererMapper(cache_manager=cs)
     column_mapping = fem.get_mapping(data)
 
     check_pm = PreparerMapping()
     check_pm.add(
         ["age", "weights"],
-        [FeatureEngineerer(column_sharer=cs)],
+        [FeatureEngineerer(cache_manager=cs)],
         "personal_Numeric",
     )
     check_pm.add(
         ["financials"],
-        [FeatureEngineerer(column_sharer=cs)],
+        [FeatureEngineerer(cache_manager=cs)],
         "financial_Numeric",
     )
 

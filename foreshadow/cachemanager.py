@@ -42,7 +42,7 @@ class PrettyDefaultDict(defaultdict):
     __repr__ = dict.__repr__
 
 
-class ColumnSharer(MutableMapping, ConcreteSerializerMixin):
+class CacheManager(MutableMapping, ConcreteSerializerMixin):
     """Main cache-class to be used as single-instance to share data.
 
     Note:
@@ -67,6 +67,7 @@ class ColumnSharer(MutableMapping, ConcreteSerializerMixin):
             "domain": True,
             "metastat": True,
             "graph": True,
+            "override": True,
         }
         self.__acceptable_keys = PrettyDefaultDict(get_false, acceptable_keys)
 
@@ -103,6 +104,15 @@ class ColumnSharer(MutableMapping, ConcreteSerializerMixin):
 
         return ret
 
+    def has_override(self):
+        """Whether there is user override in the cache manager.
+
+        Returns:
+            bool: a flag indicating the existence of user override
+
+        """
+        return len(self["override"]) > 0
+
     def __getitem__(self, key_list):
         """Override getitem to support multi key accessing simultaneously.
 
@@ -110,14 +120,14 @@ class ColumnSharer(MutableMapping, ConcreteSerializerMixin):
         the knowledge that the internal implementation uses nested dicts:
         ::
 
-        >>> cs = ColumnSharer()
+        >>> cs = CacheManager()
         >>> cs['domain']['not_a_column']
         None
 
         which will give you None by default with no previous value.
         You may also multi-access, treating it as a matrix:
 
-        >>> cs = ColumnSharer()
+        >>> cs = CacheManager()
         >>> cs['domain', 'not_a_column']
         None
 
@@ -145,7 +155,7 @@ class ColumnSharer(MutableMapping, ConcreteSerializerMixin):
         with  the knowledge that the internal implementation uses nested dicts
         ::
 
-        >>> cs = ColumnSharer()
+        >>> cs = CacheManager()
         >>> cs['domain']['not_a_column'] = 1
         >>> cs['domain']['not_a_column']
         1
@@ -153,7 +163,7 @@ class ColumnSharer(MutableMapping, ConcreteSerializerMixin):
         which will give you None by default with no previous value.
         You may also multi-access, treating it as a matrix:
 
-        >>> cs = ColumnSharer()
+        >>> cs = CacheManager()
         >>> cs['domain', 'not_a_column'] = 1
         >>> cs['domain']['not_a_column']
         1

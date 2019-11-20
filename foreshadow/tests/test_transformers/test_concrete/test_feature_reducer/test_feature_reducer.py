@@ -5,7 +5,7 @@ def test_feature_reducer_fit_no_ops():
     import numpy as np
     import pandas as pd
 
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
     from foreshadow.steps import FeatureReducerMapper
 
     data = pd.DataFrame(
@@ -16,12 +16,12 @@ def test_feature_reducer_fit_no_ops():
         },
         columns=["age", "weights", "occupation"],
     )
-    cs = ColumnSharer()
+    cs = CacheManager()
     cs["intent", "age"] = "Numeric"
     cs["intent", "weights"] = "Numeric"
     cs["intent", "occupation"] = "Categorical"
 
-    fr = FeatureReducerMapper(column_sharer=cs)
+    fr = FeatureReducerMapper(cache_manager=cs)
     fr.fit(data)
     transformed_data = fr.transform(data)
     assert np.all(
@@ -35,7 +35,7 @@ def test_feature_reducer_fit_no_ops():
 def test_feature_reducer_get_mapping_by_intent():
     import pandas as pd
 
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
     from foreshadow.steps import FeatureReducerMapper
     from foreshadow.steps.preparerstep import PreparerMapping
     from foreshadow.smart import FeatureReducer
@@ -48,20 +48,20 @@ def test_feature_reducer_get_mapping_by_intent():
         },
         columns=["age", "weights", "occupation"],
     )
-    cs = ColumnSharer()
+    cs = CacheManager()
     cs["intent", "age"] = "Numeric"
     cs["intent", "weights"] = "Numeric"
     cs["intent", "occupation"] = "Categorical"
 
-    fr = FeatureReducerMapper(column_sharer=cs)
+    fr = FeatureReducerMapper(cache_manager=cs)
     column_mapping = fr.get_mapping(data)
 
     check = PreparerMapping()
     check.add(
-        ["age", "weights"], [FeatureReducer(column_sharer=cs)], "Numeric"
+        ["age", "weights"], [FeatureReducer(cache_manager=cs)], "Numeric"
     )
     check.add(
-        ["occupation"], [FeatureReducer(column_sharer=cs)], "Categorical"
+        ["occupation"], [FeatureReducer(cache_manager=cs)], "Categorical"
     )
 
     for key in column_mapping.store:

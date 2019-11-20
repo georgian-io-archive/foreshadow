@@ -10,18 +10,17 @@ from foreshadow.serializers import (
 from foreshadow.smart import CategoricalEncoder
 from foreshadow.steps import (
     CleanerMapper,
-    FeatureEngineererMapper,
-    FeatureReducerMapper,
     FeatureSummarizerMapper,
     IntentMapper,
     Preprocessor,
 )
-from foreshadow.utils import ConfigureColumnSharerMixin, ProblemType
+
+from foreshadow.utils import ConfigureCacheManagerMixin, ProblemType
 
 from .concrete import NoTransform
 
 
-def _none_to_dict(name, val, column_sharer=None):
+def _none_to_dict(name, val, cache_manager=None):
     """Transform input kwarg to valid dict, handling sentinel value.
 
     Accepts a single kwarg.
@@ -29,7 +28,7 @@ def _none_to_dict(name, val, column_sharer=None):
     Args:
         name: the kwarg name
         val: the kwarg value to ensure is proper format for kwargs.
-        column_sharer: if None, do nothing. If a value, add to kwarg values.
+        cache_manager: if None, do nothing. If a value, add to kwarg values.
 
     Returns:
         kwarg set to default
@@ -44,13 +43,13 @@ def _none_to_dict(name, val, column_sharer=None):
         raise ValueError(
             "value for kwarg: {} must be dict or " "None.".format(name)
         )
-    if column_sharer is not None:
-        val["column_sharer"] = column_sharer
+    if cache_manager is not None:
+        val["cache_manager"] = cache_manager
     return val
 
 
 class DataPreparer(
-    Pipeline, PipelineSerializerMixin, ConfigureColumnSharerMixin
+    Pipeline, PipelineSerializerMixin, ConfigureCacheManagerMixin
 ):
     """Predefined pipeline for the foreshadow workflow.
 
@@ -74,7 +73,7 @@ class DataPreparer(
     #  modifiying the specific transformers needed within each step.
     def __init__(
         self,
-        column_sharer=None,
+        cache_manager=None,
         cleaner_kwargs=None,
         intent_kwargs=None,
         summarizer_kwargs=None,
@@ -86,23 +85,23 @@ class DataPreparer(
         **kwargs
     ):
         cleaner_kwargs_ = _none_to_dict(
-            "cleaner_kwargs", cleaner_kwargs, column_sharer
+            "cleaner_kwargs", cleaner_kwargs, cache_manager
         )
         intent_kwargs_ = _none_to_dict(
-            "intent_kwargs", intent_kwargs, column_sharer
+            "intent_kwargs", intent_kwargs, cache_manager
         )
         summarizer_kwargs_ = _none_to_dict(
-            "summarizer_kwargs", summarizer_kwargs, column_sharer
+            "summarizer_kwargs", summarizer_kwargs, cache_manager
         )
-        engineerer_kwargs_ = _none_to_dict(
-            "engineerer_kwargs", engineerer_kwargs, column_sharer
-        )
+        # engineerer_kwargs_ = _none_to_dict(
+        #     "engineerer_kwargs", engineerer_kwargs, cache_manager
+        # )
         preprocessor_kwargs_ = _none_to_dict(
-            "preprocessor_kwargs", preprocessor_kwargs, column_sharer
+            "preprocessor_kwargs", preprocessor_kwargs, cache_manager
         )
-        reducer_kwargs_ = _none_to_dict(
-            "reducer_kwargs", reducer_kwargs, column_sharer
-        )
+        # reducer_kwargs_ = _none_to_dict(
+        #     "reducer_kwargs", reducer_kwargs, cache_manager
+        # )
         if not y_var:
             steps = [
                 ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
@@ -111,12 +110,12 @@ class DataPreparer(
                     "feature_summarizer",
                     FeatureSummarizerMapper(**summarizer_kwargs_),
                 ),
-                (
-                    "feature_engineerer",
-                    FeatureEngineererMapper(**engineerer_kwargs_),
-                ),
+                # (
+                #     "feature_engineerer",
+                #     FeatureEngineererMapper(**engineerer_kwargs_),
+                # ),
                 ("feature_preprocessor", Preprocessor(**preprocessor_kwargs_)),
-                ("feature_reducer", FeatureReducerMapper(**reducer_kwargs_)),
+                # ("feature_reducer", FeatureReducerMapper(**reducer_kwargs_)),
             ]
         else:
             if problem_type == ProblemType.REGRESSION:
@@ -131,7 +130,7 @@ class DataPreparer(
             # which will try to init the object using get_params.
             steps = kwargs.pop("steps")
 
-        self.column_sharer = column_sharer
+        self.cache_manager = cache_manager
         self.y_var = y_var
         self.problem_type = problem_type
         super().__init__(steps, **kwargs)
@@ -158,10 +157,10 @@ class DataPreparer(
         serialized = _make_serializable(
             params, serialize_args=self.serialize_params
         )
-        column_sharer_serialized = serialized.pop("column_sharer", None)
-        serialized = self.__remove_key_from(serialized, target="column_sharer")
-        # Add back the column_sharer in the end only once.
-        serialized["column_sharer"] = column_sharer_serialized
+        cache_manager_serialized = serialized.pop("cache_manager", None)
+        serialized = self.__remove_key_from(serialized, target="cache_manager")
+        # Add back the cache_manager in the end only once.
+        serialized["cache_manager"] = cache_manager_serialized
         steps = serialized["steps"]
         steps_reformatted = [{step[0]: step[1]} for step in steps]
         serialized["steps"] = steps_reformatted
@@ -182,25 +181,25 @@ class DataPreparer(
         params["steps"] = [list(step.items())[0] for step in params["steps"]]
         deserialized = cls(**params)
 
-        deserialized.configure_column_sharer(deserialized.column_sharer)
+        deserialized.configure_cache_manager(deserialized.cache_manager)
 
         return deserialized
 
-    def configure_column_sharer(self, column_sharer):
-        """Configure column sharer for all the underlying components recursively.
+    def configure_cache_manager(self, cache_manager):
+        """Configure cache_manager for all the underlying components recursively.
 
         Args:
-            column_sharer: the column sharer instance.
+            cache_manager: the cache_manager instance.
 
         """
         for step in self.steps:
-            if hasattr(step[1], "configure_column_sharer"):
-                step[1].configure_column_sharer(column_sharer)
+            if hasattr(step[1], "configure_cache_manager"):
+                step[1].configure_cache_manager(cache_manager)
 
-    def __remove_key_from(self, data, target="column_sharer"):
-        """Remove all column sharer block recursively from serialized data preparer.
+    def __remove_key_from(self, data, target="cache_manager"):
+        """Remove all cache_manager block recursively from serialized data preparer.
 
-        Only the column sharer in the data preparer is preserved.
+        Only the cache_manager in the data preparer is preserved.
 
         Args:
             data: serialized data preparer (raw)

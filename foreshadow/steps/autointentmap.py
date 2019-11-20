@@ -13,20 +13,20 @@ class AutoIntentMixin:
             X: input DataFrame to check
 
         Raises:
-            RuntimeError: If there is no self.column_sharer.
+            RuntimeError: If there is no self.cache_manager.
 
         """
-        if getattr(self, "column_sharer", None) is None:
+        if getattr(self, "cache_manager", None) is None:
             raise RuntimeError(
-                "Column Sharer was somehow None. Please make "
-                "sure your class has a column_sharer "
+                "cache_manager was somehow None. Please make "
+                "sure your class has a cache_manager "
                 "attribute and that it extends from "
                 "PreparerStep."
             )
         columns_to_resolve = [
             column
             for column in X.columns
-            if self.column_sharer["intent", column] is None
+            if self.cache_manager["intent", column] is None
         ]
-        mapper = IntentMapper(column_sharer=self.column_sharer)
+        mapper = IntentMapper(cache_manager=self.cache_manager)
         X = mapper.fit_transform(X[columns_to_resolve])

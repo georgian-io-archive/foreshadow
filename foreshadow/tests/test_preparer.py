@@ -24,9 +24,9 @@ def test_data_preparer_init(cleaner_kwargs, expected_error):
 
     """
     from foreshadow.preparer import DataPreparer
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     if expected_error is not None:
         with pytest.raises(expected_error) as e:
             DataPreparer(cs, cleaner_kwargs=cleaner_kwargs)
@@ -53,13 +53,13 @@ def test_data_preparer_fit(cleaner_kwargs):
 
     """
     from foreshadow.preparer import DataPreparer
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
     import pandas as pd
 
     boston_path = get_file_path("data", "boston_housing.csv")
     data = pd.read_csv(boston_path)
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     dp = DataPreparer(cs, cleaner_kwargs=cleaner_kwargs)
     dp.fit(data)
 
@@ -77,7 +77,7 @@ def test_data_preparer_get_params(deep):
     dp = DataPreparer()
     params = dp.get_params(deep=deep)
     assert "cleaner_kwargs" in params
-    assert "column_sharer" in params
+    assert "cache_manager" in params
     assert "engineerer_kwargs" in params
     assert "intent_kwargs" in params
     assert "preprocessor_kwargs" in params
@@ -86,44 +86,44 @@ def test_data_preparer_get_params(deep):
     assert "steps" in params
 
 
-def test_data_preparer_serialization_has_one_column_sharer():
+def test_data_preparer_serialization_has_one_cache_manager():
     """Test DataPreparer serialization after fitting. The serialized
-    object should contain only 1 column_sharer instance.
+    object should contain only 1 cache_manager instance.
 
     """
     from foreshadow.preparer import DataPreparer
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
     import pandas as pd
 
     boston_path = get_file_path("data", "boston_housing.csv")
     data = pd.read_csv(boston_path)
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     dp = DataPreparer(cs)
     dp.fit(data)
 
     dp_serialized = dp.serialize(method="dict", deep=True)
 
-    key_name = "column_sharer"
+    key_name = "cache_manager"
     assert key_name in dp_serialized
     dp_serialized.pop(key_name)
 
-    def check_has_no_column_sharer(dat, target):
+    def check_has_no_cache_manager(dat, target):
         if isinstance(dat, dict):
             matching_keys = [key for key in dat if key.endswith(target)]
             assert len(matching_keys) == 0
             for key in dat:
-                check_has_no_column_sharer(dat[key], target)
+                check_has_no_cache_manager(dat[key], target)
         elif isinstance(dat, list):
             for item in dat:
-                check_has_no_column_sharer(item, target)
+                check_has_no_cache_manager(item, target)
 
-    check_has_no_column_sharer(dp_serialized, key_name)
+    check_has_no_cache_manager(dp_serialized, key_name)
 
 
 def test_data_preparer_deserialization():
     from foreshadow.preparer import DataPreparer
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
     import pandas as pd
 
     boston_path = get_file_path("data", "boston_housing.csv")
@@ -132,7 +132,7 @@ def test_data_preparer_deserialization():
     # data = data[["crim", "indus"]]
     # data = data[["nox"]]
 
-    cs = ColumnSharer()
+    cs = CacheManager()
     dp = DataPreparer(cs)
 
     dp.fit(data)

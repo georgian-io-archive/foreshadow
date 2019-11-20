@@ -33,10 +33,10 @@ class FeatureEngineererMapper(PreparerStep, AutoIntentMixin):
         """
         self.check_resolve(X)
 
-        def group_by(iterable, column_sharer_key):
+        def group_by(iterable, cache_manager_key):
             result = defaultdict(list)
             for col in iterable:
-                result[self.column_sharer[column_sharer_key][col]].append(col)
+                result[self.cache_manager[cache_manager_key][col]].append(col)
             return result
 
         columns = X.columns.values.tolist()
@@ -61,7 +61,7 @@ class FeatureEngineererMapper(PreparerStep, AutoIntentMixin):
 
         return self.separate_cols(
             transformers=[
-                [_FeatureEngineerer(column_sharer=self.column_sharer)]
+                [_FeatureEngineerer(cache_manager=self.cache_manager)]
                 for col_group in column_groups
             ],
             cols=column_groups,

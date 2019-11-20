@@ -1,8 +1,9 @@
 """Intents package used by IntentMapper PreparerStep."""
 from .base import BaseIntent
-from .categorical import Categoric
+from .categorical import Categorical
+from .intent_type import IntentType
 from .numeric import Numeric
 from .text import Text
 
 
-__all__ = ["Categoric", "Numeric", "Text", "BaseIntent"]
+__all__ = ["Categorical", "Numeric", "Text", "BaseIntent", "IntentType"]

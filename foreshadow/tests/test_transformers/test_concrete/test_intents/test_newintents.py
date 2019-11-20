@@ -24,12 +24,12 @@ def test_intent_ordering_confidence():
     import pandas as pd
     import numpy as np
 
-    from foreshadow.intents import Numeric, Categoric, Text
+    from foreshadow.intents import Numeric, Categorical, Text
 
-    available_intents = [Numeric, Categoric, Text]
+    available_intents = [Numeric, Categorical, Text]
     validation_data = {
         Numeric: pd.DataFrame(np.arange(100)),
-        Categoric: pd.DataFrame(["a", "bc", "s", "w", "p"] * 4),
+        Categorical: pd.DataFrame(["a", "bc", "s", "w", "p"] * 4),
         Text: pd.DataFrame(
             ["hello world", "unit test", "test cases", "reader"]
         ),
@@ -75,11 +75,11 @@ def test_intent_categoric_transform(test):
 
     import pandas as pd
 
-    from foreshadow.intents import Categoric
+    from foreshadow.intents import Categorical
 
     test = pd.DataFrame(test)
 
-    assert test.equals(Categoric().fit_transform(test))
+    assert test.equals(Categorical().fit_transform(test))
 
 
 @pytest.mark.parametrize(

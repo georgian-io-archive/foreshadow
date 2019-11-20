@@ -21,7 +21,7 @@ class FeatureSummarizerMapper(PreparerStep, AutoIntentMixin):  # noqa
     def get_mapping(self, X):  # noqa
         return self.separate_cols(
             transformers=[
-                [FeatureSummarizer(column_sharer=self.column_sharer)]
+                [FeatureSummarizer(cache_manager=self.cache_manager)]
                 for c in X
             ],
             cols=X.columns,
@@ -50,9 +50,9 @@ class FeatureSummarizerMapper(PreparerStep, AutoIntentMixin):  # noqa
 
         return {
             k: {
-                "intent": self.column_sharer["intent", k],
+                "intent": self.cache_manager["intent", k],
                 "data": get_transformer(
-                    self.column_sharer["intent", k]
+                    self.cache_manager["intent", k]
                 ).column_summary(X_df[[k]]),
             }
             for k in X_df.columns.values.tolist()

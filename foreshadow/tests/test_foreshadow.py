@@ -48,9 +48,9 @@ def test_foreshadow_X_preparer_false():
 def test_foreshadow_X_preparer_custom():
     from foreshadow.foreshadow import Foreshadow
     from foreshadow.preparer import DataPreparer
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
-    dp = DataPreparer(column_sharer=ColumnSharer())
+    dp = DataPreparer(cache_manager=CacheManager())
     foreshadow = Foreshadow(
         problem_type=ProblemType.CLASSIFICATION, X_preparer=dp
     )
@@ -245,6 +245,7 @@ def test_foreshadow_y_preparer(mocker):
     from sklearn.preprocessing import StandardScaler
     from sklearn.model_selection import train_test_split
     from foreshadow.foreshadow import Foreshadow
+    import pandas as pd
 
     np.random.seed(0)
 
@@ -252,8 +253,12 @@ def test_foreshadow_y_preparer(mocker):
     setattr(y_pipeline, "pipeline", y_pipeline)
     estimator = LinearRegression()
 
-    X = np.array([0] * 50 + [1] * 50).reshape((-1, 1))
-    y = np.random.normal(100, 10, 100).reshape((-1, 1))
+    X = pd.DataFrame(
+        np.array([0] * 50 + [1] * 50).reshape((-1, 1)), columns=["col1"]
+    )
+    y = pd.DataFrame(
+        np.random.normal(100, 10, 100).reshape((-1, 1)), columns=["y"]
+    )
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
 
     # Let foreshadow set to defaults, we will overwrite them
@@ -546,7 +551,7 @@ def test_foreshadow_param_optimize_no_combinations():
 
     from foreshadow.foreshadow import Foreshadow
     from foreshadow.preparer import DataPreparer
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
     boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path("configs", "search_space_no_combo.pkl")
@@ -554,7 +559,7 @@ def test_foreshadow_param_optimize_no_combinations():
     data = pd.read_csv(boston_path)
 
     fs = Foreshadow(
-        DataPreparer(column_sharer=ColumnSharer(), from_json={}),
+        DataPreparer(cache_manager=CacheManager(), from_json={}),
         False,
         LinearRegression(),
         ProblemType.REGRESSION,
@@ -590,7 +595,7 @@ def test_foreshadow_param_optimize_invalid_array_idx():
 
     from foreshadow.foreshadow import Foreshadow
     from foreshadow.preparer import DataPreparer
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
     boston_path = get_file_path("data", "boston_housing.csv")
     test_path = get_file_path("configs", "invalid_optimizer_config.json")
@@ -599,7 +604,7 @@ def test_foreshadow_param_optimize_invalid_array_idx():
     cfg = json.load(open(test_path, "r"))
 
     fs = Foreshadow(
-        DataPreparer(ColumnSharer(), from_json=cfg),
+        DataPreparer(CacheManager(), from_json=cfg),
         False,
         LinearRegression(),
         ProblemType.REGRESSION,
@@ -631,7 +636,7 @@ def test_foreshadow_param_optimize_invalid_dict_key():
 
     from foreshadow.foreshadow import Foreshadow
     from foreshadow.preparer import DataPreparer
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
     boston_path = get_file_path("data", "boston_housing.csv")
 
@@ -639,7 +644,7 @@ def test_foreshadow_param_optimize_invalid_dict_key():
 
     fs = Foreshadow(
         DataPreparer(
-            column_sharer=ColumnSharer(),
+            cache_manager=CacheManager(),
             from_json={"combinations": [{"fake.fake": "[1,2]"}]},
         ),
         False,
@@ -837,6 +842,76 @@ def test_foreshadow_serialization_adults_small_classification():
     assertions.assertAlmostEqual(score1, score2, places=3)
 
 
+def test_foreshadow_serialization_adults_small_classification_override():
+    from foreshadow.foreshadow import Foreshadow
+    import pandas as pd
+    import numpy as np
+    from sklearn.model_selection import train_test_split
+    from sklearn.linear_model import LogisticRegression
+
+    np.random.seed(1337)
+
+    adult = pd.read_csv("examples/adult_small.csv")
+    X_df = adult.loc[:, "age":"workclass"]
+    y_df = adult.loc[:, "class"]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_df, y_df, test_size=0.2
+    )
+
+    shadow = Foreshadow(estimator=LogisticRegression())
+    shadow.fit(X_train, y_train)
+    shadow.to_json("foreshadow_adults_small_logistic_regression_1.json")
+    score1 = shadow.score(X_test, y_test)
+
+    from foreshadow.intents import IntentType
+
+    shadow.override_intent("age", IntentType.NUMERIC)
+    shadow.override_intent("workclass", IntentType.CATEGORICAL)
+    shadow.fit(X_train, y_train)
+    shadow.to_json("foreshadow_adults_small_logistic_regression_2.json")
+
+    assert shadow.get_intent("age") == IntentType.NUMERIC
+    assert shadow.get_intent("workclass") == IntentType.CATEGORICAL
+    score2 = shadow.score(X_test, y_test)
+
+    print(score1)
+    print(score2)
+
+
+def test_foreshadow_adults_small_classification_override_upfront():
+    from foreshadow.foreshadow import Foreshadow
+    import pandas as pd
+    import numpy as np
+    from sklearn.model_selection import train_test_split
+    from sklearn.linear_model import LogisticRegression
+
+    np.random.seed(1337)
+
+    adult = pd.read_csv("examples/adult_small.csv")
+    X_df = adult.loc[:, "age":"workclass"]
+    y_df = adult.loc[:, "class"]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_df, y_df, test_size=0.2
+    )
+
+    shadow = Foreshadow(estimator=LogisticRegression())
+
+    from foreshadow.intents import IntentType
+
+    shadow.override_intent("age", IntentType.NUMERIC)
+    shadow.override_intent("workclass", IntentType.CATEGORICAL)
+    shadow.fit(X_train, y_train)
+    assert shadow.get_intent("age") == IntentType.NUMERIC
+    assert shadow.get_intent("workclass") == IntentType.CATEGORICAL
+    shadow.to_json(
+        "foreshadow_adults_small_logistic_regression_override_upfront.json"
+    )
+    score1 = shadow.score(X_test, y_test)
+    print(score1)
+
+
 @slow
 def test_foreshadow_serialization_adults_classification():
     from foreshadow.foreshadow import Foreshadow
@@ -915,6 +990,17 @@ def test_foreshadow_serialization_boston_housing_regression():
 
     assertions = unittest.TestCase("__init__")
     assertions.assertAlmostEqual(score1, score2, places=7)
+
+
+def check_slow():
+    import os
+
+    return os.environ.get("FORESHADOW_TESTS") != "ALL"
+
+
+slow = pytest.mark.skipif(
+    check_slow(), reason="Skipping long-runnning integration tests"
+)
 
 
 @slow

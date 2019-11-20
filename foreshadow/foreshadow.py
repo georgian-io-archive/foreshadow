@@ -2,13 +2,16 @@
 
 import inspect
 import warnings
+from typing import List, NoReturn, Union
 
 from sklearn.model_selection._search import BaseSearchCV
 
 from foreshadow.base import BaseEstimator
-from foreshadow.columnsharer import ColumnSharer
+from foreshadow.cachemanager import CacheManager
 from foreshadow.estimators.auto import AutoEstimator
 from foreshadow.estimators.meta import MetaEstimator
+from foreshadow.intents import IntentType
+from foreshadow.logging import logging
 from foreshadow.optimizers import ParamSpec, Tuner
 from foreshadow.pipeline import SerializablePipeline
 from foreshadow.preparer import DataPreparer
@@ -16,7 +19,8 @@ from foreshadow.serializers import (
     ConcreteSerializerMixin,
     _make_deserializable,
 )
-from foreshadow.utils import ProblemType, check_df, get_transformer
+
+from foreshadow.utils import Override, ProblemType, check_df, get_transformer
 
 
 class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
@@ -73,6 +77,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         )
         self.pipeline = None
         self.data_columns = None
+        self.has_fitted = False
 
         if isinstance(self.estimator, AutoEstimator) and optimizer is not None:
             warnings.warn(
@@ -114,7 +119,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
                     "Invalid value: '{}' " "passed as X_preparer".format(dp)
                 )
         else:
-            self._X_preprocessor = DataPreparer(column_sharer=ColumnSharer())
+            self._X_preprocessor = DataPreparer(cache_manager=CacheManager())
 
     @property
     def y_preparer(self):  # noqa
@@ -145,8 +150,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
                 raise ValueError("Invalid value passed as y_preparer")
         else:
             self._y_preprocessor = DataPreparer(
-                column_sharer=ColumnSharer(),
-                y_var=True,
+                cache_manager=CacheManager(), y_var=True,
                 problem_type=self.problem_type,
             )
 
@@ -268,6 +272,8 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
                 ].preprocessor
         else:
             self.pipeline.fit(X_df, y_df)
+
+        self.has_fitted = True
 
         return self
 
@@ -446,3 +452,91 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         """
         self.data_columns = params.pop("data_columns", None)
         return super().set_params(**params)
+
+    def get_intent(self, column_name: str) -> Union[str, None]:
+        """Retrieve the intent of a column.
+
+        Args:
+            column_name: the column name
+
+        Returns:
+            str: the intent of the column
+
+        """
+        # Note: this retrieves intent from cache_manager. Only columns have
+        # been processed will be visible.
+        cache_manager = self.X_preparer.cache_manager
+        if self._has_column_in_cache_manager(column_name):
+            return cache_manager["intent"][column_name]
+        else:
+            logging.info(
+                "No intent exists for column {}. Either the column "
+                "doesn't exist or foreshadow object has not "
+                "been fitted yet.".format(column_name)
+            )
+            return None
+
+    def list_intent(self, column_names: List[str]) -> List[str]:
+        """Retrieve the intent of a list of columns.
+
+        Args:
+            column_names: a list of columns
+
+        Returns:
+            The list of intents
+
+        """
+        return [self.get_intent(column) for column in column_names]
+
+    def _has_column_in_cache_manager(self, column: str) -> Union[bool, None]:
+        """Check if the column exists in the cache manager.
+
+        If the foreshadow object has not been trained, it will return None.
+
+        Args:
+            column: the column name
+
+        Returns:
+            Whether a column exists in the cache manager
+
+        """
+        if not self.has_fitted:
+            logging.info(
+                "You are overriding intent before the foreshadow "
+                "object is trained. Please make sure the column {}"
+                "exist to ensure the override takes "
+                "effect.".format(column)
+            )
+            return False
+        cache_manager = self.X_preparer.cache_manager
+        return True if column in cache_manager["intent"] else False
+
+    def override_intent(self, column_name: str, intent: str) -> NoReturn:
+        """Override the intent of a particular column.
+
+        Args:
+            column_name: the column to override
+            intent: the user supplied intent
+
+        Raises:
+            ValueError: Invalid column to override.
+
+        """
+        if not IntentType.is_valid(intent):
+            raise ValueError(
+                "Invalid intent type {}. "
+                "Supported intent types are {}.".format(
+                    intent, IntentType.list_intents()
+                )
+            )
+
+        if (
+            not self._has_column_in_cache_manager(column_name)
+            and self.has_fitted
+        ):
+            raise ValueError("Invalid Column {}".format(column_name))
+        # Update the intent
+        self.X_preparer.cache_manager["override"][
+            "_".join([Override.INTENT, column_name])
+        ] = intent
+        self.X_preparer.cache_manager["intent"][column_name] = intent

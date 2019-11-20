@@ -29,8 +29,8 @@ class CleanerMapper(PreparerStep):
         return self.separate_cols(
             transformers=[
                 [
-                    Flatten(column_sharer=self.column_sharer),
-                    Cleaner(column_sharer=self.column_sharer),
+                    Flatten(cache_manager=self.cache_manager),
+                    Cleaner(cache_manager=self.cache_manager),
                 ]
                 for c in X
             ],

@@ -20,9 +20,10 @@ _DEFAULT_CONFIG = {
             "DollarFinancialCleaner",
         ],
     },
-    "Tiebreak": ["Numeric", "Categoric", "Text"],
-    "Numeric": {"Preprocessor": ["Imputer", "Scaler"]},
-    "Categoric": {"Preprocessor": ["CategoricalEncoder"]},
+    "Tiebreak": ["Numeric", "Categorical", "Text"],
+    "Numeric": {"Preprocessor": ["SimpleImputer", "Scaler"]},
+    # "Numeric": {"Preprocessor": ["Imputer", "Scaler"]},
+    "Categorical": {"Preprocessor": ["CategoricalEncoder"]},
     "Text": {"Preprocessor": ["TextEncoder"]},
 }
 

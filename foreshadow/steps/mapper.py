@@ -29,7 +29,7 @@ class IntentMapper(PreparerStep):
         """
         return self.separate_cols(
             transformers=[
-                [IntentResolver(column_sharer=self.column_sharer)] for c in X
+                [IntentResolver(cache_manager=self.cache_manager)] for c in X
             ],
             cols=X.columns,
         )

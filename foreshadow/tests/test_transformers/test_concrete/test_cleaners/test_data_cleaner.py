@@ -6,7 +6,7 @@ def test_data_cleaner_fit():
     import pandas as pd
     import numpy as np
     from foreshadow.steps import CleanerMapper
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
     data = pd.DataFrame(
         {
@@ -21,8 +21,8 @@ def test_data_cleaner_fit():
         },
         columns=["dates", "json", "financials"],
     )
-    cs = ColumnSharer()
-    dc = CleanerMapper(column_sharer=cs)
+    cs = CacheManager()
+    dc = CleanerMapper(cache_manager=cs)
     dc.fit(data)
     data = dc.transform(data)
     check = pd.DataFrame(
@@ -55,15 +55,15 @@ def test_financials():
     """Test financial column cleaned correctly."""
     import pandas as pd
     from foreshadow.preparer import CleanerMapper
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
     import numpy as np
 
     data = pd.DataFrame(
         {"financials": ["$1.00", "$550.01", "$1234", "$12353.3345"]},
         columns=["financials"],
     )
-    cs = ColumnSharer()
-    dc = CleanerMapper(column_sharer=cs)
+    cs = CacheManager()
+    dc = CleanerMapper(cache_manager=cs)
     dc.fit(data)
     transformed_data = dc.transform(data)
     check = pd.DataFrame(
@@ -81,7 +81,7 @@ def test_json():
     """Test json input cleaned correctly."""
     import pandas as pd
     from foreshadow.preparer import CleanerMapper
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
     import numpy as np
 
     data = pd.DataFrame(
@@ -95,8 +95,8 @@ def test_json():
         },
         columns=["json"],
     )
-    cs = ColumnSharer()
-    dc = CleanerMapper(column_sharer=cs)
+    cs = CacheManager()
+    dc = CleanerMapper(cache_manager=cs)
     dc.fit(data)
     data = dc.transform(data)
     check = pd.DataFrame(
@@ -123,12 +123,12 @@ def test_drop():
     """Test drop called when expected to."""
     import pandas as pd
     from foreshadow.preparer import CleanerMapper
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
     columns = ["financials"]
     data = pd.DataFrame({"financials": ["", "", "", ""]}, columns=columns)
-    cs = ColumnSharer()
-    dc = CleanerMapper(column_sharer=cs)
+    cs = CacheManager()
+    dc = CleanerMapper(cache_manager=cs)
     dc.fit(data)
     transformed_data = dc.transform(data)
     assert transformed_data.empty
@@ -140,12 +140,12 @@ def test_numerical_input():
     import numpy as np
     import pandas as pd
     from foreshadow.preparer import CleanerMapper
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
     columns = ["financials"]
     data = pd.DataFrame({"financials": np.arange(10)}, columns=columns)
-    cs = ColumnSharer()
-    dc = CleanerMapper(column_sharer=cs)
+    cs = CacheManager()
+    dc = CleanerMapper(cache_manager=cs)
     dc.fit(data)
     transformed_data = dc.transform(data)
     assert np.array_equal(transformed_data, data)
@@ -156,12 +156,12 @@ def test_numerical_input_fittransform():
     import numpy as np
     import pandas as pd
     from foreshadow.preparer import CleanerMapper
-    from foreshadow.columnsharer import ColumnSharer
+    from foreshadow.cachemanager import CacheManager
 
     columns = ["financials"]
     data = pd.DataFrame({"financials": np.arange(10)}, columns=columns)
-    cs = ColumnSharer()
-    dc = CleanerMapper(column_sharer=cs)
+    cs = CacheManager()
+    dc = CleanerMapper(cache_manager=cs)
     transformed_data = dc.fit_transform(data)
     assert np.array_equal(transformed_data, data)
 

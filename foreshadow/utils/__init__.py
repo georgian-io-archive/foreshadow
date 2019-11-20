@@ -2,7 +2,8 @@
 
 
 from foreshadow.utils.common import (
-    ConfigureColumnSharerMixin,
+    ConfigureCacheManagerMixin,
+    UserOverrideMixin,
     get_cache_path,
     get_config_path,
     get_transformer,
@@ -14,6 +15,7 @@ from foreshadow.utils.data_summary import (
     standard_col_summary,
 )
 from foreshadow.utils.default_estimator_factory import EstimatorFactory
+from foreshadow.utils.override_substitute import Override
 from foreshadow.utils.testing import dynamic_import
 from foreshadow.utils.validation import (
     PipelineStep,
@@ -41,8 +43,10 @@ __all__ = [
     "mode_freq",
     "get_outliers",
     "standard_col_summary",
-    "ConfigureColumnSharerMixin",
+    "ConfigureCacheManagerMixin",
+    "UserOverrideMixin",
     "EstimatorFactory",
     "ProblemType",
     "EstimatorFamily",
+    "Override",
 ]

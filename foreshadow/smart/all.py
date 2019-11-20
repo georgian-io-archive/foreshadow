@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats as ss
 
+from foreshadow.concrete import Imputer
 from foreshadow.concrete.externals import (
     HashingEncoder,
     MinMaxScaler,
@@ -239,7 +240,7 @@ class SimpleImputer(SmartTransformer):
         if 0 < ratio <= self.threshold:
             return self._choose_simple(s.values)
         else:
-            return SerializablePipeline([("null", None)])
+            return Imputer()
 
 
 class MultiImputer(SmartTransformer):
