@@ -8,7 +8,7 @@ from foreshadow.utils.common import (
     get_config_path,
     get_transformer,
 )
-from foreshadow.utils.constants import EstimatorFamily, ProblemType
+from foreshadow.utils.constants import ConfigKey, EstimatorFamily, ProblemType
 from foreshadow.utils.data_summary import (
     get_outliers,
     mode_freq,
@@ -49,4 +49,5 @@ __all__ = [
     "ProblemType",
     "EstimatorFamily",
     "Override",
+    "ConfigKey",
 ]

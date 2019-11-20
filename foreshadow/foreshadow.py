@@ -19,7 +19,13 @@ from foreshadow.serializers import (
     ConcreteSerializerMixin,
     _make_deserializable,
 )
-from foreshadow.utils import Override, ProblemType, check_df, get_transformer
+from foreshadow.utils import (
+    ConfigKey,
+    Override,
+    ProblemType,
+    check_df,
+    get_transformer,
+)
 
 
 class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
@@ -548,4 +554,4 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             n_job: the number of processes to run the job.
 
         """
-        self.X_preparer.cache_manager["override"]["multipropessing"] = n_job
+        self.X_preparer.cache_manager["config"][ConfigKey.N_JOBS] = n_job
