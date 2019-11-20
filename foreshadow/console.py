@@ -6,7 +6,6 @@ import sys
 import warnings
 
 import pandas as pd
-from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.model_selection import train_test_split
 
 from foreshadow.config import config
@@ -153,9 +152,10 @@ def generate_model(args):  # noqa: C901
     if cargs.level == 1:
         # Default everything with basic estimator
         fs = Foreshadow(
+            problem_type=cargs.problem_type,
             estimator=get_method(
                 cargs.method, y_train, cargs.family, cargs.problem_type
-            )
+            ),
         )
 
     # elif cargs.level == 2:
@@ -218,12 +218,14 @@ def generate_model(args):  # noqa: C901
             **estimator.estimator_kwargs,
         }
 
-        fs = Foreshadow(estimator=estimator)
+        fs = Foreshadow(problem_type=cargs.problem_type, estimator=estimator)
 
     else:
         raise ValueError("Invalid Level. Only levels 1 and 3 supported.")
 
     if cargs.multiprocess:
+        # TODO reconsider this implementation as it will not work if
+        #  foreshadow is used as a library/API.
         config.set_multiprocess(True)
         logging.info("multiprocessing enabled.")
 

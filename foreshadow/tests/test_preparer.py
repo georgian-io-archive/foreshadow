@@ -35,6 +35,15 @@ def test_data_preparer_init(cleaner_kwargs, expected_error):
         DataPreparer(cs, cleaner_kwargs=cleaner_kwargs)
 
 
+@pytest.mark.parametrize("problem_type", [None, "Unknown"])
+def test_data_preparer_y_variable(problem_type):
+    from foreshadow.preparer import DataPreparer
+
+    with pytest.raises(ValueError) as e:
+        DataPreparer(y_var=True, problem_type=problem_type)
+    assert "Invalid Problem Type" in str(e.value)
+
+
 @pytest.mark.parametrize("cleaner_kwargs", [({}), (None)])
 def test_data_preparer_fit(cleaner_kwargs):
     """Test fitting of DataPreparer after creation with kwargs.

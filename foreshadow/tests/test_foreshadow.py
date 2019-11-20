@@ -2,6 +2,7 @@
 
 import pytest
 
+from foreshadow.utils import ProblemType
 from foreshadow.utils.testing import get_file_path
 
 
@@ -22,7 +23,7 @@ def test_foreshadow_defaults():
     from foreshadow.estimators import AutoEstimator
     from foreshadow.estimators import MetaEstimator
 
-    foreshadow = Foreshadow()
+    foreshadow = Foreshadow(problem_type=ProblemType.CLASSIFICATION)
     # defaults
     assert (
         isinstance(foreshadow.X_preparer, DataPreparer)
@@ -38,18 +39,21 @@ def test_foreshadow_defaults():
 def test_foreshadow_X_preparer_false():
     from foreshadow.foreshadow import Foreshadow
 
-    foreshadow = Foreshadow(X_preparer=False)
+    foreshadow = Foreshadow(
+        problem_type=ProblemType.CLASSIFICATION, X_preparer=False
+    )
     assert foreshadow.X_preparer is None
 
 
-# @pytest.mark.skip("THIS IS IMPORTANT FIX")
 def test_foreshadow_X_preparer_custom():
     from foreshadow.foreshadow import Foreshadow
     from foreshadow.preparer import DataPreparer
     from foreshadow.cachemanager import CacheManager
 
     dp = DataPreparer(cache_manager=CacheManager())
-    foreshadow = Foreshadow(X_preparer=dp)
+    foreshadow = Foreshadow(
+        problem_type=ProblemType.CLASSIFICATION, X_preparer=dp
+    )
     assert foreshadow.X_preparer == dp
 
 
@@ -58,7 +62,9 @@ def test_foreshadow_X_preparer_error():
 
     preprocessor = "Invalid"
     with pytest.raises(ValueError) as e:
-        _ = Foreshadow(X_preparer=preprocessor)
+        _ = Foreshadow(
+            problem_type=ProblemType.CLASSIFICATION, X_preparer=preprocessor
+        )
 
     assert str(e.value) == "Invalid value: 'Invalid' passed as X_preparer"
 
@@ -66,7 +72,9 @@ def test_foreshadow_X_preparer_error():
 def test_foreshadow_y_preparer_false():
     from foreshadow.foreshadow import Foreshadow
 
-    foreshadow = Foreshadow(y_preparer=False)
+    foreshadow = Foreshadow(
+        problem_type=ProblemType.CLASSIFICATION, y_preparer=False
+    )
     assert foreshadow.y_preparer is None
 
 
@@ -75,7 +83,9 @@ def test_foreshadow_y_preparer_custom():
     from foreshadow.preparer import DataPreparer
 
     dp = DataPreparer()
-    foreshadow = Foreshadow(y_preparer=dp)
+    foreshadow = Foreshadow(
+        problem_type=ProblemType.CLASSIFICATION, y_preparer=dp
+    )
     assert type(foreshadow.y_preparer) == DataPreparer
 
 
@@ -84,7 +94,7 @@ def test_foreshadow_y_preparer_error():
 
     dp = "Invalid"
     with pytest.raises(ValueError) as e:
-        _ = Foreshadow(y_preparer=dp)
+        _ = Foreshadow(problem_type=ProblemType.CLASSIFICATION, y_preparer=dp)
 
     assert str(e.value) == "Invalid value passed as y_preparer"
 
@@ -94,7 +104,9 @@ def test_foreshadow_estimator_custom():
     from foreshadow.base import BaseEstimator
 
     estimator = BaseEstimator()
-    foreshadow = Foreshadow(estimator=estimator)
+    foreshadow = Foreshadow(
+        problem_type=ProblemType.CLASSIFICATION, estimator=estimator
+    )
     assert isinstance(foreshadow.estimator, BaseEstimator)
 
 
@@ -103,7 +115,9 @@ def test_foreshadow_estimator_error():
 
     estimator = "Invalid"
     with pytest.raises(ValueError) as e:
-        _ = Foreshadow(estimator=estimator)
+        _ = Foreshadow(
+            problem_type=ProblemType.CLASSIFICATION, estimator=estimator
+        )
 
     assert str(e.value) == "Invalid value passed as estimator"
 
@@ -118,7 +132,11 @@ def test_foreshadow_optimizer_custom():
 
     # Need custom estimator to avoid warning
     estimator = BaseEstimator()
-    foreshadow = Foreshadow(estimator=estimator, optimizer=DummySearch)
+    foreshadow = Foreshadow(
+        problem_type=ProblemType.CLASSIFICATION,
+        estimator=estimator,
+        optimizer=DummySearch,
+    )
     assert issubclass(foreshadow.optimizer, BaseSearchCV)
 
 
@@ -127,7 +145,9 @@ def test_foreshadow_optimizer_error_invalid():
 
     optimizer = "Invalid"
     with pytest.raises(ValueError) as e:
-        _ = Foreshadow(optimizer=optimizer)
+        _ = Foreshadow(
+            problem_type=ProblemType.CLASSIFICATION, optimizer=optimizer
+        )
 
     assert str(e.value) == "Invalid optimizer: 'Invalid' passed."
 
@@ -137,7 +157,9 @@ def test_foreshadow_optimizer_error_wrongclass():
 
     optimizer = Foreshadow
     with pytest.raises(ValueError) as e:
-        _ = Foreshadow(optimizer=optimizer)
+        _ = Foreshadow(
+            problem_type=ProblemType.CLASSIFICATION, optimizer=optimizer
+        )
 
     assert (
         str(e.value) == "Invalid optimizer: '<class "
@@ -153,7 +175,9 @@ def test_foreshadow_warns_on_set_estimator_optimizer():
         pass
 
     with pytest.warns(Warning) as w:
-        _ = Foreshadow(optimizer=DummySearch)
+        _ = Foreshadow(
+            problem_type=ProblemType.CLASSIFICATION, optimizer=DummySearch
+        )
 
     assert str(w[0].message) == (
         "An automatic estimator cannot be used with an"
@@ -182,7 +206,11 @@ def test_foreshadow_custom_fit_estimate(mocker):
     # Let foreshadow set to defaults, we will overwrite them
     X_preparer = mocker.PropertyMock(return_value=X_pipeline)
     mocker.patch.object(Foreshadow, "X_preparer", X_preparer)
-    foreshadow = Foreshadow(y_preparer=False, estimator=estimator)
+    foreshadow = Foreshadow(
+        problem_type=ProblemType.CLASSIFICATION,
+        y_preparer=False,
+        estimator=estimator,
+    )
 
     foreshadow.fit(X_train, y_train)
     foreshadow_predict = foreshadow.predict(X_test)
@@ -236,7 +264,11 @@ def test_foreshadow_y_preparer(mocker):
     # Let foreshadow set to defaults, we will overwrite them
     y_preparer = mocker.PropertyMock(return_value=y_pipeline)
     mocker.patch.object(Foreshadow, "y_preparer", y_preparer)
-    foreshadow = Foreshadow(y_preparer=False, estimator=estimator)
+    foreshadow = Foreshadow(
+        problem_type=ProblemType.REGRESSION,
+        y_preparer=False,
+        estimator=estimator,
+    )
     foreshadow.fit(X_train, y_train)
     foreshadow_predict = foreshadow.predict(X_test)
     foreshadow_score = foreshadow.score(X_test, y_test)
@@ -273,7 +305,10 @@ def test_foreshadow_without_x_processor():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
 
     foreshadow = Foreshadow(
-        X_preparer=False, y_preparer=False, estimator=estimator
+        problem_type=ProblemType.REGRESSION,
+        X_preparer=False,
+        y_preparer=False,
+        estimator=estimator,
     )
     foreshadow.fit(X_train, y_train)
     foreshadow_predict = foreshadow.predict(X_test)
@@ -318,7 +353,10 @@ def test_foreshadow_predict_before_fit():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
 
     foreshadow = Foreshadow(
-        X_preparer=False, y_preparer=False, estimator=estimator
+        problem_type=ProblemType.REGRESSION,
+        X_preparer=False,
+        y_preparer=False,
+        estimator=estimator,
     )
 
     with pytest.raises(ValueError) as e:
@@ -340,7 +378,10 @@ def test_foreshadow_predict_diff_cols():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
 
     foreshadow = Foreshadow(
-        X_preparer=False, y_preparer=False, estimator=estimator
+        problem_type=ProblemType.REGRESSION,
+        X_preparer=False,
+        y_preparer=False,
+        estimator=estimator,
     )
     foreshadow.fit(X_train, y_train)
 
@@ -382,7 +423,11 @@ def test_foreshadow_param_optimize_fit(mocker):
         "foreshadow.preparer.DataPreparer", return_value=DummyDataPreparer
     )
 
-    fs = Foreshadow(estimator=DummyRegressor(), optimizer=DummySearch)
+    fs = Foreshadow(
+        problem_type=ProblemType.REGRESSION,
+        estimator=DummyRegressor(),
+        optimizer=DummySearch,
+    )
     x = data.drop(["medv"], axis=1, inplace=False)
     y = data[["medv"]]
 
@@ -390,6 +435,7 @@ def test_foreshadow_param_optimize_fit(mocker):
     assert isinstance(fs.pipeline.steps[-1][1].estimator, DummyRegressor)
 
     fs2 = Foreshadow(
+        problem_type=ProblemType.REGRESSION,
         X_preparer=False,
         y_preparer=False,
         estimator=DummyRegressor(),
@@ -424,7 +470,11 @@ def test_foreshadow_param_optimize():  # TODO: Make this test faster
     js = json.load(open(test_json_path, "r"))
 
     fs = Foreshadow(
-        DataPreparer(from_json=js), False, LinearRegression(), GridSearchCV
+        DataPreparer(from_json=js),
+        False,
+        LinearRegression(),
+        ProblemType.REGRESSION,
+        GridSearchCV,
     )
 
     fs.pipeline = Pipeline(
@@ -465,7 +515,13 @@ def test_foreshadow_param_optimize_no_config():
 
     data = pd.read_csv(boston_path)
 
-    fs = Foreshadow(DataPreparer(), False, LinearRegression(), GridSearchCV)
+    fs = Foreshadow(
+        DataPreparer(),
+        False,
+        LinearRegression(),
+        ProblemType.REGRESSION,
+        GridSearchCV,
+    )
 
     fs.pipeline = Pipeline(
         [("preparer", fs.X_preparer), ("estimator", fs.estimator)]
@@ -506,6 +562,7 @@ def test_foreshadow_param_optimize_no_combinations():
         DataPreparer(cache_manager=CacheManager(), from_json={}),
         False,
         LinearRegression(),
+        ProblemType.REGRESSION,
         GridSearchCV,
     )
 
@@ -550,6 +607,7 @@ def test_foreshadow_param_optimize_invalid_array_idx():
         DataPreparer(CacheManager(), from_json=cfg),
         False,
         LinearRegression(),
+        ProblemType.REGRESSION,
         GridSearchCV,
     )
 
@@ -591,6 +649,7 @@ def test_foreshadow_param_optimize_invalid_dict_key():
         ),
         False,
         LinearRegression(),
+        ProblemType.REGRESSION,
         GridSearchCV,
     )
 
@@ -625,7 +684,9 @@ def test_core_foreshadow_example_regression():
     X_train, X_test, y_train, y_test = train_test_split(
         bostonX_df, bostony_df, test_size=0.2
     )
-    model = Foreshadow(estimator=LinearRegression())
+    model = Foreshadow(
+        estimator=LinearRegression(), problem_type=ProblemType.REGRESSION
+    )
     model.fit(X_train, y_train)
     score = r2_score(y_test, model.predict(X_test))
     print("Boston score: %f" % score)
@@ -648,10 +709,22 @@ def test_core_foreshadow_example_classification():
         irisX_df, irisy_df, test_size=0.2
     )
 
-    model = Foreshadow(estimator=LogisticRegression())
+    model = Foreshadow(
+        estimator=LogisticRegression(), problem_type=ProblemType.CLASSIFICATION
+    )
     model.fit(X_train, y_train)
     score = f1_score(y_test, model.predict(X_test), average="weighted")
     print("Iris score: %f" % score)
+
+
+@pytest.mark.parametrize("problem_type", [None, "Unknown"])
+def test_foreshadow_unknown_problem_type(problem_type):
+    from foreshadow.foreshadow import Foreshadow
+
+    with pytest.raises(ValueError) as e:
+        _ = Foreshadow(problem_type=problem_type)
+
+    assert "Unknown Problem Type" in str(e.value)
 
 
 @pytest.mark.parametrize("deep", [True, False])
@@ -664,10 +737,11 @@ def test_foreshadow_get_params_keys(deep):
     """
     from foreshadow.foreshadow import Foreshadow
 
-    fs = Foreshadow()
+    fs = Foreshadow(problem_type=ProblemType.CLASSIFICATION)
     params = fs.get_params(deep=deep)
 
     desired_keys = [
+        "problem_type",
         "X_preparer",
         "estimator",
         "y_preparer",
@@ -696,7 +770,9 @@ def test_foreshadow_serialization_breast_cancer_non_auto_estimator():
         cancerX_df, cancery_df, test_size=0.2
     )
 
-    shadow = Foreshadow(estimator=LogisticRegression())
+    shadow = Foreshadow(
+        estimator=LogisticRegression(), problem_type=ProblemType.CLASSIFICATION
+    )
 
     shadow.fit(X_train, y_train)
 
@@ -716,12 +792,12 @@ def test_foreshadow_serialization_breast_cancer_non_auto_estimator():
     assertions.assertAlmostEqual(score1, score2, places=7)
 
 
+@slow
 def test_foreshadow_serialization_adults_small_classification():
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
     import numpy as np
     from sklearn.model_selection import train_test_split
-    from sklearn.linear_model import LogisticRegression
 
     np.random.seed(1337)
 
@@ -733,13 +809,23 @@ def test_foreshadow_serialization_adults_small_classification():
         X_df, y_df, test_size=0.2
     )
 
-    shadow = Foreshadow(estimator=LogisticRegression())
-    shadow.fit(X_train, y_train)
-    shadow.to_json("foreshadow_adults_small_logistic_regression.json")
+    from foreshadow.estimators import AutoEstimator
 
-    shadow2 = Foreshadow.from_json(
-        "foreshadow_adults_small_logistic_regression.json"
+    estimator = AutoEstimator(
+        problem_type=ProblemType.CLASSIFICATION, auto="tpot"
     )
+    estimator.configure_estimator(y_train)
+
+    estimator_kwargs = {"max_time_mins": 1, **estimator.estimator_kwargs}
+    estimator.estimator_kwargs = estimator_kwargs
+
+    shadow = Foreshadow(
+        estimator=estimator, problem_type=ProblemType.CLASSIFICATION
+    )
+    shadow.fit(X_train, y_train)
+    shadow.to_json("foreshadow_adults_small_tpot.json")
+
+    shadow2 = Foreshadow.from_json("foreshadow_adults_small_tpot.json")
     shadow2.fit(X_train, y_train)
 
     score1 = shadow.score(X_test, y_test)
@@ -748,7 +834,12 @@ def test_foreshadow_serialization_adults_small_classification():
     import unittest
 
     assertions = unittest.TestCase("__init__")
-    assertions.assertAlmostEqual(score1, score2, places=7)
+    # given the randomness of the tpot algorithm and the short run
+    # time we configured, there is no guarantee the performance can
+    # converge. The test here aims to evaluate if both cases have
+    # produced a reasonable score and the difference is small.
+    # assert score1 > 0.76 and score2 > 0.76
+    assertions.assertAlmostEqual(score1, score2, places=3)
 
 
 def test_foreshadow_serialization_adults_small_classification_override():
@@ -839,7 +930,9 @@ def test_foreshadow_serialization_adults_classification():
         X_df, y_df, test_size=0.2
     )
 
-    shadow = Foreshadow(estimator=LogisticRegression())
+    shadow = Foreshadow(
+        estimator=LogisticRegression(), problem_type=ProblemType.CLASSIFICATION
+    )
 
     shadow.fit(X_train, y_train)
     shadow.to_json("foreshadow_adults_logistic_regression.json")
@@ -878,7 +971,9 @@ def test_foreshadow_serialization_boston_housing_regression():
         X_df, y_df, test_size=0.2
     )
 
-    shadow = Foreshadow(estimator=LinearRegression())
+    shadow = Foreshadow(
+        estimator=LinearRegression(), problem_type=ProblemType.REGRESSION
+    )
 
     shadow.fit(X_train, y_train)
     shadow.to_json("foreshadow_boston_housing_linear_regression.json")
@@ -928,13 +1023,17 @@ def test_foreshadow_serialization_tpot():
 
     from foreshadow.estimators import AutoEstimator
 
-    estimator = AutoEstimator(problem_type="classification", auto="tpot")
+    estimator = AutoEstimator(
+        problem_type=ProblemType.CLASSIFICATION, auto="tpot"
+    )
     estimator.configure_estimator(y_train)
 
     estimator_kwargs = {"max_time_mins": 1, **estimator.estimator_kwargs}
     estimator.estimator_kwargs = estimator_kwargs
 
-    shadow = Foreshadow(estimator=estimator)
+    shadow = Foreshadow(
+        estimator=estimator, problem_type=ProblemType.CLASSIFICATION
+    )
 
     shadow.fit(X_train, y_train)
 

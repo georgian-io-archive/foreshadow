@@ -208,7 +208,9 @@ def test_console_execute():
     X_train, X_test, y_train, y_test = train_test_split(
         X_df, y_df, test_size=0.2
     )
-    fs = Foreshadow(estimator=LinearRegression())
+    fs = Foreshadow(
+        problem_type=ProblemType.REGRESSION, estimator=LinearRegression()
+    )
 
     results = execute_model(fs, X_train, y_train, X_test, y_test)
 
