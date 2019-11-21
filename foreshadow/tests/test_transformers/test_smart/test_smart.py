@@ -453,3 +453,24 @@ def test_smart_text():  # not sure why this is broken.
     assert isinstance(tf2.transformer.steps[-1][1], FixedTfidfVectorizer)
 
     assert TextEncoder().fit(pd.DataFrame([1, 2, 3, np.nan]))
+
+
+@pytest.mark.skip("NOT FIXED. TFIDF is broken.")
+def test_smart_neither():
+    import pandas as pd
+
+    from foreshadow.smart import NeitherProcessor
+    from foreshadow.concrete import FixedTfidfVectorizer
+
+    X1 = pd.DataFrame(
+        [
+            "this is a test",
+            "I don't understand",
+            "who are you",
+            "what happened in this test",
+        ],
+        columns=["test_column"],
+    )
+    tf1 = NeitherProcessor().fit(X1)
+
+    assert isinstance(tf1.transformer, FixedTfidfVectorizer)

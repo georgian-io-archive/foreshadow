@@ -88,7 +88,8 @@ def test_preprocessor_numbers(mocker):
         create=True,
     )
     mocker.patch(
-        "foreshadow.smart.intentresolver.IntentResolver.pick_transformer",
+        "foreshadow.smart.intent_resolving.intentresolver.IntentResolver"
+        ".pick_transformer",
         return_value=DummyIntent(),
         create=True,
     )
@@ -145,7 +146,8 @@ def test_preprocessor_columnsharer(mocker, cache_manager):
         create=True,
     )
     mocker.patch(
-        "foreshadow.smart.intentresolver.IntentResolver.pick_transformer",
+        "foreshadow.smart.intent_resolving.intentresolver.IntentResolver"
+        ".pick_transformer",
         return_value=DummyIntent(),
         create=True,
     )

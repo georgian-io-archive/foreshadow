@@ -32,9 +32,11 @@ class Cleaner(SmartTransformer):
             Best data cleaning transformer.
 
         """
+        # TODO do we want to parallize this step?
         cleaners = config.get_cleaners(cleaners=True)
         best_score = 0
         best_cleaner = None
+        logging.info("Picking cleaners...")
         for cleaner in cleaners:
             cleaner = cleaner()
             score = cleaner.metric_score(X)
@@ -43,6 +45,7 @@ class Cleaner(SmartTransformer):
                 best_cleaner = cleaner
         if best_cleaner is None:
             return NoTransform()
+        logging.info("Picked...")
         return best_cleaner
 
     def should_force_reresolve_based_on_override(self, X):
