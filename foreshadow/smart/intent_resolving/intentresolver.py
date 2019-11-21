@@ -40,16 +40,12 @@ class IntentResolver(SmartTransformer):
     def _resolve_intent(self, X, y=None):
         """Pick the intent with the highest confidence score.
 
-        Note:
-            In the case of ties, the intent `defined first \
-            <https://docs.python.org/3/library/functions.html#max>`_ in the
-            config list is chosen, the priority order is defined by the config
-            file `resolver` section.
+        Args:
+            X: the data frame to be processed.
+            y: None
 
-        Return:
+        Returns:
             The intent class that best matches the input data.
-
-        .. # noqa: S001
 
         """
         # TODO Add sampling on X to reduce run time if the dataset is big
