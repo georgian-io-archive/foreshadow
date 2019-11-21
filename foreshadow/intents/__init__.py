@@ -7,5 +7,11 @@ from .numeric import Numeric
 from .text import Text
 
 
-__all__ = ["Categorical", "Numeric", "Text", "BaseIntent", "Neither",
-           "IntentType"]
+__all__ = [
+    "Categorical",
+    "Numeric",
+    "Text",
+    "BaseIntent",
+    "Neither",
+    "IntentType",
+]
