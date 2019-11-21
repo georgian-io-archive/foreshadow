@@ -1,6 +1,6 @@
 """SmartResolver for ResolverMapper step."""
 
-from foreshadow.intents import Categoric, Neither, Numeric
+from foreshadow.intents import Categorical, Neither, Numeric
 from foreshadow.smart.intent_resolving.core import (
     IntentResolver as AutoIntentResolver,
 )
@@ -10,7 +10,7 @@ from foreshadow.utils import get_transformer
 
 _temporary_naming_conversion = {
     "Numerical": Numeric.__name__,
-    "Categorical": Categoric.__name__,
+    "Categorical": Categorical.__name__,
     "Neither": Neither.__name__,
 }
 
@@ -73,7 +73,7 @@ class IntentResolver(SmartTransformer):
         # column info sharer data when resolving.
         super().resolve(X, *args, **kwargs)
         column_name = X.columns[0]
-        self.column_sharer[
+        self.cache_manager[
             "intent", column_name
         ] = self.transformer.__class__.__name__
 
@@ -81,7 +81,7 @@ class IntentResolver(SmartTransformer):
         """Get best intent transformer for a given column.
 
         Note:
-            This function also sets the column_sharer
+            This function also sets the cache_manager
 
         Args:
             X: input DataFrame
