@@ -61,23 +61,6 @@ def test_dummy_encoder_other():
     assert check.equals(df)
 
 
-def test_box_cox():
-    import numpy as np
-    import pandas as pd
-    import scipy.stats as ss
-
-    from foreshadow.concrete import BoxCox
-
-    np.random.seed(0)
-    data = pd.DataFrame(ss.lognorm.rvs(size=100, s=0.954))
-    bc = BoxCox()
-    bc_data = bc.fit_transform(data)
-    assert ss.shapiro(bc_data)[1] > 0.05
-    assert np.allclose(
-        data.values.ravel(), bc.inverse_transform(bc_data).values.ravel()
-    )
-
-
 @pytest.mark.parametrize("deep", [True, False])
 def test_label_encoder_get_params_keys(deep):
     """Test that the desired keys show up for the LabelEncoder object.

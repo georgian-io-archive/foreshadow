@@ -847,7 +847,7 @@ def test_foreshadow_serialization_adults_small_classification():
     # converge. The test here aims to evaluate if both cases have
     # produced a reasonable score and the difference is small.
     # assert score1 > 0.76 and score2 > 0.76
-    assertions.assertAlmostEqual(score1, score2, places=3)
+    assertions.assertAlmostEqual(score1, score2, places=2)
 
 
 def test_foreshadow_serialization_adults_small_classification_override():
