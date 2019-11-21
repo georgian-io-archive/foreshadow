@@ -2,6 +2,30 @@
 
 .. towncrier release notes start
 
+Foreshadow 0.3.0 (2019-11-21)
+=============================
+
+Features
+--------
+
+- Feature: Auto Intent Resolving
+    Automatically resolve the intent of a column with a machine learning model. (auto-intent-resolving)
+- Bug fix of pick_transformer may transform dataframe in place, causing
+  inconsistency between the data and intended downstream logic. (bug-fix)
+- Feature: Enable logging on Foreshadow
+    This feature allows Foreshadow to display the progress of the training. (enable-logging)
+- Feature: Adding more default models in Foreshadow
+    This allows user to select estimators from the following categories:
+    - Linear
+    - SVM
+    - RandomForest
+    - NeuralNetwork (more-default-model)
+- Feature: Allow user to override intent resolving decisions
+    This feature allows users to override the intent resolving decisions
+    through API calls. It can be done both before and after fitting the
+    foreshadow object. (user-override)
+
+
 Foreshadow 0.2.1 (2019-09-26)
 =============================
 
