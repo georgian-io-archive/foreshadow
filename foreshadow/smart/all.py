@@ -12,8 +12,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats as ss
 
-from foreshadow.concrete import Imputer
-from foreshadow.concrete import NoTransform
+from foreshadow.concrete import Imputer, NoTransform
 from foreshadow.concrete.externals import (
     HashingEncoder,
     MinMaxScaler,
