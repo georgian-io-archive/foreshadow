@@ -3,10 +3,10 @@ from collections import MutableMapping, defaultdict, namedtuple
 
 from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.concrete.internals.notransform import NoTransform
-from foreshadow.config import config
 from foreshadow.logging import logging
 from foreshadow.parallelprocessor import ParallelProcessor
 from foreshadow.serializers import _make_deserializable
+from foreshadow.utils import ConfigKey
 from foreshadow.utils.common import ConfigureCacheManagerMixin
 
 from ..cachemanager import CacheManager
@@ -168,74 +168,6 @@ def _check_parallelizable_batch(group_process, group_name):
         return None
 
 
-def _batch_parallelize(column_mapping):
-    """Batch parallelizes any groups in column_mapping if not parallelized.
-
-    _check_parallelizable_batch will parallelize a group of columns across
-    all steps of transformers if possible. The rest that are left have
-    interdependencies and so the best we can do is to parallelize each step
-    across all groups of columns. This helper performs that task and creates a
-    Pipeline of steps that is parallelized across each group of cols at each
-    step. This enabled format two of inputs, where columns can be shuffled
-    around between steps.
-
-    Args:
-        column_mapping: the column_mapping from self.get_mapping()
-
-    Returns:
-        list of steps for Pipeline, all_cols
-        all_cols is the set of all cols that needs to be passed, as a list.
-
-    Raises:
-        ValueError: number inputs do not equal number of steps.
-
-    """
-    total_steps = len(column_mapping[0])
-    steps = []  # each individual step, or dim1, will go in here.
-    all_cols = set()
-    for step_number in range(total_steps):
-        groups = []
-        for group_name, group_process in column_mapping:
-            if group_process.step_inputs is not None:  # we do not have a
-                # transformer_list yet for this group.
-                inputs = column_mapping["inputs"]
-                steps = column_mapping["steps"]
-                if len(inputs) != len(steps):
-                    raise ValueError(
-                        "number of inputs: {} does not equal "
-                        "number of steps: {}".format(len(inputs), len(steps))
-                    )
-                list_of_steps = column_mapping[group_name]
-                step_for_group = list_of_steps[step_number]
-                transformer = step_for_group[0]
-                cols = step_for_group[1]
-                groups.append((group_name, transformer, cols))
-                for col in cols:
-                    all_cols.add(col)
-        transformer_list = [
-            [
-                "group: {}, transformer: {}".format(
-                    group_name, transformer.__name__
-                ),
-                transformer,
-                cols,
-            ]
-            for group_name, transformer, cols in groups
-        ]  # this is one step parallelized across the columns (dim1
-        # parallelized across dim2).
-        steps.append(
-            (
-                "step: {}".format(step_number),
-                ParallelProcessor(
-                    transformer_list,
-                    n_jobs=config.get_n_jobs_config(),
-                    collapse_index=True,
-                ),
-            )
-        )  # list of steps for final pipeline.
-    return steps, list(all_cols)
-
-
 class PreparerStep(
     BaseEstimator,
     TransformerMixin,
@@ -292,7 +224,7 @@ class PreparerStep(
 
         """
         super().configure_cache_manager(cache_manager)
-        if isinstance(self._parallel_process, ParallelProcessor):
+        if hasattr(self._parallel_process, "configure_cache_manager"):
             self._parallel_process.configure_cache_manager(cache_manager)
 
     def dict_serialize(self, deep=False):
@@ -460,9 +392,13 @@ class PreparerStep(
         ]
         if len(group_transformer_list) == 0:
             return NoTransform()
+
+        if self.cache_manager["config"][ConfigKey.N_JOBS] is None:
+            self.cache_manager["config"][ConfigKey.N_JOBS] = 1
+
         return ParallelProcessor(
             group_transformer_list,
-            n_jobs=config.get_n_jobs_config(),
+            n_jobs=self.cache_manager["config"][ConfigKey.N_JOBS],
             collapse_index=True,
         )
 

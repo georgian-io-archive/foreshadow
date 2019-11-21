@@ -14,7 +14,6 @@ from foreshadow.steps import (
     IntentMapper,
     Preprocessor,
 )
-
 from foreshadow.utils import ConfigureCacheManagerMixin, ProblemType
 
 from .concrete import NoTransform
@@ -121,7 +120,14 @@ class DataPreparer(
             if problem_type == ProblemType.REGRESSION:
                 steps = [("output", NoTransform())]
             elif problem_type == ProblemType.CLASSIFICATION:
-                steps = [("output", CategoricalEncoder(y_var=True))]
+                steps = [
+                    (
+                        "output",
+                        CategoricalEncoder(
+                            y_var=True, cache_manager=cache_manager
+                        ),
+                    )
+                ]
             else:
                 raise ValueError(
                     "Invalid Problem " "Type {}".format(problem_type)
@@ -193,7 +199,9 @@ class DataPreparer(
 
         """
         for step in self.steps:
-            if hasattr(step[1], "configure_cache_manager"):
+            if self.y_var:
+                step[1].cache_manager = cache_manager
+            elif hasattr(step[1], "configure_cache_manager"):
                 step[1].configure_cache_manager(cache_manager)
 
     def __remove_key_from(self, data, target="cache_manager"):

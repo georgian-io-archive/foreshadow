@@ -15,3 +15,9 @@ class EstimatorFamily:
     SVM = "svm"
     RF = "random_forest"
     NN = "neural_network"
+
+
+class ConfigKey:
+    """Constants of configuration key in foreshadow."""
+
+    N_JOBS = "n_jobs"

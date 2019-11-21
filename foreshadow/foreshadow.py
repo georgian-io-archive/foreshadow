@@ -19,8 +19,13 @@ from foreshadow.serializers import (
     ConcreteSerializerMixin,
     _make_deserializable,
 )
-
-from foreshadow.utils import Override, ProblemType, check_df, get_transformer
+from foreshadow.utils import (
+    ConfigKey,
+    Override,
+    ProblemType,
+    check_df,
+    get_transformer,
+)
 
 
 class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
@@ -150,7 +155,8 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
                 raise ValueError("Invalid value passed as y_preparer")
         else:
             self._y_preprocessor = DataPreparer(
-                cache_manager=CacheManager(), y_var=True,
+                cache_manager=CacheManager(),
+                y_var=True,
                 problem_type=self.problem_type,
             )
 
@@ -540,3 +546,12 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             "_".join([Override.INTENT, column_name])
         ] = intent
         self.X_preparer.cache_manager["intent"][column_name] = intent
+
+    def configure_multiprocessing(self, n_job: int = 1) -> NoReturn:
+        """Configure the multiprocessing option.
+
+        Args:
+            n_job: the number of processes to run the job.
+
+        """
+        self.X_preparer.cache_manager["config"][ConfigKey.N_JOBS] = n_job

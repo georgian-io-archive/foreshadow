@@ -859,7 +859,9 @@ def test_foreshadow_serialization_adults_small_classification_override():
         X_df, y_df, test_size=0.2
     )
 
-    shadow = Foreshadow(estimator=LogisticRegression())
+    shadow = Foreshadow(
+        estimator=LogisticRegression(), problem_type=ProblemType.CLASSIFICATION
+    )
     shadow.fit(X_train, y_train)
     shadow.to_json("foreshadow_adults_small_logistic_regression_1.json")
     score1 = shadow.score(X_test, y_test)
@@ -896,7 +898,9 @@ def test_foreshadow_adults_small_classification_override_upfront():
         X_df, y_df, test_size=0.2
     )
 
-    shadow = Foreshadow(estimator=LogisticRegression())
+    shadow = Foreshadow(
+        estimator=LogisticRegression(), problem_type=ProblemType.CLASSIFICATION
+    )
 
     from foreshadow.intents import IntentType
 
@@ -953,7 +957,7 @@ def test_foreshadow_serialization_adults_classification():
     assertions.assertAlmostEqual(score1, score2, places=3)
 
 
-def test_foreshadow_serialization_boston_housing_regression():
+def test_foreshadow_serialization_boston_housing_regression_multiprocessing():
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
     import numpy as np
@@ -975,12 +979,15 @@ def test_foreshadow_serialization_boston_housing_regression():
         estimator=LinearRegression(), problem_type=ProblemType.REGRESSION
     )
 
+    shadow.configure_multiprocessing(n_job=-1)
+
     shadow.fit(X_train, y_train)
     shadow.to_json("foreshadow_boston_housing_linear_regression.json")
 
     shadow2 = Foreshadow.from_json(
         "foreshadow_boston_housing_linear_regression.json"
     )
+
     shadow2.fit(X_train, y_train)
 
     score1 = shadow.score(X_test, y_test)
