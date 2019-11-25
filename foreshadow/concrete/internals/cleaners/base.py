@@ -88,14 +88,14 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
 
         """
         # TODO can we also do a sampling here?
-        logging.info("Calculating scores....")
+        logging.debug("Calculating scores....")
         scores = []
         for metric_wrapper, weight in self.confidence_computation.items():
             scores.append(
                 metric_wrapper.calculate(X, cleaner=self.transform_row)
                 * weight
             )
-        logging.info("End calculating scores...")
+        logging.debug("End calculating scores...")
         return sum(scores)
 
     def transform_row(self, row_of_feature, return_tuple=True):
