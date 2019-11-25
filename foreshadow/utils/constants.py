@@ -1,6 +1,12 @@
 """Classes that hold constants in foreshadow."""
 
 
+class DefaultConfig:
+    """Constants for default configurations."""
+
+    PROCESSED_DATA_EXPORT_PATH = "processed_data.csv"
+
+
 class ProblemType:
     """Constants for problem types."""
 
@@ -21,3 +27,4 @@ class ConfigKey:
     """Constants of configuration key in foreshadow."""
 
     N_JOBS = "n_jobs"
+    PROCESSED_DATA_EXPORT_PATH = "processed_data_export_path"

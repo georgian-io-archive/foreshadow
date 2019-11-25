@@ -555,3 +555,14 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
 
         """
         self.X_preparer.cache_manager["config"][ConfigKey.N_JOBS] = n_job
+
+    def set_processed_data_export_path(self, data_path: str) -> NoReturn:
+        """Set path to export data before feeding the data to the estimator.
+
+        Args:
+            data_path: the data path string
+
+        """
+        self.X_preparer.cache_manager["config"][
+            ConfigKey.PROCESSED_DATA_EXPORT_PATH
+        ] = data_path

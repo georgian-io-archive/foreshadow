@@ -2,6 +2,7 @@
 
 from .cleaner import CleanerMapper
 from .feature_engineerer import FeatureEngineererMapper
+from .feature_exporter import FeatureExporterMapper
 from .feature_reducer import FeatureReducerMapper
 from .feature_summarizer import FeatureSummarizerMapper
 from .mapper import IntentMapper
@@ -17,4 +18,5 @@ __all__ = [
     "FeatureReducerMapper",
     "FeatureSummarizerMapper",
     "PreparerStep",
+    "FeatureExporterMapper",
 ]
