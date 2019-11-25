@@ -1,13 +1,13 @@
 """PrepareStep that exports the processed data before sending to Estimator."""
 from foreshadow.logging import logging
-from foreshadow.smart import FeatureExporter
+from foreshadow.smart import DataExporter
 from foreshadow.utils import ConfigKey, DefaultConfig
 
 from .autointentmap import AutoIntentMixin
 from .preparerstep import PreparerStep
 
 
-class FeatureExporterMapper(PreparerStep, AutoIntentMixin):
+class DataExporterMapper(PreparerStep, AutoIntentMixin):
     """Define the single step for FeatureExporter.
 
     Args:
@@ -27,7 +27,7 @@ class FeatureExporterMapper(PreparerStep, AutoIntentMixin):
     def get_mapping(self, X):  # noqa
         return self.separate_cols(
             transformers=[
-                [FeatureExporter(cache_manager=self.cache_manager)] for c in X
+                [DataExporter(cache_manager=self.cache_manager)] for c in X
             ],
             cols=X.columns,
         )
@@ -56,6 +56,6 @@ class FeatureExporterMapper(PreparerStep, AutoIntentMixin):
             data_path = self.cache_manager["config"][
                 ConfigKey.PROCESSED_DATA_EXPORT_PATH
             ]
-        Xt.to_csv(data_path)
+        Xt.to_csv(data_path, index=False)
         logging.info("Exported processed data to {}".format(data_path))
         return Xt

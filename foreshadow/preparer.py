@@ -10,7 +10,7 @@ from foreshadow.serializers import (
 from foreshadow.smart import CategoricalEncoder
 from foreshadow.steps import (
     CleanerMapper,
-    FeatureExporterMapper,
+    DataExporterMapper,
     FeatureSummarizerMapper,
     IntentMapper,
     Preprocessor,
@@ -120,10 +120,7 @@ class DataPreparer(
                 # ),
                 ("feature_preprocessor", Preprocessor(**preprocessor_kwargs_)),
                 # ("feature_reducer", FeatureReducerMapper(**reducer_kwargs_)),
-                (
-                    "feature_exporter",
-                    FeatureExporterMapper(**exporter_kwargs_),
-                ),
+                ("feature_exporter", DataExporterMapper(**exporter_kwargs_)),
             ]
         else:
             if problem_type == ProblemType.REGRESSION:

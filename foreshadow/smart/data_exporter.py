@@ -3,7 +3,7 @@ from foreshadow.concrete.internals import NoTransform
 from foreshadow.smart.smart import SmartTransformer
 
 
-class FeatureExporter(SmartTransformer):
+class DataExporter(SmartTransformer):
     """Empty Smart transformer for feature exporter step."""
 
     def __init__(self, check_wrapped=True, **kwargs):

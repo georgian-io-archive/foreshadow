@@ -1,8 +1,8 @@
 """Steps for DataPreparer object."""
 
 from .cleaner import CleanerMapper
+from .data_exporter import DataExporterMapper
 from .feature_engineerer import FeatureEngineererMapper
-from .feature_exporter import FeatureExporterMapper
 from .feature_reducer import FeatureReducerMapper
 from .feature_summarizer import FeatureSummarizerMapper
 from .mapper import IntentMapper
@@ -18,5 +18,5 @@ __all__ = [
     "FeatureReducerMapper",
     "FeatureSummarizerMapper",
     "PreparerStep",
-    "FeatureExporterMapper",
+    "DataExporterMapper",
 ]
