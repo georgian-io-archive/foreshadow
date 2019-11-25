@@ -2,6 +2,7 @@
 # flake8: noqa
 # isort: noqa
 import argparse
+import pickle
 import sys
 import warnings
 
@@ -87,18 +88,6 @@ def process_argument(args):  # noqa: C901
         type=int,
         help="Time limit in minutes to apply to model"
         "parameter search. (Default 10)",
-    )
-    parser.add_argument(
-        "--x_config",
-        default=None,
-        type=str,
-        help="Path to JSON configuration file for X Preprocessor",
-    )
-    parser.add_argument(
-        "--y_config",
-        default=None,
-        type=str,
-        help="Path to JSON configuration file for y Preprocessor",
     )
     cargs = parser.parse_args(args)
 
@@ -260,19 +249,14 @@ def execute_model(fs, X_train, y_train, X_test, y_test):
     logging.info(score)
 
     fs.to_json("foreshadow.json")
+
+    with open("foreshadow.p", "wb") as fopen:
+        pickle.dump(fs, fopen)
+
     logging.info(
-        "Serialized foreshadow pipeline has been saved to foreshadow.json. "
-        "Refer to docs to read and process."
+        "Serialized foreshadow pipeline has been saved to foreshadow.p "
+        "and foreshadow.json. Refer to docs to read and process."
     )
-    # TODO serialize the foreshadow object and summarize the X and y stats.
-    # Store final results
-    # all_results = {
-    #     "X_Model": fs.X_preparer.serialize(),
-    #     # "X_Summary": fs.X_preparer.summarize(X_train),
-    #     "y_Model": fs.y_preparer.serialize(),
-    #     # "y_summary": fs.y_preparer.summarize(y_train),
-    # }
-    # return all_results
 
 
 def cmd():  # pragma: no cover

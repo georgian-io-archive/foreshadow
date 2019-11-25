@@ -238,7 +238,6 @@ def test_foreshadow_custom_fit_estimate(mocker):
     assert np.allclose(foreshadow_score, expected_score)
 
 
-@pytest.mark.skip("Temporary turning it off")
 def test_foreshadow_y_preparer(mocker):
     import numpy as np
     from sklearn.pipeline import Pipeline
@@ -793,63 +792,6 @@ def test_foreshadow_serialization_breast_cancer_non_auto_estimator():
     assertions.assertAlmostEqual(score1, score2, places=7)
 
 
-@slow
-def test_foreshadow_serialization_adults_small_classification():
-    from foreshadow.foreshadow import Foreshadow
-    import pandas as pd
-    import numpy as np
-    from sklearn.model_selection import train_test_split
-
-    np.random.seed(1337)
-
-    # from sklearn.datasets import fetch_20newsgroups
-    # cats = ['alt.atheism', 'sci.space']
-    # newsgroups_train = fetch_20newsgroups(subset='train', categories=cats)
-    # extra_text_data = newsgroups_train.data
-
-    adult = pd.read_csv("examples/adult_small.csv")
-    # adult = adult.head(len(extra_text_data))
-    X_df = adult.loc[:, "age":"workclass"]
-    # X_df["text"] = extra_text_data
-    y_df = adult.loc[:, "class"]
-
-    X_train, X_test, y_train, y_test = train_test_split(
-        X_df, y_df, test_size=0.2
-    )
-
-    from foreshadow.estimators import AutoEstimator
-
-    estimator = AutoEstimator(
-        problem_type=ProblemType.CLASSIFICATION, auto="tpot"
-    )
-    estimator.configure_estimator(y_train)
-
-    estimator_kwargs = {"max_time_mins": 1, **estimator.estimator_kwargs}
-    estimator.estimator_kwargs = estimator_kwargs
-
-    shadow = Foreshadow(
-        estimator=estimator, problem_type=ProblemType.CLASSIFICATION
-    )
-    shadow.fit(X_train, y_train)
-    shadow.to_json("foreshadow_adults_small_tpot.json")
-
-    shadow2 = Foreshadow.from_json("foreshadow_adults_small_tpot.json")
-    shadow2.fit(X_train, y_train)
-
-    score1 = shadow.score(X_test, y_test)
-    score2 = shadow2.score(X_test, y_test)
-
-    import unittest
-
-    assertions = unittest.TestCase("__init__")
-    # given the randomness of the tpot algorithm and the short run
-    # time we configured, there is no guarantee the performance can
-    # converge. The test here aims to evaluate if both cases have
-    # produced a reasonable score and the difference is small.
-    # assert score1 > 0.76 and score2 > 0.76
-    assertions.assertAlmostEqual(score1, score2, places=2)
-
-
 def test_foreshadow_serialization_adults_small_classification_override():
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
@@ -1019,6 +961,54 @@ slow = pytest.mark.skipif(
 
 
 @slow
+def test_foreshadow_serialization_adults_small_classification():
+    from foreshadow.foreshadow import Foreshadow
+    import pandas as pd
+    import numpy as np
+    from sklearn.model_selection import train_test_split
+
+    np.random.seed(1337)
+
+    adult = pd.read_csv("examples/adult_small.csv")
+    X_df = adult.loc[:, "age":"workclass"]
+    y_df = adult.loc[:, "class"]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_df, y_df, test_size=0.2
+    )
+
+    from foreshadow.estimators import AutoEstimator
+
+    estimator = AutoEstimator(
+        problem_type=ProblemType.CLASSIFICATION,
+        auto="tpot",
+        estimator_kwargs={"max_time_mins": 1},
+    )
+
+    shadow = Foreshadow(
+        estimator=estimator, problem_type=ProblemType.CLASSIFICATION
+    )
+    shadow.fit(X_train, y_train)
+    shadow.to_json("foreshadow_adults_small_tpot.json")
+
+    shadow2 = Foreshadow.from_json("foreshadow_adults_small_tpot.json")
+    shadow2.fit(X_train, y_train)
+
+    score1 = shadow.score(X_test, y_test)
+    score2 = shadow2.score(X_test, y_test)
+
+    import unittest
+
+    assertions = unittest.TestCase("__init__")
+    # given the randomness of the tpot algorithm and the short run
+    # time we configured, there is no guarantee the performance can
+    # converge. The test here aims to evaluate if both cases have
+    # produced a reasonable score and the difference is small.
+    # assert score1 > 0.76 and score2 > 0.76
+    assertions.assertAlmostEqual(score1, score2, places=2)
+
+
+@slow
 def test_foreshadow_serialization_tpot():
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
@@ -1041,10 +1031,6 @@ def test_foreshadow_serialization_tpot():
     estimator = AutoEstimator(
         problem_type=ProblemType.CLASSIFICATION, auto="tpot"
     )
-    estimator.configure_estimator(y_train)
-
-    estimator_kwargs = {"max_time_mins": 1, **estimator.estimator_kwargs}
-    estimator.estimator_kwargs = estimator_kwargs
 
     shadow = Foreshadow(
         estimator=estimator, problem_type=ProblemType.CLASSIFICATION
@@ -1055,18 +1041,7 @@ def test_foreshadow_serialization_tpot():
     shadow.to_json("foreshadow_tpot.json")
 
     shadow2 = Foreshadow.from_json("foreshadow_tpot.json")
-
-    from foreshadow.estimators import MetaEstimator
-
-    assert isinstance(shadow2.estimator, MetaEstimator)
-    shadow2.estimator.estimator.configure_estimator(y_train)
-    shadow2.estimator.estimator.estimator_kwargs = estimator_kwargs
     shadow2.fit(X_train, y_train)
-
-    assert (
-        estimator.estimator_kwargs
-        == shadow2.estimator.estimator.estimator_kwargs
-    )
 
     score1 = shadow.score(X_test, y_test)
     score2 = shadow2.score(X_test, y_test)
