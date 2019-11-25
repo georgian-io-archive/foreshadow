@@ -1008,7 +1008,7 @@ def test_foreshadow_serialization_adults_small_classification():
     assertions.assertAlmostEqual(score1, score2, places=2)
 
 
-# @slow
+@slow
 def test_foreshadow_serialization_tpot():
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd

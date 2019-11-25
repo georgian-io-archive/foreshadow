@@ -1,6 +1,7 @@
 """SmartResolver for ResolverMapper step."""
 
 from foreshadow.intents import Categorical, Neither, Numeric
+from foreshadow.logging import logging
 from foreshadow.smart.intent_resolving.core import (
     IntentResolver as AutoIntentResolver,
 )
@@ -72,6 +73,11 @@ class IntentResolver(SmartTransformer):
         self.cache_manager[
             "intent", column_name
         ] = self.transformer.__class__.__name__
+        logging.info(
+            "Column {} has intent type: {}".format(
+                column_name, self.transformer.__class__.__name__
+            )
+        )
 
     def pick_transformer(self, X, y=None, **fit_params):
         """Get best intent transformer for a given column.
