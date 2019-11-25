@@ -962,7 +962,7 @@ def test_foreshadow_serialization_adults_classification():
     assertions = unittest.TestCase("__init__")
     # 0.8470672535571706 != 0.8469648889343843 could be a python decimal thing
     # TODO need further investigation.
-    assertions.assertAlmostEqual(score1, score2, places=3)
+    assertions.assertAlmostEqual(score1, score2, places=2)
 
 
 def test_foreshadow_serialization_boston_housing_regression_multiprocessing():
