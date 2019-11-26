@@ -37,7 +37,7 @@ class Cleaner(SmartTransformer):
         cleaners = config.get_cleaners(cleaners=True)
         best_score = 0
         best_cleaner = None
-        logging.debug("Picking cleaners...")
+        logging.info("Picking cleaners...")
 
         # The sampling is to speed up the metric score calculation as it may
         # not be necessary to scan every row in the data frame to generate a
@@ -54,7 +54,7 @@ class Cleaner(SmartTransformer):
                 best_cleaner = cleaner
         if best_cleaner is None:
             return NoTransform()
-        logging.debug("Picked...")
+        logging.info("Picked...")
         return best_cleaner
 
     def should_force_reresolve_based_on_override(self, X):

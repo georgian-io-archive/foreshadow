@@ -26,6 +26,8 @@ class EstimatorFamily:
 class ConfigKey:
     """Constants of configuration key in foreshadow."""
 
+    SAMPLING_WITH_REPLACEMENT = "with_replacement"
+    SAMPLING_FRACTION = "sampling_fraction"
     N_JOBS = "n_jobs"
     PROCESSED_DATA_EXPORT_PATH = "processed_data_export_path"
 
