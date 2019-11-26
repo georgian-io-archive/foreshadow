@@ -555,3 +555,23 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
 
         """
         self.X_preparer.cache_manager["config"][ConfigKey.N_JOBS] = n_job
+
+    # TODO I'm not sure if this is a good idea to allow the user to tune the
+    #  sampling criteria as it's more internal comparing to the intent and
+    #  multiprocessing options. We can discuss more on this.
+    def configure_sampling(
+        self, sampling_fraction: float = 0.1, replace: bool = False
+    ) -> NoReturn:
+        """Configure the sampling criteria.
+
+        Args:
+            replace: whether to use replacement during sampling
+            sampling_fraction: the sampling fraction
+
+        """
+        self.X_preparer.cache_manager["config"][
+            ConfigKey.SAMPLING_FRACTION
+        ] = sampling_fraction
+        self.X_preparer.cache_manager["config"][
+            ConfigKey.SAMPLING_WITH_REPLACEMENT
+        ] = replace
