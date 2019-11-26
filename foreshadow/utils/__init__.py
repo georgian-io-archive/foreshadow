@@ -7,6 +7,7 @@ from foreshadow.utils.common import (
     get_cache_path,
     get_config_path,
     get_transformer,
+    sample_data_frame,
 )
 from foreshadow.utils.constants import ConfigKey, EstimatorFamily, ProblemType
 from foreshadow.utils.data_summary import (
@@ -32,6 +33,7 @@ __all__ = [
     "get_cache_path",
     "get_config_path",
     "get_transformer",
+    "sample_data_frame",
     "PipelineStep",
     "check_df",
     "check_series",

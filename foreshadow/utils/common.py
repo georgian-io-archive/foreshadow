@@ -4,6 +4,8 @@ import os
 from collections import OrderedDict
 from importlib import import_module
 
+from pandas import DataFrame
+
 from foreshadow.exceptions import TransformerNotFound
 from foreshadow.utils.override_substitute import Override
 
@@ -96,6 +98,30 @@ def get_transformer(class_name, source_lib=None):
             )
 
     return getattr(module, class_name)
+
+
+def sample_data_frame(
+    df: DataFrame, percentage: float = 0.1, with_replacement: bool = False
+) -> DataFrame:
+    """Sample a fraction of the data frame.
+
+    Using the rule of 30. If the sampled dataset has less than 30 rows,
+    just use the whole dataset.
+
+    Args:
+        df: the data frame
+        percentage: the percentage to sample
+        with_replacement: whether to use replacement in the sampling
+
+    Returns:
+        a sampled data frame.
+
+    """
+    # Based on the rule of 30.
+    number_of_rows_to_sample = (
+        len(df) if len(df) * percentage < 30 else int(len(df) * percentage) + 1
+    )
+    return df.sample(n=number_of_rows_to_sample, replace=with_replacement)
 
 
 class ConfigureCacheManagerMixin:

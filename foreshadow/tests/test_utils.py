@@ -166,3 +166,36 @@ def test_get_estimator_exception(family, problem_type, exception):
     estimator_factory = EstimatorFactory()
     with exception:
         estimator_factory.get_estimator(family, problem_type)
+
+
+def test_sample_data_frame_larger_than_300_rows():
+    from foreshadow.utils import sample_data_frame
+    from sklearn.datasets import load_boston
+    import pandas as pd
+
+    boston = load_boston()
+    X_df = pd.DataFrame(boston.data, columns=boston.feature_names)
+
+    assert len(X_df) >= 300
+
+    sampled_df = sample_data_frame(X_df)
+
+    assert len(sampled_df) == int(len(X_df) * 0.1) + 1
+
+
+def test_sample_data_frame_no_larger_than_300_rows():
+    from foreshadow.utils import sample_data_frame
+    import pandas as pd
+
+    df = pd.DataFrame(
+        {
+            "num_legs": [2, 4, 8, 0],
+            "num_wings": [2, 0, 0, 0],
+            "num_specimen_seen": [10, 2, 1, 8],
+        },
+        index=["falcon", "dog", "spider", "fish"],
+    )
+
+    assert len(df) < 300
+    sampled_df = sample_data_frame(df)
+    assert len(sampled_df) == len(df)
