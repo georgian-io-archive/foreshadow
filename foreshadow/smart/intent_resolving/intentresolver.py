@@ -6,7 +6,7 @@ from foreshadow.smart.intent_resolving.core import (
     IntentResolver as AutoIntentResolver,
 )
 from foreshadow.smart.smart import SmartTransformer
-from foreshadow.utils import Override, get_transformer
+from foreshadow.utils import Override, get_transformer, sample_data_frame
 
 
 _temporary_naming_conversion = {
@@ -49,8 +49,10 @@ class IntentResolver(SmartTransformer):
             The intent class that best matches the input data.
 
         """
-        # TODO Add sampling on X to reduce run time if the dataset is big
-        auto_intent_resolver = AutoIntentResolver(X)
+        # TODO Do we want to enable sampling by default using 10% of data
+        #  without replacement?
+        X_sampled = sample_data_frame(df=X)
+        auto_intent_resolver = AutoIntentResolver(X_sampled)
         intent_pd_series = auto_intent_resolver.predict()
         return _temporary_naming_convert(intent_pd_series[[0]].values[0])
 
