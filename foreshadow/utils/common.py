@@ -7,6 +7,7 @@ from importlib import import_module
 from pandas import DataFrame
 
 from foreshadow.exceptions import TransformerNotFound
+from foreshadow.utils.constants import ConfigKey
 from foreshadow.utils.override_substitute import Override
 
 
@@ -100,28 +101,45 @@ def get_transformer(class_name, source_lib=None):
     return getattr(module, class_name)
 
 
-def sample_data_frame(
-    df: DataFrame, percentage: float = 0.1, with_replacement: bool = False
-) -> DataFrame:
-    """Sample a fraction of the data frame.
+class DataSamplingMixin:
+    """Mixin that samples a data frame."""
 
-    Using the rule of 30. If the sampled dataset has less than 30 rows,
-    just use the whole dataset.
+    def sample_data_frame(self, df: DataFrame) -> DataFrame:
+        """Sample a fraction of the data frame.
 
-    Args:
-        df: the data frame
-        percentage: the percentage to sample
-        with_replacement: whether to use replacement in the sampling
+        If the dataset has less than 10000 rows, use the whole dataset.
+        Otherwise, choose between the maximum of 10000 and 20% of the number
+        of rows in the dataset.
 
-    Returns:
-        a sampled data frame.
+        Args:
+            df: the data frame
 
-    """
-    # Based on the rule of 30.
-    number_of_rows_to_sample = (
-        len(df) if len(df) * percentage < 30 else int(len(df) * percentage) + 1
-    )
-    return df.sample(n=number_of_rows_to_sample, replace=with_replacement)
+        Returns:
+            a sampled data frame.
+
+        """
+        if (
+            not self.cache_manager["config"][ConfigKey.ENABLE_SAMPLING]
+            or len(df)
+            < self.cache_manager["config"][
+                ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD
+            ]
+        ):
+            return df
+
+        number_of_rows_to_sample = max(
+            self.cache_manager["config"][
+                ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD
+            ],
+            len(df)
+            * self.cache_manager["config"][ConfigKey.SAMPLING_FRACTION],
+        )
+        return df.sample(
+            n=number_of_rows_to_sample,
+            replace=self.cache_manager["config"][
+                ConfigKey.SAMPLING_WITH_REPLACEMENT
+            ],
+        )
 
 
 class ConfigureCacheManagerMixin:
