@@ -1144,3 +1144,36 @@ def test_foreshadow_pickling_and_unpickling_tpot():
     # converge. The test here aims to evaluate if both cases have
     # produced a reasonable score and the difference is small.
     assert score1 > 0.9 and score2 > 0.9
+
+
+def test_foreshadow_configure_sampling():
+    from foreshadow.foreshadow import Foreshadow
+    from sklearn.linear_model import LogisticRegression
+    from foreshadow.utils import ConfigKey
+
+    shadow = Foreshadow(
+        estimator=LogisticRegression(), problem_type=ProblemType.CLASSIFICATION
+    )
+    shadow.configure_sampling(enable_sampling=False)
+    assert (
+        shadow.X_preparer.cache_manager["config"][ConfigKey.ENABLE_SAMPLING]
+        is False
+    )
+
+    shadow.configure_sampling(
+        enable_sampling=True, sampling_fraction=0.3, replace=False
+    )
+    assert (
+        shadow.X_preparer.cache_manager["config"][ConfigKey.ENABLE_SAMPLING]
+        is True
+    )
+    assert (
+        shadow.X_preparer.cache_manager["config"][ConfigKey.SAMPLING_FRACTION]
+        == 0.3
+    )
+    assert (
+        shadow.X_preparer.cache_manager["config"][
+            ConfigKey.SAMPLING_WITH_REPLACEMENT
+        ]
+        is False
+    )

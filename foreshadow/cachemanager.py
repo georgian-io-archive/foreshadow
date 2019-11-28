@@ -1,11 +1,12 @@
 """Cache utility for foreshadow pipeline workflow to share data."""
 import pprint
 from collections import MutableMapping, defaultdict
+from typing import NoReturn
 
 from foreshadow.serializers import ConcreteSerializerMixin
+from foreshadow.utils import ConfigKey
 
 
-# TODO: Make this multi processor safe using managers
 def get_none():  # noqa: D401
     """Method that returns None.
 
@@ -71,6 +72,14 @@ class CacheManager(MutableMapping, ConcreteSerializerMixin):
             "config": True,
         }
         self.__acceptable_keys = PrettyDefaultDict(get_false, acceptable_keys)
+
+    def initialize_default_config(self) -> NoReturn:
+        """Initialize the default configurations."""
+        self["config"][ConfigKey.ENABLE_SAMPLING] = True
+        self["config"][ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD] = 10000
+        self["config"][ConfigKey.SAMPLING_WITH_REPLACEMENT] = False
+        self["config"][ConfigKey.SAMPLING_FRACTION] = 0.2
+        self["config"][ConfigKey.N_JOBS] = 1
 
     def dict_serialize(self, deep=False):
         """Serialize the init parameters (dictionary form) of a columnsharer.

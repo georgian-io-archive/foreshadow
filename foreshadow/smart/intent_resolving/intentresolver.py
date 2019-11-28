@@ -6,7 +6,7 @@ from foreshadow.smart.intent_resolving.core import (
     IntentResolver as AutoIntentResolver,
 )
 from foreshadow.smart.smart import SmartTransformer
-from foreshadow.utils import Override, get_transformer, sample_data_frame
+from foreshadow.utils import Override, get_transformer, DataSamplingMixin
 
 
 _temporary_naming_conversion = {
@@ -25,7 +25,7 @@ def _temporary_naming_convert(auto_ml_intent_name):
         )
 
 
-class IntentResolver(SmartTransformer):
+class IntentResolver(DataSamplingMixin, SmartTransformer):
     """Determine the intent for a particular column.
 
     Params:
@@ -49,9 +49,7 @@ class IntentResolver(SmartTransformer):
             The intent class that best matches the input data.
 
         """
-        # TODO Do we want to enable sampling by default using 10% of data
-        #  without replacement?
-        X_sampled = sample_data_frame(df=X)
+        X_sampled = self.sample_data_frame(df=X)
         auto_intent_resolver = AutoIntentResolver(X_sampled)
         intent_pd_series = auto_intent_resolver.predict()
         return _temporary_naming_convert(intent_pd_series[[0]].values[0])
