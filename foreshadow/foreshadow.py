@@ -509,9 +509,8 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         """
         if not self.has_fitted:
             logging.info(
-                "You are overriding intent before the foreshadow "
-                "object is trained. Please make sure the column {} "
-                "exist to ensure the override takes "
+                "The foreshadow object is not trained yet. Please make sure "
+                "the column {} exist to ensure the override takes "
                 "effect.".format(column)
             )
             return False
