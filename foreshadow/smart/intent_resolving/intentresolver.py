@@ -25,7 +25,7 @@ def _temporary_naming_convert(auto_ml_intent_name):
         )
 
 
-class IntentResolver(DataSamplingMixin, SmartTransformer):
+class IntentResolver(SmartTransformer, DataSamplingMixin):
     """Determine the intent for a particular column.
 
     Params:

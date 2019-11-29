@@ -168,34 +168,50 @@ def test_get_estimator_exception(family, problem_type, exception):
         estimator_factory.get_estimator(family, problem_type)
 
 
-def test_sample_data_frame_larger_than_300_rows():
-    from foreshadow.utils import sample_data_frame
+def test_data_sampling():
+    from foreshadow.utils import DataSamplingMixin
+    from foreshadow.cachemanager import CacheManager
+    from foreshadow.utils import ConfigKey
     from sklearn.datasets import load_boston
     import pandas as pd
 
+    class DummyTransformer(DataSamplingMixin):
+        def __init__(self, cache_manager):
+            self.cache_manager = cache_manager
+
+    cache_manager = CacheManager()
+    transformer = DummyTransformer(cache_manager=cache_manager)
     boston = load_boston()
-    X_df = pd.DataFrame(boston.data, columns=boston.feature_names)
+    df = pd.DataFrame(boston.data, columns=boston.feature_names)
 
-    assert len(X_df) >= 300
-
-    sampled_df = sample_data_frame(X_df)
-
-    assert len(sampled_df) == int(len(X_df) * 0.1) + 1
-
-
-def test_sample_data_frame_no_larger_than_300_rows():
-    from foreshadow.utils import sample_data_frame
-    import pandas as pd
-
-    df = pd.DataFrame(
-        {
-            "num_legs": [2, 4, 8, 0],
-            "num_wings": [2, 0, 0, 0],
-            "num_specimen_seen": [10, 2, 1, 8],
-        },
-        index=["falcon", "dog", "spider", "fish"],
+    assert (
+        len(df)
+        < cache_manager["config"][ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD]
     )
 
-    assert len(df) < 300
-    sampled_df = sample_data_frame(df)
-    assert len(sampled_df) == len(df)
+    sampled = transformer.sample_data_frame(df)
+
+    pd.testing.assert_frame_equal(df, sampled)
+
+    df_medium = pd.concat([df] * 20)
+    assert (
+        len(df_medium)
+        >= cache_manager["config"][ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD]
+    )
+    sampled_medium = transformer.sample_data_frame(df_medium)
+
+    assert (
+        len(sampled_medium)
+        == cache_manager["config"][ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD]
+    )
+
+    df_large = pd.concat([df] * 100)
+    assert (
+        len(df_large)
+        >= cache_manager["config"][ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD]
+    )
+    sampled_large = transformer.sample_data_frame(df_large)
+
+    assert len(sampled_large) == int(
+        len(df_large) * cache_manager["config"][ConfigKey.SAMPLING_FRACTION]
+    )

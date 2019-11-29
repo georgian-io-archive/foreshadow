@@ -72,8 +72,9 @@ class CacheManager(MutableMapping, ConcreteSerializerMixin):
             "config": True,
         }
         self.__acceptable_keys = PrettyDefaultDict(get_false, acceptable_keys)
+        self._initialize_default_config()
 
-    def initialize_default_config(self) -> NoReturn:
+    def _initialize_default_config(self) -> NoReturn:
         """Initialize the default configurations."""
         self["config"][ConfigKey.ENABLE_SAMPLING] = True
         self["config"][ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD] = 10000

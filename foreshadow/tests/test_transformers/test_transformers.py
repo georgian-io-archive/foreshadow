@@ -208,7 +208,8 @@ def test_transformer_multiprocess_imputer_not_update_cache_manager():
     )
 
     proc.fit_transform(df)
-    assert len(cs) == 0
+    assert len(cs["intent"]) == 0
+    assert len(cs["domain"]) == 0
 
 
 def test_transformer_multiprocess_smart_transformers_update_cache_manager():

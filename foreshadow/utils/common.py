@@ -131,8 +131,10 @@ class DataSamplingMixin:
             self.cache_manager["config"][
                 ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD
             ],
-            len(df)
-            * self.cache_manager["config"][ConfigKey.SAMPLING_FRACTION],
+            int(
+                len(df)
+                * self.cache_manager["config"][ConfigKey.SAMPLING_FRACTION]
+            ),
         )
         return df.sample(
             n=number_of_rows_to_sample,
