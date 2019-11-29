@@ -600,14 +600,15 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         enable_sampling=True,
         sampling_fraction: float = 0.2,
         replace: bool = False,
-    ) -> NoReturn:
+    ) -> NoReturn:  # noqa: S001
         """Configure the sampling criteria.
 
         Args:
-            enable_sampling: whether to enable sampling in data cleaning
-            and intent resolving # noqa: S001
-            replace: whether to use replacement during sampling
-            sampling_fraction: the sampling fraction
+            enable_sampling: whether to enable sampling in data cleaning and intent resolving # noqa: E501
+            sampling_fraction: whether to use replacement during sampling
+            replace: the sampling fraction
+
+        Returns:
 
         """
         self.X_preparer.cache_manager["config"][
