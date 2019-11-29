@@ -8,7 +8,7 @@ from foreshadow.utils import DataSamplingMixin
 from .smart import SmartTransformer
 
 
-class Cleaner(DataSamplingMixin, SmartTransformer):
+class Cleaner(SmartTransformer, DataSamplingMixin):
     """Intelligently decide which cleaning function should be applied."""
 
     def __init__(
@@ -37,7 +37,7 @@ class Cleaner(DataSamplingMixin, SmartTransformer):
         cleaners = config.get_cleaners(cleaners=True)
         best_score = 0
         best_cleaner = None
-        logging.info("Picking cleaners...")
+        logging.debug("Picking cleaners...")
 
         # The sampling is to speed up the metric score calculation as it may
         # not be necessary to scan every row in the data frame to generate a
@@ -54,7 +54,7 @@ class Cleaner(DataSamplingMixin, SmartTransformer):
                 best_cleaner = cleaner
         if best_cleaner is None:
             return NoTransform()
-        logging.info("Picked...")
+        logging.debug("Picked...")
         return best_cleaner
 
     def should_force_reresolve_based_on_override(self, X):
