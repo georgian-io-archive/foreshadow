@@ -96,24 +96,18 @@ class FancyImputer(BaseEstimator, TransformerMixin):
         Returns:
             :obj:`pandas.DataFrame`: Output data
 
-        Raises:
-            e: ValueError
-
         """
-        try:
-            return self.imputer.complete(X)
-        except ValueError as e:
+        if X.isnull().values.any():
             """This is a temporary fix since the newer version of
             fancyimpute package has already fixed the issue of throwing
             exception when there's no missing value. However, due to the
-            constraint on the requirements, we hacve to stage with an older
+            constraint on the requirements, we have to stay with an older
             version and use this workaround until we figure out how to
             upgrade all the associated dependencies.
             """
-            if "Input matrix is not missing any values" in str(e):
-                logging.info(
-                    "No missing value found in column {}".format(X.columns[0])
-                )
-                return X
-            else:
-                raise e
+            return self.imputer.complete(X)
+        else:
+            logging.info(
+                "No missing value found in column {}".format(X.columns[0])
+            )
+            return X
