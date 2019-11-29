@@ -1,6 +1,7 @@
 """Fancy imputation."""
 
 from foreshadow.base import BaseEstimator, TransformerMixin
+from foreshadow.logging import logging
 from foreshadow.wrapper import pandas_wrap
 
 
@@ -96,4 +97,17 @@ class FancyImputer(BaseEstimator, TransformerMixin):
             :obj:`pandas.DataFrame`: Output data
 
         """
-        return self.imputer.complete(X)
+        if X.isnull().values.any():
+            """This is a temporary fix since the newer version of
+            fancyimpute package has already fixed the issue of throwing
+            exception when there's no missing value. However, due to the
+            constraint on the requirements, we have to stay with an older
+            version and use this workaround until we figure out how to
+            upgrade all the associated dependencies.
+            """
+            return self.imputer.complete(X)
+        else:
+            logging.info(
+                "No missing value found in column {}".format(X.columns[0])
+            )
+            return X
