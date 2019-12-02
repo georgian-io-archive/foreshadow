@@ -17,6 +17,7 @@ from foreshadow.concrete.internals.htmlremover import HTMLRemover  # noqa: F401
 from foreshadow.concrete.internals.labelencoder import (  # noqa: F403, F401
     FixedLabelEncoder,
 )
+from foreshadow.concrete.internals.nan_filler import NaNFiller  # noqa: F401
 from foreshadow.concrete.internals.notransform import NoTransform  # noqa: F401
 from foreshadow.concrete.internals.tfidf import (  # noqa: F403, F401
     FixedTfidfVectorizer,
@@ -48,4 +49,5 @@ __all__ = [
     "DropCleaner",
     "StandardJsonFlattener",
     "NoTransform",
+    "NaNFiller",
 ] + c_all

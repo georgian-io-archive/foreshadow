@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats as ss
 
-from foreshadow.concrete import Imputer, NoTransform
+from foreshadow.concrete import Imputer, NaNFiller, NoTransform
 from foreshadow.concrete.externals import (
     HashingEncoder,
     MinMaxScaler,
@@ -153,6 +153,12 @@ class CategoricalEncoder(SmartTransformer):
             An initialized encoding transformer
 
         """
+        # NaN is treated as a separate category. In order to take it into
+        # account during the econder selection, we fill the na value with
+        # the string "NaN". In the final pipeline, it has a pre-defined
+        # filler as the first step, which will take effect during the real
+        # transformation.
+        X = X.fillna("NaN")
         data = X.iloc[:, 0]
         unique_count = len(data.value_counts())
 
@@ -168,22 +174,33 @@ class CategoricalEncoder(SmartTransformer):
             return_df=True, use_cat_names=True, handle_unknown="ignore"
         )
 
+        final_pipeline = SerializablePipeline(
+            [("fill_na", NaNFiller(fill_value="NaN"))]
+        )
+
         if self.y_var:
             return LabelEncoder()
         elif delim_diff < 0:
             delim = delimeters[delim_count.index(min(delim_count))]
-            return DummyEncoder(delimeter=delim)
-        elif unique_count <= self.unique_num_cutoff:
-            return ohe
-        elif (reduce_count <= self.unique_num_cutoff) and will_reduce:
-            return SerializablePipeline(
-                [
-                    ("ur", UncommonRemover(threshold=self.merge_thresh)),
-                    ("ohe", ohe),
-                ]
+            final_pipeline.steps.append(
+                ("dummy_encodeer", DummyEncoder(delimeter=delim))
             )
+        elif unique_count <= self.unique_num_cutoff:
+            final_pipeline.steps.append(("one_hot_encoder", ohe))
+        elif (reduce_count <= self.unique_num_cutoff) and will_reduce:
+            final_pipeline.steps.append(
+                (
+                    "uncommon_remover",
+                    UncommonRemover(threshold=self.merge_thresh),
+                )
+            )
+            final_pipeline.steps.append(("one_hot_encoder", ohe))
         else:
-            return HashingEncoder(n_components=30)
+            final_pipeline.steps.append(
+                ("hash_encoder", HashingEncoder(n_components=30))
+            )
+
+        return final_pipeline
 
 
 class SimpleImputer(SmartTransformer):
@@ -481,6 +498,6 @@ class NeitherProcessor(SmartTransformer):
             # TODO change to ValueError once TFIDF is fixed.
             # logging.warning("Error during fit: ".format(str(e)))
             logging.warning(
-                "Revert to NoTransform for Neither " "Type temporarily."
+                "Revert to NoTransform for Neither type temporarily."
             )
             return NoTransform()
