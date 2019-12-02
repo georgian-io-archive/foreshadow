@@ -3,6 +3,34 @@ import pytest
 from foreshadow.utils.testing import get_file_path
 
 
+def test_nan_filler():
+    import pandas as pd
+    import numpy as np
+
+    from foreshadow.concrete import NaNFiller
+    from foreshadow.utils import Constant
+
+    data = pd.DataFrame(
+        {
+            "a": ["123", "a", "b", np.nan],
+            "b": [np.nan, "q", "w", "v"],
+            "c": [np.nan, "1", "0", "1"],
+        }
+    )
+
+    check = pd.DataFrame(
+        {
+            "a": ["123", "a", "b", Constant.NAN_FILL_VALUE],
+            "b": [Constant.NAN_FILL_VALUE, "q", "w", "v"],
+            "c": [Constant.NAN_FILL_VALUE, "1", "0", "1"],
+        }
+    )
+
+    filler = NaNFiller()
+    df = filler.transform(data)
+    assert check.equals(df)
+
+
 def test_dummy_encoder():
     import pandas as pd
 

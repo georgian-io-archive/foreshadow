@@ -1,6 +1,7 @@
 """Fill NaNs."""
 
 from foreshadow.base import BaseEstimator, TransformerMixin
+from foreshadow.utils import Constant
 from foreshadow.wrapper import pandas_wrap
 
 
@@ -8,7 +9,7 @@ from foreshadow.wrapper import pandas_wrap
 class NaNFiller(BaseEstimator, TransformerMixin):
     """Fill NaN values in data."""
 
-    def __init__(self, fill_value="NaN"):
+    def __init__(self, fill_value=Constant.NAN_FILL_VALUE):
         self.fill_value = fill_value
 
     def fit(self, X, y=None):

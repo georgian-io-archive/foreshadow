@@ -28,3 +28,9 @@ class ConfigKey:
 
     N_JOBS = "n_jobs"
     PROCESSED_DATA_EXPORT_PATH = "processed_data_export_path"
+
+
+class Constant:
+    """General constants in Foreshadow."""
+
+    NAN_FILL_VALUE = "NaN"
