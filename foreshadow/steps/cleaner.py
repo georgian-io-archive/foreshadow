@@ -36,3 +36,20 @@ class CleanerMapper(PreparerStep):
             ],
             cols=X.columns,
         )
+
+    def fit_transform(self, X, y=None, **fit_params):
+        """Fit then transform this PreparerStep.
+
+        Call the method in the super class and then drop all the empty columns.
+
+        Args:
+            X: input DataFrame
+            y: input labels
+            **fit_params: kwarg params to fit
+
+        Returns:
+            Result from .transform()
+
+        """
+        Xt = super().fit_transform(X=X, y=y, **fit_params)
+        return Xt.dropna(how="all", axis=1)

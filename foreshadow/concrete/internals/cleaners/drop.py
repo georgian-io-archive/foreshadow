@@ -1,8 +1,9 @@
 """DropCleaner which detects when to drop cleaner."""
-import re
 
+import numpy as np
 import pandas as pd
 
+from foreshadow.metrics import MetricWrapper, regex_rows
 from foreshadow.utils.validation import check_df
 
 from .base import BaseCleaner
@@ -19,11 +20,7 @@ def drop_transform(text):
         Otherwise: None, original text.
 
     """
-    # TODO may want to optimize, no need for regex.
-    regex = "^$"
-    text = str(text)
-    res = re.search(regex, text)
-    if res is not None:
+    if np.isnan(text) or text is None or text == "":
         res = 1
     else:
         res = 0
@@ -39,7 +36,30 @@ class DropCleaner(BaseCleaner):
 
     def __init__(self):
         transformations = [drop_transform]
-        super().__init__(transformations)
+        super().__init__(
+            transformations,
+            confidence_computation={MetricWrapper(regex_rows): 1},
+        )
+
+    def metric_score(self, X: pd.DataFrame) -> float:
+        """Compute the score for this cleaner using confidence_computation.
+
+        confidence_computation is passed through init for each subclass.
+        The confidence determines which cleaner/flattener is picked in an
+        OVR fashion.
+
+        Args:
+            X: input DataFrame.
+
+        Returns:
+            float: confidence value.
+
+        """
+        score = super().metric_score(X)
+        if score < 0.9:
+            # only drop a column if 90% of the data is NaN
+            return 0
+        return score
 
     def transform(self, X, y=None):
         """Clean string columns.
