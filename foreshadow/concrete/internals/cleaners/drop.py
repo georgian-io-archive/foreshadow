@@ -20,7 +20,8 @@ def drop_transform(text):
         Otherwise: None, original text.
 
     """
-    if np.isnan(text) or text is None or text == "":
+    if text is None or text == "" or np.isnan(text):
+        # Need to check np.isnan last as it fails on empty string.
         res = 1
     else:
         res = 0
