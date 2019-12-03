@@ -2,6 +2,19 @@
 
 .. towncrier release notes start
 
+Foreshadow 0.3.0-benchmarking-test (2019-12-03)
+===============================================
+
+Features
+--------
+
+- Improvement:
+  1. Enable sampling on data during intent resolving and data cleaning
+  2. Split out processed data to disk before training the estimator
+  3. Drop empty columns above a threshold (bulk-bug-fix)
+
+
+
 Foreshadow 0.3.0 (2019-11-21)
 =============================
 
