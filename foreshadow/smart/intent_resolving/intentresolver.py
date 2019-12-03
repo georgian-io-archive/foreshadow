@@ -6,7 +6,7 @@ from foreshadow.smart.intent_resolving.core import (
     IntentResolver as AutoIntentResolver,
 )
 from foreshadow.smart.smart import SmartTransformer
-from foreshadow.utils import get_transformer
+from foreshadow.utils import Override, get_transformer
 
 
 _temporary_naming_conversion = {
@@ -52,7 +52,7 @@ class IntentResolver(SmartTransformer):
         # TODO Add sampling on X to reduce run time if the dataset is big
         auto_intent_resolver = AutoIntentResolver(X)
         intent_pd_series = auto_intent_resolver.predict()
-        return intent_pd_series[[0]].values[0]
+        return _temporary_naming_convert(intent_pd_series[[0]].values[0])
 
     def resolve(self, X, *args, **kwargs):
         """Pick the appropriate transformer if necessary.
@@ -94,9 +94,12 @@ class IntentResolver(SmartTransformer):
             Best intent transformer.
 
         """
-        intent_class_name = self._resolve_intent(X, y=y)
-        intent_class = get_transformer(
-            _temporary_naming_convert(intent_class_name)
-        )
+        column = X.columns[0]
+        override_key = "_".join([Override.INTENT, column])
+        if override_key in self.cache_manager["override"]:
+            intent_override = self.cache_manager["override"][override_key]
+            intent_class = get_transformer(intent_override)
+        else:
+            intent_class = get_transformer(self._resolve_intent(X, y=y))
 
         return intent_class()
