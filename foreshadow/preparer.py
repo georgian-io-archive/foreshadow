@@ -10,6 +10,7 @@ from foreshadow.serializers import (
 from foreshadow.smart import CategoricalEncoder
 from foreshadow.steps import (
     CleanerMapper,
+    DataExporterMapper,
     FeatureSummarizerMapper,
     IntentMapper,
     Preprocessor,
@@ -79,6 +80,7 @@ class DataPreparer(
         engineerer_kwargs=None,
         preprocessor_kwargs=None,
         reducer_kwargs=None,
+        exporter_kwargs=None,
         problem_type=None,
         y_var=None,
         **kwargs
@@ -101,6 +103,9 @@ class DataPreparer(
         # reducer_kwargs_ = _none_to_dict(
         #     "reducer_kwargs", reducer_kwargs, cache_manager
         # )
+        exporter_kwargs_ = _none_to_dict(
+            "exporter_kwargs", exporter_kwargs, cache_manager
+        )
         if not y_var:
             steps = [
                 ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
@@ -115,6 +120,7 @@ class DataPreparer(
                 # ),
                 ("feature_preprocessor", Preprocessor(**preprocessor_kwargs_)),
                 # ("feature_reducer", FeatureReducerMapper(**reducer_kwargs_)),
+                ("feature_exporter", DataExporterMapper(**exporter_kwargs_)),
             ]
         else:
             if problem_type == ProblemType.REGRESSION:
