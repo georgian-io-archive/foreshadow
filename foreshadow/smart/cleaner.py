@@ -3,11 +3,12 @@
 from foreshadow.concrete.internals import NoTransform
 from foreshadow.config import config
 from foreshadow.logging import logging
+from foreshadow.utils import DataSamplingMixin
 
 from .smart import SmartTransformer
 
 
-class Cleaner(SmartTransformer):
+class Cleaner(SmartTransformer, DataSamplingMixin):
     """Intelligently decide which cleaning function should be applied."""
 
     def __init__(
@@ -37,9 +38,17 @@ class Cleaner(SmartTransformer):
         best_score = 0
         best_cleaner = None
         logging.debug("Picking cleaners...")
+
+        # The sampling is to speed up the metric score calculation as it may
+        # not be necessary to scan every row in the data frame to generate a
+        # score.
+        sampled_df = self.sample_data_frame(df=X)
+
+        # TODO if this improvement is not sufficient, we can try using
+        #  multiprocessing to get the scores instead of doing it sequentially.
         for cleaner in cleaners:
             cleaner = cleaner()
-            score = cleaner.metric_score(X)
+            score = cleaner.metric_score(sampled_df)
             if score > best_score:
                 best_score = score
                 best_cleaner = cleaner

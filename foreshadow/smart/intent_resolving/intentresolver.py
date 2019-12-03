@@ -6,7 +6,7 @@ from foreshadow.smart.intent_resolving.core import (
     IntentResolver as AutoIntentResolver,
 )
 from foreshadow.smart.smart import SmartTransformer
-from foreshadow.utils import get_transformer
+from foreshadow.utils import DataSamplingMixin, get_transformer
 
 
 _temporary_naming_conversion = {
@@ -25,7 +25,7 @@ def _temporary_naming_convert(auto_ml_intent_name):
         )
 
 
-class IntentResolver(SmartTransformer):
+class IntentResolver(SmartTransformer, DataSamplingMixin):
     """Determine the intent for a particular column.
 
     Params:
@@ -49,8 +49,8 @@ class IntentResolver(SmartTransformer):
             The intent class that best matches the input data.
 
         """
-        # TODO Add sampling on X to reduce run time if the dataset is big
-        auto_intent_resolver = AutoIntentResolver(X)
+        X_sampled = self.sample_data_frame(df=X)
+        auto_intent_resolver = AutoIntentResolver(X_sampled)
         intent_pd_series = auto_intent_resolver.predict()
         return intent_pd_series[[0]].values[0]
 

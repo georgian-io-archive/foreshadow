@@ -166,3 +166,52 @@ def test_get_estimator_exception(family, problem_type, exception):
     estimator_factory = EstimatorFactory()
     with exception:
         estimator_factory.get_estimator(family, problem_type)
+
+
+def test_data_sampling():
+    from foreshadow.utils import DataSamplingMixin
+    from foreshadow.cachemanager import CacheManager
+    from foreshadow.utils import ConfigKey
+    from sklearn.datasets import load_boston
+    import pandas as pd
+
+    class DummyTransformer(DataSamplingMixin):
+        def __init__(self, cache_manager):
+            self.cache_manager = cache_manager
+
+    cache_manager = CacheManager()
+    transformer = DummyTransformer(cache_manager=cache_manager)
+    boston = load_boston()
+    df = pd.DataFrame(boston.data, columns=boston.feature_names)
+
+    assert (
+        len(df)
+        < cache_manager["config"][ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD]
+    )
+
+    sampled = transformer.sample_data_frame(df)
+
+    pd.testing.assert_frame_equal(df, sampled)
+
+    df_medium = pd.concat([df] * 20)
+    assert (
+        len(df_medium)
+        >= cache_manager["config"][ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD]
+    )
+    sampled_medium = transformer.sample_data_frame(df_medium)
+
+    assert (
+        len(sampled_medium)
+        == cache_manager["config"][ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD]
+    )
+
+    df_large = pd.concat([df] * 100)
+    assert (
+        len(df_large)
+        >= cache_manager["config"][ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD]
+    )
+    sampled_large = transformer.sample_data_frame(df_large)
+
+    assert len(sampled_large) == int(
+        len(df_large) * cache_manager["config"][ConfigKey.SAMPLING_FRACTION]
+    )

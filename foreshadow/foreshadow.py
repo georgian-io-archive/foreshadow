@@ -508,9 +508,8 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         """
         if not self.has_fitted:
             logging.info(
-                "You are overriding intent before the foreshadow "
-                "object is trained. Please make sure the column {} "
-                "exist to ensure the override takes "
+                "The foreshadow object is not trained yet. Please make sure "
+                "the column {} exist to ensure the override takes "
                 "effect.".format(column)
             )
             return False
@@ -555,3 +554,32 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
 
         """
         self.X_preparer.cache_manager["config"][ConfigKey.N_JOBS] = n_job
+
+    # TODO I'm not sure if this is a good idea to allow the user to tune the
+    #  sampling criteria as it's more internal comparing to the intent and
+    #  multiprocessing options. We can discuss more on this.
+    def configure_sampling(
+        self,
+        enable_sampling=True,
+        sampling_fraction: float = 0.2,
+        replace: bool = False,
+    ) -> NoReturn:  # noqa: S001
+        """Configure the sampling criteria.
+
+        Args:
+            enable_sampling: whether to enable sampling in data cleaning and intent resolving # noqa: E501
+            sampling_fraction: whether to use replacement during sampling
+            replace: the sampling fraction
+
+        Returns:
+
+        """
+        self.X_preparer.cache_manager["config"][
+            ConfigKey.ENABLE_SAMPLING
+        ] = enable_sampling
+        self.X_preparer.cache_manager["config"][
+            ConfigKey.SAMPLING_FRACTION
+        ] = sampling_fraction
+        self.X_preparer.cache_manager["config"][
+            ConfigKey.SAMPLING_WITH_REPLACEMENT
+        ] = replace
