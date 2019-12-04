@@ -46,7 +46,7 @@ def make_list_of_three(x):
 
 
 class YYYYMMDDDateCleaner(BaseCleaner):
-    """Clean financial data.
+    """Clean DateTime data.
 
     Note: requires pandas input dataframes.
 

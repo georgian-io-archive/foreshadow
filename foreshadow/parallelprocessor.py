@@ -509,17 +509,17 @@ class ParallelProcessor(
             Xs += (Xo,)
 
         # Concatenate results
-        Xs = pd.concat(Xs, axis=1)
+        result = pd.concat(Xs, axis=1)
 
         # Convert multi index to single index if specified
         if self.collapse_index:
             try:
-                Xs.columns = Xs.columns.droplevel()
-                Xs.index.name = None
-                Xs.columns.name = None
+                result.columns = result.columns.droplevel()
+                result.index.name = None
+                result.columns.name = None
             except AttributeError:  # TODO figure out why this is needed
                 pass
-        return Xs
+        return result
 
     def inverse_transform(self, X, **inverse_params):
         """Perform both a fit and a transform.
