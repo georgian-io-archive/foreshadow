@@ -8,7 +8,7 @@ Foreshadow 0.3.dev1 (2019-12-03)
 Features
 --------
 
-- Improvement:
+- Only for benchmarking test:
   1. Enable sampling on data during intent resolving and data cleaning
   2. Split out processed data to disk before training the estimator
   3. Drop empty columns above a threshold (bulk-bug-fix)
