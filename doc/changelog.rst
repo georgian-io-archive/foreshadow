@@ -2,7 +2,7 @@
 
 .. towncrier release notes start
 
-Foreshadow 0.3.0-benchmarking-test (2019-12-03)
+Foreshadow 0.3.dev1 (2019-12-03)
 ===============================================
 
 Features
