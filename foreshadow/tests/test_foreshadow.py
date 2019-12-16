@@ -1009,7 +1009,6 @@ def test_foreshadow_serialization_adults_small_classification():
     assertions.assertAlmostEqual(score1, score2, places=2)
 
 
-@slow
 def test_foreshadow_serialization_tpot():
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
@@ -1027,10 +1026,20 @@ def test_foreshadow_serialization_tpot():
         cancerX_df, cancery_df, test_size=0.2
     )
 
+    # adult = pd.read_csv("examples/adult_small.csv")
+    # X_df = adult.loc[:, "age":"workclass"]
+    # y_df = adult.loc[:, "class"]
+    #
+    # X_train, X_test, y_train, y_test = train_test_split(
+    #     X_df, y_df, test_size=0.2
+    # )
+
     from foreshadow.estimators import AutoEstimator
 
     estimator = AutoEstimator(
-        problem_type=ProblemType.CLASSIFICATION, auto="tpot"
+        problem_type=ProblemType.CLASSIFICATION,
+        auto="tpot",
+        estimator_kwargs={"max_time_mins": 1},
     )
 
     shadow = Foreshadow(
@@ -1039,11 +1048,19 @@ def test_foreshadow_serialization_tpot():
 
     shadow.fit(X_train, y_train)
 
-    shadow.to_json("foreshadow_tpot.json")
+    # shadow.to_json("foreshadow_tpot.json")
+    shadow.to_pickle("shadow123456.p")
 
-    shadow2 = Foreshadow.from_json("foreshadow_tpot.json")
+    # Up to this point it works. The only issue is the tpot auto na filler.
+    # If the data has nan and the fitted pipeline cannot handle it, it will
+    # fail.
+
+    shadow2 = Foreshadow.from_pickle("shadow123456.p")
     shadow2.fit(X_train, y_train)
 
+    # shadow2 = Foreshadow.from_json("foreshadow_tpot.json")
+    # shadow2.fit(X_train, y_train)
+    #
     score1 = shadow.score(X_test, y_test)
     score2 = shadow2.score(X_test, y_test)
     # given the randomness of the tpot algorithm and the short run

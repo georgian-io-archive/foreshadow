@@ -567,3 +567,42 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         self.X_preparer.cache_manager["config"][
             ConfigKey.PROCESSED_DATA_EXPORT_PATH
         ] = data_path
+
+    def to_pickle(self, path: str) -> NoReturn:
+        """Pickle the foreshadow object with the best pipeline estimator.
+
+        Args:
+            path: the pickle file path
+
+        """
+        import pickle
+
+        if (
+            isinstance(self.estimator.estimator, AutoEstimator)
+            and self.estimator.estimator.estimator.fitted_pipeline_ is not None
+        ):
+            self.estimator = (
+                self.estimator.estimator.estimator.fitted_pipeline_
+            )
+            # updating the estimator above will not update the reference in
+            # the pipeline instance as it still points to the old object.
+            self.pipeline.steps[1] = ("estimator", self.estimator)
+        with open(path, "wb") as fopen:
+            pickle.dump(self, fopen)
+
+    @classmethod
+    def from_pickle(cls, path: str):
+        """Unpickle a foreshadow object.
+
+        Args:
+            path: the pickle file path
+
+        Returns:
+            A foreshadow object.
+
+        """
+        import pickle
+
+        with open(path, "rb") as fopen:
+            foreshadow = pickle.load(fopen)
+        return foreshadow
