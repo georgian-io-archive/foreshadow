@@ -6,6 +6,7 @@ import numpy as np
 
 from foreshadow.base import BaseEstimator
 from foreshadow.estimators.config import get_tpot_config
+from foreshadow.logging import logging
 from foreshadow.serializers import ConcreteSerializerMixin
 from foreshadow.utils import check_df, check_module_installed
 
@@ -264,9 +265,25 @@ class AutoEstimator(BaseEstimator, ConcreteSerializerMixin):
         X = check_df(X)
         y = check_df(y)
         self.estimator = self.configure_estimator(y)
-        self.estimator.fit(X, y)
+        # self.estimator.fit(X, y)
+        self._fit(X, y)
 
         return self.estimator
+
+    def _fit(self, X, y):
+        try:
+            self.estimator.fit(X, y)
+        except RuntimeError as re:
+            # if "a regression problem was provided to the TPOTClassifier " \
+            #    "object" in str(re):
+            logging.warning(
+                "An error occurred from TPOT: {} Fall back "
+                "to TPOT light option and retrain the "
+                "model.".format(str(re))
+            )
+            self.estimator = self.configure_estimator(y)
+            self.estimator.config_dict = "TPOT light"
+            self.estimator.fit(X, y)
 
     def predict(self, X):
         """Use the trained estimator to predict the response.

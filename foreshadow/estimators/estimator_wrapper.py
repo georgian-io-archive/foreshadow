@@ -5,7 +5,7 @@ from foreshadow.serializers import ConcreteSerializerMixin
 from foreshadow.utils import check_df
 
 
-class MetaEstimator(BaseEstimator, ConcreteSerializerMixin):
+class EstimatorWrapper(BaseEstimator, ConcreteSerializerMixin):
     """Wrapper that allows data preprocessing on the response variable(s).
 
     Args:
