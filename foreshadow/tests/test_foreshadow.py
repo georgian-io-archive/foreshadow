@@ -1026,9 +1026,16 @@ def test_foreshadow_serialization_tpot():
         cancerX_df, cancery_df, test_size=0.2
     )
 
-    # adult = pd.read_csv("examples/adult_small.csv")
-    # X_df = adult.loc[:, "age":"workclass"]
-    # y_df = adult.loc[:, "class"]
+    # TODO If we use the following dataset, it may fail the test as the
+    #   processed data frame still contains nan. This triggers TPOT auto
+    #   imputation but since it's not part of the fitted pipeline,
+    #   the unpickled foreshadow may fail. We need to make sure one of the
+    #   existing PR handles this by making sure processed data by foreshadow
+    #   contains no nan.
+    #
+    # adult = pd.read_csv("examples/42.csv")
+    # X_df = adult.loc[:, "date":"roots"]
+    # y_df = adult.loc[:, "target"]
     #
     # X_train, X_test, y_train, y_test = train_test_split(
     #     X_df, y_df, test_size=0.2
