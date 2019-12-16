@@ -190,7 +190,7 @@ def generate_model(args):  # noqa: C901
         # Default intent and advanced model search using 3rd party AutoML
 
         estimator = AutoEstimator(problem_type=cargs.problem_type, auto="tpot")
-        estimator.configure_estimator(y_train)
+        estimator.construct_estimator(y_train)
 
         # TODO move this into the configure_estimator method "max_time_mins"
         #  is an argument for the TPOT library. We cannot assign it

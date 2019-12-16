@@ -226,7 +226,7 @@ class AutoEstimator(BaseEstimator, ConcreteSerializerMixin):
 
         return self.estimator_kwargs
 
-    def configure_estimator(self, y):
+    def construct_estimator(self, y):
         """Construct and return the auto estimator instance.
 
         Args:
@@ -264,14 +264,13 @@ class AutoEstimator(BaseEstimator, ConcreteSerializerMixin):
         """
         X = check_df(X)
         y = check_df(y)
-        self.estimator = self.configure_estimator(y)
-        # self.estimator.fit(X, y)
         self._fit(X, y)
 
         return self.estimator
 
     def _fit(self, X, y):
         try:
+            self.estimator = self.construct_estimator(y)
             self.estimator.fit(X, y)
         except RuntimeError as re:
             # if "a regression problem was provided to the TPOTClassifier " \
@@ -281,7 +280,7 @@ class AutoEstimator(BaseEstimator, ConcreteSerializerMixin):
                 "to TPOT light option and retrain the "
                 "model.".format(str(re))
             )
-            self.estimator = self.configure_estimator(y)
+            self.estimator = self.construct_estimator(y)
             self.estimator.config_dict = "TPOT light"
             self.estimator.fit(X, y)
 
