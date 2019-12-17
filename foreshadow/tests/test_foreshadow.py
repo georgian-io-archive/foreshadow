@@ -1009,7 +1009,8 @@ def test_foreshadow_serialization_adults_small_classification():
     assertions.assertAlmostEqual(score1, score2, places=2)
 
 
-def test_foreshadow_serialization_tpot():
+@slow
+def test_foreshadow_pickling_and_unpickling_tpot():
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
     import numpy as np
@@ -1029,9 +1030,9 @@ def test_foreshadow_serialization_tpot():
     # TODO If we use the following dataset, it may fail the test as the
     #   processed data frame still contains nan. This triggers TPOT auto
     #   imputation but since it's not part of the fitted pipeline,
-    #   the unpickled foreshadow may fail. We need to make sure one of the
-    #   existing PR handles this by making sure processed data by foreshadow
-    #   contains no nan.
+    #   the unpickled foreshadow may fail on prediction. We need to make sure
+    #   one of the existing PR handles this by making sure processed data by
+    #   foreshadow contains no nan.
     #
     # adult = pd.read_csv("examples/42.csv")
     # X_df = adult.loc[:, "date":"roots"]
@@ -1054,20 +1055,11 @@ def test_foreshadow_serialization_tpot():
     )
 
     shadow.fit(X_train, y_train)
+    shadow.to_pickle("shadow_pickled.p")
 
-    # shadow.to_json("foreshadow_tpot.json")
-    shadow.to_pickle("shadow123456.p")
-
-    # Up to this point it works. The only issue is the tpot auto na filler.
-    # If the data has nan and the fitted pipeline cannot handle it, it will
-    # fail.
-
-    shadow2 = Foreshadow.from_pickle("shadow123456.p")
+    shadow2 = Foreshadow.from_pickle("shadow_pickled.p")
     shadow2.fit(X_train, y_train)
 
-    # shadow2 = Foreshadow.from_json("foreshadow_tpot.json")
-    # shadow2.fit(X_train, y_train)
-    #
     score1 = shadow.score(X_test, y_test)
     score2 = shadow2.score(X_test, y_test)
     # given the randomness of the tpot algorithm and the short run
