@@ -377,9 +377,6 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
 
     @staticmethod
     def _customize_serialized_estimator(estimator):
-        if isinstance(estimator, EstimatorWrapper):
-            estimator = estimator.estimator
-
         if isinstance(estimator, AutoEstimator):
             """For third party automl estimator, the estimator_kwargs
             have different format and structure. To reduce verbosity,
