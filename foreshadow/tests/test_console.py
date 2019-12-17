@@ -164,7 +164,7 @@ def test_console_generate_and_execute_model(
 
     model = generate_model(args)
 
-    assert isinstance(model[0].estimator.estimator, estimator)
+    assert isinstance(model[0].estimator, estimator)
 
     execute_model(*model)
 
@@ -188,7 +188,7 @@ def test_console_generate_level3(filename, y_var, problem_type, estimator):
 
     model = generate_model(args)
 
-    assert isinstance(model[0].estimator.estimator, AutoEstimator)
+    assert isinstance(model[0].estimator, AutoEstimator)
 
 
 def test_console_parse_args_multiprocess():

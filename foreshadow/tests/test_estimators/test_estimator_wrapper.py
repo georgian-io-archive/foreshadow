@@ -9,11 +9,11 @@ def test_metaestimator_predict():
     from sklearn.linear_model import LinearRegression
     from sklearn.model_selection import train_test_split
 
-    from foreshadow.estimators import MetaEstimator
+    from foreshadow.estimators import EstimatorWrapper
 
     np.random.seed(0)
 
-    me = MetaEstimator(LinearRegression(), StandardScaler())
+    me = EstimatorWrapper(LinearRegression(), StandardScaler())
     X = np.arange(200).reshape((-1, 1))
     y = np.random.normal(100, 10, 200).reshape((-1, 1))
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
@@ -34,12 +34,12 @@ def test_metaestimator_predict_proba():
     from sklearn.linear_model import LogisticRegression
     from sklearn.model_selection import train_test_split
 
-    from foreshadow.estimators import MetaEstimator
+    from foreshadow.estimators import EstimatorWrapper
     from foreshadow.concrete import FixedLabelEncoder as LabelEncoder
 
     np.random.seed(0)
 
-    me = MetaEstimator(LogisticRegression(), LabelEncoder())
+    me = EstimatorWrapper(LogisticRegression(), LabelEncoder())
     X = np.arange(100).reshape((-1, 1))
     y = np.array(["A"] * 50 + ["B"] * 50)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
@@ -58,12 +58,12 @@ def test_metaestimator_score():
     from sklearn.linear_model import LogisticRegression
     from sklearn.model_selection import train_test_split
 
-    from foreshadow.estimators import MetaEstimator
+    from foreshadow.estimators import EstimatorWrapper
     from foreshadow.concrete import FixedLabelEncoder as LabelEncoder
 
     np.random.seed(0)
 
-    me = MetaEstimator(LogisticRegression(), LabelEncoder())
+    me = EstimatorWrapper(LogisticRegression(), LabelEncoder())
     X = np.arange(100).reshape((-1, 1))
     y = np.array(["A"] * 50 + ["B"] * 50)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
@@ -86,11 +86,11 @@ def test_meta_estimator_get_params_keys(deep):
         deep: deep param to get_params
 
     """
-    from foreshadow.estimators.meta import MetaEstimator
+    from foreshadow.estimators.estimator_wrapper import EstimatorWrapper
     from sklearn.preprocessing import StandardScaler
     from sklearn.linear_model import LinearRegression
 
-    me = MetaEstimator(LinearRegression(), StandardScaler())
+    me = EstimatorWrapper(LinearRegression(), StandardScaler())
     params = me.get_params(deep=deep)
 
     desired_keys = ["estimator", "preprocessor"]

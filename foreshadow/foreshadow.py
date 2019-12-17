@@ -9,7 +9,7 @@ from sklearn.model_selection._search import BaseSearchCV
 from foreshadow.base import BaseEstimator
 from foreshadow.cachemanager import CacheManager
 from foreshadow.estimators.auto import AutoEstimator
-from foreshadow.estimators.meta import MetaEstimator
+from foreshadow.estimators.estimator_wrapper import EstimatorWrapper
 from foreshadow.intents import IntentType
 from foreshadow.logging import logging
 from foreshadow.optimizers import ParamSpec, Tuner
@@ -92,7 +92,11 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             self.optimizer = None
 
         if self.y_preparer is not None:
-            self.estimator = MetaEstimator(self.estimator, self.y_preparer)
+            self.estimator_wrapper = EstimatorWrapper(
+                self.estimator, self.y_preparer
+            )
+        else:
+            self.estimator_wrapper = self.estimator
 
     @property
     def X_preparer(self):  # noqa
@@ -245,12 +249,12 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             self.pipeline = SerializablePipeline(
                 [
                     ("X_preparer", self.X_preparer),
-                    ("estimator", self.estimator),
+                    ("estimator_wrapper", self.estimator_wrapper),
                 ]
             )
         else:
             self.pipeline = SerializablePipeline(
-                [("estimator", self.estimator)]
+                [("estimator_wrapper", self.estimator_wrapper)]
             )
 
         if self.optimizer is not None:
@@ -373,9 +377,6 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
 
     @staticmethod
     def _customize_serialized_estimator(estimator):
-        if isinstance(estimator, MetaEstimator):
-            estimator = estimator.estimator
-
         if isinstance(estimator, AutoEstimator):
             """For third party automl estimator, the estimator_kwargs
             have different format and structure. To reduce verbosity,
