@@ -2,6 +2,16 @@
 
 .. towncrier release notes start
 
+Foreshadow 0.3.2 (2019-12-03)
+=============================
+
+Features
+--------
+
+- Feature: Bug fix for intent override
+    Add back the missing intent override (bug-fix-for-intent-override)
+
+
 Foreshadow 0.3.0 (2019-11-21)
 =============================
 
