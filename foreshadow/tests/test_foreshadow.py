@@ -1009,6 +1009,79 @@ def test_foreshadow_serialization_adults_small_classification():
     assertions.assertAlmostEqual(score1, score2, places=2)
 
 
+def test_foreshadow_pickling_and_unpickling_unfitted():
+    from foreshadow.foreshadow import Foreshadow
+    from foreshadow.estimators import AutoEstimator
+
+    estimator = AutoEstimator(
+        problem_type=ProblemType.CLASSIFICATION,
+        auto="tpot",
+        estimator_kwargs={"max_time_mins": 1},
+    )
+    shadow = Foreshadow(
+        estimator=estimator, problem_type=ProblemType.CLASSIFICATION
+    )
+    with pytest.raises(ValueError):
+        shadow.pickle_fitted_pipeline("fitted_pipeline.p")
+
+
+def test_foreshadow_pickling_and_unpickling_non_tpot():
+    from foreshadow.foreshadow import Foreshadow
+    import pandas as pd
+    import numpy as np
+    from sklearn.datasets import load_breast_cancer
+    from sklearn.model_selection import train_test_split
+
+    np.random.seed(1337)
+
+    cancer = load_breast_cancer()
+    cancerX_df = pd.DataFrame(cancer.data, columns=cancer.feature_names)
+    cancery_df = pd.DataFrame(cancer.target, columns=["target"])
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        cancerX_df, cancery_df, test_size=0.2
+    )
+
+    # TODO If we use the following dataset, it may fail the test as the
+    #   processed data frame still contains nan. This triggers TPOT auto
+    #   imputation but since it's not part of the fitted pipeline,
+    #   the unpickled foreshadow may fail on prediction. We need to make sure
+    #   one of the existing PR handles this by making sure processed data by
+    #   foreshadow contains no nan.
+    #
+    # adult = pd.read_csv("examples/42.csv")
+    # X_df = adult.loc[:, "date":"roots"]
+    # y_df = adult.loc[:, "target"]
+    #
+    # X_train, X_test, y_train, y_test = train_test_split(
+    #     X_df, y_df, test_size=0.2
+    # )
+
+    from sklearn.linear_model import LogisticRegression
+
+    shadow = Foreshadow(
+        estimator=LogisticRegression(), problem_type=ProblemType.CLASSIFICATION
+    )
+
+    shadow.fit(X_train, y_train)
+    shadow.pickle_fitted_pipeline("fitted_pipeline.p")
+
+    import pickle
+
+    with open("fitted_pipeline.p", "rb") as fopen:
+        pipeline = pickle.load(fopen)
+
+    pipeline.fit(X_train, y_train)
+
+    score1 = shadow.score(X_test, y_test)
+    score2 = pipeline.score(X_test, y_test)
+    # given the randomness of the tpot algorithm and the short run
+    # time we configured, there is no guarantee the performance can
+    # converge. The test here aims to evaluate if both cases have
+    # produced a reasonable score and the difference is small.
+    assert score1 > 0.9 and score2 > 0.9
+
+
 @slow
 def test_foreshadow_pickling_and_unpickling_tpot():
     from foreshadow.foreshadow import Foreshadow
@@ -1055,13 +1128,17 @@ def test_foreshadow_pickling_and_unpickling_tpot():
     )
 
     shadow.fit(X_train, y_train)
-    shadow.to_pickle("shadow_pickled.p")
+    shadow.pickle_fitted_pipeline("fitted_pipeline.p")
 
-    shadow2 = Foreshadow.from_pickle("shadow_pickled.p")
-    shadow2.fit(X_train, y_train)
+    import pickle
+
+    with open("fitted_pipeline.p", "rb") as fopen:
+        pipeline = pickle.load(fopen)
+
+    pipeline.fit(X_train, y_train)
 
     score1 = shadow.score(X_test, y_test)
-    score2 = shadow2.score(X_test, y_test)
+    score2 = pipeline.score(X_test, y_test)
     # given the randomness of the tpot algorithm and the short run
     # time we configured, there is no guarantee the performance can
     # converge. The test here aims to evaluate if both cases have
