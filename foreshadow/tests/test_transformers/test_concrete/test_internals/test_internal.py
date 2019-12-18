@@ -27,8 +27,11 @@ def test_nan_filler():
     )
 
     filler = NaNFiller()
-    df = filler.transform(data)
-    assert check.equals(df)
+    df_transformed = filler.transform(data)
+    assert check.equals(df_transformed)
+
+    df_original = filler.inverse_transform(df_transformed)
+    assert data.equals(df_original)
 
 
 def test_dummy_encoder():

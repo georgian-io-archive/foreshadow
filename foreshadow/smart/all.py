@@ -97,11 +97,33 @@ class Scaler(SmartTransformer):
             return distributions[best_dist]
 
 
+def will_remove_uncommon(X, temp_uncommon_remover):
+    """Check if the transformer will modify the data.
+
+    Uses current settings.
+
+    Args:
+        X: input observations column
+        temp_uncommon_remover: transformer
+
+    Returns:
+        (tuple) bool and category counts
+
+    """
+    X = check_df(X, single_column=True).iloc[:, 0].values
+    out = temp_uncommon_remover.fit_transform(X).values.ravel()
+
+    return (
+        not (np.array_equal(X, out) | (pd.isnull(X) & pd.isnull(out))).all(),
+        pd.unique(out).size,
+    )
+
+
 class CategoricalEncoder(SmartTransformer):
     """Automatically encode categorical features.
 
-    If there are less than 30 categories, then OneHotEncoder is used, if there
-    are more then HashingEncoder is used. If the columns containing a
+    If there are no more than 30 categories, then OneHotEncoder is used,
+    if there are more then HashingEncoder is used. If the columns containing a
     delimmeter exceed delim_cuttoff then a DummyEncoder is used (set cutoff to
     -1 to force). If used in a y_var context, LabelEncoder is used.
 
@@ -116,29 +138,6 @@ class CategoricalEncoder(SmartTransformer):
         self.unique_num_cutoff = unique_num_cutoff
         self.merge_thresh = merge_thresh
         super().__init__(**kwargs)
-
-    def will_transform(self, X, temp_ur):
-        """Check if the transformer will modify the data.
-
-        Uses current settings.
-
-        Args:
-            X: input observations column
-            temp_ur: transformer
-
-        Returns:
-            (tuple) bool and category counts
-
-        """
-        X = check_df(X, single_column=True).iloc[:, 0].values
-        out = temp_ur.fit_transform(X).values.ravel()
-
-        return (
-            not (
-                np.array_equal(X, out) | (pd.isnull(X) & pd.isnull(out))
-            ).all(),
-            pd.unique(out).size,
-        )
 
     def pick_transformer(self, X, y=None, **fit_params):
         """Determine the appropriate encoding method for an input dataset.
@@ -162,14 +161,22 @@ class CategoricalEncoder(SmartTransformer):
         data = X.iloc[:, 0]
         unique_count = len(data.value_counts())
 
+        # TODO performance drag. We may want to apply sampling on this part
+        #  and the uncommon_remove.
+        # Calculate stats for DummyEncoder
         delimeters = [",", ";", "\t"]
         delim_count = [
             len(list(data.astype("str").str.get_dummies(sep=d)))
             for d in delimeters
         ]
         delim_diff = min(delim_count) - len(list(pd.get_dummies(data)))
-        temp_ur = UncommonRemover(threshold=self.merge_thresh)
-        will_reduce, reduce_count = self.will_transform(X, temp_ur)
+
+        # Calculate stats for UncommonRemover
+        temp_uncommon_remover = UncommonRemover(threshold=self.merge_thresh)
+        will_reduce, potential_reduced_count = will_remove_uncommon(
+            X, temp_uncommon_remover
+        )
+
         ohe = OneHotEncoder(
             return_df=True, use_cat_names=True, handle_unknown="ignore"
         )
@@ -187,7 +194,9 @@ class CategoricalEncoder(SmartTransformer):
             )
         elif unique_count <= self.unique_num_cutoff:
             final_pipeline.steps.append(("one_hot_encoder", ohe))
-        elif (reduce_count <= self.unique_num_cutoff) and will_reduce:
+        elif (
+            potential_reduced_count <= self.unique_num_cutoff
+        ) and will_reduce:
             final_pipeline.steps.append(
                 (
                     "uncommon_remover",
