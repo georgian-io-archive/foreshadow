@@ -588,11 +588,10 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             isinstance(self.estimator, AutoEstimator)
             and self.estimator.estimator.fitted_pipeline_ is not None
         ):
-            self.estimator = (
-                self.estimator.estimator.fitted_pipeline_
-            )
+            self.estimator = self.estimator.estimator.fitted_pipeline_
             # updating the estimator above will not update the reference in
             # the pipeline instance as it still points to the old object.
             self.pipeline.steps[1] = ("estimator", self.estimator)
+
         with open(path, "wb") as fopen:
             pickle.dump(self.pipeline, fopen)
