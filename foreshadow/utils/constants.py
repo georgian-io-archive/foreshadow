@@ -5,6 +5,11 @@ class DefaultConfig:
     """Constants for default configurations."""
 
     PROCESSED_DATA_EXPORT_PATH = "processed_data.csv"
+    ENABLE_SAMPLING = True
+    SAMPLING_DATASET_SIZE_THRESHOLD = 10000
+    SAMPLING_WITH_REPLACEMENT = False
+    SAMPLING_FRACTION = 0.2
+    N_JOBS = 1
 
 
 class ProblemType:

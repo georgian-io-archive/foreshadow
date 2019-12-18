@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from foreshadow.utils import AcceptedKey, ConfigKey
+from foreshadow.utils import AcceptedKey, ConfigKey, DefaultConfig
 
 
 simple_dataframe = pd.Series([i for i in range(10)])
@@ -244,11 +244,11 @@ def test_cache_manager_dict_serialize(store):
     configs = cs_serialized["store"].pop(AcceptedKey.CONFIG)
 
     assert configs == {
-        ConfigKey.ENABLE_SAMPLING: True,
-        ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD: 10000,
-        ConfigKey.SAMPLING_WITH_REPLACEMENT: False,
-        ConfigKey.SAMPLING_FRACTION: 0.2,
-        ConfigKey.N_JOBS: 1,
+        ConfigKey.ENABLE_SAMPLING: DefaultConfig.ENABLE_SAMPLING,
+        ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD: DefaultConfig.SAMPLING_DATASET_SIZE_THRESHOLD,  # noqa E501
+        ConfigKey.SAMPLING_WITH_REPLACEMENT: DefaultConfig.SAMPLING_WITH_REPLACEMENT,  # noqa E501
+        ConfigKey.SAMPLING_FRACTION: DefaultConfig.SAMPLING_FRACTION,
+        ConfigKey.N_JOBS: DefaultConfig.N_JOBS,
     }
     assert expected == cs_serialized
 

@@ -1178,6 +1178,7 @@ def test_foreshadow_configure_sampling():
     )
 
 
+@slow
 def test_foreshadow_sampling_performance_comparison():
     X_train, X_test, y_train, y_test = train_test_split_local_file_common(
         file_path="examples/adult_small.csv",
