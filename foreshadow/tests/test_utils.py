@@ -4,7 +4,7 @@ from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.neural_network import MLPClassifier, MLPRegressor
 from sklearn.svm import LinearSVC, LinearSVR
 
-from foreshadow.utils import EstimatorFamily, ProblemType
+from foreshadow.utils import AcceptedKey, EstimatorFamily, ProblemType
 
 
 def test_check_df_passthrough():
@@ -186,7 +186,9 @@ def test_data_sampling():
 
     assert (
         len(df)
-        < cache_manager["config"][ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD]
+        < cache_manager[AcceptedKey.CONFIG][
+            ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD
+        ]
     )
 
     sampled = transformer.sample_data_frame(df)
@@ -196,22 +198,29 @@ def test_data_sampling():
     df_medium = pd.concat([df] * 20)
     assert (
         len(df_medium)
-        >= cache_manager["config"][ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD]
+        >= cache_manager[AcceptedKey.CONFIG][
+            ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD
+        ]
     )
     sampled_medium = transformer.sample_data_frame(df_medium)
 
     assert (
         len(sampled_medium)
-        == cache_manager["config"][ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD]
+        == cache_manager[AcceptedKey.CONFIG][
+            ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD
+        ]
     )
 
     df_large = pd.concat([df] * 100)
     assert (
         len(df_large)
-        >= cache_manager["config"][ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD]
+        >= cache_manager[AcceptedKey.CONFIG][
+            ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD
+        ]
     )
     sampled_large = transformer.sample_data_frame(df_large)
 
     assert len(sampled_large) == int(
-        len(df_large) * cache_manager["config"][ConfigKey.SAMPLING_FRACTION]
+        len(df_large)
+        * cache_manager[AcceptedKey.CONFIG][ConfigKey.SAMPLING_FRACTION]
     )

@@ -7,7 +7,7 @@ from importlib import import_module
 from pandas import DataFrame
 
 from foreshadow.exceptions import TransformerNotFound
-from foreshadow.utils.constants import ConfigKey
+from foreshadow.utils.constants import AcceptedKey, ConfigKey
 from foreshadow.utils.override_substitute import Override
 
 
@@ -119,26 +119,30 @@ class DataSamplingMixin:
 
         """
         if (
-            not self.cache_manager["config"][ConfigKey.ENABLE_SAMPLING]
+            not self.cache_manager[AcceptedKey.CONFIG][
+                ConfigKey.ENABLE_SAMPLING
+            ]
             or len(df)
-            < self.cache_manager["config"][
+            < self.cache_manager[AcceptedKey.CONFIG][
                 ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD
             ]
         ):
             return df
 
         number_of_rows_to_sample = max(
-            self.cache_manager["config"][
+            self.cache_manager[AcceptedKey.CONFIG][
                 ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD
             ],
             int(
                 len(df)
-                * self.cache_manager["config"][ConfigKey.SAMPLING_FRACTION]
+                * self.cache_manager[AcceptedKey.CONFIG][
+                    ConfigKey.SAMPLING_FRACTION
+                ]
             ),
         )
         return df.sample(
             n=number_of_rows_to_sample,
-            replace=self.cache_manager["config"][
+            replace=self.cache_manager[AcceptedKey.CONFIG][
                 ConfigKey.SAMPLING_WITH_REPLACEMENT
             ],
         )

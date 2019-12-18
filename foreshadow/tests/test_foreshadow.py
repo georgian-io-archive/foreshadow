@@ -2,7 +2,7 @@
 
 import pytest
 
-from foreshadow.utils import ProblemType
+from foreshadow.utils import AcceptedKey, ProblemType
 from foreshadow.utils.testing import get_file_path
 
 
@@ -1156,7 +1156,9 @@ def test_foreshadow_configure_sampling():
     )
     shadow.configure_sampling(enable_sampling=False)
     assert (
-        shadow.X_preparer.cache_manager["config"][ConfigKey.ENABLE_SAMPLING]
+        shadow.X_preparer.cache_manager[AcceptedKey.CONFIG][
+            ConfigKey.ENABLE_SAMPLING
+        ]
         is False
     )
 
@@ -1164,15 +1166,19 @@ def test_foreshadow_configure_sampling():
         enable_sampling=True, sampling_fraction=0.3, replace=False
     )
     assert (
-        shadow.X_preparer.cache_manager["config"][ConfigKey.ENABLE_SAMPLING]
+        shadow.X_preparer.cache_manager[AcceptedKey.CONFIG][
+            ConfigKey.ENABLE_SAMPLING
+        ]
         is True
     )
     assert (
-        shadow.X_preparer.cache_manager["config"][ConfigKey.SAMPLING_FRACTION]
+        shadow.X_preparer.cache_manager[AcceptedKey.CONFIG][
+            ConfigKey.SAMPLING_FRACTION
+        ]
         == 0.3
     )
     assert (
-        shadow.X_preparer.cache_manager["config"][
+        shadow.X_preparer.cache_manager[AcceptedKey.CONFIG][
             ConfigKey.SAMPLING_WITH_REPLACEMENT
         ]
         is False

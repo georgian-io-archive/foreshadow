@@ -6,7 +6,7 @@ from foreshadow.concrete.internals.notransform import NoTransform
 from foreshadow.logging import logging
 from foreshadow.parallelprocessor import ParallelProcessor
 from foreshadow.serializers import _make_deserializable
-from foreshadow.utils import ConfigKey
+from foreshadow.utils import AcceptedKey, ConfigKey
 from foreshadow.utils.common import ConfigureCacheManagerMixin
 
 from ..cachemanager import CacheManager
@@ -393,12 +393,12 @@ class PreparerStep(
         if len(group_transformer_list) == 0:
             return NoTransform()
 
-        if self.cache_manager["config"][ConfigKey.N_JOBS] is None:
-            self.cache_manager["config"][ConfigKey.N_JOBS] = 1
+        if self.cache_manager[AcceptedKey.CONFIG][ConfigKey.N_JOBS] is None:
+            self.cache_manager[AcceptedKey.CONFIG][ConfigKey.N_JOBS] = 1
 
         return ParallelProcessor(
             group_transformer_list,
-            n_jobs=self.cache_manager["config"][ConfigKey.N_JOBS],
+            n_jobs=self.cache_manager[AcceptedKey.CONFIG][ConfigKey.N_JOBS],
             collapse_index=True,
         )
 

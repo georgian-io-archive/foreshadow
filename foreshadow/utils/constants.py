@@ -34,6 +34,17 @@ class ConfigKey:
     PROCESSED_DATA_EXPORT_PATH = "processed_data_export_path"
 
 
+class AcceptedKey:
+    """Accepted keys of the CacheManager."""
+
+    INTENT = "intent"
+    DOMAIN = "domain"
+    METASTAT = "metastat"
+    GRAPH = "graph"
+    OVERRIDE = "override"
+    CONFIG = "config"
+
+
 class Constant:
     """General constants in Foreshadow."""
 

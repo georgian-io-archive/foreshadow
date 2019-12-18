@@ -13,6 +13,7 @@ from foreshadow.utils.constants import (
     ConfigKey,
     Constant,
     DefaultConfig,
+    AcceptedKey,
     EstimatorFamily,
     ProblemType,
 )
@@ -60,4 +61,5 @@ __all__ = [
     "ConfigKey",
     "DefaultConfig",
     "Constant",
+    "AcceptedKey",
 ]

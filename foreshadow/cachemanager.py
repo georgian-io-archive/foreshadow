@@ -4,7 +4,7 @@ from collections import MutableMapping, defaultdict
 from typing import NoReturn
 
 from foreshadow.serializers import ConcreteSerializerMixin
-from foreshadow.utils import ConfigKey
+from foreshadow.utils import AcceptedKey, ConfigKey
 
 
 def get_none():  # noqa: D401
@@ -64,23 +64,25 @@ class CacheManager(MutableMapping, ConcreteSerializerMixin):
         # {column: key-column info} and gives None by default. It is the users
         # responsibility to make sure returned values are useful.
         acceptable_keys = {
-            "intent": True,
-            "domain": True,
-            "metastat": True,
-            "graph": True,
-            "override": True,
-            "config": True,
+            AcceptedKey.INTENT: True,
+            AcceptedKey.DOMAIN: True,
+            AcceptedKey.METASTAT: True,
+            AcceptedKey.GRAPH: True,
+            AcceptedKey.OVERRIDE: True,
+            AcceptedKey.CONFIG: True,
         }
         self.__acceptable_keys = PrettyDefaultDict(get_false, acceptable_keys)
         self._initialize_default_config()
 
     def _initialize_default_config(self) -> NoReturn:
         """Initialize the default configurations."""
-        self["config"][ConfigKey.ENABLE_SAMPLING] = True
-        self["config"][ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD] = 10000
-        self["config"][ConfigKey.SAMPLING_WITH_REPLACEMENT] = False
-        self["config"][ConfigKey.SAMPLING_FRACTION] = 0.2
-        self["config"][ConfigKey.N_JOBS] = 1
+        self[AcceptedKey.CONFIG][ConfigKey.ENABLE_SAMPLING] = True
+        self[AcceptedKey.CONFIG][
+            ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD
+        ] = 10000
+        self[AcceptedKey.CONFIG][ConfigKey.SAMPLING_WITH_REPLACEMENT] = False
+        self[AcceptedKey.CONFIG][ConfigKey.SAMPLING_FRACTION] = 0.2
+        self[AcceptedKey.CONFIG][ConfigKey.N_JOBS] = 1
 
     def dict_serialize(self, deep=False):
         """Serialize the init parameters (dictionary form) of a columnsharer.
