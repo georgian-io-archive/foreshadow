@@ -6,7 +6,7 @@ from foreshadow.smart.intent_resolving.core import (
     IntentResolver as AutoIntentResolver,
 )
 from foreshadow.smart.smart import SmartTransformer
-from foreshadow.utils import Override, get_transformer, DataSamplingMixin
+from foreshadow.utils import DataSamplingMixin, Override, get_transformer
 
 
 _temporary_naming_conversion = {

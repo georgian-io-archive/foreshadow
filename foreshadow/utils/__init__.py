@@ -14,6 +14,7 @@ from foreshadow.utils.constants import (
     Constant,
     DefaultConfig,
     AcceptedKey,
+    DefaultConfig,
     EstimatorFamily,
     ProblemType,
 )
