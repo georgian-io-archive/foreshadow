@@ -177,18 +177,6 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
 
         """
         X = check_df(X, single_column=True)
-        # Problem:
-        # I can use .apply to perform all these transformations and that
-        # works beautifully, except when I want to define a funtion that
-        # will use the pandas.series.str.split operation. In which case,
-        # the .apply fails and I don't know why.
-
-        # I need each function to accept the row as an argument so that we
-        # can inspect how much of the text was matched (for determining if
-        # it should be used). however, doing this means I need to iterate
-        # over each row for a given column on my own, which requires me to
-        # leave
-
         logging.info("Starting cleaning rows...")
         out = X[X.columns[0]].apply(self.transform_row, return_tuple=False)
         logging.info("Ending cleaning rows...")
@@ -213,13 +201,15 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
                 )
             columns = self.output_columns
             if columns is None:
-                columns = [
-                    X.columns[0] + str(c) for c in range(len(out.iloc[0]))
-                ]
                 # by default, pandas would have given a unique integer to
                 # each column, instead, we keep the previous column name and
                 # add that integer.
-            X = pd.DataFrame([*out.values], columns=columns)
+                columns = [
+                    X.columns[0] + str(c) for c in range(len(out.iloc[0]))
+                ]
+            # We need to set the index. Otherwise, the new data frame might
+            # misalign with other columns.
+            X = pd.DataFrame([*out.values], index=out.index, columns=columns)
         elif any(
             [isinstance(out.iloc[i], (dict)) for i in range(out.shape[0])]
         ):  # out are dicts ==  named new columns
