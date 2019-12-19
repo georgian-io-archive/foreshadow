@@ -753,7 +753,7 @@ def test_foreshadow_get_params_keys(deep):
         assert key in params
 
 
-def test_foreshadow_serialization_breast_cancer_non_auto_estimator():
+def test_foreshadow_serialization_breast_cancer_non_auto_estimator(tmpdir):
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
     import numpy as np
@@ -777,11 +777,10 @@ def test_foreshadow_serialization_breast_cancer_non_auto_estimator():
 
     shadow.fit(X_train, y_train)
 
-    shadow.to_json("foreshadow_cancer_logistic_regression.json")
+    json_location = tmpdir.join("foreshadow_cancer_logistic_regression.json")
+    shadow.to_json(json_location)
 
-    shadow2 = Foreshadow.from_json(
-        "foreshadow_cancer_logistic_regression.json"
-    )
+    shadow2 = Foreshadow.from_json(json_location)
     shadow2.fit(X_train, y_train)
 
     score1 = shadow.score(X_test, y_test)
@@ -814,7 +813,6 @@ def test_foreshadow_serialization_adults_small_classification_override():
         estimator=LogisticRegression(), problem_type=ProblemType.CLASSIFICATION
     )
     shadow.fit(X_train, y_train)
-    shadow.to_json("foreshadow_adults_small_logistic_regression_1.json")
     score1 = shadow.score(X_test, y_test)
 
     from foreshadow.intents import IntentType
@@ -822,7 +820,6 @@ def test_foreshadow_serialization_adults_small_classification_override():
     shadow.override_intent("age", IntentType.CATEGORICAL)
     shadow.override_intent("workclass", IntentType.CATEGORICAL)
     shadow.fit(X_train, y_train)
-    shadow.to_json("foreshadow_adults_small_logistic_regression_2.json")
 
     assert shadow.get_intent("age") == IntentType.CATEGORICAL
     assert shadow.get_intent("workclass") == IntentType.CATEGORICAL
@@ -860,14 +857,13 @@ def test_foreshadow_adults_small_classification_override_upfront():
     shadow.fit(X_train, y_train)
     assert shadow.get_intent("age") == IntentType.CATEGORICAL
     assert shadow.get_intent("workclass") == IntentType.CATEGORICAL
-    shadow.to_json(
-        "foreshadow_adults_small_logistic_regression_override_upfront.json"
-    )
     score1 = shadow.score(X_test, y_test)
     print(score1)
 
 
-def test_foreshadow_serialization_boston_housing_regression_multiprocessing():
+def test_foreshadow_serialization_boston_housing_regression_multiprocessing(
+    tmpdir
+):
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
     import numpy as np
@@ -891,12 +887,14 @@ def test_foreshadow_serialization_boston_housing_regression_multiprocessing():
 
     shadow.configure_multiprocessing(n_job=-1)
 
-    shadow.fit(X_train, y_train)
-    shadow.to_json("foreshadow_boston_housing_linear_regression.json")
-
-    shadow2 = Foreshadow.from_json(
+    json_location = tmpdir.join(
         "foreshadow_boston_housing_linear_regression.json"
     )
+
+    shadow.fit(X_train, y_train)
+    shadow.to_json(json_location)
+
+    shadow2 = Foreshadow.from_json(json_location)
 
     shadow2.fit(X_train, y_train)
 
@@ -954,12 +952,14 @@ def test_foreshadow_serialization_adults_small_classification():
         problem_type=ProblemType.CLASSIFICATION
     )
 
+    json_location = "foreshadow_tpot.json"
+
     shadow.fit(X_train, y_train)
 
-    shadow.to_json("foreshadow_tpot.json")
+    shadow.to_json(json_location)
 
     # Turn of sampling to test if sampling actually makes it faster.
-    shadow2 = Foreshadow.from_json("foreshadow_tpot.json")
+    shadow2 = Foreshadow.from_json(json_location)
     shadow2.fit(X_train, y_train)
     score1 = shadow.score(X_test, y_test)
     score2 = shadow2.score(X_test, y_test)
@@ -968,7 +968,11 @@ def test_foreshadow_serialization_adults_small_classification():
     # time we configured, there is no guarantee the performance can
     # converge. The test here aims to evaluate if both cases have
     # produced a reasonable score and the difference is small.
-    assert score1 > 0.9 and score2 > 0.9
+    import unittest
+
+    assertions = unittest.TestCase("__init__")
+    # TODO need further investigation.
+    assertions.assertAlmostEqual(score1, score2, places=2)
 
 
 @slow

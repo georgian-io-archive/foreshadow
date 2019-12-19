@@ -121,25 +121,23 @@ def test_data_preparer_serialization_has_one_cache_manager():
     check_has_no_cache_manager(dp_serialized, key_name)
 
 
-def test_data_preparer_deserialization():
+def test_data_preparer_deserialization(tmpdir):
     from foreshadow.preparer import DataPreparer
     from foreshadow.cachemanager import CacheManager
     import pandas as pd
 
     boston_path = get_file_path("data", "boston_housing.csv")
     data = pd.read_csv(boston_path)
-    # data = data[["crim", "indus", "ptratio", "tax", "zn"]]
-    # data = data[["crim", "indus"]]
-    # data = data[["nox"]]
 
     cs = CacheManager()
     dp = DataPreparer(cs)
 
     dp.fit(data)
     data_transformed = dp.transform(data)
-    dp.to_json("data_preparerer.json")
+    json_location = tmpdir.join("data_preparerer.json")
+    dp.to_json(json_location)
 
-    dp2 = DataPreparer.from_json("data_preparerer.json")
+    dp2 = DataPreparer.from_json(json_location)
     dp2.fit(data)
     data_transformed2 = dp2.transform(data)
 

@@ -2,13 +2,15 @@
 
 from foreshadow.cachemanager import CacheManager
 from foreshadow.steps import DataExporterMapper
-from foreshadow.utils import ConfigKey
+from foreshadow.utils import AcceptedKey, ConfigKey
 
 
-def test_data_exporter_fit_transform():
-    export_path = "data_export.csv"
+def test_data_exporter_fit_transform(tmpdir):
+    export_path = tmpdir.join("data_export.csv")
     cache_manager = CacheManager()
-    cache_manager["config"][ConfigKey.PROCESSED_DATA_EXPORT_PATH] = export_path
+    cache_manager[AcceptedKey.CONFIG][
+        ConfigKey.PROCESSED_DATA_EXPORT_PATH
+    ] = export_path
 
     exporter = DataExporterMapper(cache_manager=cache_manager)
 
