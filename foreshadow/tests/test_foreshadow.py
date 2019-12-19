@@ -753,7 +753,7 @@ def test_foreshadow_get_params_keys(deep):
         assert key in params
 
 
-def test_foreshadow_serialization_breast_cancer_non_auto_estimator(tmpdir):
+def test_foreshadow_serialization_breast_cancer_non_auto_estimator():
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
     import numpy as np
@@ -776,20 +776,8 @@ def test_foreshadow_serialization_breast_cancer_non_auto_estimator(tmpdir):
     )
 
     shadow.fit(X_train, y_train)
-
-    json_location = tmpdir.join("foreshadow_cancer_logistic_regression.json")
-    shadow.to_json(json_location)
-
-    shadow2 = Foreshadow.from_json(json_location)
-    shadow2.fit(X_train, y_train)
-
-    score1 = shadow.score(X_test, y_test)
-    score2 = shadow2.score(X_test, y_test)
-
-    import unittest
-
-    assertions = unittest.TestCase("__init__")
-    assertions.assertAlmostEqual(score1, score2, places=7)
+    score = shadow.score(X_test, y_test)
+    print(score)
 
 
 def test_foreshadow_serialization_adults_small_classification_override():
@@ -824,9 +812,7 @@ def test_foreshadow_serialization_adults_small_classification_override():
     assert shadow.get_intent("age") == IntentType.CATEGORICAL
     assert shadow.get_intent("workclass") == IntentType.CATEGORICAL
     score2 = shadow.score(X_test, y_test)
-
-    print(score1)
-    print(score2)
+    print(score1, score2)
 
 
 def test_foreshadow_adults_small_classification_override_upfront():
@@ -857,8 +843,8 @@ def test_foreshadow_adults_small_classification_override_upfront():
     shadow.fit(X_train, y_train)
     assert shadow.get_intent("age") == IntentType.CATEGORICAL
     assert shadow.get_intent("workclass") == IntentType.CATEGORICAL
-    score1 = shadow.score(X_test, y_test)
-    print(score1)
+    score = shadow.score(X_test, y_test)
+    print(score)
 
 
 def test_foreshadow_serialization_boston_housing_regression_multiprocessing(
@@ -887,24 +873,10 @@ def test_foreshadow_serialization_boston_housing_regression_multiprocessing(
 
     shadow.configure_multiprocessing(n_job=-1)
 
-    json_location = tmpdir.join(
-        "foreshadow_boston_housing_linear_regression.json"
-    )
-
     shadow.fit(X_train, y_train)
-    shadow.to_json(json_location)
 
-    shadow2 = Foreshadow.from_json(json_location)
-
-    shadow2.fit(X_train, y_train)
-
-    score1 = shadow.score(X_test, y_test)
-    score2 = shadow2.score(X_test, y_test)
-
-    import unittest
-
-    assertions = unittest.TestCase("__init__")
-    assertions.assertAlmostEqual(score1, score2, places=7)
+    score = shadow.score(X_test, y_test)
+    print(score)
 
 
 def train_test_split_local_file_common(file_path, X_start, X_end, target):
@@ -952,30 +924,12 @@ def test_foreshadow_serialization_adults_small_classification():
         problem_type=ProblemType.CLASSIFICATION
     )
 
-    json_location = "foreshadow_tpot.json"
-
     shadow.fit(X_train, y_train)
-
-    shadow.to_json(json_location)
-
-    # Turn of sampling to test if sampling actually makes it faster.
-    shadow2 = Foreshadow.from_json(json_location)
-    shadow2.fit(X_train, y_train)
     score1 = shadow.score(X_test, y_test)
-    score2 = shadow2.score(X_test, y_test)
-
-    # given the randomness of the tpot algorithm and the short run
-    # time we configured, there is no guarantee the performance can
-    # converge. The test here aims to evaluate if both cases have
-    # produced a reasonable score and the difference is small.
-    import unittest
-
-    assertions = unittest.TestCase("__init__")
-    # TODO need further investigation.
-    assertions.assertAlmostEqual(score1, score2, places=2)
+    print(score1)
 
 
-@slow
+# @slow
 def test_foreshadow_serialization_adults_classification():
     X_train, X_test, y_train, y_test = train_test_split_local_file_common(
         file_path="examples/adult.csv",
@@ -988,22 +942,9 @@ def test_foreshadow_serialization_adults_classification():
     )
 
     shadow.fit(X_train, y_train)
-    shadow.to_json("foreshadow_adults_logistic_regression.json")
 
-    shadow2 = Foreshadow.from_json(
-        "foreshadow_adults_logistic_regression.json"
-    )
-    shadow2.fit(X_train, y_train)
-
-    score1 = shadow.score(X_test, y_test)
-    score2 = shadow2.score(X_test, y_test)
-
-    import unittest
-
-    assertions = unittest.TestCase("__init__")
-    # 0.8470672535571706 != 0.8469648889343843 could be a python decimal thing
-    # TODO need further investigation.
-    assertions.assertAlmostEqual(score1, score2, places=2)
+    score = shadow.score(X_test, y_test)
+    print(score)
 
 
 def test_foreshadow_pickling_and_unpickling_unfitted():
@@ -1039,21 +980,6 @@ def test_foreshadow_pickling_and_unpickling_non_tpot():
         cancerX_df, cancery_df, test_size=0.2
     )
 
-    # TODO If we use the following dataset, it may fail the test as the
-    #   processed data frame still contains nan. This triggers TPOT auto
-    #   imputation but since it's not part of the fitted pipeline,
-    #   the unpickled foreshadow may fail on prediction. We need to make sure
-    #   one of the existing PR handles this by making sure processed data by
-    #   foreshadow contains no nan.
-    #
-    # adult = pd.read_csv("examples/42.csv")
-    # X_df = adult.loc[:, "date":"roots"]
-    # y_df = adult.loc[:, "target"]
-    #
-    # X_train, X_test, y_train, y_test = train_test_split(
-    #     X_df, y_df, test_size=0.2
-    # )
-
     from sklearn.linear_model import LogisticRegression
 
     shadow = Foreshadow(
@@ -1072,11 +998,15 @@ def test_foreshadow_pickling_and_unpickling_non_tpot():
 
     score1 = shadow.score(X_test, y_test)
     score2 = pipeline.score(X_test, y_test)
+
+    import unittest
+
+    assertions = unittest.TestCase("__init__")
     # given the randomness of the tpot algorithm and the short run
     # time we configured, there is no guarantee the performance can
     # converge. The test here aims to evaluate if both cases have
     # produced a reasonable score and the difference is small.
-    assert score1 > 0.9 and score2 > 0.9
+    assertions.assertAlmostEqual(score1, score2, places=2)
 
 
 @slow
@@ -1096,21 +1026,6 @@ def test_foreshadow_pickling_and_unpickling_tpot():
     X_train, X_test, y_train, y_test = train_test_split(
         cancerX_df, cancery_df, test_size=0.2
     )
-
-    # TODO If we use the following dataset, it may fail the test as the
-    #   processed data frame still contains nan. This triggers TPOT auto
-    #   imputation but since it's not part of the fitted pipeline,
-    #   the unpickled foreshadow may fail on prediction. We need to make sure
-    #   one of the existing PR handles this by making sure processed data by
-    #   foreshadow contains no nan.
-    #
-    # adult = pd.read_csv("examples/42.csv")
-    # X_df = adult.loc[:, "date":"roots"]
-    # y_df = adult.loc[:, "target"]
-    #
-    # X_train, X_test, y_train, y_test = train_test_split(
-    #     X_df, y_df, test_size=0.2
-    # )
 
     from foreshadow.estimators import AutoEstimator
 
@@ -1136,11 +1051,15 @@ def test_foreshadow_pickling_and_unpickling_tpot():
 
     score1 = shadow.score(X_test, y_test)
     score2 = pipeline.score(X_test, y_test)
+
+    import unittest
+
+    assertions = unittest.TestCase("__init__")
     # given the randomness of the tpot algorithm and the short run
     # time we configured, there is no guarantee the performance can
     # converge. The test here aims to evaluate if both cases have
     # produced a reasonable score and the difference is small.
-    assert score1 > 0.9 and score2 > 0.9
+    assertions.assertAlmostEqual(score1, score2, places=2)
 
 
 def test_foreshadow_configure_sampling():
