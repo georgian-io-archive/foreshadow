@@ -6,7 +6,6 @@ Concrete secondary featurizer classes include:
     -- MetaDataSetFeaturizerViaLambda
     -- NGramFeaturizer
     -- Chars2VecFeaturizer
-    -- FastTextFeaturizer
 
 This __init__.py file also contains defintions for the followig helper class:
     -- FeaturizerCurator
