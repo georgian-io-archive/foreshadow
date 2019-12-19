@@ -10,10 +10,9 @@ from foreshadow.utils.common import (
     get_transformer,
 )
 from foreshadow.utils.constants import (
+    AcceptedKey,
     ConfigKey,
     Constant,
-    DefaultConfig,
-    AcceptedKey,
     DefaultConfig,
     EstimatorFamily,
     ProblemType,
