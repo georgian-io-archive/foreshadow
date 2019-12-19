@@ -33,7 +33,7 @@ from foreshadow.concrete.internals import (
 )
 from foreshadow.logging import logging
 from foreshadow.pipeline import SerializablePipeline
-from foreshadow.utils import check_df
+from foreshadow.utils import DataSamplingMixin, check_df
 
 from .smart import SmartTransformer
 
@@ -119,7 +119,7 @@ def will_remove_uncommon(X, temp_uncommon_remover):
     )
 
 
-class CategoricalEncoder(SmartTransformer):
+class CategoricalEncoder(SmartTransformer, DataSamplingMixin):
     """Automatically encode categorical features.
 
     If there are no more than 30 categories, then OneHotEncoder is used,
@@ -163,13 +163,16 @@ class CategoricalEncoder(SmartTransformer):
 
         # TODO performance drag. We may want to apply sampling on this part
         #  and the uncommon_remove.
-        # Calculate stats for DummyEncoder
+        # Calculate stats for DummyEncoder on a sample dataset
+        logging.info("Calculating stats for DummyEncoding.")
+        sampled_data = self.sample_data_frame(data)
         delimeters = [",", ";", "\t"]
         delim_count = [
-            len(list(data.astype("str").str.get_dummies(sep=d)))
+            len(list(sampled_data.astype("str").str.get_dummies(sep=d)))
             for d in delimeters
         ]
-        delim_diff = min(delim_count) - len(list(pd.get_dummies(data)))
+        delim_diff = min(delim_count) - len(list(pd.get_dummies(sampled_data)))
+        logging.info("End calculating stats for DummyEncoding.")
 
         # Calculate stats for UncommonRemover
         temp_uncommon_remover = UncommonRemover(threshold=self.merge_thresh)

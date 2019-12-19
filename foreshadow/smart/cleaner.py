@@ -1,5 +1,9 @@
 """SmartCleaner for DataPreparer step."""
 
+import os
+
+from sklearn.externals.joblib import Parallel, delayed
+
 from foreshadow.concrete.internals import NoTransform
 from foreshadow.config import config
 from foreshadow.logging import logging
@@ -44,14 +48,21 @@ class Cleaner(SmartTransformer, DataSamplingMixin):
         # score.
         sampled_df = self.sample_data_frame(df=X)
 
-        # TODO if this improvement is not sufficient, we can try using
-        #  multiprocessing to get the scores instead of doing it sequentially.
-        for cleaner in cleaners:
-            cleaner = cleaner()
-            score = cleaner.metric_score(sampled_df)
-            if score > best_score:
-                best_score = score
-                best_cleaner = cleaner
+        scores = Parallel(n_jobs=os.cpu_count() - 1)(
+            delayed(cleaners[i]().metric_score)(X=sampled_df)
+            for i in range(len(cleaners))
+        )
+
+        highest_score = max(scores)
+        if highest_score > best_score:
+            best_cleaner = cleaners[scores.index(highest_score)]
+
+        # for cleaner in cleaners:
+        #     cleaner = cleaner()
+        #     score = cleaner.metric_score(sampled_df)
+        #     if score > best_score:
+        #         best_score = score
+        #         best_cleaner = cleaner
         if best_cleaner is None:
             return NoTransform()
         logging.debug("Picked...")

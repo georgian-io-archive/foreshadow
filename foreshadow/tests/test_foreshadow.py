@@ -856,6 +856,7 @@ def test_foreshadow_serialization_boston_housing_regression_multiprocessing(
     from sklearn.datasets import load_boston
     from sklearn.model_selection import train_test_split
     from sklearn.linear_model import LinearRegression
+    import os
 
     np.random.seed(1337)
 
@@ -871,7 +872,7 @@ def test_foreshadow_serialization_boston_housing_regression_multiprocessing(
         estimator=LinearRegression(), problem_type=ProblemType.REGRESSION
     )
 
-    shadow.configure_multiprocessing(n_job=-1)
+    shadow.configure_multiprocessing(n_job=os.cpu_count() - 1)
 
     shadow.fit(X_train, y_train)
 
@@ -1135,3 +1136,76 @@ def test_foreshadow_sampling_performance_comparison():
     # using sampling should be faster than without sampling on this dataset
     # as it has more than 40,000 rows.
     assert time_taken1 < time_taken2
+
+
+# @slow
+@pytest.mark.parametrize(
+    "filename,problem_type,X_start, X_end, target",
+    [
+        # ("42.csv", ProblemType.CLASSIFICATION, "date", "roots", "target"),
+        # ("1486.csv", ProblemType.CLASSIFICATION, "V1", "V118", "target"),
+        # ("23380.csv", ProblemType.CLASSIFICATION, "TREE", "INTERNODE_29",
+        #  "target"),
+        # ("23381.csv", ProblemType.CLASSIFICATION, "V2", "V13", "target"),
+        # ("41021.csv", ProblemType.REGRESSION, "Team", "OSLG", "target"),
+        # ("bnp.csv", ProblemType.CLASSIFICATION, "v1", "v131", "target"),
+        # ("titanic.csv", ProblemType.CLASSIFICATION, "Pclass", "Embarked",
+        #  "Survived"),
+        # ("sberbank.csv", get_file_path("data", "boston_housing.csv")),
+        ("bnp.csv", ProblemType.CLASSIFICATION, "v1", "v131", "target")
+    ],
+)
+def test_foreshadow_integration(
+    filename, problem_type, X_start, X_end, target, tmpdir
+):
+    from foreshadow.foreshadow import Foreshadow
+    import pandas as pd
+    import numpy as np
+    from sklearn.model_selection import train_test_split
+
+    np.random.seed(1337)
+
+    local_file_folder = "examples"
+    data = pd.read_csv("/".join([local_file_folder, filename]))
+    X_df = data.loc[:, X_start:X_end]
+    y_df = data.loc[:, target]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_df, y_df, test_size=0.2
+    )
+
+    from foreshadow.estimators import AutoEstimator
+
+    estimator = AutoEstimator(
+        problem_type=problem_type,
+        auto="tpot",
+        estimator_kwargs={"max_time_mins": 1},
+    )
+
+    shadow = Foreshadow(estimator=estimator, problem_type=problem_type)
+
+    # shadow.configure_multiprocessing(n_job=os.cpu_count() - 1)
+
+    pickled_fitted_pipeline_location = tmpdir.join("fitted_pipeline.p")
+    shadow.fit(X_train, y_train)
+    shadow.pickle_fitted_pipeline(pickled_fitted_pipeline_location)
+
+    import pickle
+
+    with open(pickled_fitted_pipeline_location, "rb") as fopen:
+        pipeline = pickle.load(fopen)
+
+    pipeline.fit(X_train, y_train)
+
+    score1 = shadow.score(X_test, y_test)
+    score2 = pipeline.score(X_test, y_test)
+
+    import unittest
+
+    assertions = unittest.TestCase("__init__")
+    # given the randomness of the tpot algorithm and the short run
+    # time we configured, there is no guarantee the performance can
+    # converge. The test here aims to evaluate if both cases have
+    # produced a reasonable score and the difference is small.
+    # assert score1 > 0.76 and score2 > 0.76
+    assertions.assertAlmostEqual(score1, score2, places=2)
