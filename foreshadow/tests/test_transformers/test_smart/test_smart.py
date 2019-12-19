@@ -170,13 +170,17 @@ def test_smart_encoder_less_than_30_levels():
 
     from foreshadow.smart import CategoricalEncoder
     from foreshadow.concrete import OneHotEncoder
+    from foreshadow.concrete import NaNFiller
+    from foreshadow.pipeline import SerializablePipeline
 
     np.random.seed(0)
     leq_30_random_data = np.random.choice(30, size=500)
     smart_coder = CategoricalEncoder()
-    assert isinstance(
-        smart_coder.fit(leq_30_random_data).transformer, OneHotEncoder
-    )
+    transformer = smart_coder.fit(leq_30_random_data).transformer
+    assert isinstance(transformer, SerializablePipeline)
+    assert isinstance(transformer.steps[0][1], NaNFiller)
+    assert isinstance(transformer.steps[1][1], OneHotEncoder)
+    assert len(transformer.steps) == 2
 
 
 def test_smart_encoder_more_than_30_levels():
@@ -184,13 +188,17 @@ def test_smart_encoder_more_than_30_levels():
 
     from foreshadow.smart import CategoricalEncoder
     from foreshadow.concrete import HashingEncoder
+    from foreshadow.concrete import NaNFiller
+    from foreshadow.pipeline import SerializablePipeline
 
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
     smart_coder = CategoricalEncoder()
-    assert isinstance(
-        smart_coder.fit(gt_30_random_data).transformer, HashingEncoder
-    )
+    transformer = smart_coder.fit(gt_30_random_data).transformer
+    assert isinstance(transformer, SerializablePipeline)
+    assert isinstance(transformer.steps[0][1], NaNFiller)
+    assert isinstance(transformer.steps[1][1], HashingEncoder)
+    assert len(transformer.steps) == 2
 
 
 def test_smart_encoder_more_than_30_levels_that_reduces():
@@ -357,23 +365,35 @@ def test_smart_encoder_delimmited():
     import pandas as pd
     from foreshadow.smart import CategoricalEncoder
     from foreshadow.concrete import DummyEncoder
+    from foreshadow.concrete import NaNFiller
+    from foreshadow.pipeline import SerializablePipeline
 
     data = pd.DataFrame({"test": ["a", "a,b,c", "a,b", "a,c"]})
     smart_coder = CategoricalEncoder()
-    assert isinstance(smart_coder.fit(data).transformer, DummyEncoder)
+    transformer = smart_coder.fit(data).transformer
+
+    assert isinstance(transformer, SerializablePipeline)
+    assert isinstance(transformer.steps[0][1], NaNFiller)
+    assert isinstance(transformer.steps[1][1], DummyEncoder)
+    assert len(transformer.steps) == 2
 
 
 def test_smart_encoder_more_than_30_levels_with_overwritten_cutoff():
     import numpy as np
     from foreshadow.smart import CategoricalEncoder
     from foreshadow.concrete import OneHotEncoder
+    from foreshadow.concrete import NaNFiller
+    from foreshadow.pipeline import SerializablePipeline
 
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
     smart_coder = CategoricalEncoder(unique_num_cutoff=35)
-    assert isinstance(
-        smart_coder.fit(gt_30_random_data).transformer, OneHotEncoder
-    )
+    transformer = smart_coder.fit(gt_30_random_data).transformer
+
+    assert isinstance(transformer, SerializablePipeline)
+    assert isinstance(transformer.steps[0][1], NaNFiller)
+    assert isinstance(transformer.steps[1][1], OneHotEncoder)
+    assert len(transformer.steps) == 2
 
 
 def test_smart_financial_cleaner_us():

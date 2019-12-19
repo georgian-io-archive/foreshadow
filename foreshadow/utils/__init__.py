@@ -10,6 +10,7 @@ from foreshadow.utils.common import (
 )
 from foreshadow.utils.constants import (
     ConfigKey,
+    Constant,
     DefaultConfig,
     EstimatorFamily,
     ProblemType,
@@ -56,4 +57,5 @@ __all__ = [
     "Override",
     "ConfigKey",
     "DefaultConfig",
+    "Constant",
 ]

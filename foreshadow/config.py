@@ -25,7 +25,14 @@ _DEFAULT_CONFIG = {
     # "Numeric": {"Preprocessor": ["Imputer", "Scaler"]},
     "Categorical": {"Preprocessor": ["CategoricalEncoder"]},
     "Text": {"Preprocessor": ["TextEncoder"]},
-    "Neither": {"Preprocessor": ["NeitherProcessor"]},
+    # "Neither": {"Preprocessor": ["NeitherProcessor"]},
+    # TODO we have to use CategoricalEncoder for Neither Type temporarily as
+    #  some columns in Neither type has missing data. By default,
+    #  number-like columns are treated by estimator as numerical while
+    #  string-like columns are treated as categories. Using preprocessing
+    #  for Numeric will fail the second case while using the preprocessing
+    #  for Categorical work for both cases.
+    "Neither": {"Preprocessor": ["CategoricalEncoder"]},
 }
 
 
