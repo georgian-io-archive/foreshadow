@@ -5,6 +5,11 @@ class DefaultConfig:
     """Constants for default configurations."""
 
     PROCESSED_DATA_EXPORT_PATH = "processed_data.csv"
+    ENABLE_SAMPLING = True
+    SAMPLING_DATASET_SIZE_THRESHOLD = 10000
+    SAMPLING_WITH_REPLACEMENT = False
+    SAMPLING_FRACTION = 0.2
+    N_JOBS = 1
 
 
 class ProblemType:
@@ -26,8 +31,23 @@ class EstimatorFamily:
 class ConfigKey:
     """Constants of configuration key in foreshadow."""
 
+    SAMPLING_DATASET_SIZE_THRESHOLD = "sampling_dataset_size_threshold"
+    ENABLE_SAMPLING = "enable_sampling"
+    SAMPLING_WITH_REPLACEMENT = "with_replacement"
+    SAMPLING_FRACTION = "sampling_fraction"
     N_JOBS = "n_jobs"
     PROCESSED_DATA_EXPORT_PATH = "processed_data_export_path"
+
+
+class AcceptedKey:
+    """Accepted keys of the CacheManager."""
+
+    INTENT = "intent"
+    DOMAIN = "domain"
+    METASTAT = "metastat"
+    GRAPH = "graph"
+    OVERRIDE = "override"
+    CONFIG = "config"
 
 
 class Constant:

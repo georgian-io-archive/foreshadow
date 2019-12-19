@@ -1,11 +1,12 @@
 """Cache utility for foreshadow pipeline workflow to share data."""
 import pprint
 from collections import MutableMapping, defaultdict
+from typing import NoReturn
 
 from foreshadow.serializers import ConcreteSerializerMixin
+from foreshadow.utils import AcceptedKey, ConfigKey, DefaultConfig
 
 
-# TODO: Make this multi processor safe using managers
 def get_none():  # noqa: D401
     """Method that returns None.
 
@@ -63,14 +64,31 @@ class CacheManager(MutableMapping, ConcreteSerializerMixin):
         # {column: key-column info} and gives None by default. It is the users
         # responsibility to make sure returned values are useful.
         acceptable_keys = {
-            "intent": True,
-            "domain": True,
-            "metastat": True,
-            "graph": True,
-            "override": True,
-            "config": True,
+            AcceptedKey.INTENT: True,
+            AcceptedKey.DOMAIN: True,
+            AcceptedKey.METASTAT: True,
+            AcceptedKey.GRAPH: True,
+            AcceptedKey.OVERRIDE: True,
+            AcceptedKey.CONFIG: True,
         }
         self.__acceptable_keys = PrettyDefaultDict(get_false, acceptable_keys)
+        self._initialize_default_config()
+
+    def _initialize_default_config(self) -> NoReturn:
+        """Initialize the default configurations."""
+        self[AcceptedKey.CONFIG][
+            ConfigKey.ENABLE_SAMPLING
+        ] = DefaultConfig.ENABLE_SAMPLING
+        self[AcceptedKey.CONFIG][
+            ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD
+        ] = DefaultConfig.SAMPLING_DATASET_SIZE_THRESHOLD
+        self[AcceptedKey.CONFIG][
+            ConfigKey.SAMPLING_WITH_REPLACEMENT
+        ] = DefaultConfig.SAMPLING_WITH_REPLACEMENT
+        self[AcceptedKey.CONFIG][
+            ConfigKey.SAMPLING_FRACTION
+        ] = DefaultConfig.SAMPLING_FRACTION
+        self[AcceptedKey.CONFIG][ConfigKey.N_JOBS] = DefaultConfig.N_JOBS
 
     def dict_serialize(self, deep=False):
         """Serialize the init parameters (dictionary form) of a columnsharer.

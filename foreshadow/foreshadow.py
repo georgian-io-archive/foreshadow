@@ -20,6 +20,7 @@ from foreshadow.serializers import (
     _make_deserializable,
 )
 from foreshadow.utils import (
+    AcceptedKey,
     ConfigKey,
     Override,
     ProblemType,
@@ -509,9 +510,8 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         """
         if not self.has_fitted:
             logging.info(
-                "You are overriding intent before the foreshadow "
-                "object is trained. Please make sure the column {} "
-                "exist to ensure the override takes "
+                "The foreshadow object is not trained yet. Please make sure "
+                "the column {} exist to ensure the override takes "
                 "effect.".format(column)
             )
             return False
@@ -555,7 +555,9 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             n_job: the number of processes to run the job.
 
         """
-        self.X_preparer.cache_manager["config"][ConfigKey.N_JOBS] = n_job
+        self.X_preparer.cache_manager[AcceptedKey.CONFIG][
+            ConfigKey.N_JOBS
+        ] = n_job
 
     def set_processed_data_export_path(self, data_path: str) -> NoReturn:
         """Set path to export data before feeding the data to the estimator.
@@ -595,3 +597,29 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
 
         with open(path, "wb") as fopen:
             pickle.dump(self.pipeline, fopen)
+
+    def configure_sampling(
+        self,
+        enable_sampling=True,
+        sampling_fraction: float = 0.2,
+        replace: bool = False,
+    ) -> NoReturn:  # noqa: S001
+        """Configure the sampling criteria.
+
+        Args:
+            enable_sampling: whether to enable sampling in data cleaning and intent resolving # noqa: E501
+            sampling_fraction: whether to use replacement during sampling
+            replace: the sampling fraction
+
+        Returns:
+
+        """
+        self.X_preparer.cache_manager[AcceptedKey.CONFIG][
+            ConfigKey.ENABLE_SAMPLING
+        ] = enable_sampling
+        self.X_preparer.cache_manager[AcceptedKey.CONFIG][
+            ConfigKey.SAMPLING_FRACTION
+        ] = sampling_fraction
+        self.X_preparer.cache_manager[AcceptedKey.CONFIG][
+            ConfigKey.SAMPLING_WITH_REPLACEMENT
+        ] = replace

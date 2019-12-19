@@ -1,6 +1,8 @@
 import pandas as pd
 import pytest
 
+from foreshadow.utils import AcceptedKey, ConfigKey, DefaultConfig
+
 
 simple_dataframe = pd.Series([i for i in range(10)])
 
@@ -236,7 +238,19 @@ def test_cache_manager_dict_serialize(store):
         else:
             expected["store"][key] = PrettyDefaultDict(lambda: None)
 
-    assert expected == cs.dict_serialize(deep=True)
+    # TODO it's an ugly fix. Idealy we should add the default config section
+    #  back but it will make the json file really bulky.
+    cs_serialized = cs.dict_serialize(deep=True)
+    configs = cs_serialized["store"].pop(AcceptedKey.CONFIG)
+
+    assert configs == {
+        ConfigKey.ENABLE_SAMPLING: DefaultConfig.ENABLE_SAMPLING,
+        ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD: DefaultConfig.SAMPLING_DATASET_SIZE_THRESHOLD,  # noqa E501
+        ConfigKey.SAMPLING_WITH_REPLACEMENT: DefaultConfig.SAMPLING_WITH_REPLACEMENT,  # noqa E501
+        ConfigKey.SAMPLING_FRACTION: DefaultConfig.SAMPLING_FRACTION,
+        ConfigKey.N_JOBS: DefaultConfig.N_JOBS,
+    }
+    assert expected == cs_serialized
 
 
 @pytest.mark.parametrize(

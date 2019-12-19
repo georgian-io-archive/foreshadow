@@ -3,12 +3,14 @@
 
 from foreshadow.utils.common import (
     ConfigureCacheManagerMixin,
+    DataSamplingMixin,
     UserOverrideMixin,
     get_cache_path,
     get_config_path,
     get_transformer,
 )
 from foreshadow.utils.constants import (
+    AcceptedKey,
     ConfigKey,
     Constant,
     DefaultConfig,
@@ -38,6 +40,7 @@ __all__ = [
     "get_cache_path",
     "get_config_path",
     "get_transformer",
+    "DataSamplingMixin",
     "PipelineStep",
     "check_df",
     "check_series",
@@ -58,4 +61,5 @@ __all__ = [
     "ConfigKey",
     "DefaultConfig",
     "Constant",
+    "AcceptedKey",
 ]
