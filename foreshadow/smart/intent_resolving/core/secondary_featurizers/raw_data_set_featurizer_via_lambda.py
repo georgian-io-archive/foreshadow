@@ -324,8 +324,12 @@ class RawDataSetFeaturizerViaLambda:
                 else ("attribute_name",)
             ),
         )
-
-        if merged.isnull().any(axis=None):
+        sample_cols = [
+            col
+            for col in merged.columns
+            if "sample" in col and "samples" not in col
+        ]
+        if merged.drop(sample_cols, axis=1).isnull().any(axis=None):
             raise AssertionError(
                 "Imperfect mapping from features to data set detected."
             )

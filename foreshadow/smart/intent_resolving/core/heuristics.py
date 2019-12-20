@@ -28,7 +28,7 @@ def convert_to_numeric(series: pd.Series) -> pd.Series:
 
 
 def is_number_as_string(
-    series: pd.Series, shrinkage_threshold: float = 0.5
+    series: pd.Series, shrinkage_threshold: float = 0.7
 ) -> bool:
     """Check if string can be numerical.
 
@@ -224,7 +224,7 @@ def _maybe_zipcode(raw_s: pd.Series, threshold: float = 0.95) -> int:
     return points
 
 
-def maybe_real_as_enum(
+def maybe_real_as_categorical(
     df: pd.DataFrame, max_n_distinct: int = 20
 ) -> pd.Series:
     """Evaluate if feature column might be categorical.
