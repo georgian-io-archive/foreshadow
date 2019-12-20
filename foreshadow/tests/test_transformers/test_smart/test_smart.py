@@ -361,6 +361,7 @@ def test_preprocessor_hashencoder_no_name_collision():
     assert len(set(output.columns)) == 60
 
 
+@pytest.mark.skip("Turning off the dummyencoder feature temporarily")
 def test_smart_encoder_delimmited():
     import pandas as pd
     from foreshadow.smart import CategoricalEncoder
