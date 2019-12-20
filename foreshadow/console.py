@@ -248,14 +248,17 @@ def execute_model(fs, X_train, y_train, X_test, y_test):
     logging.info("Final Results: ")
     logging.info(score)
 
-    fs.to_json("foreshadow.json")
+    json_file_location = "foreshadow.json"
+    fs.to_json(json_file_location)
 
-    with open("foreshadow.p", "wb") as fopen:
-        pickle.dump(fs, fopen)
+    pickled_fitted_pipeline_location = "foreshadow_fitted_pipeline.p"
+    fs.pickle_fitted_pipeline(pickled_fitted_pipeline_location)
 
     logging.info(
-        "Serialized foreshadow pipeline has been saved to foreshadow.p "
-        "and foreshadow.json. Refer to docs to read and process."
+        "Serialized foreshadow pipeline has been saved to {} "
+        "and {}. Refer to docs to read and process.".format(
+            json_file_location, pickled_fitted_pipeline_location
+        )
     )
 
 

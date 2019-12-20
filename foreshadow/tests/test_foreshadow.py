@@ -947,7 +947,7 @@ def test_foreshadow_serialization_adults_classification():
     print(score)
 
 
-def test_foreshadow_pickling_and_unpickling_unfitted():
+def test_foreshadow_pickling_and_unpickling_unfitted(tmpdir):
     from foreshadow.foreshadow import Foreshadow
     from foreshadow.estimators import AutoEstimator
 
@@ -960,10 +960,10 @@ def test_foreshadow_pickling_and_unpickling_unfitted():
         estimator=estimator, problem_type=ProblemType.CLASSIFICATION
     )
     with pytest.raises(ValueError):
-        shadow.pickle_fitted_pipeline("fitted_pipeline.p")
+        shadow.pickle_fitted_pipeline(tmpdir.join("fitted_pipeline.p"))
 
 
-def test_foreshadow_pickling_and_unpickling_non_tpot():
+def test_foreshadow_pickling_and_unpickling_non_tpot(tmpdir):
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
     import numpy as np
@@ -985,13 +985,13 @@ def test_foreshadow_pickling_and_unpickling_non_tpot():
     shadow = Foreshadow(
         estimator=LogisticRegression(), problem_type=ProblemType.CLASSIFICATION
     )
-
+    pickled_file_location = tmpdir.join("fitted_pipeline.p")
     shadow.fit(X_train, y_train)
-    shadow.pickle_fitted_pipeline("fitted_pipeline.p")
+    shadow.pickle_fitted_pipeline(pickled_file_location)
 
     import pickle
 
-    with open("fitted_pipeline.p", "rb") as fopen:
+    with open(pickled_file_location, "rb") as fopen:
         pipeline = pickle.load(fopen)
 
     pipeline.fit(X_train, y_train)
@@ -1010,7 +1010,7 @@ def test_foreshadow_pickling_and_unpickling_non_tpot():
 
 
 @slow
-def test_foreshadow_pickling_and_unpickling_tpot():
+def test_foreshadow_pickling_and_unpickling_tpot(tmpdir):
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
     import numpy as np
@@ -1038,13 +1038,13 @@ def test_foreshadow_pickling_and_unpickling_tpot():
     shadow = Foreshadow(
         estimator=estimator, problem_type=ProblemType.CLASSIFICATION
     )
-
+    pickled_file_location = tmpdir.join("fitted_pipeline.p")
     shadow.fit(X_train, y_train)
-    shadow.pickle_fitted_pipeline("fitted_pipeline.p")
+    shadow.pickle_fitted_pipeline(pickled_file_location)
 
     import pickle
 
-    with open("fitted_pipeline.p", "rb") as fopen:
+    with open(pickled_file_location, "rb") as fopen:
         pipeline = pickle.load(fopen)
 
     pipeline.fit(X_train, y_train)
