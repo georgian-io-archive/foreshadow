@@ -2,6 +2,21 @@
 
 .. towncrier release notes start
 
+Foreshadow 0.4.0 (2019-12-20)
+=============================
+
+Features
+--------
+
+- Bug fixes and updates:
+    1. Allow user to pickle fitted_pipeline.
+    2. Treat NaN as a category.
+    3. Runtime performance improving with data sampling on cleaning and intent
+  resolving steps.
+    4. Export processed dataset before fitting the estimator.
+    5. Disable dummy encoding in categorical encoding process temporarily. (bug-fix-2)
+
+
 Foreshadow 0.3.2 (2019-12-03)
 =============================
 
