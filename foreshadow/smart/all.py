@@ -23,7 +23,6 @@ from foreshadow.concrete.externals import (
 )
 from foreshadow.concrete.internals import (
     ConvertFinancial,
-    DummyEncoder,
     FancyImputer,
     FixedLabelEncoder as LabelEncoder,
     HTMLRemover,
@@ -161,15 +160,26 @@ class CategoricalEncoder(SmartTransformer):
         data = X.iloc[:, 0]
         unique_count = len(data.value_counts())
 
-        # TODO performance drag. We may want to apply sampling on this part
-        #  and the uncommon_remove.
+        # TODO Decided to temporarily turn off the DummyEncoder calculation.
+        #  First of all, it is potentially very inefficient to apply the
+        #  following logic on some non-multi-categorical data, especially
+        #  when the data volume is large. One solution might be to check the
+        #  presence of those delimeters first instead of directly applying.
+        #  A better way is to ask the auto intent resolving step to produce
+        #  a multi-categorical intent and deal with it separately. Second,
+        #  even if the code decides to use DummyEncoder, the encoder's
+        #  current implementation only creates category based on one particular
+        #  delimiter. Then what's the point of check 4 types of delimiters
+        #  here? This whole logic is flawed and we should remove this
+        #  feature until we have a sound solution. For now, we should just
+        #  state we do not support multi-categorical data.
         # Calculate stats for DummyEncoder
-        delimeters = [",", ";", "\t"]
-        delim_count = [
-            len(list(data.astype("str").str.get_dummies(sep=d)))
-            for d in delimeters
-        ]
-        delim_diff = min(delim_count) - len(list(pd.get_dummies(data)))
+        # delimeters = [",", ";", "\t"]
+        # delim_count = [
+        #     len(list(data.astype("str").str.get_dummies(sep=d)))
+        #     for d in delimeters
+        # ]
+        # delim_diff = min(delim_count) - len(list(pd.get_dummies(data)))
 
         # Calculate stats for UncommonRemover
         temp_uncommon_remover = UncommonRemover(threshold=self.merge_thresh)
@@ -187,11 +197,11 @@ class CategoricalEncoder(SmartTransformer):
 
         if self.y_var:
             return LabelEncoder()
-        elif delim_diff < 0:
-            delim = delimeters[delim_count.index(min(delim_count))]
-            final_pipeline.steps.append(
-                ("dummy_encodeer", DummyEncoder(delimeter=delim))
-            )
+        # elif delim_diff < 0:
+        #     delim = delimeters[delim_count.index(min(delim_count))]
+        #     final_pipeline.steps.append(
+        #         ("dummy_encodeer", DummyEncoder(delimeter=delim))
+        #     )
         elif unique_count <= self.unique_num_cutoff:
             final_pipeline.steps.append(("one_hot_encoder", ohe))
         elif (
