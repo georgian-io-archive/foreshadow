@@ -2,6 +2,17 @@
 
 .. towncrier release notes start
 
+Foreshadow 0.4.1 (2019-12-23)
+=============================
+
+Features
+--------
+
+- Bug fixes and updates:
+    1. Abort the training process is the whole dataframe is empty due to
+  missing data after data cleaning step. (bug-fix-3)
+
+
 Foreshadow 0.4.0 (2019-12-20)
 =============================
 
