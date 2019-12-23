@@ -2,6 +2,16 @@
 
 .. towncrier release notes start
 
+Foreshadow 0.4.2 (2019-12-23)
+=============================
+
+Features
+--------
+
+- Bug fixes and updates:
+    1. Add drop functionality to the transform method in the cleaner mapper. (bug-fix-4)
+
+
 Foreshadow 0.4.1 (2019-12-23)
 =============================
 
