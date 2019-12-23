@@ -1,4 +1,7 @@
 """Cleaner module for handling the cleaning and shaping of data."""
+import pandas as pd
+
+from foreshadow.logging import logging
 from foreshadow.smart import Cleaner, Flatten
 
 from .preparerstep import PreparerStep
@@ -36,3 +39,37 @@ class CleanerMapper(PreparerStep):
             ],
             cols=X.columns,
         )
+
+    def fit_transform(self, X, *args, **kwargs):
+        """Fit then transform the cleaner step.
+
+        Args:
+            X: the data frame.
+            *args: positional args.
+            **kwargs: key word args.
+
+        Returns:
+            A transformed dataframe.
+
+        Raises:
+            ValueError: all columns are dropped.
+
+        """
+        Xt = super().fit_transform(X, *args, **kwargs)
+        columns = pd.Series(Xt.columns)
+        empty_columns = columns[Xt.isnull().all(axis=0).values]
+
+        if len(empty_columns) == len(columns):
+            error_message = (
+                "All columns are dropped since they all have "
+                "over 90% of missing values. Aborting foreshadow."
+            )
+            logging.error(error_message)
+            raise ValueError(error_message)
+        else:
+            logging.info(
+                "Dropping columns due to missing values over 90%: "
+                "".format(",".join(empty_columns.tolist()))
+            )
+
+        return Xt.dropna(axis=1, how="all")

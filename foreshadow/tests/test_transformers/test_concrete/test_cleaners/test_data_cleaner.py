@@ -129,10 +129,15 @@ def test_drop():
     data = pd.DataFrame({"financials": ["", "", "", ""]}, columns=columns)
     cs = CacheManager()
     dc = CleanerMapper(cache_manager=cs)
-    dc.fit(data)
-    transformed_data = dc.transform(data)
-    assert transformed_data.empty
-    assert transformed_data.columns == columns
+    import pytest
+
+    with pytest.raises(ValueError) as excinfo:
+        dc.fit_transform(data)
+    error_msg = (
+        "All columns are dropped since they all have over 90% of "
+        "missing values. Aborting foreshadow."
+    )
+    assert error_msg in str(excinfo.value)
 
 
 def test_numerical_input():
