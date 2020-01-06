@@ -1271,6 +1271,19 @@ def test_foreshadow_adults_small_classification_user_provided_cleaner():
     from foreshadow.concrete.internals.cleaners.base import BaseCleaner
 
     def lowercase_row(row):
+        """Lowercase a row.
+
+        Args:
+            row: string of text
+
+        Returns:
+            transformed row.
+            length of match, new string assuming a match.
+
+        """
+        # TODO how do we explain the length of match. It's rather internal
+        #  to Foreshadow. We should consider creating another class for
+        #  customization from the BaseCleaner
         return (row, 0) if row is None else (str(row).lower(), 1)
 
     class LowerCaseCleaner(BaseCleaner):
