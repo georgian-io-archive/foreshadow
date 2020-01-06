@@ -73,6 +73,7 @@ class CacheManager(MutableMapping, ConcreteSerializerMixin):
         }
         self.__acceptable_keys = PrettyDefaultDict(get_false, acceptable_keys)
         self._initialize_default_config()
+        self._initialize_default_customized_transformers()
 
     def _initialize_default_config(self) -> NoReturn:
         """Initialize the default configurations."""
@@ -89,6 +90,14 @@ class CacheManager(MutableMapping, ConcreteSerializerMixin):
             ConfigKey.SAMPLING_FRACTION
         ] = DefaultConfig.SAMPLING_FRACTION
         self[AcceptedKey.CONFIG][ConfigKey.N_JOBS] = DefaultConfig.N_JOBS
+
+    def _initialize_default_customized_transformers(self) -> NoReturn:
+        """Initialize the default customized transformers."""
+        # TODO this is a hacky temporary solution leveraging the ConfigKey.
+        #  We should probably creates another constant class for this purpose.
+        self[AcceptedKey.CUSTOMIZED_TRANSFORMERS][
+            ConfigKey.CUSTOMIZED_CLEANERS
+        ] = []
 
     def dict_serialize(self, deep=False):
         """Serialize the init parameters (dictionary form) of a columnsharer.

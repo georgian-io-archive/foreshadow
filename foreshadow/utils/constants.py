@@ -37,6 +37,7 @@ class ConfigKey:
     SAMPLING_FRACTION = "sampling_fraction"
     N_JOBS = "n_jobs"
     PROCESSED_DATA_EXPORT_PATH = "processed_data_export_path"
+    CUSTOMIZED_CLEANERS = "customized_cleaners"
 
 
 class AcceptedKey:
@@ -48,6 +49,7 @@ class AcceptedKey:
     GRAPH = "graph"
     OVERRIDE = "override"
     CONFIG = "config"
+    CUSTOMIZED_TRANSFORMERS = "customized_transformers"
 
 
 class Constant:

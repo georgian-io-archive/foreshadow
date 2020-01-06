@@ -1309,3 +1309,49 @@ def test_foreshadow_integration_adult_small_piclking_unpickling(
     # produced a reasonable score and the difference is small.
     # assert score1 > 0.76 and score2 > 0.76
     assertions.assertAlmostEqual(score1, score2, places=2)
+
+
+def test_foreshadow_adults_small_classification_user_provided_cleaner():
+    from foreshadow.foreshadow import Foreshadow
+    import pandas as pd
+    import numpy as np
+    from sklearn.model_selection import train_test_split
+    from sklearn.linear_model import LogisticRegression
+
+    np.random.seed(1337)
+
+    adult = pd.read_csv("examples/adult_small.csv")
+    X_df = adult.loc[:, "age":"workclass"]
+    y_df = adult.loc[:, "class"]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_df, y_df, test_size=0.2
+    )
+
+    shadow = Foreshadow(
+        estimator=LogisticRegression(), problem_type=ProblemType.CLASSIFICATION
+    )
+
+    from foreshadow.concrete.internals.cleaners.base import BaseCleaner
+
+    def lowercase_row(row):
+        return (row, 0) if row is None else (str(row).lower(), 1)
+
+    class LowerCaseCleaner(BaseCleaner):
+        def __init__(self):
+            transformations = [lowercase_row]
+            super().__init__(transformations)
+
+        def metric_score(self, X: pd.DataFrame) -> float:
+            column_name = list(X.columns)[0]
+            if column_name == "workclass":
+                return 1
+            else:
+                return 0
+
+    shadow.register_customized_data_cleaner(data_cleaners=[LowerCaseCleaner])
+
+    shadow.fit(X_train, y_train)
+
+    score1 = shadow.score(X_test, y_test)
+    print(score1)
