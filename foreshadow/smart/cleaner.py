@@ -3,7 +3,7 @@
 from foreshadow.concrete.internals import NoTransform
 from foreshadow.config import config
 from foreshadow.logging import logging
-from foreshadow.utils import DataSamplingMixin
+from foreshadow.utils import AcceptedKey, ConfigKey, DataSamplingMixin
 
 from .smart import SmartTransformer
 
@@ -35,6 +35,13 @@ class Cleaner(SmartTransformer, DataSamplingMixin):
         """
         # TODO do we want to parallize this step?
         cleaners = config.get_cleaners(cleaners=True)
+
+        user_provided_cleaners = self.cache_manager[
+            AcceptedKey.CUSTOMIZED_TRANSFORMERS
+        ][ConfigKey.CUSTOMIZED_CLEANERS]
+        if len(user_provided_cleaners) > 0:
+            cleaners.extend(user_provided_cleaners)
+
         best_score = 0
         best_cleaner = None
         logging.debug("Picking cleaners...")
