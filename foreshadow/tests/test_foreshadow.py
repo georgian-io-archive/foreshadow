@@ -1332,7 +1332,9 @@ def test_foreshadow_adults_small_classification_user_provided_cleaner():
         estimator=LogisticRegression(), problem_type=ProblemType.CLASSIFICATION
     )
 
-    from foreshadow.concrete.internals.cleaners.base import BaseCleaner
+    from foreshadow.concrete.internals.cleaners.customizable_base import (
+        CustomizableBaseCleaner,
+    )
 
     def lowercase_row(row):
         """Lowercase a row.
@@ -1342,20 +1344,36 @@ def test_foreshadow_adults_small_classification_user_provided_cleaner():
 
         Returns:
             transformed row.
-            length of match, new string assuming a match.
 
         """
-        # TODO how do we explain the length of match. It's rather internal
-        #  to Foreshadow. We should consider creating another class for
-        #  customization from the BaseCleaner
-        return (row, 0) if row is None else (str(row).lower(), 1)
+        # Without using the customizable base cleaner, we have to explain
+        # the meaning of the matched length. I don't know a good way to
+        # explain it clearly without diving into the internal details yet.
+        # return (row, 0) if row is None else (str(row).lower(), 1)
 
-    class LowerCaseCleaner(BaseCleaner):
+        return row if row is None else str(row).lower()
+
+    class LowerCaseCleaner(CustomizableBaseCleaner):
         def __init__(self):
             transformations = [lowercase_row]
             super().__init__(transformations)
 
         def metric_score(self, X: pd.DataFrame) -> float:
+            """Calculate the matching metric score of the cleaner on this col.
+
+            In this method, you specify the condition on when to apply the
+            cleaner and calculate a confidence score between 0 and 1 where 1
+            means 100% certainty to apply the transformation.
+
+            Args:
+                X: a column as a dataframe.
+
+            Returns:
+                the confidence score.
+
+            """
+            # The user needs to know what cleaners are provided so that
+            # they don't create something duplicate or overlapping.
             column_name = list(X.columns)[0]
             if column_name == "workclass":
                 return 1

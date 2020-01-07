@@ -8,7 +8,9 @@ from sklearn.model_selection._search import BaseSearchCV
 
 from foreshadow.base import BaseEstimator
 from foreshadow.cachemanager import CacheManager
-from foreshadow.concrete.internals.cleaners.base import BaseCleaner
+from foreshadow.concrete.internals.cleaners.customizable_base import (
+    CustomizableBaseCleaner,
+)
 from foreshadow.estimators.auto import AutoEstimator
 from foreshadow.estimators.estimator_wrapper import EstimatorWrapper
 from foreshadow.intents import IntentType
@@ -630,7 +632,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
     def register_customized_data_cleaner(
         self, data_cleaners: List
     ) -> NoReturn:
-        """Allow user to register a customized data cleaner.
+        """**EXPERIMENTAL** Allow user to register a customized data cleaner.
 
         Args:
             data_cleaners: customized data cleaners
@@ -640,11 +642,11 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
 
         """
         for cleaner in data_cleaners:
-            if not isinstance(cleaner, BaseCleaner):
+            if not issubclass(cleaner, CustomizableBaseCleaner):
                 raise ValueError(
-                    "cleaner {} must implement "
-                    "metric_score and transform_row "
-                    "methods.".format(str(cleaner))
+                    "cleaner {} must be a child class of the {} class.".format(
+                        str(cleaner), CustomizableBaseCleaner.__name__
+                    )
                 )
 
         self.X_preparer.cache_manager[AcceptedKey.CUSTOMIZED_TRANSFORMERS][
