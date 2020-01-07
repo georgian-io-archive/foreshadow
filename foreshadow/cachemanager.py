@@ -70,6 +70,7 @@ class CacheManager(MutableMapping, ConcreteSerializerMixin):
             AcceptedKey.GRAPH: True,
             AcceptedKey.OVERRIDE: True,
             AcceptedKey.CONFIG: True,
+            AcceptedKey.CUSTOMIZED_TRANSFORMERS: True,
         }
         self.__acceptable_keys = PrettyDefaultDict(get_false, acceptable_keys)
         self._initialize_default_config()

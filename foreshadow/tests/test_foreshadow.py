@@ -1247,7 +1247,7 @@ def test_foreshadow_integration_data_cleaner_can_drop(
     assertions.assertAlmostEqual(score1, score2, places=2)
 
 
-def test_foreshadow_adults_small_classification_user_provided_cleaner():
+def test_foreshadow_adults_small_user_provided_cleaner():
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
     import numpy as np
@@ -1318,7 +1318,8 @@ def test_foreshadow_adults_small_classification_user_provided_cleaner():
 
     shadow.register_customized_data_cleaner(data_cleaners=[LowerCaseCleaner])
 
-    shadow.fit(X_train, y_train)
+    X_train_cleaned = shadow.X_preparer.steps[0][1].fit_transform(X_train)
 
-    score1 = shadow.score(X_test, y_test)
-    print(score1)
+    workclass_values = list(X_train_cleaned["workclass"].unique())
+    for value in workclass_values:
+        assert not value.isupper()
