@@ -7,7 +7,11 @@ import pandas as pd
 from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.exceptions import InvalidDataFrame
 from foreshadow.logging import logging
-from foreshadow.metrics import MetricWrapper, avg_col_regex, regex_rows
+from foreshadow.metrics import (
+    MetricWrapper,
+    avg_col_regex,
+    calculate_percentage_of_rows_matching_regex,
+)
 from foreshadow.utils import check_df
 
 
@@ -65,7 +69,7 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         self.output_columns = output_columns
         self.transformations = transformations
         self.confidence_computation = {
-            MetricWrapper(regex_rows): 0.8,
+            MetricWrapper(calculate_percentage_of_rows_matching_regex): 0.8,
             MetricWrapper(avg_col_regex): 0.2,
         }
         # self.confidence_computation = {regex_rows: 0.8, avg_col_regex: 0.2}

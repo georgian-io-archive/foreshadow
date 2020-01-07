@@ -121,7 +121,7 @@ def unique_count_weight(feature):
     return len(feature.value_counts()) / len(feature)
 
 
-def regex_rows(feature, cleaner):
+def calculate_percentage_of_rows_matching_regex(feature, cleaner):
     """Return percentage of rows matched by regex transformations.
 
     Cleaner(row) will return a CleanerReturn namedtupled, which will have the

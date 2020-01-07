@@ -2,7 +2,10 @@
 
 import pandas as pd
 
-from foreshadow.metrics import MetricWrapper, regex_rows
+from foreshadow.metrics import (
+    MetricWrapper,
+    calculate_percentage_of_rows_matching_regex,
+)
 from foreshadow.utils.validation import check_df
 
 from .base import BaseCleaner
@@ -38,7 +41,9 @@ class DropCleaner(BaseCleaner):
         transformations = [drop_transform]
         super().__init__(
             transformations,
-            confidence_computation={MetricWrapper(regex_rows): 1},
+            confidence_computation={
+                MetricWrapper(calculate_percentage_of_rows_matching_regex): 1
+            },
         )
 
     def metric_score(self, X: pd.DataFrame) -> float:
