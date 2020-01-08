@@ -25,7 +25,7 @@ class CustomizableBaseCleaner(BaseCleaner):
         Args:
             transformation: a callable that takes a string and returns
             transformed string.
-
+        
         """
         super().__init__([transformation])
 
