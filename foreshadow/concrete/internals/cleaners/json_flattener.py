@@ -2,6 +2,8 @@
 import json
 from collections import MutableMapping
 
+import pandas as pd
+
 from .base import BaseCleaner
 
 
@@ -62,3 +64,25 @@ class StandardJsonFlattener(BaseCleaner):
     def __init__(self):
         transformations = [json_flatten]
         super().__init__(transformations)
+
+    def metric_score(self, X: pd.DataFrame) -> float:
+        """Compute the score for this cleaner using confidence_computation.
+
+        confidence_computation is passed through init for each subclass.
+        The confidence determines which cleaner/flattener is picked in an
+        OVR fashion.
+
+        Args:
+            X: input DataFrame.
+
+        Returns:
+            float: confidence value.
+
+        """
+        score = super().metric_score(X)
+        if score < 1:
+            # we want to make sure the whole column is valid JSON. Otherwise
+            # it will fail later steps. The reason we are not fixing the
+            # JSON is because the variety of malformed JSON is unbounded.
+            return 0
+        return score
