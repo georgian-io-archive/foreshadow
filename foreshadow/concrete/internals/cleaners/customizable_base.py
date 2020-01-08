@@ -23,9 +23,9 @@ class CustomizableBaseCleaner(BaseCleaner):
         """Construct a user supplied cleaner/flattener. # noqa S001
 
         Args:
-            transformation: a callable that takes a string and returns
+            transformation: a callable that takes a string and returns # noqa DAR003
             transformed string.
-        
+
         """
         super().__init__([transformation])
 
