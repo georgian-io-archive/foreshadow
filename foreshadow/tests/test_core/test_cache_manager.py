@@ -242,6 +242,7 @@ def test_cache_manager_dict_serialize(store):
     #  back but it will make the json file really bulky.
     cs_serialized = cs.dict_serialize(deep=True)
     configs = cs_serialized["store"].pop(AcceptedKey.CONFIG)
+    cs_serialized["store"].pop(AcceptedKey.CUSTOMIZED_TRANSFORMERS)
 
     assert configs == {
         ConfigKey.ENABLE_SAMPLING: DefaultConfig.ENABLE_SAMPLING,

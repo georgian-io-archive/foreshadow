@@ -1309,3 +1309,83 @@ def test_foreshadow_integration_adult_small_piclking_unpickling(
     # produced a reasonable score and the difference is small.
     # assert score1 > 0.76 and score2 > 0.76
     assertions.assertAlmostEqual(score1, score2, places=2)
+
+
+def test_foreshadow_adults_small_user_provided_cleaner():
+    from foreshadow.foreshadow import Foreshadow
+    import pandas as pd
+    import numpy as np
+    from sklearn.model_selection import train_test_split
+    from sklearn.linear_model import LogisticRegression
+
+    np.random.seed(1337)
+
+    adult = pd.read_csv("examples/adult_small.csv")
+    X_df = adult.loc[:, "age":"workclass"]
+    y_df = adult.loc[:, "class"]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_df, y_df, test_size=0.2
+    )
+
+    shadow = Foreshadow(
+        estimator=LogisticRegression(), problem_type=ProblemType.CLASSIFICATION
+    )
+
+    from foreshadow.concrete.internals.cleaners.customizable_base import (
+        CustomizableBaseCleaner,
+    )
+
+    def lowercase_row(row):
+        """Lowercase a row.
+
+        Args:
+            row: string of text
+
+        Returns:
+            transformed row.
+
+        """
+        # Without using the customizable base cleaner, we have to explain
+        # the meaning of the matched length. I don't know a good way to
+        # explain it clearly without diving into the internal details yet.
+        # return (row, 0) if row is None else (str(row).lower(), 1)
+
+        return row if row is None else str(row).lower()
+
+    class LowerCaseCleaner(CustomizableBaseCleaner):
+        def __init__(self):
+            super().__init__(transformation=lowercase_row)
+
+        def metric_score(self, X: pd.DataFrame) -> float:
+            """Calculate the matching metric score of the cleaner on this col.
+
+            In this method, you specify the condition on when to apply the
+            cleaner and calculate a confidence score between 0 and 1 where 1
+            means 100% certainty to apply the transformation.
+
+            Args:
+                X: a column as a dataframe.
+
+            Returns:
+                the confidence score.
+
+            """
+            # The user needs to know what cleaners are provided so that
+            # they don't create something duplicate or overlapping.
+            column_name = list(X.columns)[0]
+            if column_name == "workclass":
+                return 1
+            else:
+                return 0
+
+    shadow.register_customized_data_cleaner(data_cleaners=[LowerCaseCleaner])
+
+    workclass_values = list(X_train["workclass"].unique())
+    print(workclass_values)
+
+    X_train_cleaned = shadow.X_preparer.steps[0][1].fit_transform(X_train)
+
+    workclass_values_transformed = list(X_train_cleaned["workclass"].unique())
+    for value in workclass_values_transformed:
+        assert not any([c.isupper() for c in value])
