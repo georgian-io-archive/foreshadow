@@ -2,6 +2,18 @@
 
 .. towncrier release notes start
 
+Foreshadow 0.4.3 (2020-01-08)
+=============================
+
+Features
+--------
+
+- Bug fixes and updates:
+    1. Fix an issue in exported pickle file missing label encoder for target
+  variabes.
+    2. [Experimental] Allow user to supply customized cleaning functions. (bug-fixes-and-updates)
+
+
 Foreshadow 0.4.2 (2019-12-23)
 =============================
 
