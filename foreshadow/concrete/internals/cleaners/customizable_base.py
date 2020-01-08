@@ -1,5 +1,7 @@
 """Customizable BaseCleaner for cleaner transformers that user can extend."""
 
+from abc import abstractmethod
+
 from .base import BaseCleaner, CleanerReturn
 
 
@@ -16,6 +18,30 @@ class CustomizableBaseCleaner(BaseCleaner):
     I want to refactor this metric calculation but don't want to do anything
     hasty at this moment just for the demo.
     """
+
+    def __init__(self, transformation):
+        """Construct a user supplied cleaner/flattener. # noqa S001
+
+        Args:
+            transformation: a callable that takes a string and returns
+            transformed string.
+
+        """
+        super().__init__([transformation])
+
+    @abstractmethod
+    def metric_score(self, X):
+        """Calculate the matching metric score of the cleaner on this col.
+
+        In this method, you specify the condition on when to apply the
+        cleaner and calculate a confidence score between 0 and 1 where 1
+        means 100% certainty to apply the transformation.
+
+        Args:
+            X: a column as a dataframe.
+
+        """
+        pass
 
     def transform_row(self, row_of_feature, return_tuple=True):
         """Perform clean operations on text, that is a row of feature.
@@ -45,12 +71,13 @@ class CustomizableBaseCleaner(BaseCleaner):
         transformed_row = row_of_feature
         for transform in self.transformations:
             transformed_row = transform(row_of_feature)
-            match_len = 0 if transformed_row == row_of_feature else 1
-            if match_len == 0:
-                matched_lengths.append(0)
-                transformed_row = self.default(row_of_feature)
-                break
-            matched_lengths.append(match_len)
+
+        match_len = 0 if transformed_row == row_of_feature else 1
+        if match_len == 0:
+            matched_lengths.append(0)
+            transformed_row = self.default(row_of_feature)
+        matched_lengths.append(match_len)
+
         if return_tuple:
             return CleanerReturn(transformed_row, matched_lengths)
         else:
