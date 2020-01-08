@@ -478,7 +478,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         # been processed will be visible.
         cache_manager = self.X_preparer.cache_manager
         if self._has_column_in_cache_manager(column_name):
-            return cache_manager["intent"][column_name]
+            return cache_manager[AcceptedKey.INTENT][column_name]
         else:
             logging.info(
                 "No intent exists for column {}. Either the column "
@@ -497,7 +497,22 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             The list of intents
 
         """
+        if column_names is None or len(column_names) == 0:
+            return self._list_all_intents()
         return [self.get_intent(column) for column in column_names]
+
+    def _list_all_intents(self):
+        cache_manager = self.X_preparer.cache_manager
+        if len(cache_manager[AcceptedKey.INTENT]) > 0:
+            return [
+                self.get_intent(column)
+                for column in cache_manager[AcceptedKey.INTENT]
+            ]
+        else:
+            logging.info(
+                "No column intents have been registered yet. "
+                "Please fit the foreshadow object first."
+            )
 
     def _has_column_in_cache_manager(self, column: str) -> Union[bool, None]:
         """Check if the column exists in the cache manager.
