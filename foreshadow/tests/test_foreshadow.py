@@ -1291,8 +1291,7 @@ def test_foreshadow_adults_small_user_provided_cleaner():
 
     class LowerCaseCleaner(CustomizableBaseCleaner):
         def __init__(self):
-            transformations = [lowercase_row]
-            super().__init__(transformations)
+            super().__init__(transformation=lowercase_row)
 
         def metric_score(self, X: pd.DataFrame) -> float:
             """Calculate the matching metric score of the cleaner on this col.
@@ -1318,8 +1317,11 @@ def test_foreshadow_adults_small_user_provided_cleaner():
 
     shadow.register_customized_data_cleaner(data_cleaners=[LowerCaseCleaner])
 
+    workclass_values = list(X_train["workclass"].unique())
+    print(workclass_values)
+
     X_train_cleaned = shadow.X_preparer.steps[0][1].fit_transform(X_train)
 
-    workclass_values = list(X_train_cleaned["workclass"].unique())
-    for value in workclass_values:
-        assert not value.isupper()
+    workclass_values_transformed = list(X_train_cleaned["workclass"].unique())
+    for value in workclass_values_transformed:
+        assert not any([c.isupper() for c in value])
