@@ -593,7 +593,9 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             self.estimator = self.estimator.estimator.fitted_pipeline_
             # updating the estimator above will not update the reference in
             # the pipeline instance as it still points to the old object.
-            self.pipeline.steps[1] = ("estimator", self.estimator)
+            # Accessing the estimator wrapper object and update the
+            # estimator field.
+            self.pipeline.steps[1][1].estimator = self.estimator
 
         with open(path, "wb") as fopen:
             pickle.dump(self.pipeline, fopen)
