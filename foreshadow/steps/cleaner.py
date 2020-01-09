@@ -118,7 +118,7 @@ class CleanerMapper(PreparerStep):
             ValueError: new empty columns detected.
 
         """
-        if not self.empty_columns:
+        if self.empty_columns is None:
             raise ValueError("Cleaner has not been fitted yet.")
 
         Xt = super().transform(X, *args, **kwargs)

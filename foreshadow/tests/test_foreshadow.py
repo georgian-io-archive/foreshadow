@@ -1262,7 +1262,15 @@ def test_foreshadow_integration_data_cleaner_can_drop(
 
 @pytest.mark.parametrize(
     "filename,problem_type,X_start, X_end, target",
-    [("adult_small.csv", ProblemType.REGRESSION, "age", "workclass", "class")],
+    [
+        (
+            "adult_small.csv",
+            ProblemType.CLASSIFICATION,
+            "age",
+            "workclass",
+            "class",
+        )
+    ],
 )
 def test_foreshadow_integration_adult_small_piclking_unpickling(
     filename, problem_type, X_start, X_end, target, tmpdir
