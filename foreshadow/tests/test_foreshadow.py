@@ -1207,6 +1207,7 @@ def test_foreshadow_integration_data_cleaner_can_drop(
 
     local_file_folder = "examples"
     data = pd.read_csv("/".join([local_file_folder, filename]))
+
     X_df = data.loc[:, X_start:X_end]
     y_df = data.loc[:, target]
 
@@ -1246,18 +1247,22 @@ def test_foreshadow_integration_data_cleaner_can_drop(
     # assert score1 > 0.76 and score2 > 0.76
     assertions.assertAlmostEqual(score1, score2, places=2)
 
+    # If there are new empty columns in the test set, the program should
+    # abort early and alert the user about the column
+    X_test[X_start] = np.nan
+
+    for model in [shadow, pipeline]:
+        with pytest.raises(ValueError) as e:
+            model.score(X_test, y_test)
+            assert (
+                "Found new empty columns not present in the training "
+                "data" in str(e.value)
+            )
+
 
 @pytest.mark.parametrize(
     "filename,problem_type,X_start, X_end, target",
-    [
-        (
-            "adult_small.csv",
-            ProblemType.CLASSIFICATION,
-            "age",
-            "workclass",
-            "class",
-        )
-    ],
+    [("adult_small.csv", ProblemType.REGRESSION, "age", "workclass", "class")],
 )
 def test_foreshadow_integration_adult_small_piclking_unpickling(
     filename, problem_type, X_start, X_end, target, tmpdir
