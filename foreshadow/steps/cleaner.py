@@ -19,6 +19,7 @@ class CleanerMapper(PreparerStep):
             **kwargs: kwargs to PreparerStep constructor.
 
         """
+        self.empty_columns = None
         super().__init__(**kwargs)
 
     def get_mapping(self, X):
@@ -55,8 +56,8 @@ class CleanerMapper(PreparerStep):
 
         """
         Xt = super().fit_transform(X, *args, **kwargs)
-        self._check_empty_dataframe(Xt)
-        return Xt.dropna(axis=1, how="all")
+        self.empty_columns = self._check_empty_dataframe(Xt)
+        return Xt.drop(columns=self.empty_columns)
 
     def transform(self, X, *args, **kwargs):
         """Clean the dataframe.
@@ -71,14 +72,18 @@ class CleanerMapper(PreparerStep):
 
         """
         Xt = super().transform(X, *args, **kwargs)
-        self._check_empty_dataframe(Xt)
-        return Xt.dropna(axis=1, how="all")
+        # if self.empty_columns is None:
+        #     self.empty_columns = self._check_empty_dataframe(Xt)
+        return Xt.drop(columns=self.empty_columns)
 
     def _check_empty_dataframe(self, X) -> NoReturn:
         """Check if all columns are empty in the dataframe.
 
         Args:
             X: the dataframe
+
+        Returns:
+            the empty columns.
 
         Raises:
             ValueError: all columns are dropped.
@@ -99,3 +104,5 @@ class CleanerMapper(PreparerStep):
                 "Dropping columns due to missing values over 90%: "
                 "".format(",".join(empty_columns.tolist()))
             )
+
+        return empty_columns
