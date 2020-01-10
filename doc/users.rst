@@ -11,7 +11,7 @@ In this tutorial, we will go through a typical ML workflow with Foreshadow using
 Getting Started
 ===============
 
-To get started with foreshadow, install the package using ``pip install foreshadow``. This will also install the dependencies. Now create a simple python script that uses all the defaults with Foreshadow. Note that Foreshadow requires ``Python >=3.6, <4.0``.
+To get started with foreshadow, install the package using ``pip install foreshadow``. This will also install the dependencies. Now create a simple python script that uses all the defaults with Foreshadow. Note that Foreshadow requires ``Python >=3.6``.
 
 First import foreshadow related classes. Also import sklearn, pandas and numpy packages.
 
@@ -170,7 +170,7 @@ After finding the best pipeline, you can export the fitted pipeline as a pickle 
 
 .. code-block:: python
 
-   pickled_fitted_pipeline_location = "fitted_pipeline.p"
+   pickled_fitted_pipeline_location = "fitted_pipeline.pkl"
    shadow.pickle_fitted_pipeline(pickled_fitted_pipeline_location)
 
 Load back the pipeline for prediction
