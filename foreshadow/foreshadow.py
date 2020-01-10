@@ -478,7 +478,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         # been processed will be visible.
         cache_manager = self.X_preparer.cache_manager
         if self._has_column_in_cache_manager(column_name):
-            return cache_manager["intent"][column_name]
+            return cache_manager[AcceptedKey.INTENT][column_name]
         else:
             logging.info(
                 "No intent exists for column {}. Either the column "
@@ -519,7 +519,7 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             )
             return False
         cache_manager = self.X_preparer.cache_manager
-        return True if column in cache_manager["intent"] else False
+        return True if column in cache_manager[AcceptedKey.INTENT] else False
 
     def override_intent(self, column_name: str, intent: str) -> NoReturn:
         """Override the intent of a particular column.
@@ -546,10 +546,10 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         ):
             raise ValueError("Invalid Column {}".format(column_name))
         # Update the intent
-        self.X_preparer.cache_manager["override"][
+        self.X_preparer.cache_manager[AcceptedKey.OVERRIDE][
             "_".join([Override.INTENT, column_name])
         ] = intent
-        self.X_preparer.cache_manager["intent"][column_name] = intent
+        self.X_preparer.cache_manager[AcceptedKey.INTENT][column_name] = intent
 
     def configure_multiprocessing(self, n_job: int = 1) -> NoReturn:
         """Configure the multiprocessing option.
@@ -562,16 +562,22 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
             ConfigKey.N_JOBS
         ] = n_job
 
-    def set_processed_data_export_path(self, data_path: str) -> NoReturn:
+    def set_processed_data_export_path(
+        self, data_path: str, is_train: bool
+    ) -> NoReturn:
         """Set path to export data before feeding the data to the estimator.
 
         Args:
             data_path: the data path string
+            is_train: whether this is for training data
 
         """
-        self.X_preparer.cache_manager["config"][
-            ConfigKey.PROCESSED_DATA_EXPORT_PATH
-        ] = data_path
+        key = (
+            ConfigKey.PROCESSED_TRAINING_DATA_EXPORT_PATH
+            if is_train
+            else ConfigKey.PROCESSED_TEST_DATA_EXPORT_PATH
+        )
+        self.X_preparer.cache_manager[AcceptedKey.CONFIG][key] = data_path
 
     def pickle_fitted_pipeline(self, path: str) -> NoReturn:
         """Pickle the foreshadow object with the best pipeline estimator.

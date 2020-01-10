@@ -701,6 +701,7 @@ def test_core_foreshadow_example_classification():
     from sklearn.metrics import f1_score
     from sklearn.model_selection import train_test_split
     from foreshadow.foreshadow import Foreshadow
+    from foreshadow.intents import IntentType
 
     np.random.seed(0)
     iris = load_iris()
@@ -714,6 +715,10 @@ def test_core_foreshadow_example_classification():
         estimator=LogisticRegression(), problem_type=ProblemType.CLASSIFICATION
     )
     model.fit(X_train, y_train)
+    assert not model.get_intent("petal width (cm)") == IntentType.NUMERIC
+    model.override_intent("petal width (cm)", IntentType.NUMERIC)
+    model.fit(X_train, y_train)
+
     score = f1_score(y_test, model.predict(X_test), average="weighted")
     print("Iris score: %f" % score)
 
@@ -1389,3 +1394,34 @@ def test_foreshadow_adults_small_user_provided_cleaner():
     workclass_values_transformed = list(X_train_cleaned["workclass"].unique())
     for value in workclass_values_transformed:
         assert not any([c.isupper() for c in value])
+
+
+def test_set_processed_data_export_path():
+    from foreshadow.foreshadow import Foreshadow
+    from sklearn.linear_model import LogisticRegression
+    from foreshadow.utils import ConfigKey
+
+    shadow = Foreshadow(
+        estimator=LogisticRegression(), problem_type=ProblemType.CLASSIFICATION
+    )
+    processed_training_data_path = "datapath1.csv"
+    shadow.set_processed_data_export_path(
+        data_path=processed_training_data_path, is_train=True
+    )
+    assert (
+        shadow.X_preparer.cache_manager[AcceptedKey.CONFIG][
+            ConfigKey.PROCESSED_TRAINING_DATA_EXPORT_PATH
+        ]
+        == processed_training_data_path
+    )
+
+    processed_test_data_path = "datapath2.csv"
+    shadow.set_processed_data_export_path(
+        data_path=processed_test_data_path, is_train=False
+    )
+    assert (
+        shadow.X_preparer.cache_manager[AcceptedKey.CONFIG][
+            ConfigKey.PROCESSED_TEST_DATA_EXPORT_PATH
+        ]
+        == processed_test_data_path
+    )
