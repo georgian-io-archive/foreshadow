@@ -4,7 +4,8 @@
 class DefaultConfig:
     """Constants for default configurations."""
 
-    PROCESSED_DATA_EXPORT_PATH = "processed_data.csv"
+    PROCESSED_TRAINING_DATA_EXPORT_PATH = "processed_training_data.csv"
+    PROCESSED_TEST_DATA_EXPORT_PATH = "processed_test_data.csv"
     ENABLE_SAMPLING = True
     SAMPLING_DATASET_SIZE_THRESHOLD = 10000
     SAMPLING_WITH_REPLACEMENT = False
@@ -36,7 +37,8 @@ class ConfigKey:
     SAMPLING_WITH_REPLACEMENT = "with_replacement"
     SAMPLING_FRACTION = "sampling_fraction"
     N_JOBS = "n_jobs"
-    PROCESSED_DATA_EXPORT_PATH = "processed_data_export_path"
+    PROCESSED_TRAINING_DATA_EXPORT_PATH = "processed_training_data_export_path"
+    PROCESSED_TEST_DATA_EXPORT_PATH = "processed_test_data_export_path"
     CUSTOMIZED_CLEANERS = "customized_cleaners"
 
 
