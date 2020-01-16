@@ -32,7 +32,7 @@ def _check_empty_columns(X) -> NoReturn:
         )
         logging.error(error_message)
         raise ValueError(error_message)
-    else:
+    elif len(empty_columns) > 0:
         logging.info(
             "Dropping columns due to missing values over 90%: {}"
             "".format(",".join(empty_columns.tolist()))
