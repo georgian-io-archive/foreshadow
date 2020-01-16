@@ -59,12 +59,15 @@ class IntentResolver:
         Raises:
             FileNotFoundError -- If `components_path` file does not exist.
             TypeError -- If `raw` is not a pd.DataFrame.
+            ValueError -- When `raw` is empty
+            ValueError -- When any columns `raw` contain only NaNs.
 
         """
         if not Path(components_path).is_file():
             raise FileNotFoundError
         if not isinstance(raw, pd.DataFrame):
             raise TypeError("`raw` must be a pd.DataFrame.")
+        self.__check_data(raw)
 
         self.parser = DataFrameDataSetParser(raw)
         self.components_path = Path(components_path)
@@ -95,6 +98,27 @@ class IntentResolver:
         self.parser.load_data_set()
         self.parser.featurize_base()
         self.parser.featurize_secondary()
+
+    @staticmethod
+    def __check_data(df: pd.DataFrame) -> None:
+        """Check quality of dataframe.
+        Raises:
+            ValueError: When `df` is empty
+            ValueError: When any columns `df` contain only NaNs.
+        """
+        # Check for empty dataframe
+        if not len(df):
+            raise ValueError(
+                f"Dataframe with columns {df.columns.tolist()} is " "empty."
+            )
+
+        # Check for null columns
+        null_columns = df.isnull().all(axis=0)
+        if null_columns.any():
+            raise ValueError(
+                f"Columns {null_columns[null_columns].index.tolist()} "
+                "contain only NaNs."
+            )
 
     def predict(
         self,
