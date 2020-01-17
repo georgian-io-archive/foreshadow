@@ -34,23 +34,11 @@ def _check_empty_columns(X) -> NoReturn:
         raise ValueError(error_message)
     elif len(empty_columns) > 0:
         logging.info(
-            "Dropping columns due to missing values over 90%: {}"
+            "Identified columns with over 90% missing values: {}"
             "".format(",".join(empty_columns.tolist()))
         )
 
     return empty_columns.tolist()
-
-
-def _abort_if_has_new_empty_columns(current_columns, empty_columns):
-    new_empty_columns = []
-    for column in empty_columns:
-        if column in current_columns:
-            new_empty_columns.append(column)
-    if len(new_empty_columns) > 0:
-        raise ValueError(
-            "Found new empty columns not present in the training "
-            "data. Downstream steps will fail: {}".format(new_empty_columns)
-        )
 
 
 class CleanerMapper(PreparerStep):
@@ -63,7 +51,7 @@ class CleanerMapper(PreparerStep):
             **kwargs: kwargs to PreparerStep constructor.
 
         """
-        self.empty_columns = None
+        self._empty_columns = None
         super().__init__(**kwargs)
 
     def get_mapping(self, X):
@@ -100,8 +88,8 @@ class CleanerMapper(PreparerStep):
 
         """
         Xt = super().fit_transform(X, *args, **kwargs)
-        self.empty_columns = _check_empty_columns(Xt)
-        return Xt.drop(columns=self.empty_columns)
+        self._empty_columns = _check_empty_columns(Xt)
+        return Xt.drop(columns=self._empty_columns)
 
     def transform(self, X, *args, **kwargs):
         """Clean the dataframe.
@@ -118,18 +106,8 @@ class CleanerMapper(PreparerStep):
             ValueError: new empty columns detected.
 
         """
-        if self.empty_columns is None:
+        if not self.has_fitted():
             raise ValueError("Cleaner has not been fitted yet.")
 
         Xt = super().transform(X, *args, **kwargs)
-        empty_columns_from_transformed_dataset = _check_empty_columns(Xt)
-
-        Xt_after_dropping_columns_identified_during_training = Xt.drop(
-            columns=self.empty_columns
-        )
-
-        _abort_if_has_new_empty_columns(
-            list(Xt_after_dropping_columns_identified_during_training.columns),
-            empty_columns_from_transformed_dataset,
-        )
-        return Xt_after_dropping_columns_identified_during_training
+        return Xt.drop(columns=self._empty_columns)

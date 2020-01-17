@@ -1234,6 +1234,9 @@ def test_foreshadow_integration_data_cleaner_can_drop(
     with open(pickled_fitted_pipeline_location, "rb") as fopen:
         pipeline = pickle.load(fopen)
 
+    # If there are new empty columns in the test set, the program should
+    # not fail.
+    X_test[X_start] = np.nan
     score1 = shadow.score(X_test, y_test)
     score2 = pipeline.score(X_test, y_test)
 
@@ -1246,18 +1249,6 @@ def test_foreshadow_integration_data_cleaner_can_drop(
     # produced a reasonable score and the difference is small.
     # assert score1 > 0.76 and score2 > 0.76
     assertions.assertAlmostEqual(score1, score2, places=2)
-
-    # If there are new empty columns in the test set, the program should
-    # abort early and alert the user about the column
-    X_test[X_start] = np.nan
-
-    for model in [shadow, pipeline]:
-        with pytest.raises(ValueError) as e:
-            model.score(X_test, y_test)
-            assert (
-                "Found new empty columns not present in the training "
-                "data" in str(e.value)
-            )
 
 
 @pytest.mark.parametrize(

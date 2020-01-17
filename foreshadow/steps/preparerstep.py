@@ -216,6 +216,15 @@ class PreparerStep(
             self.cache_manager = CacheManager()
         super().__init__(**kwargs)
 
+    def has_fitted(self):
+        """Check if the prepare step has been fitted.
+
+        Returns:
+            Whether the step has been fitted.
+
+        """
+        return self._parallel_process is not None
+
     def configure_cache_manager(self, cache_manager):
         """Recursively configure cache_manager attribute.
 

@@ -1,4 +1,23 @@
 """Test data_cleaner.py"""
+import pytest
+
+
+def test_data_cleaner_transform_before_fit():
+    import pandas as pd
+    from foreshadow.steps import CleanerMapper
+    from foreshadow.cachemanager import CacheManager
+
+    data = pd.DataFrame(
+        {"financials": ["$1.00", "$550.01", "$1234", "$12353.3345"]},
+        columns=["financials"],
+    )
+    cs = CacheManager()
+    dc = CleanerMapper(cache_manager=cs)
+
+    with pytest.raises(ValueError) as e:
+        dc.transform(data)
+
+    assert str(e.value) == "Cleaner has not been fitted yet."
 
 
 def test_data_cleaner_fit():
