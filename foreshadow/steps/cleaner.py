@@ -103,7 +103,7 @@ class CleanerMapper(PreparerStep):
             A transformed dataframe.
 
         Raises:
-            ValueError: new empty columns detected.
+            ValueError: Cleaner has not been fitted.
 
         """
         if not self.has_fitted():
