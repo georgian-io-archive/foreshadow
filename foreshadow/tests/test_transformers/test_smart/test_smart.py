@@ -193,12 +193,16 @@ def test_smart_encoder_more_than_30_levels():
 
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
+    gt_30_random_data = [item for item in gt_30_random_data.astype(str)]
+    gt_30_random_data[0] = np.nan
     smart_coder = CategoricalEncoder()
     transformer = smart_coder.fit(gt_30_random_data).transformer
     assert isinstance(transformer, SerializablePipeline)
     assert isinstance(transformer.steps[0][1], NaNFiller)
     assert isinstance(transformer.steps[1][1], HashingEncoder)
     assert len(transformer.steps) == 2
+    res = transformer.transform(gt_30_random_data)
+    assert len(res.columns) == 30
 
 
 def test_smart_encoder_more_than_30_levels_that_reduces():
