@@ -173,18 +173,19 @@ class BaseCleaner(BaseEstimator, TransformerMixin):
         Returns:
             :obj:`pandas.DataFrame`: Transformed data
 
+        Raises:
+            InvalidDataFrame: If unexpected output returned that was not
+                handled correctly. This happens if the output specified by the
+                child does not match what is actually returned. The child
+                should ensure it's implementation is consistent.
+
         """
         X = check_df(X, single_column=True)
-        out = self._transform(X)
+        logging.info("Starting cleaning rows...")
+        out = X[X.columns[0]].apply(self.transform_row, return_tuple=False)
+        logging.info("Ending cleaning rows...")
         # access single column as series and apply the list of
         # transformations to each row in the series.
-        X = self._post_process(X, out)
-        return X
-
-    def _transform(self, X):
-        return X[X.columns[0]].apply(self.transform_row, return_tuple=False)
-
-    def _post_process(self, X, out):
         if any(
             [
                 isinstance(out.iloc[i], (list, tuple))
