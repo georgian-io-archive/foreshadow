@@ -2,6 +2,8 @@
 import json
 from collections import MutableMapping
 
+import numpy as np
+
 from .base import BaseCleaner
 
 
@@ -47,9 +49,25 @@ def json_flatten(text):
     try:
         ret = json.loads(text)
         matched = len(text)
+        ret = np.nan if _is_json_empty(ret) else ret
     except (json.JSONDecodeError, TypeError):
         pass  # didn't match.
     return ret, matched
+
+
+def _is_json_empty(data):
+    """Check if the json is an empty list or dictionary.
+
+    Args:
+        data: the json file to be checked.
+
+    Returns:
+        boolean -- whether the json file is empty.
+
+    """
+    if data == [] or data == {}:
+        return True
+    return False
 
 
 class StandardJsonFlattener(BaseCleaner):
@@ -62,3 +80,10 @@ class StandardJsonFlattener(BaseCleaner):
     def __init__(self):
         transformations = [json_flatten]
         super().__init__(transformations)
+
+    # def _transform(self, X, y=None):
+    #     Xt = super()._transform(X)
+    #     return Xt
+    #
+    # def transform(self, X, y=None):
+    #     return self._transform(X)
