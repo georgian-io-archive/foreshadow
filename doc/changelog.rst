@@ -2,6 +2,17 @@
 
 .. towncrier release notes start
 
+Foreshadow 0.4.4 (2020-01-29)
+=============================
+
+Features
+--------
+
+- Bug fixes and updates:
+    1. AutoIntent Resolving code update.
+    2. fixing intent override from Categorical to Numeric issue in DataExportor. (bug-fixes)
+
+
 Foreshadow 0.4.3 (2020-01-08)
 =============================
 
