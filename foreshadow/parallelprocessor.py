@@ -2,18 +2,36 @@
 
 import pandas as pd
 from sklearn.externals.joblib import Parallel, delayed
-from sklearn.pipeline import (
-    FeatureUnion,
-    _fit_one_transformer,
-    _fit_transform_one,
-    _transform_one,
-)
+from sklearn.pipeline import FeatureUnion
 
 from foreshadow.base import BaseEstimator
 from foreshadow.logging import logging
 from foreshadow.utils.common import ConfigureCacheManagerMixin
 
 from .serializers import PipelineSerializerMixin, _make_serializable
+
+
+def _fit_one_transformer(transformer, X, y):
+    return transformer.fit(X, y)
+
+
+def _transform_one(transformer, weight, X):
+    res = transformer.transform(X)
+    # if we have a weight for this transformer, multiply output
+    if weight is None:
+        return res
+    return res * weight
+
+
+def _fit_transform_one(transformer, weight, X, y, **fit_params):
+    if hasattr(transformer, "fit_transform"):
+        res = transformer.fit_transform(X, y, **fit_params)
+    else:
+        res = transformer.fit(X, y, **fit_params).transform(X)
+    # if we have a weight for this transformer, multiply output
+    if weight is None:
+        return res, transformer
+    return res * weight, transformer
 
 
 class ParallelProcessor(

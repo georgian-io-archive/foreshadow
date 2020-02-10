@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats as ss
 
-from foreshadow.concrete import Imputer, NaNFiller, NoTransform
+from foreshadow.concrete import NaNFiller, NoTransform, SimpleImputer
 from foreshadow.concrete.externals import (
     HashingEncoder,
     MinMaxScaler,
@@ -222,7 +222,7 @@ class CategoricalEncoder(SmartTransformer):
         return final_pipeline
 
 
-class SimpleImputer(SmartTransformer):
+class SimpleFillImputer(SmartTransformer):
     """Automatically impute single columns.
 
     Performs z-score test to determine whether to use mean or median
@@ -283,7 +283,7 @@ class SimpleImputer(SmartTransformer):
         if 0 < ratio <= self.threshold:
             return self._choose_simple(s.values)
         else:
-            return Imputer()
+            return SimpleImputer()
 
 
 class MultiImputer(SmartTransformer):

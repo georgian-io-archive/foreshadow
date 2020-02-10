@@ -242,11 +242,11 @@ def test_smart_encoder_y_var():
 def test_smart_impute_simple_none():
     import numpy as np
     import pandas as pd
-    from foreshadow.smart import SimpleImputer
+    from foreshadow.smart import SimpleFillImputer
 
     heart_path = get_file_path("data", "heart-h.csv")
 
-    impute = SimpleImputer(threshold=0.05)
+    impute = SimpleFillImputer(threshold=0.05)
     df = pd.read_csv(heart_path)
 
     data = df[["chol"]]
@@ -260,12 +260,12 @@ def test_smart_impute_simple_none():
 def test_smart_impute_simple_mean():
     import numpy as np
     import pandas as pd
-    from foreshadow.smart import SimpleImputer
+    from foreshadow.smart import SimpleFillImputer
 
     heart_path = get_file_path("data", "heart-h.csv")
     heart_impute_path = get_file_path("data", "heart-h_impute_mean.csv")
 
-    impute = SimpleImputer()
+    impute = SimpleFillImputer()
     df = pd.read_csv(heart_path)
 
     data = df[["chol"]]
@@ -280,12 +280,12 @@ def test_smart_impute_simple_mean():
 def test_smart_impute_simple_median():
     import pandas as pd
     import numpy as np
-    from foreshadow.smart import SimpleImputer
+    from foreshadow.smart import SimpleFillImputer
 
     heart_path = get_file_path("data", "heart-h.csv")
     heart_impute_path = get_file_path("data", "heart-h_impute_median.csv")
 
-    impute = SimpleImputer()
+    impute = SimpleFillImputer()
     df = pd.read_csv(heart_path)
 
     data = df["chol"].values
