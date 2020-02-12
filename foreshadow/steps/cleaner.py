@@ -1,10 +1,14 @@
 """Cleaner module for handling the cleaning and shaping of data."""
-from typing import NoReturn
+from typing import List, NoReturn
 
 import pandas as pd
+from sklearn.compose import make_column_transformer
+from sklearn.pipeline import make_pipeline
 
+from foreshadow.concrete import DropCleaner
 from foreshadow.logging import logging
 from foreshadow.smart import Cleaner, Flatten
+from foreshadow.utils import AcceptedKey, ConfigKey
 
 from .preparerstep import PreparerStep
 
@@ -75,6 +79,67 @@ class CleanerMapper(PreparerStep):
             cols=X.columns,
         )
 
+    def fit(self, X, *args, **kwargs):
+        """Fit this step.
+
+        calls underlying parallel process.
+
+        Args:
+            X: input DataFrame
+            *args: args to _fit
+            **kwargs: kwargs to _fit
+
+        Returns:
+            transformed data handled by Pipeline._fit
+
+        """
+        columns = X.columns
+        list_of_tuples = [
+            (
+                make_pipeline(
+                    Flatten(cache_manager=self.cache_manager),
+                    Cleaner(cache_manager=self.cache_manager),
+                ),
+                column,
+            )
+            for column in columns
+        ]
+        self.feature_processor = make_column_transformer(
+            *list_of_tuples,
+            n_jobs=self.cache_manager[AcceptedKey.CONFIG][ConfigKey.N_JOBS],
+        )
+        self.feature_processor.fit(X=X)
+        self._empty_columns = self._check_empty_columns(
+            original_columns=columns
+        )
+        # Xt.drop(columns=self._empty_columns)
+        return self
+
+    def _check_empty_columns(self, original_columns: List) -> List:
+        empty_columns = []
+        for cleaner_tuple in self.feature_processor.transformers_:
+            _, cleaner_pipeline, column_name = cleaner_tuple
+            if isinstance(
+                cleaner_pipeline.steps[1][1].transformer, DropCleaner
+            ):
+                empty_columns.append(column_name)
+
+        if len(empty_columns) == len(original_columns):
+            error_message = (
+                "All columns are dropped since they all have "
+                "over 90% of missing values. Aborting foreshadow."
+            )
+            logging.error(error_message)
+            raise ValueError(error_message)
+        elif len(empty_columns) > 0:
+            logging.info(
+                "Identified columns with over 90% missing values: {} and "
+                "they will be dropped."
+                "".format(",".join(empty_columns))
+            )
+
+        return empty_columns
+
     def fit_transform(self, X, *args, **kwargs):
         """Fit then transform the cleaner step.
 
@@ -87,9 +152,10 @@ class CleanerMapper(PreparerStep):
             A transformed dataframe.
 
         """
-        Xt = super().fit_transform(X, *args, **kwargs)
-        self._empty_columns = _check_empty_columns(Xt)
-        return Xt.drop(columns=self._empty_columns)
+        return self.fit(X, *args, **kwargs).transform(X)
+        # Xt = super().fit_transform(X, *args, **kwargs)
+        # self._empty_columns = _check_empty_columns(Xt)
+        # return Xt.drop(columns=self._empty_columns)
 
     def transform(self, X, *args, **kwargs):
         """Clean the dataframe.
@@ -106,8 +172,11 @@ class CleanerMapper(PreparerStep):
             ValueError: Cleaner has not been fitted.
 
         """
-        if not self.has_fitted():
+        if self._empty_columns is None:
             raise ValueError("Cleaner has not been fitted yet.")
 
-        Xt = super().transform(X, *args, **kwargs)
+        # Xt = super().transform(X, *args, **kwargs)
+
+        Xt = self.feature_processor.transform(X=X)
+        Xt = pd.DataFrame(data=Xt, columns=X.columns)
         return Xt.drop(columns=self._empty_columns)

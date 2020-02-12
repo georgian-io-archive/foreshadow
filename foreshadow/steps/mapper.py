@@ -18,7 +18,6 @@ class IntentMapper(PreparerStep):
     """
 
     def __init__(self, **kwargs):
-        # self.intent_resolvers = None
         super().__init__(**kwargs)
 
     def get_mapping(self, X):
@@ -91,6 +90,20 @@ class IntentMapper(PreparerStep):
         if self.feature_processor is None:
             raise ValueError("not fitted.")
         return self.feature_processor.transform(X, *args, **kwargs)
+
+    def fit_transform(self, X, *args, **kwargs):
+        """Fit then transform the cleaner step.
+
+        Args:
+            X: the data frame.
+            *args: positional args.
+            **kwargs: key word args.
+
+        Returns:
+            A transformed dataframe.
+
+        """
+        return self.fit(X, *args, **kwargs).transform(X)
 
     def _update_cache_manager_with_intents(self):
         for intent_resolver_tuple in self.feature_processor.transformers_:

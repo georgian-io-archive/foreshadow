@@ -1,5 +1,6 @@
 """DropCleaner which detects when to drop cleaner."""
 
+import numpy as np
 import pandas as pd
 
 from foreshadow.metrics import (
@@ -88,4 +89,4 @@ class DropCleaner(BaseCleaner):
 
         """
         X = check_df(X, single_column=True)
-        return pd.DataFrame([], columns=X.columns)
+        return pd.DataFrame([np.nan] * len(X), columns=X.columns)

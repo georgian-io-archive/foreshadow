@@ -8,7 +8,7 @@ from foreshadow.serializers import (
     _make_serializable,
 )
 from foreshadow.smart import CategoricalEncoder
-from foreshadow.steps import IntentMapper
+from foreshadow.steps import CleanerMapper, IntentMapper
 from foreshadow.utils import ConfigureCacheManagerMixin, ProblemType
 
 from .concrete import NoTransform
@@ -79,9 +79,9 @@ class DataPreparer(
         y_var=None,
         **kwargs
     ):
-        # cleaner_kwargs_ = _none_to_dict(
-        #     "cleaner_kwargs", cleaner_kwargs, cache_manager
-        # )
+        cleaner_kwargs_ = _none_to_dict(
+            "cleaner_kwargs", cleaner_kwargs, cache_manager
+        )
         intent_kwargs_ = _none_to_dict(
             "intent_kwargs", intent_kwargs, cache_manager
         )
@@ -102,7 +102,7 @@ class DataPreparer(
         # )
         if not y_var:
             steps = [
-                # ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
+                ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
                 ("intent", IntentMapper(**intent_kwargs_)),
                 # (
                 #     "feature_summarizer",

@@ -101,28 +101,28 @@ class DynamicPipeline(Pipeline, PipelineSerializerMixin):
 
     # TODO replace with thorough dynamic pipeline that handles all use cases
     #  and is based off defined inputs/outputs for each transformer.
-    def _fit(self, X, y=None, **fit_params):  # copied super method
-        """Fit and then transform data.
-
-        Fit all the transforms one after the other and transform the
-        data. Has no final_estimator. If fitting errors out, it tries giving a
-        single column to each SmartTransformer.
-
-        Args:
-            X (iterable): Training data. Must fulfill input requirements of
-                first step of the pipeline.
-            y (iterable, default=None): Training targets. Must fulfill label
-                requirements for all steps of the pipeline.
-            **fit_params (dict of string -> object): Parameters passed to the
-                `fit` method of each step, where each parameter name is
-                prefixed such that parameter `p` for step `s` has key
-                `s__p`.
-
-        Returns:
-            Transformed inputs.
-
-        """
-        return _fit(self, X, y, **fit_params)  # noqa: F821
+    # def _fit(self, X, y=None, **fit_params):  # copied super method
+    #     """Fit and then transform data.
+    #
+    #     Fit all the transforms one after the other and transform the
+    #     data. Has no final_estimator. If fitting errors out, it tries giving
+    #     a single column to each SmartTransformer.
+    #
+    #     Args:
+    #         X (iterable): Training data. Must fulfill input requirements of
+    #             first step of the pipeline.
+    #         y (iterable, default=None): Training targets. Must fulfill label
+    #             requirements for all steps of the pipeline.
+    #         **fit_params (dict of string -> object): Parameters passed to the
+    #             `fit` method of each step, where each parameter name is
+    #             prefixed such that parameter `p` for step `s` has key
+    #             `s__p`.
+    #
+    #     Returns:
+    #         Transformed inputs.
+    #
+    #     """
+    #     return _fit(self, X, y, **fit_params)  # noqa: F821
 
     def fit(self, X, y=None, **fit_params):
         """Fit the model.

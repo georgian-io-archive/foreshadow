@@ -150,12 +150,15 @@ def test_data_preparer_intent_resolving(tmpdir):
     from foreshadow.preparer import DataPreparer
     from foreshadow.cachemanager import CacheManager
     import pandas as pd
+    import numpy as np
 
     boston_path = get_file_path("data", "boston_housing.csv")
     data = pd.read_csv(boston_path)
 
     cs = CacheManager()
     dp = DataPreparer(cs)
+
+    data["crim"] = np.nan
 
     dp.fit(data)
     _ = dp.transform(data)
