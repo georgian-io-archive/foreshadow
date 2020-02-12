@@ -8,7 +8,11 @@ from foreshadow.serializers import (
     _make_serializable,
 )
 from foreshadow.smart import CategoricalEncoder
-from foreshadow.steps import CleanerMapper, IntentMapper
+from foreshadow.steps import (
+    CleanerMapper,
+    FeatureSummarizerMapper,
+    IntentMapper,
+)
 from foreshadow.utils import ConfigureCacheManagerMixin, ProblemType
 
 from .concrete import NoTransform
@@ -85,9 +89,9 @@ class DataPreparer(
         intent_kwargs_ = _none_to_dict(
             "intent_kwargs", intent_kwargs, cache_manager
         )
-        # summarizer_kwargs_ = _none_to_dict(
-        #     "summarizer_kwargs", summarizer_kwargs, cache_manager
-        # )
+        summarizer_kwargs_ = _none_to_dict(
+            "summarizer_kwargs", summarizer_kwargs, cache_manager
+        )
         # # engineerer_kwargs_ = _none_to_dict(
         # #     "engineerer_kwargs", engineerer_kwargs, cache_manager
         # # )
@@ -104,10 +108,10 @@ class DataPreparer(
             steps = [
                 ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
                 ("intent", IntentMapper(**intent_kwargs_)),
-                # (
-                #     "feature_summarizer",
-                #     FeatureSummarizerMapper(**summarizer_kwargs_),
-                # ),
+                (
+                    "feature_summarizer",
+                    FeatureSummarizerMapper(**summarizer_kwargs_),
+                ),
                 # (
                 #     "feature_engineerer",
                 #     FeatureEngineererMapper(**engineerer_kwargs_),

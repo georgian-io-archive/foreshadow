@@ -146,7 +146,7 @@ def test_data_preparer_deserialization(tmpdir):
     assert_frame_equal(data_transformed, data_transformed2)
 
 
-def test_data_preparer_intent_resolving(tmpdir):
+def test_data_preparer_intent_resolving():
     from foreshadow.preparer import DataPreparer
     from foreshadow.cachemanager import CacheManager
     import pandas as pd
