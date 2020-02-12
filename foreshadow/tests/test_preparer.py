@@ -144,3 +144,19 @@ def test_data_preparer_deserialization(tmpdir):
     from pandas.util.testing import assert_frame_equal
 
     assert_frame_equal(data_transformed, data_transformed2)
+
+
+def test_data_preparer_intent_resolving(tmpdir):
+    from foreshadow.preparer import DataPreparer
+    from foreshadow.cachemanager import CacheManager
+    import pandas as pd
+
+    boston_path = get_file_path("data", "boston_housing.csv")
+    data = pd.read_csv(boston_path)
+
+    cs = CacheManager()
+    dp = DataPreparer(cs)
+
+    dp.fit(data)
+    _ = dp.transform(data)
+    print(cs["intent"])

@@ -1,6 +1,9 @@
 """Resolver module that computes the intents for input data."""
 
+from sklearn.compose import make_column_transformer
+
 from foreshadow.smart.intent_resolving import IntentResolver
+from foreshadow.utils import AcceptedKey, ConfigKey
 
 from .preparerstep import PreparerStep
 
@@ -15,6 +18,7 @@ class IntentMapper(PreparerStep):
     """
 
     def __init__(self, **kwargs):
+        # self.intent_resolvers = None
         super().__init__(**kwargs)
 
     def get_mapping(self, X):
@@ -33,3 +37,65 @@ class IntentMapper(PreparerStep):
             ],
             cols=X.columns,
         )
+
+    def fit(self, X, *args, **kwargs):
+        """Fit this step.
+
+        calls underlying parallel process.
+
+        Args:
+            X: input DataFrame
+            *args: args to _fit
+            **kwargs: kwargs to _fit
+
+        Returns:
+            transformed data handled by Pipeline._fit
+
+        """
+        columns = X.columns
+        list_of_tuples = [
+            (
+                IntentResolver(
+                    cache_manager=self.cache_manager, column=column
+                ),
+                column,
+            )
+            for column in columns
+        ]
+        self.feature_processor = make_column_transformer(
+            *list_of_tuples,
+            n_jobs=self.cache_manager[AcceptedKey.CONFIG][ConfigKey.N_JOBS],
+        )
+        self.feature_processor.fit(X=X)
+        self._update_cache_manager_with_intents()
+
+        return self
+
+    def transform(self, X, *args, **kwargs):
+        """Transform X using this PreparerStep.
+
+        calls underlying parallel process.
+
+        Args:
+            X: input DataFrame
+            *args: args to .transform()
+            **kwargs: kwargs to .transform()
+
+        Returns:
+            result from .transform()
+
+        Raises:
+            ValueError: if not fitted.
+
+        """
+        if self.feature_processor is None:
+            raise ValueError("not fitted.")
+        return self.feature_processor.transform(X, *args, **kwargs)
+
+    def _update_cache_manager_with_intents(self):
+        for intent_resolver_tuple in self.feature_processor.transformers_:
+            intent_resolver = intent_resolver_tuple[1]
+            column_name = intent_resolver_tuple[2]
+            self.cache_manager[AcceptedKey.INTENT][
+                column_name
+            ] = intent_resolver.column_intent

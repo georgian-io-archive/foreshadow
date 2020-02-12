@@ -206,6 +206,7 @@ class PreparerStep(
             **kwargs: kwargs to PIpeline constructor.
 
         """
+        self.feature_processor = None
         self._parallel_process = None
         if "_parallel_process" in kwargs:  # clone will try to init using
             # the params from get_params, meaning this will be passed

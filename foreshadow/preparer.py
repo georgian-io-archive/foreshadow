@@ -8,13 +8,7 @@ from foreshadow.serializers import (
     _make_serializable,
 )
 from foreshadow.smart import CategoricalEncoder
-from foreshadow.steps import (
-    CleanerMapper,
-    DataExporterMapper,
-    FeatureSummarizerMapper,
-    IntentMapper,
-    Preprocessor,
-)
+from foreshadow.steps import IntentMapper
 from foreshadow.utils import ConfigureCacheManagerMixin, ProblemType
 
 from .concrete import NoTransform
@@ -85,42 +79,43 @@ class DataPreparer(
         y_var=None,
         **kwargs
     ):
-        cleaner_kwargs_ = _none_to_dict(
-            "cleaner_kwargs", cleaner_kwargs, cache_manager
-        )
+        # cleaner_kwargs_ = _none_to_dict(
+        #     "cleaner_kwargs", cleaner_kwargs, cache_manager
+        # )
         intent_kwargs_ = _none_to_dict(
             "intent_kwargs", intent_kwargs, cache_manager
         )
-        summarizer_kwargs_ = _none_to_dict(
-            "summarizer_kwargs", summarizer_kwargs, cache_manager
-        )
-        # engineerer_kwargs_ = _none_to_dict(
-        #     "engineerer_kwargs", engineerer_kwargs, cache_manager
+        # summarizer_kwargs_ = _none_to_dict(
+        #     "summarizer_kwargs", summarizer_kwargs, cache_manager
         # )
-        preprocessor_kwargs_ = _none_to_dict(
-            "preprocessor_kwargs", preprocessor_kwargs, cache_manager
-        )
-        # reducer_kwargs_ = _none_to_dict(
-        #     "reducer_kwargs", reducer_kwargs, cache_manager
+        # # engineerer_kwargs_ = _none_to_dict(
+        # #     "engineerer_kwargs", engineerer_kwargs, cache_manager
+        # # )
+        # preprocessor_kwargs_ = _none_to_dict(
+        #     "preprocessor_kwargs", preprocessor_kwargs, cache_manager
         # )
-        exporter_kwargs_ = _none_to_dict(
-            "exporter_kwargs", exporter_kwargs, cache_manager
-        )
+        # # reducer_kwargs_ = _none_to_dict(
+        # #     "reducer_kwargs", reducer_kwargs, cache_manager
+        # # )
+        # exporter_kwargs_ = _none_to_dict(
+        #     "exporter_kwargs", exporter_kwargs, cache_manager
+        # )
         if not y_var:
             steps = [
-                ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
+                # ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
                 ("intent", IntentMapper(**intent_kwargs_)),
-                (
-                    "feature_summarizer",
-                    FeatureSummarizerMapper(**summarizer_kwargs_),
-                ),
+                # (
+                #     "feature_summarizer",
+                #     FeatureSummarizerMapper(**summarizer_kwargs_),
+                # ),
                 # (
                 #     "feature_engineerer",
                 #     FeatureEngineererMapper(**engineerer_kwargs_),
                 # ),
-                ("feature_preprocessor", Preprocessor(**preprocessor_kwargs_)),
+                # ("feature_preprocessor",
+                # Preprocessor(**preprocessor_kwargs_)),
                 # ("feature_reducer", FeatureReducerMapper(**reducer_kwargs_)),
-                ("feature_exporter", DataExporterMapper(**exporter_kwargs_)),
+                # ("feature_exporter", DataExporterMapper(**exporter_kwargs_)),
             ]
         else:
             if problem_type == ProblemType.REGRESSION:
