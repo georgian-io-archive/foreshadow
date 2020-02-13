@@ -1,8 +1,6 @@
 """Resolver module that computes the intents for input data."""
 
-import pandas as pd
-from sklearn.compose import make_column_transformer
-
+from foreshadow.ColumnTransformerWrapper import ColumnTransformerWrapper
 from foreshadow.smart.intent_resolving import IntentResolver
 from foreshadow.utils import AcceptedKey, ConfigKey
 
@@ -55,6 +53,7 @@ class IntentMapper(PreparerStep):
         columns = X.columns
         list_of_tuples = [
             (
+                column,
                 IntentResolver(
                     cache_manager=self.cache_manager, column=column
                 ),
@@ -62,8 +61,8 @@ class IntentMapper(PreparerStep):
             )
             for column in columns
         ]
-        self.feature_processor = make_column_transformer(
-            *list_of_tuples,
+        self.feature_processor = ColumnTransformerWrapper(
+            list_of_tuples,
             n_jobs=self.cache_manager[AcceptedKey.CONFIG][ConfigKey.N_JOBS],
         )
         self.feature_processor.fit(X=X)
@@ -91,7 +90,7 @@ class IntentMapper(PreparerStep):
         if self.feature_processor is None:
             raise ValueError("not fitted.")
         Xt = self.feature_processor.transform(X, *args, **kwargs)
-        return pd.DataFrame(data=Xt, columns=X.columns)
+        return Xt
 
     def fit_transform(self, X, *args, **kwargs):
         """Fit then transform the cleaner step.

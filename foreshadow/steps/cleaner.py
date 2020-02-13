@@ -2,9 +2,9 @@
 from typing import List, NoReturn
 
 import pandas as pd
-from sklearn.compose import make_column_transformer
 from sklearn.pipeline import make_pipeline
 
+from foreshadow.ColumnTransformerWrapper import ColumnTransformerWrapper
 from foreshadow.concrete import DropCleaner
 from foreshadow.logging import logging
 from foreshadow.smart import Cleaner, Flatten
@@ -96,6 +96,7 @@ class CleanerMapper(PreparerStep):
         columns = X.columns
         list_of_tuples = [
             (
+                column,
                 make_pipeline(
                     Flatten(cache_manager=self.cache_manager),
                     Cleaner(cache_manager=self.cache_manager),
@@ -104,15 +105,14 @@ class CleanerMapper(PreparerStep):
             )
             for column in columns
         ]
-        self.feature_processor = make_column_transformer(
-            *list_of_tuples,
+        self.feature_processor = ColumnTransformerWrapper(
+            list_of_tuples,
             n_jobs=self.cache_manager[AcceptedKey.CONFIG][ConfigKey.N_JOBS],
         )
         self.feature_processor.fit(X=X)
         self._empty_columns = self._check_empty_columns(
             original_columns=columns
         )
-        # Xt.drop(columns=self._empty_columns)
         return self
 
     def _check_empty_columns(self, original_columns: List) -> List:
@@ -178,5 +178,5 @@ class CleanerMapper(PreparerStep):
         # Xt = super().transform(X, *args, **kwargs)
 
         Xt = self.feature_processor.transform(X=X)
-        Xt = pd.DataFrame(data=Xt, columns=X.columns)
+        # Xt = pd.DataFrame(data=Xt, columns=X.columns)
         return Xt.drop(columns=self._empty_columns)

@@ -12,6 +12,7 @@ from foreshadow.steps import (
     CleanerMapper,
     FeatureSummarizerMapper,
     IntentMapper,
+    Preprocessor,
 )
 from foreshadow.utils import ConfigureCacheManagerMixin, ProblemType
 
@@ -95,9 +96,9 @@ class DataPreparer(
         # # engineerer_kwargs_ = _none_to_dict(
         # #     "engineerer_kwargs", engineerer_kwargs, cache_manager
         # # )
-        # preprocessor_kwargs_ = _none_to_dict(
-        #     "preprocessor_kwargs", preprocessor_kwargs, cache_manager
-        # )
+        preprocessor_kwargs_ = _none_to_dict(
+            "preprocessor_kwargs", preprocessor_kwargs, cache_manager
+        )
         # # reducer_kwargs_ = _none_to_dict(
         # #     "reducer_kwargs", reducer_kwargs, cache_manager
         # # )
@@ -116,8 +117,7 @@ class DataPreparer(
                 #     "feature_engineerer",
                 #     FeatureEngineererMapper(**engineerer_kwargs_),
                 # ),
-                # ("feature_preprocessor",
-                # Preprocessor(**preprocessor_kwargs_)),
+                ("feature_preprocessor", Preprocessor(**preprocessor_kwargs_)),
                 # ("feature_reducer", FeatureReducerMapper(**reducer_kwargs_)),
                 # ("feature_exporter", DataExporterMapper(**exporter_kwargs_)),
             ]

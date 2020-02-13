@@ -93,13 +93,9 @@ class FeatureSummarizerMapper(PreparerStep, AutoIntentMixin):  # noqa
     #     return Xt
 
     def summarize(self, X_df):  # noqa
-
-        return {
-            k: {
-                "intent": self.cache_manager["intent", k],
-                "data": get_transformer(
-                    self.cache_manager["intent", k]
-                ).column_summary(X_df[[k]]),
-            }
-            for k in X_df.columns.values.tolist()
-        }
+        summary = {}
+        for k in X_df.columns.values.tolist():
+            intent = self.cache_manager["intent", k]
+            data = get_transformer(intent).column_summary(X_df[[k]])
+            summary[k] = {"intent": intent, "data": data}
+        return summary

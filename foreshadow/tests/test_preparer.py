@@ -132,7 +132,6 @@ def test_data_preparer_deserialization(tmpdir):
     cs = CacheManager()
     dp = DataPreparer(cs)
 
-    dp.fit(data)
     data_transformed = dp.transform(data)
     json_location = tmpdir.join("data_preparerer.json")
     dp.to_json(json_location)
@@ -150,16 +149,23 @@ def test_data_preparer_intent_resolving():
     from foreshadow.preparer import DataPreparer
     from foreshadow.cachemanager import CacheManager
     import pandas as pd
-    import numpy as np
 
-    boston_path = get_file_path("data", "boston_housing.csv")
-    data = pd.read_csv(boston_path)
+    # from foreshadow.intents import IntentType
+    # from foreshadow.utils import AcceptedKey, Override
+
+    data_path = get_file_path("data", "adult_small.csv")
+    data = pd.read_csv(data_path)
 
     cs = CacheManager()
+    # cs[AcceptedKey.OVERRIDE][
+    #     "_".join([Override.INTENT, 'age'])
+    # ] = IntentType.CATEGORICAL
+
     dp = DataPreparer(cs)
 
-    data["crim"] = np.nan
+    # data["crim"] = np.nan
 
     dp.fit(data)
-    _ = dp.transform(data)
+    res = dp.transform(data)
     print(cs["intent"])
+    print(res)
