@@ -170,7 +170,7 @@ def test_transformer_multiprocess_dynamic_pipelines_update_cache_manager():
                 ["indus"],
             ),
         ],
-        n_jobs=-1,
+        n_jobs=1,
         collapse_index=True,
     )
 
@@ -444,21 +444,23 @@ def test_smarttransformer_function_override(smart_child):
     import numpy as np
     import pandas as pd
 
-    from foreshadow.concrete import Imputer
+    from foreshadow.concrete import SimpleImputer
 
     boston_path = get_file_path("data", "boston_housing.csv")
     df = pd.read_csv(boston_path)
 
     smart = smart_child(
-        transformer="Imputer", name="impute", cache_manager=CacheManager()
+        transformer="SimpleImputer",
+        name="impute",
+        cache_manager=CacheManager(),
     )
     smart_data = smart.fit_transform(df[["crim"]])
 
-    assert isinstance(smart.transformer, Imputer)
+    assert isinstance(smart.transformer, SimpleImputer)
     # assert smart.transformer.name == "impute"
     # not relevant anymore.
 
-    std = Imputer(name="impute")
+    std = SimpleImputer()
     std_data = std.fit_transform(df[["crim"]])
 
     assert smart_data.equals(std_data)
@@ -542,10 +544,12 @@ def test_smarttransformer_get_params(smart_child):
         smart_child: A subclass of SmartTransformer.
 
     """
+    import numpy as np
+
     cm = CacheManager()
     smart = smart_child(
-        transformer="Imputer",
-        missing_values="NaN",
+        transformer="SimpleImputer",
+        missing_values=np.nan,
         strategy="mean",
         cache_manager=cm,
     )
@@ -553,6 +557,8 @@ def test_smarttransformer_get_params(smart_child):
 
     params = smart.get_params()
     print(params)
+    assert np.isnan(params["transformer__missing_values"])
+    del params["transformer__missing_values"]
     assert params == {
         "transformer": smart.transformer,
         "name": None,
@@ -563,10 +569,12 @@ def test_smarttransformer_get_params(smart_child):
         "cache_manager": cm,
         "check_wrapped": True,
         "transformer__copy": True,
-        "transformer__missing_values": "NaN",
+        # "transformer__missing_values": np.nan,
         "transformer__strategy": "mean",
         "transformer__verbose": 0,
-        "transformer__axis": 0,
+        # "transformer__axis": 0,
+        "transformer__add_indicator": False,
+        "transformer__fill_value": None,
     }
 
 
