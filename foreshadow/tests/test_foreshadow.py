@@ -180,7 +180,10 @@ def test_foreshadow_warns_on_set_estimator_optimizer():
             problem_type=ProblemType.CLASSIFICATION, optimizer=DummySearch
         )
 
-    assert str(w[0].message) == (
+    # Due to package upgrade there are many future warning in the warning
+    # messages. The user level warning message is only supplied at the end
+    # of the list.
+    assert str(w[-1].message) == (
         "An automatic estimator cannot be used with an"
         " optimizer. Proceeding without use of optimizer"
     )
