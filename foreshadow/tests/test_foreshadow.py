@@ -922,25 +922,7 @@ def construct_foreshadow_object_common(
     return shadow
 
 
-@slow
-def test_foreshadow_serialization_adults_small_classification():
-    X_train, X_test, y_train, y_test = train_test_split_local_file_common(
-        file_path="examples/adult_small.csv",
-        X_start="age",
-        X_end="workclass",
-        target="class",
-    )
-    shadow = construct_foreshadow_object_common(
-        problem_type=ProblemType.CLASSIFICATION
-    )
-
-    shadow.fit(X_train, y_train)
-    score1 = shadow.score(X_test, y_test)
-    print(score1)
-
-
-@slow
-def test_foreshadow_serialization_adults_classification():
+def test_foreshadow_adults_classification():
     X_train, X_test, y_train, y_test = train_test_split_local_file_common(
         file_path="examples/adult.csv",
         X_start="age",
@@ -1017,7 +999,6 @@ def test_foreshadow_pickling_and_unpickling_non_tpot(tmpdir):
     assertions.assertAlmostEqual(score1, score2, places=2)
 
 
-@slow
 def test_foreshadow_pickling_and_unpickling_tpot(tmpdir):
     from foreshadow.foreshadow import Foreshadow
     import pandas as pd
@@ -1110,7 +1091,6 @@ def test_foreshadow_configure_sampling():
     )
 
 
-@slow
 def test_foreshadow_sampling_performance_comparison():
     X_train, X_test, y_train, y_test = train_test_split_local_file_common(
         file_path="examples/adult_small.csv",
