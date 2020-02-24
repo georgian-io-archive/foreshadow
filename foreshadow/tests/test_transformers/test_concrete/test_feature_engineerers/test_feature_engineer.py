@@ -1,6 +1,7 @@
 """Test feature_engineerer.py"""
 import numpy as np
 import pandas as pd
+import pytest
 
 from foreshadow.cachemanager import CacheManager
 from foreshadow.smart.feature_engineerer import FeatureEngineerer
@@ -8,6 +9,7 @@ from foreshadow.steps import FeatureEngineererMapper
 from foreshadow.steps.preparerstep import PreparerMapping
 
 
+@pytest.mark.skip("Feature Engineerer is not enabled yet.")
 def test_feature_engineerer_fit():
     """Test basic fit call."""
     data = pd.DataFrame(
@@ -38,6 +40,7 @@ def test_feature_engineerer_fit():
     )
 
 
+@pytest.mark.skip("Feature Engineerer is not enabled yet.")
 def test_feature_engineerer_get_mapping():
     """Test basic fit call."""
     data = pd.DataFrame(

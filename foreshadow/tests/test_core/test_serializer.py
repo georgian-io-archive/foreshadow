@@ -37,6 +37,7 @@ def base_serializer_setup(mocker):
     return TestSerializable(), ts_mock, td_mock
 
 
+@pytest.mark.skip("Temporarily turning off serialization")
 def test_base_transformer_option_routing(base_serializer_setup):
     """Test that the base transformer routes to the correct method calls.
 
@@ -57,6 +58,7 @@ def test_base_transformer_option_routing(base_serializer_setup):
     assert isinstance(deser, ts.__class__)
 
 
+@pytest.mark.skip("Temporarily turning off serialization")
 def test_base_transformer_invalid_option(base_serializer_setup):
     """Test that the base transformer raises when an invalid method is passed.
 
@@ -122,6 +124,7 @@ def concrete_serializer(request, mocker):
     return concrete
 
 
+@pytest.mark.skip("Temporarily turning off serialization")
 def test_concrete_default_pathway(concrete_serializer):
     """Test default end to end serialization/deserialization of transformer.
 
@@ -136,6 +139,7 @@ def test_concrete_default_pathway(concrete_serializer):
     _assert_dict_equal(concrete_serializer.get_params(), deser.get_params())
 
 
+@pytest.mark.skip("Temporarily turning off serialization")
 def test_concrete_dict_serdeser(concrete_serializer):
     """Test dict (params) serialization/deserialization of transformer.
 
@@ -149,6 +153,7 @@ def test_concrete_dict_serdeser(concrete_serializer):
     _assert_dict_equal(concrete_serializer.get_params(), deser.get_params())
 
 
+@pytest.mark.skip("Temporarily turning off serialization")
 def test_concrete_inline_serdeser(concrete_serializer):
     """Test inline (pickle) serialization/deserialization of transformer.
 
@@ -163,6 +168,7 @@ def test_concrete_inline_serdeser(concrete_serializer):
     _assert_dict_equal(concrete_serializer.__dict__, deser.__dict__)
 
 
+@pytest.mark.skip("Temporarily turning off serialization")
 def test_concrete_disk_ser(concrete_serializer, mocker):
     """Test disk (pickle, file) serialization/deserialization of transformer.
 
@@ -189,6 +195,7 @@ def test_concrete_disk_ser(concrete_serializer, mocker):
     assert ser["_file_path"] == test_path
 
 
+@pytest.mark.skip("Temporarily turning off serialization")
 def test_concrete_disk_deser(concrete_serializer, mocker):
     """Test disk (pickle, file) serialization/deserialization of transformer.
 
@@ -227,6 +234,7 @@ def test_concrete_disk_serdeser_custom_path(concrete_serializer, tmp_path):
     _assert_dict_equal(concrete_serializer.__dict__, deser.__dict__)
 
 
+@pytest.mark.skip("Temporarily turning off serialization")
 @pytest.mark.parametrize(
     "file_ser_method",
     [("json", "to_json", "from_json"), ("yaml", "to_yaml", "from_yaml")],
@@ -246,6 +254,7 @@ def test_concrete_json(file_ser_method, concrete_serializer, tmp_path):
     _assert_dict_equal(concrete_serializer.get_params(), deser.get_params())
 
 
+@pytest.mark.skip("Temporarily turning off serialization")
 def test_pipeline_serializable_dict_ser(concrete_serializer, mocker):
     from foreshadow.serializers import PipelineSerializerMixin
 
@@ -270,6 +279,7 @@ def test_pipeline_serializable_dict_ser(concrete_serializer, mocker):
     _assert_dict_equal(p.get_params(), deser.get_params())
 
 
+@pytest.mark.skip("Temporarily turning off serialization")
 def test_deserialize_function(concrete_serializer, mocker):
     from foreshadow.serializers import deserialize
 
@@ -283,6 +293,7 @@ def test_deserialize_function(concrete_serializer, mocker):
     _assert_dict_equal(concrete_serializer.get_params(), deser.get_params())
 
 
+@pytest.mark.skip("Temporarily turning off serialization")
 def test_concrete_custom_class(concrete_serializer, mocker):
     from foreshadow.serializers import deserialize
     from foreshadow.serializers import _pickle_inline_repr

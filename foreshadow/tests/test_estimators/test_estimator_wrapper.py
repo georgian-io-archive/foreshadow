@@ -79,7 +79,7 @@ def test_metaestimator_score():
 
 
 @pytest.mark.parametrize("deep", [True, False])
-def test_meta_estimator_get_params_keys(deep):
+def test_metaestimator_get_params_keys(deep):
     """Test that the desired keys show up for the MetaEstimator object.
 
     Args:

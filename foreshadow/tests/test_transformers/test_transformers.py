@@ -131,6 +131,9 @@ def test_transformer_parallel_single_process():
     assert tf.equals(tf_test)
 
 
+@pytest.mark.skip(
+    "Parallel Processor and dynamic pipelines is not longer " "used "
+)
 def test_transformer_multiprocess_dynamic_pipelines_update_cache_manager():
     import pandas as pd
 
@@ -212,6 +215,9 @@ def test_transformer_multiprocess_imputer_not_update_cache_manager():
     assert len(cs["domain"]) == 0
 
 
+@pytest.mark.skip(
+    "Parallel Processor and dynamic pipelines is not longer " "used "
+)
 def test_transformer_multiprocess_smart_transformers_update_cache_manager():
     import pandas as pd
 
@@ -502,7 +508,7 @@ def test_smarttransformer_set_params_override(smart_child):
     """
     from foreshadow.concrete import StandardScaler
 
-    smart = smart_child(transformer="Imputer")
+    smart = smart_child(transformer="SimpleImputer")
     smart.set_params(**{"transformer": "StandardScaler"})
 
     assert isinstance(smart.transformer, StandardScaler)
