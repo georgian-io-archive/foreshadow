@@ -2,7 +2,6 @@
 from typing import List, NoReturn
 
 import pandas as pd
-from sklearn.pipeline import make_pipeline
 
 from foreshadow.ColumnTransformerWrapper import ColumnTransformerWrapper
 from foreshadow.concrete import DropCleaner
@@ -97,10 +96,11 @@ class CleanerMapper(PreparerStep):
         list_of_tuples = [
             (
                 column,
-                make_pipeline(
-                    Flatten(cache_manager=self.cache_manager),
-                    Cleaner(cache_manager=self.cache_manager),
-                ),
+                # make_pipeline(
+                #     Flatten(cache_manager=self.cache_manager),
+                #     Cleaner(cache_manager=self.cache_manager),
+                # ),
+                Cleaner(cache_manager=self.cache_manager),
                 column,
             )
             for column in columns
@@ -118,10 +118,8 @@ class CleanerMapper(PreparerStep):
     def _check_empty_columns(self, original_columns: List) -> List:
         empty_columns = []
         for cleaner_tuple in self.feature_processor.transformers_:
-            _, cleaner_pipeline, column_name = cleaner_tuple
-            if isinstance(
-                cleaner_pipeline.steps[1][1].transformer, DropCleaner
-            ):
+            _, cleaner, column_name = cleaner_tuple
+            if isinstance(cleaner.transformer, DropCleaner):
                 empty_columns.append(column_name)
 
         if len(empty_columns) == len(original_columns):

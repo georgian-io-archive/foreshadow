@@ -97,7 +97,6 @@ def test_financials():
     )
 
 
-@pytest.mark.skip("TODO: need to fix the flattener and cleaner issue.")
 def test_json():
     """Test json input cleaned correctly."""
     import pandas as pd
@@ -106,15 +105,13 @@ def test_json():
     import numpy as np
 
     data = pd.DataFrame(
-        {
-            "json": [
-                '{"date": "2019-04-11"}',
-                '{"financial": "$1.0"}',
-                '{"financial": "$1000.00"}',
-                '{"random": "asdf"}',
-            ]
-        },
-        columns=["json"],
+        [
+            ["2019-04-11", np.nan, np.nan],
+            [np.nan, "$1.0", np.nan],
+            [np.nan, "$1000.00", np.nan],
+            [np.nan, np.nan, "asdf"],
+        ],
+        columns=["json_date", "json_financial", "json_random"],
     )
     cs = CacheManager()
     dc = CleanerMapper(cache_manager=cs)

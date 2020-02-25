@@ -12,6 +12,7 @@ from foreshadow.steps import (
     CleanerMapper,
     DataExporterMapper,
     FeatureSummarizerMapper,
+    FlattenMapper,
     IntentMapper,
     Preprocessor,
 )
@@ -74,6 +75,7 @@ class DataPreparer(
     def __init__(
         self,
         cache_manager=None,
+        flattener_kwargs=None,
         cleaner_kwargs=None,
         intent_kwargs=None,
         summarizer_kwargs=None,
@@ -85,6 +87,9 @@ class DataPreparer(
         y_var=None,
         **kwargs
     ):
+        flattener_kwargs = _none_to_dict(
+            "flattener_kwargs", flattener_kwargs, cache_manager
+        )
         cleaner_kwargs_ = _none_to_dict(
             "cleaner_kwargs", cleaner_kwargs, cache_manager
         )
@@ -108,6 +113,7 @@ class DataPreparer(
         )
         if not y_var:
             steps = [
+                ("data_flattener", FlattenMapper(**flattener_kwargs)),
                 ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
                 ("intent", IntentMapper(**intent_kwargs_)),
                 (

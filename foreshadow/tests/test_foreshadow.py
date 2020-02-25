@@ -1378,7 +1378,7 @@ def test_foreshadow_adults_small_user_provided_cleaner():
     workclass_values = list(X_train["workclass"].unique())
     print(workclass_values)
 
-    X_train_cleaned = shadow.X_preparer.steps[0][1].fit_transform(X_train)
+    X_train_cleaned = shadow.X_preparer.steps[1][1].fit_transform(X_train)
 
     workclass_values_transformed = list(X_train_cleaned["workclass"].unique())
     for value in workclass_values_transformed:
