@@ -10,7 +10,7 @@ class ColumnTransformerWrapper(ColumnTransformer):
     """See the Docstring in parent class."""
 
     def _hstack(self, Xs):
-        """Stacks Xs horizontally.
+        """Stacks Xs horizontally. # noqa DAR201
 
         This allows subclasses to control the stacking behavior, while reusing
         everything else from ColumnTransformer.
