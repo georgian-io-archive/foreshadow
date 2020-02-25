@@ -409,7 +409,8 @@ class ParallelProcessor(
                 Xs.columns = Xs.columns.droplevel()
                 Xs.index.name = None
                 Xs.columns.name = None
-            except AttributeError:  # TODO figure out why is this needed
+            except (ValueError, AttributeError):  # TODO figure out why is this
+                # needed
                 pass
         return Xs
 
@@ -535,7 +536,8 @@ class ParallelProcessor(
                 result.columns = result.columns.droplevel()
                 result.index.name = None
                 result.columns.name = None
-            except AttributeError:  # TODO figure out why this is needed
+            except (ValueError, AttributeError):  # TODO figure out why this is
+                # needed
                 pass
         return result
 
@@ -597,7 +599,8 @@ class ParallelProcessor(
                 Xs.columns = Xs.columns.droplevel()
                 Xs.index.name = None
                 Xs.columns.name = None
-            except AttributeError:  # TODO figure out why this is needed
+            except (ValueError, AttributeError):  # TODO figure out why this is
+                # needed
                 pass
         return Xs
 
