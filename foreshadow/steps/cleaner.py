@@ -1,7 +1,5 @@
 """Cleaner module for handling the cleaning and shaping of data."""
-from typing import List, NoReturn
-
-import pandas as pd
+from typing import List
 
 from foreshadow.ColumnTransformerWrapper import ColumnTransformerWrapper
 from foreshadow.concrete import DropCleaner
@@ -12,36 +10,36 @@ from foreshadow.utils import AcceptedKey, ConfigKey
 from .preparerstep import PreparerStep
 
 
-def _check_empty_columns(X) -> NoReturn:
-    """Check if all columns are empty in the dataframe.
-
-    Args:
-        X: the dataframe
-
-    Returns:
-        the empty columns.
-
-    Raises:
-        ValueError: all columns are dropped.
-
-    """
-    columns = pd.Series(X.columns)
-    empty_columns = columns[X.isnull().all(axis=0).values]
-
-    if len(empty_columns) == len(columns):
-        error_message = (
-            "All columns are dropped since they all have "
-            "over 90% of missing values. Aborting foreshadow."
-        )
-        logging.error(error_message)
-        raise ValueError(error_message)
-    elif len(empty_columns) > 0:
-        logging.info(
-            "Identified columns with over 90% missing values: {}"
-            "".format(",".join(empty_columns.tolist()))
-        )
-
-    return empty_columns.tolist()
+# def _check_empty_columns(X) -> NoReturn:
+#     """Check if all columns are empty in the dataframe.
+#
+#     Args:
+#         X: the dataframe
+#
+#     Returns:
+#         the empty columns.
+#
+#     Raises:
+#         ValueError: all columns are dropped.
+#
+#     """
+#     columns = pd.Series(X.columns)
+#     empty_columns = columns[X.isnull().all(axis=0).values]
+#
+#     if len(empty_columns) == len(columns):
+#         error_message = (
+#             "All columns are dropped since they all have "
+#             "over 90% of missing values. Aborting foreshadow."
+#         )
+#         logging.error(error_message)
+#         raise ValueError(error_message)
+#     elif len(empty_columns) > 0:
+#         logging.info(
+#             "Identified columns with over 90% missing values: {}"
+#             "".format(",".join(empty_columns.tolist()))
+#         )
+#
+#     return empty_columns.tolist()
 
 
 class CleanerMapper(PreparerStep):

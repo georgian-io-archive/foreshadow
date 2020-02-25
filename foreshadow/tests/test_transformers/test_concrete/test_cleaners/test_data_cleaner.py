@@ -20,6 +20,8 @@ def test_data_cleaner_transform_before_fit():
     assert str(e.value) == "Cleaner has not been fitted yet."
 
 
+# TODO: This is no longer valid as we have separated data cleaner into
+#  flattener and cleaner
 @pytest.mark.skip("TODO: need to fix the flattener and cleaner issue.")
 def test_data_cleaner_fit():
     """Test basic fit call."""
@@ -137,7 +139,7 @@ def test_json():
     )
 
 
-def test_drop():
+def test_drop_entire_data_frame():
     """Test drop called when expected to."""
     import pandas as pd
     from foreshadow.preparer import CleanerMapper
@@ -156,6 +158,24 @@ def test_drop():
         "missing values. Aborting foreshadow."
     )
     assert error_msg in str(excinfo.value)
+
+
+def test_drop_empty_columns():
+    """Test drop empty columns called when expected to."""
+    import pandas as pd
+    from foreshadow.preparer import CleanerMapper
+    from foreshadow.cachemanager import CacheManager
+
+    columns = ["financials", "nums"]
+    data = pd.DataFrame(
+        {"financials": ["", "", "", ""], "nums": [1, 2, 3, 4]}, columns=columns
+    )
+    cs = CacheManager()
+    dc = CleanerMapper(cache_manager=cs)
+
+    transformed_data = dc.fit_transform(data)
+    assert len(transformed_data.columns) == 1
+    assert list(transformed_data.columns)[0] == "nums"
 
 
 def test_numerical_input():
