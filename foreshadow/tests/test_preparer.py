@@ -1,6 +1,9 @@
 """Test the data_preparer.py file."""
 import pytest
 
+from foreshadow.concrete import NoTransform
+from foreshadow.smart import CategoricalEncoder
+from foreshadow.utils import ProblemType
 from foreshadow.utils.testing import get_file_path
 
 
@@ -36,12 +39,26 @@ def test_data_preparer_init(cleaner_kwargs, expected_error):
 
 
 @pytest.mark.parametrize("problem_type", [None, "Unknown"])
-def test_data_preparer_y_variable(problem_type):
+def test_data_preparer_y_variable_invalid_problem_type(problem_type):
     from foreshadow.preparer import DataPreparer
 
     with pytest.raises(ValueError) as e:
         DataPreparer(y_var=True, problem_type=problem_type)
     assert "Invalid Problem Type" in str(e.value)
+
+
+@pytest.mark.parametrize(
+    "problem_type", [ProblemType.CLASSIFICATION, ProblemType.REGRESSION]
+)
+def test_data_preparer_y_variable(problem_type):
+    from foreshadow.preparer import DataPreparer
+
+    dp = DataPreparer(y_var=True, problem_type=problem_type)
+    assert len(dp.steps) == 1
+    if problem_type == ProblemType.REGRESSION:
+        assert isinstance(dp.steps[0][1], NoTransform)
+    else:
+        assert isinstance(dp.steps[0][1], CategoricalEncoder)
 
 
 @pytest.mark.parametrize("cleaner_kwargs", [({}), (None)])
@@ -86,6 +103,7 @@ def test_data_preparer_get_params(deep):
     assert "steps" in params
 
 
+# TODO Remove this code if we decided to not include the JSON serialization
 @pytest.mark.skip("Serialization has changed.")
 def test_data_preparer_serialization_has_one_cache_manager():
     """Test DataPreparer serialization after fitting. The serialized
@@ -122,6 +140,7 @@ def test_data_preparer_serialization_has_one_cache_manager():
     check_has_no_cache_manager(dp_serialized, key_name)
 
 
+# TODO Remove this code if we decided to not include the JSON serialization
 @pytest.mark.skip("Deserialization has changed.")
 def test_data_preparer_deserialization(tmpdir):
     from foreshadow.preparer import DataPreparer
@@ -147,27 +166,27 @@ def test_data_preparer_deserialization(tmpdir):
     assert_frame_equal(data_transformed, data_transformed2)
 
 
-def test_data_preparer_intent_resolving():
-    from foreshadow.preparer import DataPreparer
-    from foreshadow.cachemanager import CacheManager
-    import pandas as pd
-
-    # from foreshadow.intents import IntentType
-    # from foreshadow.utils import AcceptedKey, Override
-
-    data_path = get_file_path("data", "adult_small.csv")
-    data = pd.read_csv(data_path)
-
-    cs = CacheManager()
-    # cs[AcceptedKey.OVERRIDE][
-    #     "_".join([Override.INTENT, 'age'])
-    # ] = IntentType.CATEGORICAL
-
-    dp = DataPreparer(cs)
-
-    # data["crim"] = np.nan
-
-    dp.fit(data)
-    res = dp.transform(data)
-    print(cs["intent"])
-    print(res)
+# def test_data_preparer_intent_resolving():
+#     from foreshadow.preparer import DataPreparer
+#     from foreshadow.cachemanager import CacheManager
+#     import pandas as pd
+#
+#     # from foreshadow.intents import IntentType
+#     # from foreshadow.utils import AcceptedKey, Override
+#
+#     data_path = get_file_path("data", "adult_small.csv")
+#     data = pd.read_csv(data_path)
+#
+#     cs = CacheManager()
+#     # cs[AcceptedKey.OVERRIDE][
+#     #     "_".join([Override.INTENT, 'age'])
+#     # ] = IntentType.CATEGORICAL
+#
+#     dp = DataPreparer(cs)
+#
+#     # data["crim"] = np.nan
+#
+#     dp.fit(data)
+#     res = dp.transform(data)
+#     print(cs["intent"])
+#     print(res)
