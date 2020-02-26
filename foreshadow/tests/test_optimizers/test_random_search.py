@@ -93,6 +93,7 @@ def test_random_search_simple(
     assert len(unique_samples) == 4
 
 
+@pytest.mark.skip("Temporarily turning it off since the feature is not ready")
 def test_random_param_list_simple(simple_distribution):
     """Test that sampler properly iterates over parameter distribution.
 
@@ -119,6 +120,7 @@ def test_random_param_list_simple(simple_distribution):
     assert len(unique_samples) == 4  # 4 unique samples.
 
 
+@pytest.mark.skip("Temporarily turning it off since the feature is not ready")
 def test_random_param_list_simple_non_unique(simple_distribution):
     """Test that sampler properly gives non unique iterations.
 

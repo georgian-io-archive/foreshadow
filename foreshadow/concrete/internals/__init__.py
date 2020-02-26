@@ -1,5 +1,4 @@
 """Custom foreshadow defined transformers."""
-from foreshadow.concrete.internals.boxcox import BoxCox  # noqa: F401
 from foreshadow.concrete.internals.cleaners import *  # noqa: F403, F401
 from foreshadow.concrete.internals.cleaners import __all__ as c_all
 from foreshadow.concrete.internals.dropfeature import DropFeature  # noqa: F401
@@ -33,7 +32,6 @@ from foreshadow.concrete.internals.uncommonremover import (  # noqa: F403, F401
 #  DFTransformer.HTMLRemover etc.
 
 __all__ = [
-    "BoxCox",
     "DropFeature",
     "DummyEncoder",
     "FancyImputer",
