@@ -1,7 +1,8 @@
 import pandas as pd
 import pytest
 
-from foreshadow.utils import AcceptedKey, ConfigKey, DefaultConfig
+from foreshadow.intents import IntentType
+from foreshadow.utils import AcceptedKey, ConfigKey, DefaultConfig, Override
 
 
 simple_dataframe = pd.Series([i for i in range(10)])
@@ -363,3 +364,22 @@ def test_cache_manager_len(store, expected):
     cs = CacheManager()
     cs.store = store
     assert len(cs) == expected
+
+
+def test_cache_manager_has_or_has_no_override():
+    """Test that iter iterates over entire internal dict properly.
+
+    Args:
+        store: the internal dictionary to use.
+
+    """
+    from foreshadow.cachemanager import CacheManager
+
+    cs = CacheManager()
+    cs[AcceptedKey.OVERRIDE][
+        "_".join([Override.INTENT, "col1"])
+    ] = IntentType.CATEGORICAL
+    assert cs.has_override()
+
+    cs2 = CacheManager()
+    assert not cs2.has_override()
