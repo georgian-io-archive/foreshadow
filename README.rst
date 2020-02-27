@@ -28,19 +28,18 @@ data scientists to spend more time on data science and less time on code.
 
 Key Features
 ------------
-- Scikit-Learn Compatible
-- Automatic Column Intent Inference (Currently supports Numerical and Categorical Types)
+- Scikit-Learn compatible
+- Automatic column intent inference (currently supports Numerical and Categorical Types)
 - Allow user override on column intent and transformation functions
-- Automatic Model Selection
-- Rapid Pipeline Development / Iteration
-
-- Ease of Extensibility
+- Automatic feature preprocessing depending on the column intent type
+- Automatic model selection
+- Rapid pipeline development / iteration
 
 Features in the road map
 ------------------------
-- Automatic Column Intent Inference for DateTime, Text and Droppable types
-- Automatic Feature Engineering
-- Automatic Parameter Optimization
+- Automatic column intent inference for DateTime, Text and Droppable types
+- Automatic feature engineering
+- Automatic parameter optimization
 
 Foreshadow supports python 3.6+
 
@@ -121,7 +120,7 @@ export, modify and construct pipelines of your own.
 
 Tutorial
 ------------
-We also have a jupyter notebook tutorial to go through more details under the `examples` folder
+We also have a jupyter notebook tutorial to go through more details under the `examples` folder.
 
 Documentation
 -------------
