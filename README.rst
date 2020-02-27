@@ -26,6 +26,24 @@ data scientists to spend more time on data science and less time on code.
   :target: https://github.com/georgianpartners/foreshadow/blob/master/LICENSE
   :alt: License
 
+Key Features
+------------
+- Scikit-Learn Compatible
+- Automatic Column Intent Inference (Currently supports Numerical and Categorical Types)
+- Allow user override on column intent and transformation functions
+- Automatic Model Selection
+- Rapid Pipeline Development / Iteration
+
+- Ease of Extensibility
+
+Features in the road map
+------------------------
+- Automatic Column Intent Inference for DateTime, Text and Droppable types
+- Automatic Feature Engineering
+- Automatic Parameter Optimization
+
+Foreshadow supports python 3.6+
+
 Installing Foreshadow
 ---------------------
 
@@ -48,7 +66,9 @@ First import foreshadow
 
 .. code-block:: python
 
-    import foreshadow as fs
+    from foreshadow.foreshadow import Foreshadow
+    from foreshadow.estimators import AutoEstimator
+    from foreshadow.utils import ProblemType
 
 Also import sklearn, pandas, and numpy for the demo
 
@@ -77,7 +97,15 @@ object
 
     X_train, X_test, y_train, y_test = train_test_split(bostonX_df,
        bostony_df, test_size=0.2)
-    shadow = fs.Foreshadow()
+
+    problem_type = ProblemType.REGRESSION
+
+    estimator = AutoEstimator(
+        problem_type=problem_type,
+        auto="tpot",
+        estimator_kwargs={"max_time_mins": 1},
+    )
+    shadow = Foreshadow(estimator=estimator, problem_type=problem_type)
     shadow.fit(X_train, y_train)
 
 Now `fs` is a fit Foreshadow object for which all feature engineering has been
@@ -91,16 +119,9 @@ utilize this exactly as a fit sklearn estimator to make predictions.
 Great, you now have a working Foreshaow installation! Keep reading to learn how to
 export, modify and construct pipelines of your own.
 
-Key Features
+Tutorial
 ------------
-- Automatic Feature Engineering
-- Automatic Model Selection
-- Rapid Pipeline Development / Iteration
-- Automatic Parameter Optimization
-- Ease of Extensibility
-- Scikit-Learn Compatible
-
-Foreshadow supports python 3.6+
+We also have a jupyter notebook tutorial to go through more features: TODO add the notebook.
 
 Documentation
 -------------
