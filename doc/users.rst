@@ -1,12 +1,12 @@
 .. _users:
 
-User Guide
+User Guide (Under Development)
 ============
 
 Introduction
 ============
 
-In this tutorial, we will go through a typical ML workflow with Foreshadow using a subset of the `adult data set <https://archive.ics.uci.edu/ml/datasets/Adult>`_ from the UCI machine learning repository.
+In this tutorial, we will go through a typical ML workflow with Foreshadow using a subset of the `adult data set <https://archive.ics.uci.edu/ml/datasets/Adult>`_ from the UCI machine learning repository. It is also available under the `example` folder in the foreshadow repository.
 
 Getting Started
 ===============

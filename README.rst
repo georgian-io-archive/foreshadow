@@ -121,7 +121,7 @@ export, modify and construct pipelines of your own.
 
 Tutorial
 ------------
-We also have a jupyter notebook tutorial to go through more features: TODO add the notebook.
+We also have a jupyter notebook tutorial to go through more details under the `examples` folder
 
 Documentation
 -------------
