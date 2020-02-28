@@ -1097,7 +1097,7 @@ def test_foreshadow_configure_sampling():
 
 def test_foreshadow_sampling_performance_comparison():
     X_train, X_test, y_train, y_test = train_test_split_local_file_common(
-        file_path="examples/adult_small.csv",
+        file_path=get_file_path("data", "adult_small.csv"),
         X_start="age",
         X_end="workclass",
         target="class",

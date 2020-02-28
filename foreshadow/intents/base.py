@@ -33,4 +33,7 @@ class BaseIntent(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
 
     @classmethod
     def column_summary(cls, df):  # noqa
-        return {}
+        raise NotImplementedError(
+            "Column Summary is not implemented by "
+            "the BaseIntent. Please override in subclasses."
+        )
