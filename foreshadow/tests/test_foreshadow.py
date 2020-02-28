@@ -799,7 +799,9 @@ def test_foreshadow_serialization_adults_small_classification_override():
 
     np.random.seed(1337)
 
-    adult = pd.read_csv("examples/adult_small.csv")
+    data_path = get_file_path("data", "adult_small.csv")
+
+    adult = pd.read_csv(data_path)
     X_df = adult.loc[:, "age":"workclass"]
     y_df = adult.loc[:, "class"]
 
@@ -834,7 +836,9 @@ def test_foreshadow_adults_small_classification_override_upfront():
 
     np.random.seed(1337)
 
-    adult = pd.read_csv("examples/adult_small.csv")
+    data_path = get_file_path("data", "adult_small.csv")
+
+    adult = pd.read_csv(data_path)
     X_df = adult.loc[:, "age":"workclass"]
     y_df = adult.loc[:, "class"]
 
@@ -924,7 +928,7 @@ def construct_foreshadow_object_common(
 
 def test_foreshadow_adults_classification():
     X_train, X_test, y_train, y_test = train_test_split_local_file_common(
-        file_path="examples/adult.csv",
+        file_path=get_file_path("data", "adult.csv"),
         X_start="age",
         X_end="native-country",
         target="class",
@@ -1145,8 +1149,9 @@ def test_foreshadow_abort_on_empty_data_frame_after_cleaning(
 
     np.random.seed(1337)
 
-    local_file_folder = "examples"
-    data = pd.read_csv("/".join([local_file_folder, filename]))
+    data_path = get_file_path("data", filename)
+
+    data = pd.read_csv(data_path)
     X_df = data.loc[:, X_start:X_end]
     y_df = data.loc[:, target]
 
@@ -1195,8 +1200,11 @@ def test_foreshadow_integration_data_cleaner_can_drop(
 
     np.random.seed(1337)
 
-    local_file_folder = "examples"
-    data = pd.read_csv("/".join([local_file_folder, filename]))
+    data_path = get_file_path("data", filename)
+
+    data = pd.read_csv(data_path)
+    # local_file_folder = "examples"
+    # data = pd.read_csv("/".join([local_file_folder, filename]))
 
     X_df = data.loc[:, X_start:X_end]
     y_df = data.loc[:, target]
@@ -1263,8 +1271,9 @@ def test_foreshadow_integration_adult_small_piclking_unpickling(
 
     np.random.seed(1337)
 
-    local_file_folder = "examples"
-    data = pd.read_csv("/".join([local_file_folder, filename]))
+    data_path = get_file_path("data", filename)
+
+    data = pd.read_csv(data_path)
     X_df = data.loc[:, X_start:X_end]
     y_df = data.loc[:, target]
 
@@ -1314,7 +1323,9 @@ def test_foreshadow_adults_small_user_provided_cleaner():
 
     np.random.seed(1337)
 
-    adult = pd.read_csv("examples/adult_small.csv")
+    data_path = get_file_path("data", "adult_small.csv")
+
+    adult = pd.read_csv(data_path)
     X_df = adult.loc[:, "age":"workclass"]
     y_df = adult.loc[:, "class"]
 
