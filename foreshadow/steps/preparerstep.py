@@ -4,14 +4,10 @@ from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.utils.common import ConfigureCacheManagerMixin
 
 from ..cachemanager import CacheManager
-from ..serializers import ConcreteSerializerMixin
 
 
 class PreparerStep(
-    BaseEstimator,
-    TransformerMixin,
-    ConcreteSerializerMixin,
-    ConfigureCacheManagerMixin,
+    BaseEstimator, TransformerMixin, ConfigureCacheManagerMixin
 ):
     """Base class for any pipeline step of DataPreparer.
 

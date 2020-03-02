@@ -5,7 +5,6 @@ from abc import ABCMeta, abstractmethod
 from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.logging import logging
 from foreshadow.pipeline import SerializablePipeline
-from foreshadow.serializers import ConcreteSerializerMixin
 from foreshadow.utils import (
     UserOverrideMixin,
     check_df,
@@ -16,11 +15,7 @@ from foreshadow.utils import (
 
 
 class SmartTransformer(
-    BaseEstimator,
-    TransformerMixin,
-    ConcreteSerializerMixin,
-    UserOverrideMixin,
-    metaclass=ABCMeta,
+    BaseEstimator, TransformerMixin, UserOverrideMixin, metaclass=ABCMeta
 ):
     """Abstract transformer class for meta transformer selection decisions.
 

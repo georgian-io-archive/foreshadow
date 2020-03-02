@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 
 from foreshadow.intents import IntentType
-from foreshadow.utils import AcceptedKey, ConfigKey, DefaultConfig, Override
+from foreshadow.utils import AcceptedKey, Override
 
 
 simple_dataframe = pd.Series([i for i in range(10)])
@@ -198,95 +198,6 @@ def test_cache_manager_iter(store):
         else:
             expected[key[0]][key[1]] = cs[key]
     assert expected == cs.store
-
-
-@pytest.mark.parametrize(
-    "store",
-    [
-        {"domain": {}, "intent": {}, "metastat": {}},
-        {"domain": {"column1": [0, 1, 2]}},
-        {
-            "domain": {"column1": [0, 1, 2]},
-            "intent": {"column1": [1, 2, 3], "column2": [1, 4, 6]},
-            "metastat": {},
-            "registered_key": {},
-            "another_registered": {"column1": [1, 2, 3], "column2": True},
-        },
-    ],
-)
-def test_cache_manager_dict_serialize(store):
-    """Test that get_params are returning the right content.
-
-    Args:
-        store: the internal dictionary to use.
-
-    """
-    from foreshadow.cachemanager import CacheManager
-
-    cs = CacheManager()
-    for key in store:
-        cs[key] = store[key]
-
-    from foreshadow.cachemanager import PrettyDefaultDict
-
-    expected = {
-        "store": PrettyDefaultDict(lambda: PrettyDefaultDict(lambda: None))
-    }
-    for key in store:
-        if len(store[key]) > 0:
-            for column in store[key]:
-                expected["store"][key][column] = store[key][column]
-        else:
-            expected["store"][key] = PrettyDefaultDict(lambda: None)
-
-    # TODO it's an ugly fix. Idealy we should add the default config section
-    #  back but it will make the json file really bulky.
-    cs_serialized = cs.dict_serialize(deep=True)
-    configs = cs_serialized["store"].pop(AcceptedKey.CONFIG)
-    cs_serialized["store"].pop(AcceptedKey.CUSTOMIZED_TRANSFORMERS)
-
-    assert configs == {
-        ConfigKey.ENABLE_SAMPLING: DefaultConfig.ENABLE_SAMPLING,
-        ConfigKey.SAMPLING_DATASET_SIZE_THRESHOLD: DefaultConfig.SAMPLING_DATASET_SIZE_THRESHOLD,  # noqa E501
-        ConfigKey.SAMPLING_WITH_REPLACEMENT: DefaultConfig.SAMPLING_WITH_REPLACEMENT,  # noqa E501
-        ConfigKey.SAMPLING_FRACTION: DefaultConfig.SAMPLING_FRACTION,
-        ConfigKey.N_JOBS: DefaultConfig.N_JOBS,
-    }
-    assert expected == cs_serialized
-
-
-@pytest.mark.parametrize(
-    "store",
-    [
-        {"domain": {}, "intent": {}, "metastat": {}},
-        {"domain": {"column1": [0, 1, 2]}},
-        {
-            "domain": {"column1": [0, 1, 2]},
-            "intent": {"column1": [1, 2, 3], "column2": [1, 4, 6]},
-            "metastat": {},
-            "registered_key": {},
-            "another_registered": {"column1": [1, 2, 3], "column2": True},
-        },
-    ],
-)
-def test_cache_manager_dict_deserialize(store):
-    """Test that set_params are updating the ColumnShare correctly
-
-    Args:
-        store: the internal dictionary to use.
-
-    """
-    from foreshadow.cachemanager import CacheManager
-
-    cs = CacheManager()
-    for key in store:
-        cs[key] = store[key]
-
-    serialized = cs.serialize(method="dict")
-
-    expected = CacheManager.dict_deserialize(serialized)
-
-    assert expected == cs
 
 
 @pytest.mark.parametrize(

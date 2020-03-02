@@ -4,12 +4,10 @@ from collections import MutableMapping
 
 import hyperopt.hp as hp
 
-import foreshadow.serializers as ser
-
 from .tuner import _replace_list, get
 
 
-class ParamSpec(MutableMapping, ser.ConcreteSerializerMixin):
+class ParamSpec(MutableMapping):
     """Holds the specification of the parameter search space.
 
     A search space is a dict or list of dicts. This search space should be

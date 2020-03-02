@@ -5,7 +5,6 @@ import pandas as pd
 import scipy
 
 from foreshadow.logging import logging
-from foreshadow.serializers import ConcreteSerializerMixin
 from foreshadow.utils import check_df, is_transformer
 
 
@@ -65,9 +64,7 @@ def pandas_wrap(transformer):  # noqa
         def __repr__(self):
             return self._repr_val
 
-    class DFTransformer(
-        transformer, ConcreteSerializerMixin, metaclass=DFTransformerMeta
-    ):
+    class DFTransformer(transformer, metaclass=DFTransformerMeta):
         """Wrapper to Enable parent transformer to handle DataFrames."""
 
         def __init__(self, *args, name=None, keep_columns=False, **kwargs):

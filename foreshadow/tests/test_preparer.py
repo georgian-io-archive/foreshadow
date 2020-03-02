@@ -103,69 +103,6 @@ def test_data_preparer_get_params(deep):
     assert "steps" in params
 
 
-# TODO Remove this code if we decided to not include the JSON serialization
-@pytest.mark.skip("Serialization has changed.")
-def test_data_preparer_serialization_has_one_cache_manager():
-    """Test DataPreparer serialization after fitting. The serialized
-    object should contain only 1 cache_manager instance.
-
-    """
-    from foreshadow.preparer import DataPreparer
-    from foreshadow.cachemanager import CacheManager
-    import pandas as pd
-
-    boston_path = get_file_path("data", "boston_housing.csv")
-    data = pd.read_csv(boston_path)
-
-    cs = CacheManager()
-    dp = DataPreparer(cs)
-    dp.fit(data)
-
-    dp_serialized = dp.serialize(method="dict", deep=True)
-
-    key_name = "cache_manager"
-    assert key_name in dp_serialized
-    dp_serialized.pop(key_name)
-
-    def check_has_no_cache_manager(dat, target):
-        if isinstance(dat, dict):
-            matching_keys = [key for key in dat if key.endswith(target)]
-            assert len(matching_keys) == 0
-            for key in dat:
-                check_has_no_cache_manager(dat[key], target)
-        elif isinstance(dat, list):
-            for item in dat:
-                check_has_no_cache_manager(item, target)
-
-    check_has_no_cache_manager(dp_serialized, key_name)
-
-
-# TODO Remove this code if we decided to not include the JSON serialization
-@pytest.mark.skip("Deserialization has changed.")
-def test_data_preparer_deserialization(tmpdir):
-    from foreshadow.preparer import DataPreparer
-    from foreshadow.cachemanager import CacheManager
-    import pandas as pd
-
-    boston_path = get_file_path("data", "boston_housing.csv")
-    data = pd.read_csv(boston_path)
-
-    cs = CacheManager()
-    dp = DataPreparer(cs)
-
-    data_transformed = dp.transform(data)
-    json_location = tmpdir.join("data_preparerer.json")
-    dp.to_json(json_location)
-
-    dp2 = DataPreparer.from_json(json_location)
-    dp2.fit(data)
-    data_transformed2 = dp2.transform(data)
-
-    from pandas.util.testing import assert_frame_equal
-
-    assert_frame_equal(data_transformed, data_transformed2)
-
-
 # def test_data_preparer_intent_resolving():
 #     from foreshadow.preparer import DataPreparer
 #     from foreshadow.cachemanager import CacheManager

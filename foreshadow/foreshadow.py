@@ -17,7 +17,6 @@ from foreshadow.intents import IntentType
 from foreshadow.logging import logging
 from foreshadow.pipeline import SerializablePipeline
 from foreshadow.preparer import DataPreparer
-from foreshadow.serializers import ConcreteSerializerMixin
 from foreshadow.utils import (
     AcceptedKey,
     ConfigKey,
@@ -27,7 +26,7 @@ from foreshadow.utils import (
 )
 
 
-class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
+class Foreshadow(BaseEstimator):
     """An end-to-end pipeline to preprocess and tune a machine learning model.
 
     Example:

@@ -2,7 +2,6 @@
 
 from sklearn.pipeline import Pipeline
 
-from foreshadow.serializers import PipelineSerializerMixin
 from foreshadow.smart import CategoricalEncoder
 from foreshadow.steps import (
     CleanerMapper,
@@ -45,9 +44,7 @@ def _none_to_dict(name, val, cache_manager=None):
     return val
 
 
-class DataPreparer(
-    Pipeline, PipelineSerializerMixin, ConfigureCacheManagerMixin
-):
+class DataPreparer(Pipeline, ConfigureCacheManagerMixin):
     """Predefined pipeline for the foreshadow workflow.
 
     1. Cleaning
