@@ -19,23 +19,6 @@ class IntentMapper(PreparerStep):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def get_mapping(self, X):
-        """Return the mapping of transformations for the CleanerMapper step.
-
-        Args:
-            X: input DataFrame.
-
-        Returns:
-            Mapping in accordance with super.
-
-        """
-        return self.separate_cols(
-            transformers=[
-                [IntentResolver(cache_manager=self.cache_manager)] for c in X
-            ],
-            cols=X.columns,
-        )
-
     def fit(self, X, *args, **kwargs):
         """Fit this step.
 

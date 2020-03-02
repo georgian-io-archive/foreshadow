@@ -1,6 +1,5 @@
 """PrepareStep that exports the processed data before sending to Estimator."""
 from foreshadow.logging import logging
-from foreshadow.smart import DataExporter
 from foreshadow.utils import AcceptedKey, ConfigKey, DefaultConfig
 
 from .autointentmap import AutoIntentMixin
@@ -23,14 +22,6 @@ class DataExporterMapper(PreparerStep, AutoIntentMixin):
 
         """
         super().__init__(**kwargs)
-
-    def get_mapping(self, X):  # noqa
-        return self.separate_cols(
-            transformers=[
-                [DataExporter(cache_manager=self.cache_manager)] for c in X
-            ],
-            cols=X.columns,
-        )
 
     def fit(self, X, *args, **kwargs):
         """Fit this step.

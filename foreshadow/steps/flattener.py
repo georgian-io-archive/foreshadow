@@ -1,7 +1,7 @@
 """Cleaner module for handling the flattening of the data."""
 
 from foreshadow.ColumnTransformerWrapper import ColumnTransformerWrapper
-from foreshadow.smart import Cleaner, Flatten
+from foreshadow.smart import Flatten
 from foreshadow.utils import AcceptedKey, ConfigKey
 
 from .preparerstep import PreparerStep
@@ -19,27 +19,6 @@ class FlattenMapper(PreparerStep):
         """
         self._empty_columns = None
         super().__init__(**kwargs)
-
-    def get_mapping(self, X):
-        """Return the mapping of transformations for the CleanerMapper step.
-
-        Args:
-            X: input DataFrame.
-
-        Returns:
-            Mapping in accordance with super.
-
-        """
-        return self.separate_cols(
-            transformers=[
-                [
-                    Flatten(cache_manager=self.cache_manager),
-                    Cleaner(cache_manager=self.cache_manager),
-                ]
-                for c in X
-            ],
-            cols=X.columns,
-        )
 
     def fit(self, X, *args, **kwargs):
         """Fit this step.

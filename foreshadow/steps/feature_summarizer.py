@@ -1,7 +1,6 @@
 # noqa
 import json
 
-from foreshadow.smart import FeatureSummarizer
 from foreshadow.utils import get_transformer
 
 from .autointentmap import AutoIntentMixin
@@ -17,15 +16,6 @@ class FeatureSummarizerMapper(PreparerStep, AutoIntentMixin):  # noqa
 
         """
         super().__init__(**kwargs)
-
-    def get_mapping(self, X):  # noqa
-        return self.separate_cols(
-            transformers=[
-                [FeatureSummarizer(cache_manager=self.cache_manager)]
-                for c in X
-            ],
-            cols=X.columns,
-        )
 
     def fit(self, X, *args, **kwargs):
         """Fit this step.
