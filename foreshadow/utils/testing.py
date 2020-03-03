@@ -39,13 +39,13 @@ def _get_test_folder():
     raise FileNotFoundError("Could not find tests directory in path")
 
 
-def get_file_path(file_type, file_name):
+def get_file_path(data_folder, file_name):
     """Get the path to a file inside of tests.
 
     Useful for paths to static files, such as data or configs.
 
     Args:
-        file_type: Identifies where the file is stored.
+        data_folder: Identifies where the file is stored.
         file_name: Name of file.
 
     Returns:
@@ -53,7 +53,7 @@ def get_file_path(file_type, file_name):
 
     """
     test_path = _get_test_folder()
-    return os.path.join(test_path, file_type, file_name)
+    return os.path.join(test_path, data_folder, file_name)
 
 
 def debug():  # noqa: D202  # pragma: no cover

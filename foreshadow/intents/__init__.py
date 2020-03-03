@@ -2,8 +2,8 @@
 from .base import BaseIntent
 from .categorical import Categorical
 from .intent_type import IntentType
-from .neither import Neither
 from .numeric import Numeric
+from .other import Other
 from .text import Text
 
 
@@ -12,6 +12,6 @@ __all__ = [
     "Numeric",
     "Text",
     "BaseIntent",
-    "Neither",
+    "Other",
     "IntentType",
 ]

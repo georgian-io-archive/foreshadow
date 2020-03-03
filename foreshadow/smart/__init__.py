@@ -6,7 +6,7 @@ from foreshadow.smart.all import (  # noqa: F401
     MultiImputer,
     NeitherProcessor,
     Scaler,
-    SimpleImputer,
+    SimpleFillImputer,
     TextEncoder,
 )
 from foreshadow.smart.cleaner import Cleaner  # noqa: F401
@@ -24,7 +24,7 @@ __all__ = [
     "FinancialCleaner",
     "MultiImputer",
     "Scaler",
-    "SimpleImputer",
+    "SimpleFillImputer",
     "TextEncoder",
     "NeitherProcessor",
     "Flatten",

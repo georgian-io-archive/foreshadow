@@ -11,10 +11,11 @@ from sklearn.feature_extraction.text import (  # noqa: F401
     TfidfTransformer,
     TfidfVectorizer,
 )
+from sklearn.impute import SimpleImputer  # noqa: F401
 from sklearn.preprocessing import (  # noqa: F401
-    Imputer,
     LabelEncoder,
     MinMaxScaler,
+    PowerTransformer,
     RobustScaler,
     StandardScaler,
 )

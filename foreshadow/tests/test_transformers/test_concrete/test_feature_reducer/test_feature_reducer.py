@@ -1,6 +1,8 @@
 """Test feature reducer.py"""
+import pytest
 
 
+@pytest.mark.skip("Feature Reducer is not enabled yet.")
 def test_feature_reducer_fit_no_ops():
     import numpy as np
     import pandas as pd
@@ -32,6 +34,7 @@ def test_feature_reducer_fit_no_ops():
     )
 
 
+@pytest.mark.skip("Feature Reducer is not enabled yet.")
 def test_feature_reducer_get_mapping_by_intent():
     import pandas as pd
 

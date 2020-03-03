@@ -2,16 +2,12 @@
 
 from sklearn.pipeline import Pipeline
 
-from foreshadow.serializers import (
-    PipelineSerializerMixin,
-    _make_deserializable,
-    _make_serializable,
-)
 from foreshadow.smart import CategoricalEncoder
 from foreshadow.steps import (
     CleanerMapper,
     DataExporterMapper,
     FeatureSummarizerMapper,
+    FlattenMapper,
     IntentMapper,
     Preprocessor,
 )
@@ -48,9 +44,7 @@ def _none_to_dict(name, val, cache_manager=None):
     return val
 
 
-class DataPreparer(
-    Pipeline, PipelineSerializerMixin, ConfigureCacheManagerMixin
-):
+class DataPreparer(Pipeline, ConfigureCacheManagerMixin):
     """Predefined pipeline for the foreshadow workflow.
 
     1. Cleaning
@@ -74,6 +68,7 @@ class DataPreparer(
     def __init__(
         self,
         cache_manager=None,
+        flattener_kwargs=None,
         cleaner_kwargs=None,
         intent_kwargs=None,
         summarizer_kwargs=None,
@@ -85,6 +80,9 @@ class DataPreparer(
         y_var=None,
         **kwargs
     ):
+        flattener_kwargs = _none_to_dict(
+            "flattener_kwargs", flattener_kwargs, cache_manager
+        )
         cleaner_kwargs_ = _none_to_dict(
             "cleaner_kwargs", cleaner_kwargs, cache_manager
         )
@@ -94,20 +92,21 @@ class DataPreparer(
         summarizer_kwargs_ = _none_to_dict(
             "summarizer_kwargs", summarizer_kwargs, cache_manager
         )
-        # engineerer_kwargs_ = _none_to_dict(
-        #     "engineerer_kwargs", engineerer_kwargs, cache_manager
-        # )
+        # # engineerer_kwargs_ = _none_to_dict(
+        # #     "engineerer_kwargs", engineerer_kwargs, cache_manager
+        # # )
         preprocessor_kwargs_ = _none_to_dict(
             "preprocessor_kwargs", preprocessor_kwargs, cache_manager
         )
-        # reducer_kwargs_ = _none_to_dict(
-        #     "reducer_kwargs", reducer_kwargs, cache_manager
-        # )
+        # # reducer_kwargs_ = _none_to_dict(
+        # #     "reducer_kwargs", reducer_kwargs, cache_manager
+        # # )
         exporter_kwargs_ = _none_to_dict(
             "exporter_kwargs", exporter_kwargs, cache_manager
         )
         if not y_var:
             steps = [
+                ("data_flattener", FlattenMapper(**flattener_kwargs)),
                 ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
                 ("intent", IntentMapper(**intent_kwargs_)),
                 (
@@ -155,88 +154,94 @@ class DataPreparer(
         # adding steps to the get_params()
         return out
 
-    def dict_serialize(self, deep=False):
-        """Serialize the data preparer.
+    # TODO Remove this code if we decided to not include the JSON serialization
+    # def dict_serialize(self, deep=False):
+    #     """Serialize the data preparer.
+    #
+    #     Args:
+    #         deep: see super.
+    #
+    #     Returns:
+    #         dict: serialized data preparer.
+    #
+    #     """
+    #     params = self.get_params(deep=False)
+    #     serialized = _make_serializable(
+    #         params, serialize_args=self.serialize_params
+    #     )
+    #     cache_manager_serialized = serialized.pop("cache_manager", None)
+    #     serialized = self.__remove_key_from(serialized,
+    #                                         target="cache_manager")
+    #     # Add back the cache_manager in the end only once.
+    #     serialized["cache_manager"] = cache_manager_serialized
+    #     steps = serialized["steps"]
+    #     steps_reformatted = [{step[0]: step[1]} for step in steps]
+    #     serialized["steps"] = steps_reformatted
+    #     return serialized
+    #
+    # @classmethod
+    # def dict_deserialize(cls, data):
+    #     """Deserialize the data preparer.
+    #
+    #     Args:
+    #         data: serialized data preparer in JSON format.
+    #
+    #     Returns:
+    #         a reconstructed data preparer.
+    #
+    #     """
+    #     params = _make_deserializable(data)
+    #     params["steps"] = [list(step.items())[0] for step in params["steps"]]
+    #     deserialized = cls(**params)
+    #
+    #     deserialized.configure_cache_manager(deserialized.cache_manager)
+    #
+    #     return deserialized
+    #
+    # def configure_cache_manager(self, cache_manager):
+    #     """Configure cache_manager for all the underlying components
+    #     recursively.
+    #
+    #     Args:
+    #         cache_manager: the cache_manager instance.
+    #
+    #     """
+    #     for step in self.steps:
+    #         if self.y_var:
+    #             step[1].cache_manager = cache_manager
+    #         elif hasattr(step[1], "configure_cache_manager"):
+    #             step[1].configure_cache_manager(cache_manager)
+    #
+    # def __remove_key_from(self, data, target="cache_manager"):
+    #     """Remove all cache_manager block recursively from serialized data
+    #     preparer.
+    #
+    #     Only the cache_manager in the data preparer is preserved.
+    #
+    #     Args:
+    #         data: serialized data preparer (raw)
+    #         target: string that should match as a suffix of a key
+    #
+    #     Returns:
+    #         dict: a cleaned up serialized data preparer
+    #
+    #     """
+    #     if isinstance(data, dict):
+    #         matching_keys = [key for key in data if key.endswith(target)]
+    #         for mk in matching_keys:
+    #             del data[mk]
+    #         data = {
+    #             key: self.__remove_key_from(data[key], target=target)
+    #             for key in data
+    #         }
+    #     elif isinstance(data, list):
+    #         data = [
+    #             self.__remove_key_from(item, target=target) for item in data
+    #         ]
+    #     return data
 
-        Args:
-            deep: see super.
 
-        Returns:
-            dict: serialized data preparer.
-
-        """
-        params = self.get_params(deep=False)
-        serialized = _make_serializable(
-            params, serialize_args=self.serialize_params
-        )
-        cache_manager_serialized = serialized.pop("cache_manager", None)
-        serialized = self.__remove_key_from(serialized, target="cache_manager")
-        # Add back the cache_manager in the end only once.
-        serialized["cache_manager"] = cache_manager_serialized
-        steps = serialized["steps"]
-        steps_reformatted = [{step[0]: step[1]} for step in steps]
-        serialized["steps"] = steps_reformatted
-        return serialized
-
-    @classmethod
-    def dict_deserialize(cls, data):
-        """Deserialize the data preparer.
-
-        Args:
-            data: serialized data preparer in JSON format.
-
-        Returns:
-            a reconstructed data preparer.
-
-        """
-        params = _make_deserializable(data)
-        params["steps"] = [list(step.items())[0] for step in params["steps"]]
-        deserialized = cls(**params)
-
-        deserialized.configure_cache_manager(deserialized.cache_manager)
-
-        return deserialized
-
-    def configure_cache_manager(self, cache_manager):
-        """Configure cache_manager for all the underlying components recursively.
-
-        Args:
-            cache_manager: the cache_manager instance.
-
-        """
-        for step in self.steps:
-            if self.y_var:
-                step[1].cache_manager = cache_manager
-            elif hasattr(step[1], "configure_cache_manager"):
-                step[1].configure_cache_manager(cache_manager)
-
-    def __remove_key_from(self, data, target="cache_manager"):
-        """Remove all cache_manager block recursively from serialized data preparer.
-
-        Only the cache_manager in the data preparer is preserved.
-
-        Args:
-            data: serialized data preparer (raw)
-            target: string that should match as a suffix of a key
-
-        Returns:
-            dict: a cleaned up serialized data preparer
-
-        """
-        if isinstance(data, dict):
-            matching_keys = [key for key in data if key.endswith(target)]
-            for mk in matching_keys:
-                del data[mk]
-            data = {
-                key: self.__remove_key_from(data[key], target=target)
-                for key in data
-            }
-        elif isinstance(data, list):
-            data = [
-                self.__remove_key_from(item, target=target) for item in data
-            ]
-        return data
-
-
-if __name__ == "__main__":
-    pass
+#
+#
+# if __name__ == "__main__":
+#     pass

@@ -57,24 +57,23 @@ class Numeric(BaseIntent):
     def column_summary(cls, df):  # noqa
         data = df.iloc[:, 0]
         nan_num = int(data.isnull().sum())
-        invalid_num = int(
-            pd.to_numeric(df.iloc[:, 0], errors="coerce").isnull().sum()
-            - nan_num
-        )
-        outliers = get_outliers(data).values.tolist()
+
+        data_transformed = pd.to_numeric(df.iloc[:, 0], errors="coerce")
+        invalid_num = int(data_transformed.isnull().sum() - nan_num)
+        outliers = get_outliers(data_transformed).values.tolist()
         mode, top10 = mode_freq(data)
 
         return OrderedDict(
             [
                 ("nan", nan_num),
                 ("invalid", invalid_num),
-                ("mean", float(data.mean())),
-                ("std", float(data.std())),
-                ("min", float(data.min())),
-                ("25th", float(data.quantile(0.25))),
-                ("median", float(data.quantile(0.5))),
-                ("75th", float(data.quantile(0.75))),
-                ("max", float(data.max())),
+                ("mean", float(data_transformed.mean())),
+                ("std", float(data_transformed.std())),
+                ("min", float(data_transformed.min())),
+                ("25th", float(data_transformed.quantile(0.25))),
+                ("median", float(data_transformed.quantile(0.5))),
+                ("75th", float(data_transformed.quantile(0.75))),
+                ("max", float(data_transformed.max())),
                 ("mode", mode),
                 ("top10", top10),
                 ("10outliers", outliers),

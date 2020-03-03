@@ -47,259 +47,6 @@ def test_transformer_naming_default():
     assert out.iloc[:, 0].name == "crim"
 
 
-def test_transformer_parallel_invalid():
-    from foreshadow.parallelprocessor import ParallelProcessor
-
-    class InvalidTransformer:
-        pass
-
-    t = InvalidTransformer()
-
-    with pytest.raises(TypeError) as e:
-        ParallelProcessor([("scaled", t, ["crim", "zn", "indus"])])
-
-    assert str(e.value) == (
-        "All estimators should implement fit and "
-        "transform. '{}'"
-        " (type {}) doesn't".format(t, type(t))
-    )
-
-
-def test_transformer_parallel_empty():
-    import pandas as pd
-    from foreshadow.parallelprocessor import ParallelProcessor
-
-    boston_path = get_file_path("data", "boston_housing.csv")
-
-    df = pd.read_csv(boston_path)
-
-    proc = ParallelProcessor(
-        [
-            (
-                "scaled",
-                ParallelProcessor([("cscale", None, ["crim"])]),
-                ["crim", "zn", "indus"],
-            )
-        ]
-    )
-
-    proc.fit(df[[]])
-    tf = proc.transform(df[[]])
-
-    assert tf.equals(df[[]])
-
-    tf = proc.fit_transform(df[[]])
-
-    assert tf.equals(df[[]])
-
-
-def test_transformer_parallel_single_process():
-    import pandas as pd
-
-    from foreshadow.parallelprocessor import ParallelProcessor
-    from foreshadow.concrete import StandardScaler
-
-    boston_path = get_file_path("data", "boston_housing.csv")
-
-    df = pd.read_csv(boston_path)
-
-    ss = StandardScaler(name="scaled")
-
-    proc = ParallelProcessor(
-        [
-            (
-                "scaled",
-                StandardScaler(keep_columns=False),
-                ["crim", "zn", "indus"],
-            )
-        ],
-        collapse_index=True,
-    )
-
-    ss.fit(df[["crim", "zn", "indus"]])
-    proc.fit(df)
-
-    tf = proc.transform(df)
-    tf_2 = proc.fit_transform(df)
-
-    assert tf.equals(tf_2)
-
-    tf_norm = ss.transform(df[["crim", "zn", "indus"]])
-    tf_others = tf.drop(["crim", "zn", "indus"], axis=1)
-    tf_test = pd.concat([tf_norm, tf_others], axis=1)
-
-    assert tf.equals(tf_test)
-
-
-def test_transformer_multiprocess_dynamic_pipelines_update_cache_manager():
-    import pandas as pd
-
-    from foreshadow.parallelprocessor import ParallelProcessor
-    from foreshadow.cachemanager import CacheManager
-    from foreshadow.smart.intent_resolving import IntentResolver
-
-    boston_path = get_file_path("data", "boston_housing.csv")
-
-    raw_data = pd.read_csv(boston_path)
-    df = raw_data[["crim", "zn", "indus"]]
-
-    cs = CacheManager()
-    from foreshadow.pipeline import DynamicPipeline
-
-    proc = ParallelProcessor(
-        [
-            (
-                "group1",
-                DynamicPipeline(
-                    [("resolver", IntentResolver(cache_manager=cs))]
-                ),
-                ["crim"],
-            ),
-            (
-                "group2",
-                DynamicPipeline(
-                    [("resolver", IntentResolver(cache_manager=cs))]
-                ),
-                ["zn"],
-            ),
-            (
-                "group3",
-                DynamicPipeline(
-                    [("resolver", IntentResolver(cache_manager=cs))]
-                ),
-                ["indus"],
-            ),
-        ],
-        n_jobs=-1,
-        collapse_index=True,
-    )
-
-    Xs = proc.fit_transform(df)
-    assert Xs.equals(df)
-    assert len(cs["intent"]) == len(list(df.columns.values))
-    assert (
-        cs["intent", "crim"] is not None
-        and cs["intent", "zn"] is not None
-        and cs["intent", "indus"] is not None
-    )
-
-
-def test_transformer_multiprocess_imputer_not_update_cache_manager():
-    import pandas as pd
-
-    from foreshadow.parallelprocessor import ParallelProcessor
-    from foreshadow.concrete import StandardScaler
-    from foreshadow.cachemanager import CacheManager
-
-    boston_path = get_file_path("data", "boston_housing.csv")
-
-    raw_data = pd.read_csv(boston_path)
-    df = raw_data[["crim", "zn", "indus"]]
-
-    cs = CacheManager()
-    proc = ParallelProcessor(
-        [
-            ("group1", StandardScaler(), ["crim"]),
-            ("group2", StandardScaler(), ["zn"]),
-            ("group3", StandardScaler(), ["indus"]),
-        ],
-        n_jobs=-1,
-        collapse_index=True,
-    )
-
-    proc.fit_transform(df)
-    assert len(cs["intent"]) == 0
-    assert len(cs["domain"]) == 0
-
-
-def test_transformer_multiprocess_smart_transformers_update_cache_manager():
-    import pandas as pd
-
-    from foreshadow.parallelprocessor import ParallelProcessor
-    from foreshadow.cachemanager import CacheManager
-    from foreshadow.smart.intent_resolving import IntentResolver
-
-    boston_path = get_file_path("data", "boston_housing.csv")
-
-    raw_data = pd.read_csv(boston_path)
-    df = raw_data[["crim", "zn", "indus"]]
-
-    cs = CacheManager()
-
-    proc = ParallelProcessor(
-        [
-            ("group1", IntentResolver(cache_manager=cs), ["crim"]),
-            ("group2", IntentResolver(cache_manager=cs), ["zn"]),
-            ("group3", IntentResolver(cache_manager=cs), ["indus"]),
-        ],
-        n_jobs=-1,
-        collapse_index=True,
-    )
-
-    Xs = proc.fit_transform(df)
-    assert Xs.equals(df)
-    assert len(cs["intent"]) == len(list(df.columns.values))
-    assert (
-        cs["intent", "crim"] is not None
-        and cs["intent", "zn"] is not None
-        and cs["intent", "indus"] is not None
-    )
-
-
-def test_transformer_pipeline():
-    import pandas as pd
-    import numpy as np
-
-    np.random.seed(1337)
-
-    from foreshadow.concrete import StandardScaler as CustomScaler
-    from foreshadow.parallelprocessor import ParallelProcessor
-
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.pipeline import FeatureUnion
-
-    from sklearn.pipeline import Pipeline
-    from sklearn.linear_model import LinearRegression
-
-    boston_path = get_file_path("data", "boston_housing.csv")
-
-    df = pd.read_csv(boston_path)
-
-    target = df["medv"]
-    df = df[["crim", "zn", "indus"]]
-    test = df.copy(deep=True)
-
-    custom = Pipeline(
-        [
-            (
-                "Step1",
-                ParallelProcessor(
-                    [
-                        (
-                            "scaled",
-                            CustomScaler(keep_columns=False),
-                            ["crim", "zn", "indus"],
-                        )
-                    ]
-                ),
-            ),
-            ("estimator", LinearRegression()),
-        ]
-    )
-
-    sklearn = Pipeline(
-        [
-            ("Step1", FeatureUnion([("scaled", StandardScaler())])),
-            ("estimator", LinearRegression()),
-        ]
-    )
-
-    sklearn.fit(df, target)
-    custom.fit(df, target)
-
-    assert np.array_equal(custom.predict(test), sklearn.predict(test))
-
-
 @pytest.fixture()
 def smart_child():
     """Get a defined SmartTransformer subclass, TestSmartTransformer.
@@ -444,21 +191,23 @@ def test_smarttransformer_function_override(smart_child):
     import numpy as np
     import pandas as pd
 
-    from foreshadow.concrete import Imputer
+    from foreshadow.concrete import SimpleImputer
 
     boston_path = get_file_path("data", "boston_housing.csv")
     df = pd.read_csv(boston_path)
 
     smart = smart_child(
-        transformer="Imputer", name="impute", cache_manager=CacheManager()
+        transformer="SimpleImputer",
+        name="impute",
+        cache_manager=CacheManager(),
     )
     smart_data = smart.fit_transform(df[["crim"]])
 
-    assert isinstance(smart.transformer, Imputer)
+    assert isinstance(smart.transformer, SimpleImputer)
     # assert smart.transformer.name == "impute"
     # not relevant anymore.
 
-    std = Imputer(name="impute")
+    std = SimpleImputer()
     std_data = std.fit_transform(df[["crim"]])
 
     assert smart_data.equals(std_data)
@@ -500,7 +249,7 @@ def test_smarttransformer_set_params_override(smart_child):
     """
     from foreshadow.concrete import StandardScaler
 
-    smart = smart_child(transformer="Imputer")
+    smart = smart_child(transformer="SimpleImputer")
     smart.set_params(**{"transformer": "StandardScaler"})
 
     assert isinstance(smart.transformer, StandardScaler)
@@ -542,10 +291,12 @@ def test_smarttransformer_get_params(smart_child):
         smart_child: A subclass of SmartTransformer.
 
     """
+    import numpy as np
+
     cm = CacheManager()
     smart = smart_child(
-        transformer="Imputer",
-        missing_values="NaN",
+        transformer="SimpleImputer",
+        missing_values=np.nan,
         strategy="mean",
         cache_manager=cm,
     )
@@ -553,6 +304,8 @@ def test_smarttransformer_get_params(smart_child):
 
     params = smart.get_params()
     print(params)
+    assert np.isnan(params["transformer__missing_values"])
+    del params["transformer__missing_values"]
     assert params == {
         "transformer": smart.transformer,
         "name": None,
@@ -563,10 +316,12 @@ def test_smarttransformer_get_params(smart_child):
         "cache_manager": cm,
         "check_wrapped": True,
         "transformer__copy": True,
-        "transformer__missing_values": "NaN",
+        # "transformer__missing_values": np.nan,
         "transformer__strategy": "mean",
         "transformer__verbose": 0,
-        "transformer__axis": 0,
+        # "transformer__axis": 0,
+        "transformer__add_indicator": False,
+        "transformer__fill_value": None,
     }
 
 

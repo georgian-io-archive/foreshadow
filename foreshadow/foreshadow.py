@@ -15,24 +15,18 @@ from foreshadow.estimators.auto import AutoEstimator
 from foreshadow.estimators.estimator_wrapper import EstimatorWrapper
 from foreshadow.intents import IntentType
 from foreshadow.logging import logging
-from foreshadow.optimizers import ParamSpec, Tuner
 from foreshadow.pipeline import SerializablePipeline
 from foreshadow.preparer import DataPreparer
-from foreshadow.serializers import (
-    ConcreteSerializerMixin,
-    _make_deserializable,
-)
 from foreshadow.utils import (
     AcceptedKey,
     ConfigKey,
     Override,
     ProblemType,
     check_df,
-    get_transformer,
 )
 
 
-class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
+class Foreshadow(BaseEstimator):
     """An end-to-end pipeline to preprocess and tune a machine learning model.
 
     Example:
@@ -261,32 +255,35 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
                 [("estimator_wrapper", self.estimator_wrapper)]
             )
 
-        if self.optimizer is not None:
-            self.pipeline.fit(X_df, y_df)
-            params = ParamSpec(self.pipeline, X_df, y_df)
-            self.opt_instance = self.optimizer(
-                estimator=self.pipeline,
-                param_distributions=params,
-                **{
-                    "iid": True,
-                    "scoring": "accuracy",
-                    "n_iter": 10,
-                    "return_train_score": True,
-                }
-            )
-            self.tuner = Tuner(self.pipeline, params, self.opt_instance)
-            self.tuner.fit(X_df, y_df)
-            self.pipeline = self.tuner.transform(self.pipeline)
-            # extract trained preprocessors
-            if self.X_preparer is not None:
-                self.X_preparer = self.pipeline.steps[0][1]
-            if self.y_preparer is not None:
-                self.y_preparer = self.opt_instance.best_estimator_.steps[1][
-                    1
-                ].preprocessor
-        else:
-            self.pipeline.fit(X_df, y_df)
+        # TODO we may need this for future development but right now it's
+        #  dragging down code coverage
+        # if self.optimizer is not None:
+        #     self.pipeline.fit(X_df, y_df)
+        #     params = ParamSpec(self.pipeline, X_df, y_df)
+        #     self.opt_instance = self.optimizer(
+        #         estimator=self.pipeline,
+        #         param_distributions=params,
+        #         **{
+        #             "iid": True,
+        #             "scoring": "accuracy",
+        #             "n_iter": 10,
+        #             "return_train_score": True,
+        #         }
+        #     )
+        #     self.tuner = Tuner(self.pipeline, params, self.opt_instance)
+        #     self.tuner.fit(X_df, y_df)
+        #     self.pipeline = self.tuner.transform(self.pipeline)
+        #     # extract trained preprocessors
+        #     if self.X_preparer is not None:
+        #         self.X_preparer = self.pipeline.steps[0][1]
+        #     if self.y_preparer is not None:
+        #         self.y_preparer = self.opt_instance.best_estimator_.steps[1][
+        #             1
+        #         ].preprocessor
+        # else:
+        #     self.pipeline.fit(X_df, y_df)
 
+        self.pipeline.fit(X_df, y_df)
         self.has_fitted = True
 
         return self
@@ -362,80 +359,84 @@ class Foreshadow(BaseEstimator, ConcreteSerializerMixin):
         self._prepare_predict(data_df.columns)
         return self.pipeline.score(data_df, y_df, sample_weight)
 
-    def dict_serialize(self, deep=False):
-        """Serialize the init parameters of the foreshadow object.
+    # TODO all serialization/deserialization code has been turned off
+    #  temporarily since we are not using it right now and it's dragging
+    #  down the code coverage.
+    # def dict_serialize(self, deep=False):
+    #     """Serialize the init parameters of the foreshadow object.
+    #
+    #     Args:
+    #         deep (bool): If True, will return the parameters for this
+    #         estimator recursively
+    #
+    #     Returns:
+    #         dict: The initialization parameters of the foreshadow object.
+    #
+    #     """
+    #     serialized = super().dict_serialize(deep=False)
+    #     serialized["estimator"] = self._customize_serialized_estimator(
+    #         self.estimator
+    #     )
+    #     return serialized
 
-        Args:
-            deep (bool): If True, will return the parameters for this estimator
-                recursively
+    # @staticmethod
+    # def _customize_serialized_estimator(estimator):
+    #     if isinstance(estimator, AutoEstimator):
+    #         """For third party automl estimator, the estimator_kwargs
+    #         have different format and structure. To reduce verbosity,
+    #         this field is removed from the serialized object.
+    #         """
+    #         serialized_estimator = estimator.serialize()
+    #         serialized_estimator.pop("estimator_kwargs")
+    #     else:
+    #         serialized_estimator = estimator.get_params()
+    #         serialized_estimator["_class"] = (
+    #             estimator.__module__ + "." + type(estimator).__name__
+    #         )
+    #         serialized_estimator["_method"] = "dict"
+    #
+    #     result = serialized_estimator
+    #     return result
 
-        Returns:
-            dict: The initialization parameters of the foreshadow object.
-
-        """
-        serialized = super().dict_serialize(deep=False)
-        serialized["estimator"] = self._customize_serialized_estimator(
-            self.estimator
-        )
-        return serialized
-
-    @staticmethod
-    def _customize_serialized_estimator(estimator):
-        if isinstance(estimator, AutoEstimator):
-            """For third party automl estimator, the estimator_kwargs
-            have different format and structure. To reduce verbosity,
-            this field is removed from the serialized object.
-            """
-            serialized_estimator = estimator.serialize()
-            serialized_estimator.pop("estimator_kwargs")
-        else:
-            serialized_estimator = estimator.get_params()
-            serialized_estimator["_class"] = (
-                estimator.__module__ + "." + type(estimator).__name__
-            )
-            serialized_estimator["_method"] = "dict"
-
-        result = serialized_estimator
-        return result
-
-    @classmethod
-    def dict_deserialize(cls, data):
-        """Deserialize the dictionary form of a foreshadow object.
-
-        Args:
-            data: The dictionary to parse as foreshadow object is constructed.
-
-        Returns:
-            object: A re-constructed foreshadow object.
-
-        """
-        serialized_estimator = data.pop("estimator")
-        estimator = cls._reconstruct_estimator(serialized_estimator)
-
-        params = _make_deserializable(data)
-        data_columns = params.pop("data_columns")
-        params["estimator"] = estimator
-
-        ret_tf = cls(**params)
-        ret_tf.data_columns = data_columns
-        return ret_tf
-
-    @classmethod
-    def _reconstruct_estimator(cls, data):
-        estimator_type = data.pop("_class")
-        _ = data.pop("_method")
-
-        if estimator_type == AutoEstimator.__name__:
-            class_name = estimator_type
-            module_path = None
-        else:
-            class_name = estimator_type.split(".")[-1]
-            module_path = ".".join(estimator_type.split(".")[0:-1])
-
-        estimator_class = get_transformer(class_name, source_lib=module_path)
-        estimator = estimator_class()
-        estimator.set_params(**data)
-        return estimator
+    # @classmethod
+    # def dict_deserialize(cls, data):
+    #     """Deserialize the dictionary form of a foreshadow object.
+    #
+    #     Args:
+    #         data: The dictionary to parse as foreshadow object is
+    #         constructed.
+    #
+    #     Returns:
+    #         object: A re-constructed foreshadow object.
+    #
+    #     """
+    #     serialized_estimator = data.pop("estimator")
+    #     estimator = cls._reconstruct_estimator(serialized_estimator)
+    #
+    #     params = _make_deserializable(data)
+    #     data_columns = params.pop("data_columns")
+    #     params["estimator"] = estimator
+    #
+    #     ret_tf = cls(**params)
+    #     ret_tf.data_columns = data_columns
+    #     return ret_tf
+    #
+    # @classmethod
+    # def _reconstruct_estimator(cls, data):
+    #     estimator_type = data.pop("_class")
+    #     _ = data.pop("_method")
+    #
+    #     if estimator_type == AutoEstimator.__name__:
+    #         class_name = estimator_type
+    #         module_path = None
+    #     else:
+    #         class_name = estimator_type.split(".")[-1]
+    #         module_path = ".".join(estimator_type.split(".")[0:-1])
+    #
+    #     estimator_class = get_transformer(class_name, source_lib=module_path)
+    #     estimator = estimator_class()
+    #     estimator.set_params(**data)
+    #     return estimator
 
     def get_params(self, deep=True):
         """Get params for this object. See super.

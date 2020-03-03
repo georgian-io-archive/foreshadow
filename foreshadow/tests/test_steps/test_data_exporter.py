@@ -55,7 +55,7 @@ def test_data_exporter_transform(tmpdir):
 
 
 @pytest.mark.parametrize("is_train", [True, False])
-def test_determine_export_path_default(is_train):
+def test_data_exporter_determine_export_path_default(is_train):
     cache_manager = CacheManager()
     exporter = DataExporterMapper(cache_manager=cache_manager)
 
@@ -75,7 +75,9 @@ def test_determine_export_path_default(is_train):
         (False, "processed_test_data.csv"),
     ],
 )
-def test_determine_export_path_user_specified(is_train, user_specified_path):
+def test_data_exporter_determine_export_path_user_specified(
+    is_train, user_specified_path
+):
     cache_manager = CacheManager()
     key = (
         ConfigKey.PROCESSED_TRAINING_DATA_EXPORT_PATH

@@ -88,4 +88,4 @@ class DropCleaner(BaseCleaner):
 
         """
         X = check_df(X, single_column=True)
-        return pd.DataFrame([], columns=X.columns)
+        return pd.DataFrame([], columns=X.columns, index=X.index)

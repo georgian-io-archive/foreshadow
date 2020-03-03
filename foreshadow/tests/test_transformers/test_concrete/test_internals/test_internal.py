@@ -30,8 +30,8 @@ def test_nan_filler():
     df_transformed = filler.transform(data)
     assert check.equals(df_transformed)
 
-    df_original = filler.inverse_transform(df_transformed)
-    assert data.equals(df_original)
+    inverse_transformed = filler.inverse_transform(df_transformed)
+    assert data.equals(inverse_transformed)
 
 
 def test_dummy_encoder():

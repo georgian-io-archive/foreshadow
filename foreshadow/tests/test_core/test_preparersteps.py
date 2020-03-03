@@ -23,7 +23,7 @@ def step():
 
 
 @pytest.mark.parametrize("cache_manager", [True, False])
-def test_init_columnsharer(step, cache_manager):
+def test_init_cachemanager(step, cache_manager):
     """Test columnsharer properly init on step.
 
     Args:

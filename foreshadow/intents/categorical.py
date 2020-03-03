@@ -11,21 +11,6 @@ from foreshadow.utils import standard_col_summary
 from .base import BaseIntent
 
 
-# Due to pickling issue in Parallel process, the lambda x: 1 needs to be
-# rewritten as a public method.
-def return_one(X):  # noqa: D401
-    """Method that always return 1.
-
-    Args:
-        X: input data frame
-
-    Returns:
-        the value 1
-
-    """
-    return 1
-
-
 class Categorical(BaseIntent):
     """Defines a categoric column type."""
 
@@ -33,7 +18,6 @@ class Categorical(BaseIntent):
         MetricWrapper(num_valid): 0.25,
         MetricWrapper(unique_heur): 0.65,
         MetricWrapper(is_numeric, invert=True): 0.1,
-        # MetricWrapper(return_one): (1 / 4),
     }
 
     def fit(self, X, y=None, **fit_params):

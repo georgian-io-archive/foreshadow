@@ -1,18 +1,23 @@
 """SmartResolver for ResolverMapper step."""
 
-from foreshadow.intents import Categorical, Neither, Numeric
+from foreshadow.intents import Categorical, Numeric, Other
 from foreshadow.logging import logging
 from foreshadow.smart.intent_resolving.core import (
     IntentResolver as AutoIntentResolver,
 )
 from foreshadow.smart.smart import SmartTransformer
-from foreshadow.utils import DataSamplingMixin, Override, get_transformer
+from foreshadow.utils import (
+    AcceptedKey,
+    DataSamplingMixin,
+    Override,
+    get_transformer,
+)
 
 
 _temporary_naming_conversion = {
     "Numerical": Numeric.__name__,
     "Categorical": Categorical.__name__,
-    "Neither": Neither.__name__,
+    "Neither": Other.__name__,
 }
 
 
@@ -35,8 +40,11 @@ class IntentResolver(SmartTransformer, DataSamplingMixin):
 
     validate_wrapped = False
 
-    def __init__(self, **kwargs):
+    def __init__(self, column=None, **kwargs):
         super().__init__(**kwargs)
+        self.column = column
+        self.column_intent = None
+        # self.cache_manager = cache_manager
 
     def _resolve_intent(self, X, y=None):
         """Pick the intent with the highest confidence score.
@@ -69,13 +77,11 @@ class IntentResolver(SmartTransformer, DataSamplingMixin):
         # Override the SmartTransformer resolve method to allow the setting of
         # column info sharer data when resolving.
         super().resolve(X, *args, **kwargs)
-        column_name = X.columns[0]
-        self.cache_manager[
-            "intent", column_name
-        ] = self.transformer.__class__.__name__
+        column_name = self.column
+        self.column_intent = self.transformer.__class__.__name__
         logging.info(
             "Column {} has intent type: {}".format(
-                column_name, self.transformer.__class__.__name__
+                column_name, self.column_intent
             )
         )
 
@@ -96,8 +102,10 @@ class IntentResolver(SmartTransformer, DataSamplingMixin):
         """
         column = X.columns[0]
         override_key = "_".join([Override.INTENT, column])
-        if override_key in self.cache_manager["override"]:
-            intent_override = self.cache_manager["override"][override_key]
+        if override_key in self.cache_manager[AcceptedKey.OVERRIDE]:
+            intent_override = self.cache_manager[AcceptedKey.OVERRIDE][
+                override_key
+            ]
             intent_class = get_transformer(intent_override)
         else:
             intent_class = get_transformer(self._resolve_intent(X, y=y))

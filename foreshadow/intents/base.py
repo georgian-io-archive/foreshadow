@@ -1,10 +1,9 @@
 """Base Intent for all intent definitions."""
 
 from foreshadow.base import BaseEstimator, TransformerMixin
-from foreshadow.serializers import ConcreteSerializerMixin
 
 
-class BaseIntent(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
+class BaseIntent(BaseEstimator, TransformerMixin):
     """Base for all intent definitions.
 
     For each intent subclass a class attribute called `confidence_computation`
@@ -33,4 +32,7 @@ class BaseIntent(BaseEstimator, TransformerMixin, ConcreteSerializerMixin):
 
     @classmethod
     def column_summary(cls, df):  # noqa
-        return {}
+        raise NotImplementedError(
+            "Column Summary is not implemented by "
+            "the BaseIntent. Please override in subclasses."
+        )

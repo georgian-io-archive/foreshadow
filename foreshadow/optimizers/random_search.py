@@ -76,7 +76,6 @@ class RandomSearchCV(BaseSearchCV):
         param_distributions,
         n_iter=10,
         scoring=None,
-        fit_params=None,
         n_jobs=1,
         iid=True,
         refit=True,
@@ -95,7 +94,6 @@ class RandomSearchCV(BaseSearchCV):
         super().__init__(
             estimator=estimator,
             scoring=scoring,
-            fit_params=fit_params,
             n_jobs=n_jobs,
             iid=iid,
             refit=refit,

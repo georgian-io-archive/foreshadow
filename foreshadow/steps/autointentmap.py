@@ -28,5 +28,10 @@ class AutoIntentMixin:
             for column in X.columns
             if self.cache_manager["intent", column] is None
         ]
+        if len(columns_to_resolve) == 0:
+            return
+
+        # TODO do we really need IntentMapper? Is it possible that all the
+        #  columns here Numerical?
         mapper = IntentMapper(cache_manager=self.cache_manager)
-        X = mapper.fit_transform(X[columns_to_resolve])
+        _ = mapper.fit(X[columns_to_resolve])
