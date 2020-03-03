@@ -7,9 +7,9 @@ class IntentType:
     NUMERIC = "Numeric"
     CATEGORICAL = "Categorical"
     TEXT = "Text"
-    NEITHER = "Neither"
+    OTHER = "Other"
 
-    _registered_types = [NUMERIC, CATEGORICAL, TEXT, NEITHER]
+    _registered_types = [NUMERIC, CATEGORICAL, TEXT, OTHER]
 
     @classmethod
     def is_valid(cls, intent):

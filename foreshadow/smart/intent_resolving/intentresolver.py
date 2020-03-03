@@ -1,6 +1,6 @@
 """SmartResolver for ResolverMapper step."""
 
-from foreshadow.intents import Categorical, Neither, Numeric
+from foreshadow.intents import Categorical, Numeric, Other
 from foreshadow.logging import logging
 from foreshadow.smart.intent_resolving.core import (
     IntentResolver as AutoIntentResolver,
@@ -17,7 +17,7 @@ from foreshadow.utils import (
 _temporary_naming_conversion = {
     "Numerical": Numeric.__name__,
     "Categorical": Categorical.__name__,
-    "Neither": Neither.__name__,
+    "Neither": Other.__name__,
 }
 
 
@@ -40,11 +40,11 @@ class IntentResolver(SmartTransformer, DataSamplingMixin):
 
     validate_wrapped = False
 
-    def __init__(self, cache_manager=None, column=None, **kwargs):
+    def __init__(self, column=None, **kwargs):
         super().__init__(**kwargs)
         self.column = column
         self.column_intent = None
-        self.cache_manager = cache_manager
+        # self.cache_manager = cache_manager
 
     def _resolve_intent(self, X, y=None):
         """Pick the intent with the highest confidence score.

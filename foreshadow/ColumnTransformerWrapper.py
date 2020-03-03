@@ -28,6 +28,8 @@ class ColumnTransformerWrapper(ColumnTransformer):
             numeric-convertible.
 
         """
+        # TODO check how adding a text transformer (TFIDF) could affect this
+        #  logic.
         if self.sparse_output_:
             try:
                 # since all columns should be numeric before stacking them
@@ -45,7 +47,22 @@ class ColumnTransformerWrapper(ColumnTransformer):
 
             return sparse.hstack(converted_Xs).tocsr()
         else:
-            Xs = [f.toarray() if sparse.issparse(f) else f for f in Xs]
-            if all([isinstance(item, pd.DataFrame) for item in Xs]):
+            # TODO In theory, all Xs in Foreshadow are dataframes. However,
+            #  this may change once we add Text transformations. The following
+            #  code is refactored due to performance concerns of using 2 loops
+            #  and easier debugging.
+            all_df = True
+            for ind, f in enumerate(Xs):
+                if not isinstance(f, pd.DataFrame):
+                    all_df = False
+                if sparse.issparse(f):
+                    Xs[ind] = f.toarray()
+
+            if all_df:
                 return pd.concat(Xs, axis=1)
-            return np.hstack(Xs)
+            else:
+                np.hstack(Xs)
+            # Xs = [f.toarray() if sparse.issparse(f) else f for f in Xs]
+            # if all([isinstance(item, pd.DataFrame) for item in Xs]):
+            #     return pd.concat(Xs, axis=1)
+            # return np.hstack(Xs)

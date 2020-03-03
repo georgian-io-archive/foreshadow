@@ -1,13 +1,12 @@
 # noqa
 import json
 
-from foreshadow.utils import get_transformer
+from foreshadow.utils import AcceptedKey, get_transformer
 
-from .autointentmap import AutoIntentMixin
 from .preparerstep import PreparerStep
 
 
-class FeatureSummarizerMapper(PreparerStep, AutoIntentMixin):  # noqa
+class FeatureSummarizerMapper(PreparerStep):  # noqa
     def __init__(self, **kwargs):
         """Define the single step for FeatureSummarizer.
 
@@ -46,7 +45,7 @@ class FeatureSummarizerMapper(PreparerStep, AutoIntentMixin):  # noqa
 
         """
         summary = self.summarize(X)
-        json.dump(summary, open("X_train_summary_upgrade.json", "w"), indent=4)
+        json.dump(summary, open("X_train_summary.json", "w"), indent=4)
         return X
 
     def fit_transform(self, X, *args, **kwargs):
@@ -63,29 +62,10 @@ class FeatureSummarizerMapper(PreparerStep, AutoIntentMixin):  # noqa
         """
         return self.fit(X, *args, **kwargs).transform(X)
 
-    # def fit_transform(self, X, y=None, **fit_params):
-    #     """Fit then transform this PreparerStep.
-    #
-    #     Side-affect: Summarize each column.
-    #
-    #     Args:
-    #         X: input DataFrame
-    #         y: input labels
-    #         **fit_params: kwarg params to fit
-    #
-    #     Returns:
-    #         Result from .transform(), pass through.
-    #
-    #     """
-    #     Xt = super().fit_transform(X, y, **fit_params)
-    #     summary = self.summarize(Xt)
-    #     json.dump(summary, open("X_train_summary.json", "w"), indent=4)
-    #     return Xt
-
     def summarize(self, X_df):  # noqa
         summary = {}
         for k in X_df.columns.values.tolist():
-            intent = self.cache_manager["intent", k]
+            intent = self.cache_manager[AcceptedKey.INTENT, k]
             data = get_transformer(intent).column_summary(X_df[[k]])
             summary[k] = {"intent": intent, "data": data}
         return summary

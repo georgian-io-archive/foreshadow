@@ -1,5 +1,7 @@
 """Fill NaNs."""
 
+import numpy as np
+
 from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.utils import Constant
 from foreshadow.wrapper import pandas_wrap
@@ -38,16 +40,14 @@ class NaNFiller(BaseEstimator, TransformerMixin):
         """
         return X.fillna(self.fill_value)
 
-    # TODO remove. Unless we are applying NaNFiller to y variable, which we
-    #   shouldn't, we do not need an inverse_transform.
-    # def inverse_transform(self, X):
-    #     """Reverse nan filling transform.
-    #
-    #     Args:
-    #         X (:obj:`numpy.ndarray`): Transformed X data
-    #
-    #     Returns:
-    #         :obj:`numpy.ndarray`: Original data
-    #
-    #     """
-    #     return X.replace(to_replace=Constant.NAN_FILL_VALUE, value=np.nan)
+    def inverse_transform(self, X):
+        """Reverse nan filling transform.
+
+        Args:
+            X (:obj:`numpy.ndarray`): Transformed X data
+
+        Returns:
+            :obj:`numpy.ndarray`: Original data
+
+        """
+        return X.replace(to_replace=Constant.NAN_FILL_VALUE, value=np.nan)

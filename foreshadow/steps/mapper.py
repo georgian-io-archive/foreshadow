@@ -38,7 +38,7 @@ class IntentMapper(PreparerStep):
             (
                 column,
                 IntentResolver(
-                    cache_manager=self.cache_manager, column=column
+                    column=column, cache_manager=self.cache_manager
                 ),
                 column,
             )

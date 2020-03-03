@@ -2,11 +2,10 @@
 from foreshadow.logging import logging
 from foreshadow.utils import AcceptedKey, ConfigKey, DefaultConfig
 
-from .autointentmap import AutoIntentMixin
 from .preparerstep import PreparerStep
 
 
-class DataExporterMapper(PreparerStep, AutoIntentMixin):
+class DataExporterMapper(PreparerStep):
     """Define the single step for FeatureExporter.
 
     Args:
@@ -73,18 +72,6 @@ class DataExporterMapper(PreparerStep, AutoIntentMixin):
         # Xt = super().transform(X, *args, **kwargs)
         self._export_data(X, is_train=is_train)
         return X
-
-    def _handle_intent_override(self, default_parallel_process):
-        """Handle intent override and see override in the child classes.
-
-        For the data exporter, it should just start from scratch as there is no
-        computation involved anyway.
-
-        Args:
-            default_parallel_process: the default parallel process from scratch
-
-        """
-        self._parallel_process = default_parallel_process
 
     def _export_data(self, X, is_train=True):
         data_path = self._determine_export_path(is_train)

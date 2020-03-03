@@ -13,7 +13,7 @@ from foreshadow.utils import standard_col_summary
 from .base import BaseIntent
 
 
-class Neither(BaseIntent):
+class Other(BaseIntent):
     """Defines a Neither column type.
 
     For now it mimics the Text intent.
