@@ -1,17 +1,15 @@
 """Cleaner module for handling the flattening of the data."""
 
-from foreshadow.ColumnTransformerWrapper import ColumnTransformerWrapper
 from foreshadow.smart import Flatten
-from foreshadow.utils import AcceptedKey, ConfigKey
 
 from .preparerstep import PreparerStep
 
 
 class FlattenMapper(PreparerStep):
-    """Determine and perform best data cleaning step."""
+    """Determine and perform best data flattening step."""
 
     def __init__(self, **kwargs):
-        """Define the single step for CleanerMapper, using SmartCleaner.
+        """Define the single step for FlattenMapper, using SmartCleaner.
 
         Args:
             **kwargs: kwargs to PreparerStep constructor.
@@ -21,9 +19,10 @@ class FlattenMapper(PreparerStep):
         super().__init__(**kwargs)
 
     def fit(self, X, *args, **kwargs):
-        """Fit this step.
+        """Fit the flatten step.
 
-        calls underlying parallel process.
+        Calls underlying feature processor. It will flatten columns with
+        JSON like data but will not touch other columns.
 
         Args:
             X: input DataFrame
@@ -34,37 +33,13 @@ class FlattenMapper(PreparerStep):
             transformed data handled by Pipeline._fit
 
         """
-        columns = X.columns
-        list_of_tuples = [
-            (column, Flatten(cache_manager=self.cache_manager), column)
-            for column in columns
-        ]
-        self.feature_processor = ColumnTransformerWrapper(
-            list_of_tuples,
-            n_jobs=self.cache_manager[AcceptedKey.CONFIG][ConfigKey.N_JOBS],
-        )
+        list_of_tuples = self._construct_column_transformer_tuples(X=X)
+        self._prepare_feature_processor(list_of_tuples=list_of_tuples)
         self.feature_processor.fit(X=X)
         return self
 
-    def fit_transform(self, X, *args, **kwargs):
-        """Fit then transform the cleaner step.
-
-        Args:
-            X: the data frame.
-            *args: positional args.
-            **kwargs: key word args.
-
-        Returns:
-            A transformed dataframe.
-
-        """
-        return self.fit(X, *args, **kwargs).transform(X)
-        # Xt = super().fit_transform(X, *args, **kwargs)
-        # self._empty_columns = _check_empty_columns(Xt)
-        # return Xt.drop(columns=self._empty_columns)
-
     def transform(self, X, *args, **kwargs):
-        """Clean the dataframe.
+        """Flatten the dataframe.
 
         Args:
             X: the data frame.
@@ -75,12 +50,16 @@ class FlattenMapper(PreparerStep):
             A transformed dataframe.
 
         """
-        # if self._empty_columns is None:
-        #     raise ValueError("Cleaner has not been fitted yet.")
+        return super().transform(X=X)
 
-        # Xt = super().transform(X, *args, **kwargs)
-
-        Xt = self.feature_processor.transform(X=X)
-        return Xt
-        # Xt = pd.DataFrame(data=Xt, columns=X.columns)
-        # return Xt.drop(columns=self._empty_columns)
+    def _construct_column_transformer_tuples(self, X):
+        columns = X.columns
+        list_of_tuples = [
+            (
+                column + "_" + FlattenMapper.__class__.__name__,
+                Flatten(cache_manager=self.cache_manager),
+                column,
+            )
+            for column in columns
+        ]
+        return list_of_tuples

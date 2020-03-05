@@ -69,7 +69,6 @@ class DataExporterMapper(PreparerStep):
             Result from .transform(), pass through.
 
         """
-        # Xt = super().transform(X, *args, **kwargs)
         self._export_data(X, is_train=is_train)
         return X
 

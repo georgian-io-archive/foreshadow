@@ -1,11 +1,9 @@
 """Cleaner module for handling the cleaning and shaping of data."""
 from typing import List
 
-from foreshadow.ColumnTransformerWrapper import ColumnTransformerWrapper
 from foreshadow.concrete import DropCleaner
 from foreshadow.logging import logging
 from foreshadow.smart import Cleaner
-from foreshadow.utils import AcceptedKey, ConfigKey
 
 from .preparerstep import PreparerStep
 
@@ -37,7 +35,8 @@ class CleanerMapper(PreparerStep):
             transformed data handled by Pipeline._fit
 
         """
-        self._prepare_feature_processor(X=X)
+        list_of_tuples = self._construct_column_transformer_tuples(X=X)
+        self._prepare_feature_processor(list_of_tuples=list_of_tuples)
         self.feature_processor.fit(X=X)
         self._empty_columns = self._check_empty_columns(
             original_columns=X.columns
@@ -65,7 +64,7 @@ class CleanerMapper(PreparerStep):
         Xt = self.feature_processor.transform(X=X)
         return Xt.drop(columns=self._empty_columns)
 
-    def _prepare_feature_processor(self, X):
+    def _construct_column_transformer_tuples(self, X):
         columns = X.columns
         list_of_tuples = [
             (
@@ -75,10 +74,7 @@ class CleanerMapper(PreparerStep):
             )
             for column in columns
         ]
-        self.feature_processor = ColumnTransformerWrapper(
-            list_of_tuples,
-            n_jobs=self.cache_manager[AcceptedKey.CONFIG][ConfigKey.N_JOBS],
-        )
+        return list_of_tuples
 
     def _check_empty_columns(self, original_columns: List) -> List:
         empty_columns = []

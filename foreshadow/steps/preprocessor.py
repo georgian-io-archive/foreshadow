@@ -1,10 +1,9 @@
 """Defines the Preprocessor step in the Foreshadow DataPreparer pipeline."""
 from sklearn.pipeline import make_pipeline
 
-from foreshadow.ColumnTransformerWrapper import ColumnTransformerWrapper
 from foreshadow.config import config
 from foreshadow.intents import IntentType
-from foreshadow.utils import AcceptedKey, ConfigKey, Override
+from foreshadow.utils import AcceptedKey, Override
 
 from .autointentmap import AutoIntentMixin
 from .preparerstep import PreparerStep
@@ -40,20 +39,8 @@ class Preprocessor(PreparerStep, AutoIntentMixin):
 
         """
         self.check_resolve(X)
-
-        list_of_tuples = []
-
-        for column in X.columns:
-            intent = self.cache_manager[AcceptedKey.INTENT, column]
-            transformation_pipeline = self._prepare_transformation_pipeline(
-                intent=intent, column=column
-            )
-            list_of_tuples.append((column, transformation_pipeline, column))
-
-        self.feature_processor = ColumnTransformerWrapper(
-            list_of_tuples,
-            n_jobs=self.cache_manager[AcceptedKey.CONFIG][ConfigKey.N_JOBS],
-        )
+        list_of_tuples = self._construct_column_transformer_tuples(X=X)
+        self._prepare_feature_processor(list_of_tuples=list_of_tuples)
         self.feature_processor.fit(X=X)
         return self
 
@@ -69,24 +56,7 @@ class Preprocessor(PreparerStep, AutoIntentMixin):
             A transformed dataframe.
 
         """
-        # TODO when we abstract out this, it should check if
-        #  feature_preprocessor is created.
-        Xt = self.feature_processor.transform(X=X)
-        return Xt
-
-    def fit_transform(self, X, *args, **kwargs):
-        """Fit then transform the cleaner step.
-
-        Args:
-            X: the data frame.
-            *args: positional args.
-            **kwargs: key word args.
-
-        Returns:
-            A transformed dataframe.
-
-        """
-        return self.fit(X, *args, **kwargs).transform(X)
+        return super().transform(X=X)
 
     def _prepare_transformation_pipeline(self, intent, column):
         # TODO this must be some optimization we can do. Walk through both
@@ -119,3 +89,13 @@ class Preprocessor(PreparerStep, AutoIntentMixin):
             transformation_pipeline_by_intent[intent] = transformation_pipeline
 
         return transformation_pipeline_by_intent
+
+    def _construct_column_transformer_tuples(self, X):
+        list_of_tuples = []
+        for column in X.columns:
+            intent = self.cache_manager[AcceptedKey.INTENT, column]
+            transformation_pipeline = self._prepare_transformation_pipeline(
+                intent=intent, column=column
+            )
+            list_of_tuples.append((column, transformation_pipeline, column))
+        return list_of_tuples
