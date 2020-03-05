@@ -1,6 +1,9 @@
 """Test the Foreshadow class."""
 
+import numpy as np
 import pytest
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 from foreshadow.foreshadow import Foreshadow
 from foreshadow.utils import AcceptedKey, ProblemType
@@ -1421,3 +1424,124 @@ def test_set_processed_data_export_path():
         ]
         == processed_test_data_path
     )
+
+
+def test_sklearn_pipeline_titanic():
+    import pandas as pd
+
+    train_data = pd.read_csv(get_file_path("data", "titanic-train.csv"))
+    X_train_df = train_data.loc[:, "Pclass":"Embarked"]
+    y_train_df = train_data.loc[:, "Survived"]
+
+    from sklearn.compose import ColumnTransformer
+    from sklearn.pipeline import Pipeline
+    from sklearn.impute import SimpleImputer
+    from sklearn.preprocessing import StandardScaler, OneHotEncoder
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.model_selection import train_test_split, GridSearchCV
+
+    np.random.seed(0)
+
+    numeric_features = ["Age", "Fare"]
+    numeric_transformer = Pipeline(
+        steps=[
+            ("imputer", SimpleImputer(strategy="median")),
+            ("scaler", StandardScaler()),
+        ]
+    )
+
+    categorical_features = ["Embarked", "Sex", "Pclass"]
+    categorical_transformer = Pipeline(
+        steps=[
+            (
+                "imputer",
+                SimpleImputer(strategy="constant", fill_value="missing"),
+            ),
+            ("onehot", OneHotEncoder(handle_unknown="ignore")),
+        ]
+    )
+
+    text_features = ["Name"]
+    text_transformer = Pipeline(
+        steps=[
+            ("item_selector", ItemSelector("Name")),
+            ("tfidf", TfidfVectorizer()),
+        ]
+    )
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("num", numeric_transformer, numeric_features),
+            ("cat", categorical_transformer, categorical_features),
+            ("text", text_transformer, text_features),
+        ]
+    )
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_train_df, y_train_df, test_size=0.2
+    )
+
+    clf = Pipeline(
+        steps=[
+            ("preprocessor", preprocessor),
+            ("classifier", LogisticRegression()),
+        ]
+    )
+    clf.fit(X_train_df, y_train_df)
+    print("model score: %.3f" % clf.score(X_test, y_test))
+
+    param_grid = {
+        "preprocessor__num__imputer__strategy": ["mean", "median"],
+        "classifier__C": [0.1, 1.0, 10, 100],
+    }
+
+    grid_search = GridSearchCV(clf, param_grid, cv=10)
+    grid_search.fit(X_train, y_train)
+
+    print(
+        (
+            "best logistic regression from grid search: %.3f"
+            % grid_search.score(X_test, y_test)
+        )
+    )
+
+
+class ItemSelector(BaseEstimator, TransformerMixin):
+    """For data grouped by feature, select subset of data at a provided key.
+
+    The data is expected to be stored in a 2D data structure, where the first
+    index is over features and the second is over samples.  i.e.
+
+    >> len(data[key]) == n_samples
+
+    Please note that this is the opposite convention to scikit-learn feature
+    matrixes (where the first index corresponds to sample).
+
+    ItemSelector only requires that the collection implement getitem
+    (data[key]).  Examples include: a dict of lists, 2D numpy array, Pandas
+    DataFrame, numpy record array, etc.
+
+    >> data = {'a': [1, 5, 2, 5, 2, 8],
+               'b': [9, 4, 1, 4, 1, 3]}
+    >> ds = ItemSelector(key='a')
+    >> data['a'] == ds.transform(data)
+
+    ItemSelector is not designed to handle data grouped by sample.  (e.g. a
+    list of dicts).  If your data is structured this way, consider a
+    transformer along the lines of `sklearn.feature_extraction.DictVectorizer`.
+
+    Parameters
+    ----------
+    key : hashable, required
+        The key corresponding to the desired value in a mappable.
+    """
+
+    def __init__(self, key):
+        self.key = key
+
+    def fit(self, x, y=None):  # noqa
+        return self
+
+    def transform(self, data_dict):  # noqa
+        data = data_dict[self.key]
+        return data
