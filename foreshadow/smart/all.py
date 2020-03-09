@@ -11,6 +11,7 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 import scipy.stats as ss
+from sklearn.pipeline import Pipeline
 
 from foreshadow.concrete import NaNFiller, NoTransform, SimpleImputer
 from foreshadow.concrete.externals import (
@@ -32,7 +33,7 @@ from foreshadow.concrete.internals import (
 )
 from foreshadow.logging import logging
 from foreshadow.pipeline import SerializablePipeline
-from foreshadow.utils import check_df
+from foreshadow.utils import AcceptedKey, DataSeriesSelector, check_df
 
 from .smart import SmartTransformer
 
@@ -382,10 +383,9 @@ class TextEncoder(SmartTransformer):
             An initialized nlp transformer
 
         """
-        data = X.iloc[:, 0]
-
         steps = []
 
+        data = X.iloc[:, 0]
         if (data.dtype.type is not np.str_) and not all(
             [isinstance(i, str) for i in data]
         ):
@@ -397,23 +397,50 @@ class TextEncoder(SmartTransformer):
         if html_ratio > self.html_cutoff:
             steps.append(("hr", HTMLRemover()))
 
+        steps.append(
+            (
+                "data_series_selector",
+                DataSeriesSelector(column_name=X.columns[0]),
+            )
+        )
+
         # TODO: find heuristic for finding optimal values for values
         tfidf = TfidfVectorizer(
             decode_error="replace",
             strip_accents="unicode",
-            stop_words="english",
-            ngram_range=(1, 2),
-            max_df=0.9,
-            min_df=0.05,
-            max_features=None,
+            # stop_words="english",
+            # ngram_range=(1, 2),
+            # max_df=0.9,
+            min_df=0,
+            # max_features=None,
             sublinear_tf=True,
         )
         steps.append(("tfidf", tfidf))
 
-        if len(steps) == 1:
-            return tfidf
-        else:
-            return SerializablePipeline(steps)
+        return Pipeline(steps)
+
+    def fit(self, X, y=None, **fit_params):  # noqa
+        try:
+            super().fit(X)
+        except ValueError as e:
+            if "empty vocabulary" in str(e):
+                logging.error(
+                    "The column {} may have wrong Intent type {}.".format(
+                        X.columns[0],
+                        self.cache_manager[AcceptedKey.INTENT, X.columns[0]],
+                    )
+                )
+            raise e
+        return self
+
+    def transform(self, X):  # noqa
+        Xt = super().transform(X=X)
+        tfidf = self.transformer.steps[-1][1]
+        columns = tfidf.get_feature_names()
+
+        # Here we need to make sure the index of the data frame is set to the
+        # original. Otherwise, we will encounter data frame misalignment again.
+        return pd.DataFrame(data=Xt.toarray(), columns=columns, index=X.index)
 
 
 class NeitherProcessor(SmartTransformer):

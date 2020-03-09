@@ -301,6 +301,24 @@ def warning(*args, **kwargs):
     return log(*args, **kwargs)
 
 
+def error(*args, **kwargs):
+    """Log error message.
+
+    Manually overriding so that this method is explicitly a part of this
+    module.
+
+    Args:
+        *args: To logging.info
+        **kwargs: To logging.info
+
+    Returns:
+        logging.info
+
+    """
+    log = _wrap_log(_log, "error")
+    return log(*args, **kwargs)
+
+
 def log_and_gui(level, msg, gui_details, gui_schema, *args, **kwargs):
     """Log msg to gui at specific level and write gui_details under gui_schema.
 

@@ -4,6 +4,7 @@
 from foreshadow.utils.common import (
     ConfigureCacheManagerMixin,
     DataSamplingMixin,
+    DataSeriesSelector,
     UserOverrideMixin,
     get_cache_path,
     get_config_path,
@@ -62,4 +63,5 @@ __all__ = [
     "DefaultConfig",
     "Constant",
     "AcceptedKey",
+    "DataSeriesSelector",
 ]

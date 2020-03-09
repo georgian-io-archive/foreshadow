@@ -2,9 +2,10 @@
 
 from abc import ABCMeta, abstractmethod
 
+from sklearn.pipeline import Pipeline
+
 from foreshadow.base import BaseEstimator, TransformerMixin
 from foreshadow.logging import logging
-from foreshadow.pipeline import SerializablePipeline
 from foreshadow.utils import (
     UserOverrideMixin,
     check_df,
@@ -110,7 +111,7 @@ class SmartTransformer(
             is_wrapped(value) if getattr(self, "check_wrapped", True) else True
         )
         # True by default passes this check if we don't want it.
-        is_pipe = isinstance(value, SerializablePipeline)
+        is_pipe = isinstance(value, Pipeline)
         is_none = value is None
         checks = [is_trans, is_pipe, is_none, trans_wrapped]
         # Check the transformer inheritance status

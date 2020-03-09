@@ -4,8 +4,10 @@ import numpy as np
 import pytest
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import train_test_split
 
 from foreshadow.foreshadow import Foreshadow
+from foreshadow.intents import IntentType
 from foreshadow.utils import AcceptedKey, ProblemType
 from foreshadow.utils.testing import get_file_path
 
@@ -1424,6 +1426,35 @@ def test_set_processed_data_export_path():
         ]
         == processed_test_data_path
     )
+
+
+def test_foreshadow_titanic(tmpdir):
+    import pandas as pd
+
+    train_data = pd.read_csv(get_file_path("data", "titanic-train.csv"))
+    X_train_df = train_data.loc[:, "Pclass":"Embarked"]
+    y_train_df = train_data.loc[:, "Survived"]
+
+    X_train_df = X_train_df.drop(columns=["SibSp", "Parch", "Cabin"])
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_train_df, y_train_df, test_size=0.2
+    )
+
+    from foreshadow.estimators import AutoEstimator
+
+    estimator = AutoEstimator(
+        problem_type=ProblemType.CLASSIFICATION,
+        auto="tpot",
+        estimator_kwargs={"max_time_mins": 1},
+    )
+
+    shadow = Foreshadow(
+        estimator=estimator, problem_type=ProblemType.CLASSIFICATION
+    )
+
+    shadow.override_intent(column_name="Name", intent=IntentType.OTHER)
+    shadow.fit(X_train, y_train)
 
 
 def test_sklearn_pipeline_titanic():
