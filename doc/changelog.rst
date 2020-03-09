@@ -2,6 +2,19 @@
 
 .. towncrier release notes start
 
+Foreshadow 0.4.5 (2020-03-09)
+=============================
+
+Features
+--------
+
+- Dependency upgrade and related code changes
+    Scikit-Learn 0.19 -> 0.22.1
+    Pandas 0.23 -> 0.25
+
+    Removed ParallelProcessor and DynamicPipeline in favor of native ColumnTransformer. (dependency-upgrade)
+
+
 Foreshadow 0.4.4 (2020-01-29)
 =============================
 
