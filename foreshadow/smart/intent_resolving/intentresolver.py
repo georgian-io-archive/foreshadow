@@ -1,6 +1,6 @@
 """SmartResolver for ResolverMapper step."""
 
-from foreshadow.intents import Categorical, Numeric, Other
+from foreshadow.intents import Categorical, Droppable, Numeric, Text
 from foreshadow.logging import logging
 from foreshadow.smart.intent_resolving.core import (
     IntentResolver as AutoIntentResolver,
@@ -17,7 +17,8 @@ from foreshadow.utils import (
 _temporary_naming_conversion = {
     "Numerical": Numeric.__name__,
     "Categorical": Categorical.__name__,
-    "Neither": Other.__name__,
+    "Droppable": Droppable.__name__,
+    "Text or Datetime": Text.__name__,
 }
 
 

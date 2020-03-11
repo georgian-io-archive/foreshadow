@@ -706,7 +706,6 @@ def test_core_foreshadow_example_classification():
     from sklearn.metrics import f1_score
     from sklearn.model_selection import train_test_split
     from foreshadow.foreshadow import Foreshadow
-    from foreshadow.intents import IntentType
 
     np.random.seed(0)
     iris = load_iris()
@@ -719,9 +718,6 @@ def test_core_foreshadow_example_classification():
     model = Foreshadow(
         estimator=LogisticRegression(), problem_type=ProblemType.CLASSIFICATION
     )
-    model.fit(X_train, y_train)
-    assert not model.get_intent("petal width (cm)") == IntentType.NUMERIC
-    model.override_intent("petal width (cm)", IntentType.NUMERIC)
     model.fit(X_train, y_train)
 
     score = f1_score(y_test, model.predict(X_test), average="weighted")

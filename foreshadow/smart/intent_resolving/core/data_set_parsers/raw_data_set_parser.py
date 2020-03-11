@@ -78,7 +78,9 @@ class RawDataSetParser(DataSetParser):
                 lambda df: df.assign(
                     attribute_name=raw.columns,
                     total_val=[len(raw)] * len(raw.columns),
-                    samples_set=raw.apply(lambda s: set(s.dropna().unique())),
+                    samples_set=raw.astype("object").apply(
+                        lambda s: set(s.dropna().astype(str).unique())
+                    ),
                     num_nans=raw.isnull().sum(axis=0),
                     max=raw.apply(
                         _descriptive_stat_reducer(max), result_type="expand"
@@ -99,8 +101,6 @@ class RawDataSetParser(DataSetParser):
                 lambda df: df.assign(
                     num_distincts=df["samples_set"].apply(len)
                 )
-                # avg_val_len = df['samples_set'].apply(
-                #     lambda set_: sum(len(str(x)) for x in set_) / len(set_) if len(set_) else -1))
             )
         )
 

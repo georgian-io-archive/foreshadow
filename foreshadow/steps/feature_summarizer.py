@@ -1,6 +1,7 @@
 # noqa
 import json
 
+from foreshadow.intents import Droppable
 from foreshadow.utils import AcceptedKey, get_transformer
 
 from .preparerstep import PreparerStep
@@ -52,6 +53,7 @@ class FeatureSummarizerMapper(PreparerStep):  # noqa
         summary = {}
         for k in X_df.columns.values.tolist():
             intent = self.cache_manager[AcceptedKey.INTENT, k]
-            data = get_transformer(intent).column_summary(X_df[[k]])
-            summary[k] = {"intent": intent, "data": data}
+            if intent != Droppable.__name__:
+                data = get_transformer(intent).column_summary(X_df[[k]])
+                summary[k] = {"intent": intent, "data": data}
         return summary

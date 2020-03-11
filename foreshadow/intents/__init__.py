@@ -1,9 +1,9 @@
 """Intents package used by IntentMapper PreparerStep."""
 from .base import BaseIntent
 from .categorical import Categorical
+from .droppable import Droppable
 from .intent_type import IntentType
 from .numeric import Numeric
-from .other import Other
 from .text import Text
 
 
@@ -12,6 +12,6 @@ __all__ = [
     "Numeric",
     "Text",
     "BaseIntent",
-    "Other",
+    "Droppable",
     "IntentType",
 ]

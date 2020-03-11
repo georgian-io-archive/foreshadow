@@ -2,7 +2,7 @@
 from sklearn.pipeline import make_pipeline
 
 from foreshadow.config import config
-from foreshadow.intents import IntentType
+from foreshadow.intents import Droppable, IntentType
 from foreshadow.utils import AcceptedKey, Override
 
 from .autointentmap import AutoIntentMixin
@@ -94,6 +94,8 @@ class Preprocessor(PreparerStep, AutoIntentMixin):
         list_of_tuples = []
         for column in X.columns:
             intent = self.cache_manager[AcceptedKey.INTENT, column]
+            if intent == Droppable.__name__:
+                continue
             transformation_pipeline = self._prepare_transformation_pipeline(
                 intent=intent, column=column
             )

@@ -22,16 +22,9 @@ _DEFAULT_CONFIG = {
     },
     "Tiebreak": ["Numeric", "Categorical", "Text"],
     "Numeric": {"Preprocessor": ["SimpleFillImputer", "Scaler"]},
-    # "Numeric": {"Preprocessor": ["Imputer", "Scaler"]},
     "Categorical": {"Preprocessor": ["CategoricalEncoder"]},
     "Text": {"Preprocessor": ["TextEncoder"]},
-    # TODO we have to use CategoricalEncoder for Other Type temporarily as
-    #  some columns in Neither type has missing data. By default,
-    #  number-like columns are treated by estimator as numerical while
-    #  string-like columns are treated as categories. Using preprocessing
-    #  for Numeric will fail the second case while using the preprocessing
-    #  for Categorical work for both cases.
-    "Other": {"Preprocessor": ["CategoricalEncoder"]},
+    "Droppable": {"Preprocessor": []},
 }
 
 
