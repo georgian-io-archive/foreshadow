@@ -221,6 +221,9 @@ class DataSeriesSelector(BaseEstimator, TransformerMixin):  # noqa
 
     def transform(self, X):  # noqa
         if isinstance(X, DataFrame):
-            return X[self.column_name]
+            X["concat_col"] = X.apply(
+                lambda row: " ".join(row.dropna().tolist()), axis=1
+            )
+            return X["concat_col"]
         elif isinstance(X, Series):
             return X

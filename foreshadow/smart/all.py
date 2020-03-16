@@ -11,6 +11,7 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 import scipy.stats as ss
+from sklearn.decomposition import TruncatedSVD
 from sklearn.pipeline import Pipeline
 
 from foreshadow.concrete import NaNFiller, NoTransform, SimpleImputer
@@ -365,8 +366,9 @@ class TextEncoder(SmartTransformer):
             strategies
     """
 
-    def __init__(self, html_cutoff=0.4, **kwargs):
+    def __init__(self, n_components=2, html_cutoff=0.4, **kwargs):
         self.html_cutoff = html_cutoff
+        self.n_components = n_components
 
         super().__init__(**kwargs)
 
@@ -385,17 +387,22 @@ class TextEncoder(SmartTransformer):
         """
         steps = []
 
-        data = X.iloc[:, 0]
-        if (data.dtype.type is not np.str_) and not all(
-            [isinstance(i, str) for i in data]
-        ):
-            steps.append(("num", ToString()))
-
-        html_ratio = (
-            data.astype("str").apply(HTMLRemover.is_html).sum()
-        ) / len(data)
-        if html_ratio > self.html_cutoff:
-            steps.append(("hr", HTMLRemover()))
+        # TODO Scheduled Remove. This is commented out because data with text
+        #  intent is already converted into str type. As for html remover, I
+        #  consider it as an optional feature. For now, it may be better that
+        #  we only support pure text data until we have demands for handling
+        #  raw html data. It uses regex so its performance is not very good.
+        # data = X.iloc[:, 0]
+        # if (data.dtype.type is not np.str_) and not all(
+        #     [isinstance(i, str) for i in data]
+        # ):
+        #     steps.append(("num", ToString()))
+        #
+        # html_ratio = (
+        #     data.astype("str").apply(HTMLRemover.is_html).sum()
+        # ) / len(data)
+        # if html_ratio > self.html_cutoff:
+        #     steps.append(("hr", HTMLRemover()))
 
         steps.append(
             (
@@ -416,6 +423,17 @@ class TextEncoder(SmartTransformer):
             sublinear_tf=True,
         )
         steps.append(("tfidf", tfidf))
+        steps.append(
+            (
+                "truncated_svd",
+                TruncatedSVD(
+                    n_components=self.n_components
+                    if self.n_components > 2
+                    else 2,
+                    random_state=42,
+                ),
+            )
+        )
 
         return Pipeline(steps)
 
@@ -435,12 +453,21 @@ class TextEncoder(SmartTransformer):
 
     def transform(self, X):  # noqa
         Xt = super().transform(X=X)
-        tfidf = self.transformer.steps[-1][1]
-        columns = tfidf.get_feature_names()
+
+        # Temporarily turn off this section as we are testing out the SVD step.
+        # tfidf = self.transformer.steps[-1][1]
+        # columns = tfidf.get_feature_names()
+        # return pd.DataFrame(data=Xt.toarray(), columns=columns,
+        # index=X.index)
+
+        columns = [
+            "svd_components_from_tfidf_" + str(i)
+            for i in range(self.n_components)
+        ]
 
         # Here we need to make sure the index of the data frame is set to the
         # original. Otherwise, we will encounter data frame misalignment again.
-        return pd.DataFrame(data=Xt.toarray(), columns=columns, index=X.index)
+        return pd.DataFrame(data=Xt, columns=columns, index=X.index)
 
 
 class NeitherProcessor(SmartTransformer):
