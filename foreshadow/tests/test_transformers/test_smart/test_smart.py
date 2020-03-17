@@ -506,10 +506,10 @@ def test_smart_text_wrong_intent():
 
     from foreshadow.smart import TextEncoder
 
-    X1 = pd.DataFrame(data=[1, 4, "a", "a"], columns=["col1"])
+    X1 = pd.DataFrame(data=["1", "4", "a", "a"], columns=["col1"])
 
     manager = CacheManager()
-    manager[AcceptedKey.INTENT, "col1"] = IntentType.OTHER
+    manager[AcceptedKey.INTENT, "col1"] = IntentType.TEXT
 
     encoder1 = TextEncoder(cache_manager=manager)
 
