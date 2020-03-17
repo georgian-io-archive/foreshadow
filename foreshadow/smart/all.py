@@ -34,7 +34,12 @@ from foreshadow.concrete.internals import (
 )
 from foreshadow.logging import logging
 from foreshadow.pipeline import SerializablePipeline
-from foreshadow.utils import AcceptedKey, DataSeriesSelector, check_df
+from foreshadow.utils import (
+    AcceptedKey,
+    DataSeriesSelector,
+    DefaultConfig,
+    check_df,
+)
 
 from .smart import SmartTransformer
 
@@ -366,7 +371,12 @@ class TextEncoder(SmartTransformer):
             strategies
     """
 
-    def __init__(self, n_components=2, html_cutoff=0.4, **kwargs):
+    def __init__(
+        self,
+        n_components=DefaultConfig.N_COMPONENTS_SVD,
+        html_cutoff=0.4,
+        **kwargs
+    ):
         self.html_cutoff = html_cutoff
         self.n_components = n_components
 
@@ -422,12 +432,7 @@ class TextEncoder(SmartTransformer):
         steps.append(
             (
                 "truncated_svd",
-                TruncatedSVD(
-                    n_components=self.n_components
-                    if self.n_components > 2
-                    else 2,
-                    random_state=42,
-                ),
+                TruncatedSVD(n_components=self.n_components, random_state=42),
             )
         )
 

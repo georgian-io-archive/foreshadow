@@ -11,6 +11,9 @@ class DefaultConfig:
     SAMPLING_WITH_REPLACEMENT = False
     SAMPLING_FRACTION = 0.2
     N_JOBS = 1
+    # It is unclear what is the best value. The default value in Sklearn is 2,
+    # which may not be enough.
+    N_COMPONENTS_SVD = 20
 
 
 class ProblemType:

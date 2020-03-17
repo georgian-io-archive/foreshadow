@@ -1455,3 +1455,98 @@ def test_foreshadow_titanic(tmpdir):
 
     score = shadow.score(X_test, y_test)
     print(score)
+
+
+def test_text_classification_foreshadow():
+    import pandas as pd
+
+    categories = [
+        "alt.atheism",
+        "soc.religion.christian",
+        "comp.graphics",
+        "sci.med",
+    ]
+    from sklearn.datasets import fetch_20newsgroups
+
+    twenty_train = fetch_20newsgroups(
+        subset="train", categories=categories, shuffle=True, random_state=42
+    )
+    X_train = pd.DataFrame(
+        data=twenty_train.data,
+        columns=["text"],
+        index=list(range(len(twenty_train.data))),
+    )
+    y_train = pd.Series(
+        data=twenty_train.target,
+        name="category",
+        index=list(range(len(twenty_train.target))),
+    )
+
+    twenty_test = fetch_20newsgroups(
+        subset="test", categories=categories, shuffle=True, random_state=42
+    )
+    X_test = pd.DataFrame(data=twenty_test.data, columns=["text"])
+    y_test = pd.Series(data=twenty_test.target, name="category")
+
+    from foreshadow.estimators import AutoEstimator
+
+    estimator = AutoEstimator(
+        problem_type=ProblemType.CLASSIFICATION,
+        auto="tpot",
+        estimator_kwargs={"max_time_mins": 1, "random_state": 42},
+    )
+
+    shadow = Foreshadow(
+        estimator=estimator, problem_type=ProblemType.CLASSIFICATION
+    )
+
+    shadow.fit(X_train, y_train)
+
+    score = shadow.score(X_test, y_test)
+    print(score)  # this gives about 87.5%
+
+
+# def test_text_classification():
+#     # This is a test on text classification for pure Sklearn pipeline so we
+#     # can compare the result with foreshadow.
+#     # Using the NB estimator the performance is around 83.5%.
+#     categories = ['alt.atheism', 'soc.religion.christian',
+#                   'comp.graphics', 'sci.med']
+#     from sklearn.datasets import fetch_20newsgroups
+#     twenty_train = fetch_20newsgroups(subset='train',
+#                                       categories=categories, shuffle=True,
+#                                       random_state=42)
+#     print(twenty_train.target_names)
+#
+#     from sklearn.feature_extraction.text import CountVectorizer
+#     count_vect = CountVectorizer()
+#     X_train_counts = count_vect.fit_transform(twenty_train.data)
+#     print(X_train_counts.shape)
+#
+#     from sklearn.feature_extraction.text import TfidfTransformer
+#     tf_transformer = TfidfTransformer(use_idf=False).fit(X_train_counts)
+#     X_train_tf = tf_transformer.transform(X_train_counts)
+#     print(X_train_tf.shape)
+#
+#     tfidf_transformer = TfidfTransformer()
+#     X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
+#     print(X_train_tfidf.shape)
+#
+#     from sklearn.naive_bayes import MultinomialNB
+#
+#     from sklearn.pipeline import Pipeline
+#     text_clf = Pipeline([
+#         ('vect', CountVectorizer()),
+#         ('tfidf', TfidfTransformer()),
+#         ('clf', MultinomialNB()),
+#     ])
+#
+#     text_clf.fit(twenty_train.data, twenty_train.target)
+#
+#     import numpy as np
+#     twenty_test = fetch_20newsgroups(subset='test',
+#                                      categories=categories, shuffle=True,
+#                                      random_state=42)
+#     docs_test = twenty_test.data
+#     predicted = text_clf.predict(docs_test)
+#     print(np.mean(predicted == twenty_test.target))

@@ -4,16 +4,19 @@ from sklearn.pipeline import make_pipeline
 from foreshadow.config import config
 from foreshadow.intents import Droppable, IntentType, Text
 from foreshadow.smart import TextEncoder
-from foreshadow.utils import AcceptedKey, Override
+from foreshadow.utils import AcceptedKey, DefaultConfig, Override
 
 from .autointentmap import AutoIntentMixin
 from .preparerstep import PreparerStep
 
 
 def _configure_text_transformation_pipeline(num_of_non_text_features):
-    text_pipeline = make_pipeline(
-        TextEncoder(n_components=num_of_non_text_features)
+    n_components = (
+        num_of_non_text_features
+        if num_of_non_text_features > DefaultConfig.N_COMPONENTS_SVD
+        else DefaultConfig.N_COMPONENTS_SVD
     )
+    text_pipeline = make_pipeline(TextEncoder(n_components=n_components))
     return text_pipeline
 
 
@@ -62,7 +65,8 @@ class Preprocessor(PreparerStep, AutoIntentMixin):
             A transformed dataframe.
 
         """
-        return super().transform(X=X)
+        res = super().transform(X=X)
+        return res
 
     def _get_intent(self, column):
         override_key = "_".join([Override.INTENT, column])
@@ -118,7 +122,6 @@ class Preprocessor(PreparerStep, AutoIntentMixin):
                 list_of_tuples.append(
                     (column, transformation_pipeline, column)
                 )
-
         text_transformation_pipeline = _configure_text_transformation_pipeline(
             num_of_non_text_features=len(X.columns) - len(text_features)
         )
