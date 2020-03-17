@@ -7,9 +7,9 @@ class IntentType:
     NUMERIC = "Numeric"
     CATEGORICAL = "Categorical"
     TEXT = "Text"
-    Droppable = "Droppable"
+    DROPPABLE = "Droppable"
 
-    _registered_types = [NUMERIC, CATEGORICAL, TEXT, Droppable]
+    _registered_types = [NUMERIC, CATEGORICAL, TEXT, DROPPABLE]
 
     @classmethod
     def is_valid(cls, intent):

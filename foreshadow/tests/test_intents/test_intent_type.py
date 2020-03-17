@@ -6,7 +6,7 @@ def test_intent_type_is_valid():
         IntentType.CATEGORICAL,
         IntentType.NUMERIC,
         IntentType.TEXT,
-        IntentType.Droppable,
+        IntentType.DROPPABLE,
     ]
     for intent in valid_intents:
         assert IntentType.is_valid(intent)
@@ -23,7 +23,7 @@ def test_intent_type_list_intents():
         IntentType.CATEGORICAL,
         IntentType.NUMERIC,
         IntentType.TEXT,
-        IntentType.Droppable,
+        IntentType.DROPPABLE,
     ]
 
     for intent in valid_intents:
