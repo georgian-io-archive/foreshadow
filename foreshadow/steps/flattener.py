@@ -38,20 +38,6 @@ class FlattenMapper(PreparerStep):
         self.feature_processor.fit(X=X)
         return self
 
-    def transform(self, X, *args, **kwargs):
-        """Flatten the dataframe.
-
-        Args:
-            X: the data frame.
-            *args: positional args.
-            **kwargs: key word args.
-
-        Returns:
-            A transformed dataframe.
-
-        """
-        return super().transform(X=X)
-
     def _construct_column_transformer_tuples(self, X):
         columns = X.columns
         list_of_tuples = [

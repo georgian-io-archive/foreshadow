@@ -39,22 +39,6 @@ class IntentMapper(PreparerStep):
 
         return self
 
-    def transform(self, X, *args, **kwargs):
-        """Transform X using this PreparerStep.
-
-        calls underlying parallel process.
-
-        Args:
-            X: input DataFrame
-            *args: args to .transform()
-            **kwargs: kwargs to .transform()
-
-        Returns:
-            result from .transform()
-
-        """
-        return super().transform(X=X)
-
     def _update_cache_manager_with_intents(self):
         for intent_resolver_tuple in self.feature_processor.transformers_:
             intent_resolver = intent_resolver_tuple[1]
