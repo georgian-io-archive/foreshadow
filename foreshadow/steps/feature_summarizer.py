@@ -44,25 +44,11 @@ class FeatureSummarizerMapper(PreparerStep):  # noqa
             A transformed dataframe.
 
         """
-        summary = self.summarize(X)
+        summary = self._summarize(X)
         json.dump(summary, open("X_train_summary.json", "w"), indent=4)
         return X
 
-    def fit_transform(self, X, *args, **kwargs):
-        """Fit then transform the cleaner step.
-
-        Args:
-            X: the data frame.
-            *args: positional args.
-            **kwargs: key word args.
-
-        Returns:
-            A transformed dataframe.
-
-        """
-        return self.fit(X, *args, **kwargs).transform(X)
-
-    def summarize(self, X_df):  # noqa
+    def _summarize(self, X_df):
         summary = {}
         for k in X_df.columns.values.tolist():
             intent = self.cache_manager[AcceptedKey.INTENT, k]

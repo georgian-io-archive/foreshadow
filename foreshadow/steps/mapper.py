@@ -1,8 +1,7 @@
 """Resolver module that computes the intents for input data."""
 
-from foreshadow.ColumnTransformerWrapper import ColumnTransformerWrapper
 from foreshadow.smart.intent_resolving import IntentResolver
-from foreshadow.utils import AcceptedKey, ConfigKey
+from foreshadow.utils import AcceptedKey
 
 from .preparerstep import PreparerStep
 
@@ -33,61 +32,12 @@ class IntentMapper(PreparerStep):
             transformed data handled by Pipeline._fit
 
         """
-        columns = X.columns
-        list_of_tuples = [
-            (
-                column,
-                IntentResolver(
-                    column=column, cache_manager=self.cache_manager
-                ),
-                column,
-            )
-            for column in columns
-        ]
-        self.feature_processor = ColumnTransformerWrapper(
-            list_of_tuples,
-            n_jobs=self.cache_manager[AcceptedKey.CONFIG][ConfigKey.N_JOBS],
-        )
+        list_of_tuples = self._construct_column_transformer_tuples(X=X)
+        self._prepare_feature_processor(list_of_tuples=list_of_tuples)
         self.feature_processor.fit(X=X)
         self._update_cache_manager_with_intents()
 
         return self
-
-    def transform(self, X, *args, **kwargs):
-        """Transform X using this PreparerStep.
-
-        calls underlying parallel process.
-
-        Args:
-            X: input DataFrame
-            *args: args to .transform()
-            **kwargs: kwargs to .transform()
-
-        Returns:
-            result from .transform()
-
-        Raises:
-            ValueError: if not fitted.
-
-        """
-        if self.feature_processor is None:
-            raise ValueError("not fitted.")
-        Xt = self.feature_processor.transform(X, *args, **kwargs)
-        return Xt
-
-    def fit_transform(self, X, *args, **kwargs):
-        """Fit then transform the cleaner step.
-
-        Args:
-            X: the data frame.
-            *args: positional args.
-            **kwargs: key word args.
-
-        Returns:
-            A transformed dataframe.
-
-        """
-        return self.fit(X, *args, **kwargs).transform(X)
 
     def _update_cache_manager_with_intents(self):
         for intent_resolver_tuple in self.feature_processor.transformers_:
@@ -96,3 +46,17 @@ class IntentMapper(PreparerStep):
             self.cache_manager[AcceptedKey.INTENT][
                 column_name
             ] = intent_resolver.column_intent
+
+    def _construct_column_transformer_tuples(self, X):
+        columns = X.columns
+        list_of_tuples = [
+            (
+                column + "_" + IntentMapper.__class__.__name__,
+                IntentResolver(
+                    column=column, cache_manager=self.cache_manager
+                ),
+                column,
+            )
+            for column in columns
+        ]
+        return list_of_tuples

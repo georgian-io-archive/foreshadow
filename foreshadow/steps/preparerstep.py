@@ -1,6 +1,12 @@
 """General base classes used across Foreshadow."""
+from typing import List, Tuple, Union
+
+from sklearn.pipeline import Pipeline
 
 from foreshadow.base import BaseEstimator, TransformerMixin
+from foreshadow.ColumnTransformerWrapper import ColumnTransformerWrapper
+from foreshadow.smart import SmartTransformer
+from foreshadow.utils import AcceptedKey, ConfigKey
 from foreshadow.utils.common import ConfigureCacheManagerMixin
 
 from ..cachemanager import CacheManager
@@ -91,33 +97,6 @@ class PreparerStep(
 
         """
         pass
-        # logging.debug(
-        #     "DataPreparerStep: {} called check_process".format(
-        #         self.__class__.__name__
-        #     )
-        # )
-        # default_parallel_process = self.parallelize_smart_steps(X)
-        # if self._parallel_process is None:
-        #     self._parallel_process = default_parallel_process
-        # else:
-        #     self._handle_intent_override(default_parallel_process)
-
-        # self._parallel_process = self.parallelize_smart_steps(X)
-
-    def _handle_intent_override(self, default_parallel_process):
-        """Handle intent override and see override in the child classes.
-
-        Different preparestep may handle the intent override differently but in
-        general it involves checking if the column groups have changed and need
-        to reset to the default value. TODO it may be beneficial to keep track
-        of both the old and new intents of columns as it may help the update of
-        groups of multiple columns.
-
-        Args:
-            default_parallel_process: the default_parallel_process
-
-        """
-        pass
 
     def transform(self, X, *args, **kwargs):
         """Transform X using this PreparerStep.
@@ -137,7 +116,7 @@ class PreparerStep(
 
         """
         if getattr(self, "feature_processor", None) is None:
-            raise ValueError("not fitted.")
+            raise ValueError("The transformer has not been fitted.")
         return self.feature_processor.transform(X, *args, **kwargs)
 
     def inverse_transform(self, X, *args, **kwargs):
@@ -182,3 +161,14 @@ class PreparerStep(
         if "_parallel_process" not in params:
             params += ["_parallel_process"]
         return params
+
+    def _prepare_feature_processor(
+        self,
+        list_of_tuples: List[
+            Tuple[str, Union[SmartTransformer, Pipeline], str]
+        ],
+    ):
+        self.feature_processor = ColumnTransformerWrapper(
+            list_of_tuples,
+            n_jobs=self.cache_manager[AcceptedKey.CONFIG][ConfigKey.N_JOBS],
+        )
