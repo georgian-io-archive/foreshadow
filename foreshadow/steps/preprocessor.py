@@ -5,7 +5,7 @@ from foreshadow.config import config
 from foreshadow.intents import Droppable
 from foreshadow.intents import IntentType, Text
 from foreshadow.smart import TextEncoder
-from foreshadow.utils import AcceptedKey, ConfigKey, Override
+from foreshadow.utils import AcceptedKey, Override
 
 from .autointentmap import AutoIntentMixin
 from .preparerstep import PreparerStep
@@ -75,17 +75,6 @@ class Preprocessor(PreparerStep, AutoIntentMixin):
         else:
             intent = self.cache_manager[AcceptedKey.INTENT][column]
         return intent
-
-    def _prepare_transformation_pipeline(self, intent, column):
-        # TODO this must be some optimization we can do. Walk through both
-        #  intent override cases again to check how it affects the logic.
-        override_key = "_".join([Override.INTENT, column])
-        if (
-            self.cache_manager.has_override()
-            and override_key in self.cache_manager[AcceptedKey.OVERRIDE]
-        ):
-            intent = self.cache_manager[AcceptedKey.OVERRIDE][override_key]
-        return self.pipeline_by_intent[intent]
 
     def _load_transformation_pipelines(self):
         transformation_pipeline_by_intent = dict()
