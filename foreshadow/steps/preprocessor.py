@@ -2,8 +2,7 @@
 from sklearn.pipeline import make_pipeline
 
 from foreshadow.config import config
-from foreshadow.intents import Droppable
-from foreshadow.intents import IntentType, Text
+from foreshadow.intents import Droppable, IntentType, Text
 from foreshadow.smart import TextEncoder
 from foreshadow.utils import AcceptedKey, Override
 
