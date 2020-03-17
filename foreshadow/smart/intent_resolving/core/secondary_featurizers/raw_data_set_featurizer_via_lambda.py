@@ -11,6 +11,8 @@ Class defintions included here are for:
     -- RawDataSetFeaturizerViaLambdaBuilder
 """
 
+from functools import partial
+from multiprocessing import Pool, cpu_count
 from pathlib import Path
 from typing import Callable, Generator, List, Optional, Tuple, Type
 
@@ -58,6 +60,39 @@ class RawDataSetLambdaTransformer(BaseFeaturizerViaLambda):
         feature = self._callable(raw)
         feature.name = self.method
         return feature
+
+
+def _featurize_raw_dataframe(
+    data: Tuple[str, Callable[[], pd.DataFrame]],
+    featurizers: List[Type[RawDataSetLambdaTransformer]],
+) -> pd.DataFrame:
+    """
+    Applies RawDataSetLambdaTransformers.
+
+    Extracted metafeatures are saved in a dataframe for each raw data set.
+
+    To enable pickling during multiprocessing, this function has to be a module
+    level function, instead of an instance method.
+
+    Arguments:
+        data {Tuple[str, Callable[[], pd.DataFrame]]}
+            -- A dataset identifier string and a raw dataframe function from which
+                metafeatures are extracted from.
+
+    Returns:
+        pd.DataFrame -- Extracted metafeatures from raw dataframe.
+    """
+    dataset = data[0]
+    df = data[1]()
+
+    metafeatures = (
+        pd.concat([f.featurize(df) for f in featurizers], axis=1)
+        .reset_index()
+        .rename({"index": "attribute_name"}, axis=1)
+    )
+    metafeatures["dataset"] = dataset
+
+    return metafeatures
 
 
 class RawDataSetFeaturizerViaLambda:
@@ -168,9 +203,10 @@ class RawDataSetFeaturizerViaLambda:
 
     def featurize(
         self,
-        raw_gen: Generator[Tuple[str, pd.DataFrame], None, None],
+        raw_gen: Generator[Tuple[str, Callable[[], pd.DataFrame]], None, None],
         keys: Optional[pd.DataFrame] = None,
         test_keys: Optional[pd.DataFrame] = None,
+        multiprocess: bool = False,
     ) -> None:
         """
         Extract secondary metafeatures from raw data set(s).
@@ -178,7 +214,7 @@ class RawDataSetFeaturizerViaLambda:
         At `key` and/or `test_keys` must be provided.
 
         Arguments:
-            raw_gen {Generator[Tuple[str, pd.DataFrame], None, None]}
+            raw_gen {Generator[Tuple[str, Callable[[], pd.DataFrame]], None, None]}
                 -- A raw dataframe generator.
 
         Keyword Arguments:
@@ -188,6 +224,10 @@ class RawDataSetFeaturizerViaLambda:
             test_keys {Optional[pd.DataFrame]}
                 -- Test metafeatures contaiing `dataset` and `attribute_name`.
                    (default: {None})
+            multiprocess {bool}
+                -- If True, multiprocesses .__slow_featurize. This feature is
+                   intended to shorten the model training cycle when new
+                   features are included. (default: {False})
 
         Raises:
             ValueError -- Either `keys` or `test_keys` must be provided.
@@ -208,7 +248,10 @@ class RawDataSetFeaturizerViaLambda:
             self.__fast_featurize()
         else:
             self.__slow_featurize(
-                raw_gen=raw_gen, keys=keys, test_keys=test_keys
+                raw_gen=raw_gen,
+                keys=keys,
+                test_keys=test_keys,
+                multiprocess=multiprocess,
             )
 
         self.__get_feature_names()
@@ -221,9 +264,10 @@ class RawDataSetFeaturizerViaLambda:
 
     def __slow_featurize(
         self,
-        raw_gen: Generator[Tuple[str, pd.DataFrame], None, None],
+        raw_gen: Generator[Tuple[str, Callable[[], pd.DataFrame]], None, None],
         keys: Optional[pd.DataFrame] = None,
         test_keys: Optional[pd.DataFrame] = None,
+        multiprocess: bool = False,
     ) -> None:
         """
         Extract secondary metafeatures from the raw data set(s).
@@ -240,7 +284,7 @@ class RawDataSetFeaturizerViaLambda:
         (stored in `keys` and `test_keys` respectively).
 
         Arguments:
-            raw_gen {Generator[Tuple[str, pd.DataFrame], None, None]}
+            raw_gen {Generator[Tuple[str, Callable[[], pd.DataFrame]], None, None]}
                 -- A generator of raw data sets from which metafeatures are
                    extracted from.
 
@@ -253,27 +297,37 @@ class RawDataSetFeaturizerViaLambda:
                 -- Keys from test metafeatures to rearrange rows of `result`.
                    Expects a dataframe with the `attribute_name` and optionally
                    the `dataset` columns. (default: {None})
+            multiprocess {bool}
+                -- If True, process the raw dataframes in parallel.
+                   (default: {False})
 
         Returns:
-            None -- [description]
+            None
         """
-        results = []
 
-        # Loops through raw datasets provided by `raw_gen`
-        for dataset, df in tqdm(
-            raw_gen, desc="Analyzing raw dataset", leave=False
-        ):
-            # Applies RawDataSetLambdaTransformers.
-            # Extracted metafeatures are saved in a dataframe for each
-            # raw data set
-            result = (
-                pd.concat([f.featurize(df) for f in self.featurizers], axis=1)
-                .reset_index()
-                .rename({"index": "attribute_name"}, axis=1)
-            )
+        if multiprocess:
+            with Pool(cpu_count() - 1) as p:
+                func = partial(
+                    _featurize_raw_dataframe, featurizers=self.featurizers
+                )
 
-            result["dataset"] = dataset
-            results.append(result)
+                # Process in parallel
+                results = list(
+                    tqdm(
+                        p.imap(func, raw_gen),
+                        desc="Analyzing raw dataset (parallel)",
+                        leave=False,
+                    )
+                )
+        else:
+            results = []
+            # Loops through raw datasets provided by `raw_gen`
+            for dataset, df in tqdm(
+                raw_gen, desc="Analyzing raw dataset", leave=False
+            ):
+                results.append(
+                    _featurize_raw_dataframe((dataset, df), self.featurizers)
+                )
 
         # Combine all intermediary results into a master dataframe
         results = pd.concat(results, axis=0, ignore_index=True)
@@ -324,11 +378,13 @@ class RawDataSetFeaturizerViaLambda:
                 else ("attribute_name",)
             ),
         )
+
         sample_cols = [
             col
             for col in merged.columns
             if "sample" in col and "samples" not in col
         ]
+
         if merged.drop(sample_cols, axis=1).isnull().any(axis=None):
             raise AssertionError(
                 "Imperfect mapping from features to data set detected."

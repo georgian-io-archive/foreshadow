@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Generator, List, Tuple, Type
+from typing import Callable, Generator, List, Tuple, Type
 
 import numpy as np
 import pandas as pd
@@ -30,6 +30,7 @@ class FeaturizerMixin:
                     self._create_raw_generator(),
                     keys=self.metafeatures,
                     test_keys=self.test_metafeatures,
+                    multiprocess=self._multiprocess_raw_secondary,
                 )
             else:
                 featurizer.featurize(
@@ -139,6 +140,7 @@ class DataSetParser(ABC, FeaturizerMixin):
         self.scaler: Type[RobustScaler] = None
 
         self.featurizers: List = []
+        self._multiprocess_raw_secondary: bool = False  # Multiprocessing of raw dataframe(s)
 
     @abstractmethod
     def load_data_set(self):
@@ -158,7 +160,7 @@ class DataSetParser(ABC, FeaturizerMixin):
     @abstractmethod
     def _create_raw_generator(
         self
-    ) -> Generator[Tuple[str, pd.DataFrame], None, None]:
+    ) -> Generator[Tuple[str, Callable[[], pd.DataFrame]], None, None]:
         raise NotImplementedError
 
     def _select_metafeatures(
@@ -177,7 +179,7 @@ class DataSetParser(ABC, FeaturizerMixin):
 
         Note:
         Columns are tracked by indices instead of names to avoid problems when
-        there are duplicate columnn names.
+        there are duplicated columnn names.
 
         Arguments:
             df {pd.DataFrame}
@@ -194,6 +196,11 @@ class DataSetParser(ABC, FeaturizerMixin):
         idx_to_retain: List[int] = []
 
         for i, col in enumerate(df.columns):
+            # Do not include 'attribute_name' in metafeatures
+            # Information from 'attribute_name' is represented by
+            # text metafeatures from the ngram featurization step
+            if "attribute_name" in col:
+                continue
             # Ignore sample columns which may be of type int
             if "sample" in col:
                 continue

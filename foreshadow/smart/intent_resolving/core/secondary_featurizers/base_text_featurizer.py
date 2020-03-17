@@ -9,33 +9,29 @@ import pandas as pd
 from .base_featurizer import BaseFeaturizer
 
 
-class BaseTextFeaturizer(BaseFeaturizer):  # noqa D205, D400
-    """Abstract class to extract secondary metafeatures from text in (test)
-    metafeatures.
-
+class BaseTextFeaturizer(BaseFeaturizer):
+    """
+    Abstract class to extract secondary metafeatures from text in (test) metafeatures.
 
     Attributes:
-    target_text {str}
-        -- Metafeature columns to perform text featurization on.
-           Valid values are {'attr', 'all'}. 'all' corresponds to the
-           attribute column and sample columns.
-    n_samples_cols {int}
-        -- Number of sample columns in (test) metafeatures dataframe. (
-        default: {5})
-    normalizable {bool}
-        -- Whether the generated feature should be normalized. (default: {
-        False})
-    attribute_column {str}
-        -- Text column corresponding to the attribute column of (test)
-           metafeatures.
-    samples_column {str}
-        -- Text column corresponding to the attribute column of (test)
-           metafeatures.
-    attribute_embedder
-        -- Text embedder for the attribute column.
-    samples_embedder
-        -- Text embedder for the sample columns.
-
+        target_text {str}
+            -- Metafeature columns to perform text featurization on.
+               Valid values are {'attr', 'all'}. 'all' corresponds to the
+               attribute column and sample columns.
+        n_samples_cols {int}
+            -- Number of sample columns in (test) metafeatures dataframe. (default: {5})
+        normalizable {bool}
+            -- Whether the generated feature should be normalized. (default: {False})
+        attribute_column {str}
+            -- Text column corresponding to the attribute column of (test)
+               metafeatures.
+        samples_column {str}
+            -- Text column corresponding to the attribute column of (test)
+               metafeatures.
+        attribute_embedder
+            -- Text embedder for the attribute column.
+        samples_embedder
+            -- Text embedder for the sample columns.
     """
 
     def __init__(
@@ -43,10 +39,11 @@ class BaseTextFeaturizer(BaseFeaturizer):  # noqa D205, D400
         target_text: str,
         n_sample_cols: int = 5,
         normalizable: bool = False,
-    ):  # noqa S001, D400
-        """Init function.
+    ):
+        """
+        Init function.
 
-        Arguments: # noqa S001
+        Arguments:
             target_text {str}
                 -- Metafeature columns to perform text featurization on.
                    Valid values are {'attr', 'all'}. 'all' corresponds to the
@@ -62,7 +59,6 @@ class BaseTextFeaturizer(BaseFeaturizer):  # noqa D205, D400
 
         Raises:
             ValueError -- If invalid value of `target_text` is provided.
-
         """
         super().__init__(method=None, normalizable=normalizable)
 
@@ -94,17 +90,18 @@ class BaseTextFeaturizer(BaseFeaturizer):  # noqa D205, D400
         meta_df: Optional[pd.DataFrame] = None,
         test_meta_df: Optional[pd.DataFrame] = None,
     ) -> None:
-        """Featurize text by converting them into embeddings.
+        """
+        Featurize text by converting them into embeddings.
 
         Fit an attribute (and a separate samples) vectorizer(s) to text
-        features before converting them into embeddings. At least one
-        keyword argument must be provided.
+        features before converting them into embeddings.
 
-        Args: # noqa S001
-            meta_df {pd.DataFrame}: Training metafeatures. (default: {None})
-            test_meta_df {Optional[pd.DataFrame]}: Test metafeatures. (
-            default: {None})
+        At least one keyword argument must be provided.
 
+        Keyword Arguments:
+            meta_df {pd.DataFrame} -- Training metafeatures. (default: {None})
+            test_meta_df {Optional[pd.DataFrame]} -- Test metafeatures.
+                                                     (default: {None})
         """
         if meta_df is None and test_meta_df is None:
             raise ValueError("At least one keyword argument must be provided.")
@@ -164,12 +161,7 @@ class BaseTextFeaturizer(BaseFeaturizer):  # noqa D205, D400
         self._update_feature_names()
 
     def serialize(self) -> dict:
-        """Return a serializable representation.
-
-        Returns:
-            serialized object.
-
-        """
+        """Return a serializable representation."""
         serialization = copy.deepcopy(vars(self))
 
         # Remove superfluous attributes for memory efficiency
@@ -199,17 +191,15 @@ class BaseTextFeaturizer(BaseFeaturizer):  # noqa D205, D400
         """
         Project a subset of `df` using `cols`.
 
-        For each row in the projected dataframe, the strings are
-        ':'-concatenated, as well as stripped and lowered.
+        For each row in the projected dataframe, the strings are ':'-concatenated,
+        as well as stripped and lowered.
 
-        Arguments: # noqa S001
+        Arguments:
             df {pd.DataFrame} -- Dataframe containing text column(s).
             cols {List[str]} -- Columns in `df` to use for text preprocessing.
 
         Returns:
-            List[str] -- A list whose members containing row-wise
-            preprocessed texts.
-
+            List[str] -- A list whose members containing row-wise preprocessed texts.
         """
         return (
             df[cols]
