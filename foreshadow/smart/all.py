@@ -415,11 +415,7 @@ class TextEncoder(SmartTransformer):
         tfidf = TfidfVectorizer(
             decode_error="replace",
             strip_accents="unicode",
-            # stop_words="english",
-            # ngram_range=(1, 2),
-            # max_df=0.9,
             min_df=0,
-            # max_features=None,
             sublinear_tf=True,
         )
         steps.append(("tfidf", tfidf))
