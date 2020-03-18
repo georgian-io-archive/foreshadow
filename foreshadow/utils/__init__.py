@@ -25,6 +25,7 @@ from foreshadow.utils.data_summary import (
 )
 from foreshadow.utils.default_estimator_factory import EstimatorFactory
 from foreshadow.utils.override_substitute import Override
+from foreshadow.utils.sklearn_wrappers import TruncatedSVDWrapper
 from foreshadow.utils.testing import dynamic_import
 from foreshadow.utils.validation import (
     PipelineStep,
@@ -64,4 +65,5 @@ __all__ = [
     "Constant",
     "AcceptedKey",
     "DataSeriesSelector",
+    "TruncatedSVDWrapper",
 ]

@@ -11,7 +11,6 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 import scipy.stats as ss
-from sklearn.decomposition import TruncatedSVD
 from sklearn.pipeline import Pipeline
 
 from foreshadow.concrete import NaNFiller, NoTransform, SimpleImputer
@@ -38,6 +37,7 @@ from foreshadow.utils import (
     AcceptedKey,
     DataSeriesSelector,
     DefaultConfig,
+    TruncatedSVDWrapper,
     check_df,
 )
 
@@ -395,7 +395,12 @@ class TextEncoder(SmartTransformer):
             An initialized nlp transformer
 
         """
-        steps = []
+        steps = [
+            (
+                "data_series_selector",
+                DataSeriesSelector(column_name=X.columns[0]),
+            )
+        ]
 
         # TODO Scheduled Remove. This is commented out because data with text
         #  intent is already converted into str type. As for html remover, I
@@ -414,13 +419,6 @@ class TextEncoder(SmartTransformer):
         # if html_ratio > self.html_cutoff:
         #     steps.append(("hr", HTMLRemover()))
 
-        steps.append(
-            (
-                "data_series_selector",
-                DataSeriesSelector(column_name=X.columns[0]),
-            )
-        )
-
         # TODO: find heuristic for finding optimal values for values
         tfidf = TfidfVectorizer(
             decode_error="replace",
@@ -432,7 +430,9 @@ class TextEncoder(SmartTransformer):
         steps.append(
             (
                 "truncated_svd",
-                TruncatedSVD(n_components=self.n_components, random_state=42),
+                TruncatedSVDWrapper(
+                    n_components=self.n_components, random_state=42
+                ),
             )
         )
 
@@ -455,15 +455,11 @@ class TextEncoder(SmartTransformer):
     def transform(self, X):  # noqa
         Xt = super().transform(X=X)
 
-        # Temporarily turn off this section as we are testing out the SVD step.
-        # tfidf = self.transformer.steps[-1][1]
-        # columns = tfidf.get_feature_names()
-        # return pd.DataFrame(data=Xt.toarray(), columns=columns,
-        # index=X.index)
-
+        # Note that even if we specify the number of components we want, we may
+        # get fewer components so we need to depend on the shape of Xt instead
+        # of the n_components attributes.
         columns = [
-            "svd_components_from_tfidf_" + str(i)
-            for i in range(self.n_components)
+            "svd_components_from_tfidf_" + str(i) for i in range(Xt.shape[1])
         ]
 
         # Here we need to make sure the index of the data frame is set to the

@@ -1,10 +1,9 @@
 import pytest
-from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from foreshadow.cachemanager import CacheManager
 from foreshadow.intents import IntentType
-from foreshadow.utils import AcceptedKey
+from foreshadow.utils import AcceptedKey, TruncatedSVDWrapper
 from foreshadow.utils.testing import get_file_path
 
 
@@ -473,14 +472,14 @@ def test_smart_text():
     manager = CacheManager()
     manager[AcceptedKey.INTENT, "col1"] = IntentType.TEXT
 
-    encoder1 = TextEncoder()
+    encoder1 = TextEncoder(n_components=3)
     tf1 = encoder1.fit(X1)
     X1_transformed = tf1.transform(X=X1)
     print()
     print(X1_transformed)
 
     assert isinstance(tf1.transformer.steps[-2][1], TfidfVectorizer)
-    assert isinstance(tf1.transformer.steps[-1][1], TruncatedSVD)
+    assert isinstance(tf1.transformer.steps[-1][1], TruncatedSVDWrapper)
 
     # X2 = pd.DataFrame(
     #     data=["<p> Hello </p>", "World", "<h1> Tag </h1>", 123],
