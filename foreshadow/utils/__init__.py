@@ -4,6 +4,7 @@
 from foreshadow.utils.common import (
     ConfigureCacheManagerMixin,
     DataSamplingMixin,
+    DataSeriesSelector,
     UserOverrideMixin,
     get_cache_path,
     get_config_path,
@@ -24,6 +25,7 @@ from foreshadow.utils.data_summary import (
 )
 from foreshadow.utils.default_estimator_factory import EstimatorFactory
 from foreshadow.utils.override_substitute import Override
+from foreshadow.utils.sklearn_wrappers import TruncatedSVDWrapper
 from foreshadow.utils.testing import dynamic_import
 from foreshadow.utils.validation import (
     PipelineStep,
@@ -62,4 +64,6 @@ __all__ = [
     "DefaultConfig",
     "Constant",
     "AcceptedKey",
+    "DataSeriesSelector",
+    "TruncatedSVDWrapper",
 ]

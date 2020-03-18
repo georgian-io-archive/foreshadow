@@ -11,6 +11,7 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 import scipy.stats as ss
+from sklearn.pipeline import Pipeline
 
 from foreshadow.concrete import NaNFiller, NoTransform, SimpleImputer
 from foreshadow.concrete.externals import (
@@ -32,7 +33,13 @@ from foreshadow.concrete.internals import (
 )
 from foreshadow.logging import logging
 from foreshadow.pipeline import SerializablePipeline
-from foreshadow.utils import check_df
+from foreshadow.utils import (
+    AcceptedKey,
+    DataSeriesSelector,
+    DefaultConfig,
+    TruncatedSVDWrapper,
+    check_df,
+)
 
 from .smart import SmartTransformer
 
@@ -364,8 +371,14 @@ class TextEncoder(SmartTransformer):
             strategies
     """
 
-    def __init__(self, html_cutoff=0.4, **kwargs):
+    def __init__(
+        self,
+        n_components=DefaultConfig.N_COMPONENTS_SVD,
+        html_cutoff=0.4,
+        **kwargs
+    ):
         self.html_cutoff = html_cutoff
+        self.n_components = n_components
 
         super().__init__(**kwargs)
 
@@ -382,38 +395,76 @@ class TextEncoder(SmartTransformer):
             An initialized nlp transformer
 
         """
-        data = X.iloc[:, 0]
+        steps = [
+            (
+                "data_series_selector",
+                DataSeriesSelector(column_name=X.columns[0]),
+            )
+        ]
 
-        steps = []
-
-        if (data.dtype.type is not np.str_) and not all(
-            [isinstance(i, str) for i in data]
-        ):
-            steps.append(("num", ToString()))
-
-        html_ratio = (
-            data.astype("str").apply(HTMLRemover.is_html).sum()
-        ) / len(data)
-        if html_ratio > self.html_cutoff:
-            steps.append(("hr", HTMLRemover()))
+        # TODO Scheduled Remove. This is commented out because data with text
+        #  intent is already converted into str type. As for html remover, I
+        #  consider it as an optional feature. For now, it may be better that
+        #  we only support pure text data until we have demands for handling
+        #  raw html data. It uses regex so its performance is not very good.
+        # data = X.iloc[:, 0]
+        # if (data.dtype.type is not np.str_) and not all(
+        #     [isinstance(i, str) for i in data]
+        # ):
+        #     steps.append(("num", ToString()))
+        #
+        # html_ratio = (
+        #     data.astype("str").apply(HTMLRemover.is_html).sum()
+        # ) / len(data)
+        # if html_ratio > self.html_cutoff:
+        #     steps.append(("hr", HTMLRemover()))
 
         # TODO: find heuristic for finding optimal values for values
         tfidf = TfidfVectorizer(
             decode_error="replace",
             strip_accents="unicode",
-            stop_words="english",
-            ngram_range=(1, 2),
-            max_df=0.9,
-            min_df=0.05,
-            max_features=None,
+            min_df=0,
             sublinear_tf=True,
         )
         steps.append(("tfidf", tfidf))
+        steps.append(
+            (
+                "truncated_svd",
+                TruncatedSVDWrapper(
+                    n_components=self.n_components, random_state=42
+                ),
+            )
+        )
 
-        if len(steps) == 1:
-            return tfidf
-        else:
-            return SerializablePipeline(steps)
+        return Pipeline(steps)
+
+    def fit(self, X, y=None, **fit_params):  # noqa
+        try:
+            super().fit(X)
+        except ValueError as e:
+            if "empty vocabulary" in str(e):
+                logging.error(
+                    "The column {} may have wrong Intent type {}.".format(
+                        X.columns[0],
+                        self.cache_manager[AcceptedKey.INTENT, X.columns[0]],
+                    )
+                )
+            raise e
+        return self
+
+    def transform(self, X):  # noqa
+        Xt = super().transform(X=X)
+
+        # Note that even if we specify the number of components we want, we may
+        # get fewer components so we need to depend on the shape of Xt instead
+        # of the n_components attributes.
+        columns = [
+            "svd_components_from_tfidf_" + str(i) for i in range(Xt.shape[1])
+        ]
+
+        # Here we need to make sure the index of the data frame is set to the
+        # original. Otherwise, we will encounter data frame misalignment again.
+        return pd.DataFrame(data=Xt, columns=columns, index=X.index)
 
 
 class NeitherProcessor(SmartTransformer):

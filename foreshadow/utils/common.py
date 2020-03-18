@@ -4,7 +4,8 @@ import os
 from collections import OrderedDict
 from importlib import import_module
 
-from pandas import DataFrame
+from pandas import DataFrame, Series
+from sklearn.base import BaseEstimator, TransformerMixin
 
 from foreshadow.exceptions import TransformerNotFound
 from foreshadow.utils.constants import AcceptedKey, ConfigKey
@@ -199,3 +200,29 @@ class UserOverrideMixin:
                         return True
 
         return False
+
+
+class DataSeriesSelector(BaseEstimator, TransformerMixin):  # noqa
+    """For data in a data frame column, extract the data series.
+
+    The data is expected to be stored in a data frame column and can
+    be extracted through the column name as the key.
+
+    Parameters
+    ----------
+    column_name : the name of the column
+    """
+
+    def __init__(self, column_name):
+        self.column_name = column_name
+
+    def fit(self, X, y=None):  # noqa
+        return self
+
+    def transform(self, X):  # noqa
+        if isinstance(X, DataFrame):
+            res = X.apply(lambda row: " ".join(row.dropna().tolist()), axis=1)
+            res.name = "concat_col"
+            return res
+        elif isinstance(X, Series):
+            return X

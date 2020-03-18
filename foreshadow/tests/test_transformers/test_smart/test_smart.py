@@ -1,5 +1,9 @@
 import pytest
+from sklearn.feature_extraction.text import TfidfVectorizer
 
+from foreshadow.cachemanager import CacheManager
+from foreshadow.intents import IntentType
+from foreshadow.utils import AcceptedKey, TruncatedSVDWrapper
 from foreshadow.utils.testing import get_file_path
 
 
@@ -453,45 +457,61 @@ def test_smart_financial_cleaner_eu():
     assert np.all((out == expected) | (pd.isnull(out) == pd.isnull(expected)))
 
 
-@pytest.mark.skip("THIS IS IMPORTANT FIX")
-def test_smart_text():  # not sure why this is broken.
-    import numpy as np
+def test_smart_text():
     import pandas as pd
 
     from foreshadow.smart import TextEncoder
-    from foreshadow.concrete import FixedTfidfVectorizer
-    from foreshadow.concrete import HTMLRemover
-
-    X1 = pd.DataFrame(["abc", "def", "1321", "tester"])
-    tf1 = TextEncoder().fit(X1)
-
-    assert isinstance(tf1.transformer, FixedTfidfVectorizer)
-
-    X2 = pd.DataFrame(["<p> Hello </p>", "World", "<h1> Tag </h1>"])
-    tf2 = TextEncoder().fit(X2)
-
-    assert any(isinstance(tf, HTMLRemover) for n, tf in tf2.transformer.steps)
-    assert isinstance(tf2.transformer.steps[-1][1], FixedTfidfVectorizer)
-
-    assert TextEncoder().fit(pd.DataFrame([1, 2, 3, np.nan]))
-
-
-@pytest.mark.skip("NOT FIXED. TFIDF is broken.")
-def test_smart_neither():
-    import pandas as pd
-
-    from foreshadow.smart import NeitherProcessor
-    from foreshadow.concrete import FixedTfidfVectorizer
 
     X1 = pd.DataFrame(
-        [
-            "this is a test",
-            "I don't understand",
-            "who are you",
-            "what happened in this test",
-        ],
-        columns=["test_column"],
+        data={
+            "col1": ["abc", "def", "1321", "tester"],
+            "col2": ["okay", "This is a test", "whatup", "gg"],
+        }
     )
-    tf1 = NeitherProcessor().fit(X1)
 
-    assert isinstance(tf1.transformer, FixedTfidfVectorizer)
+    manager = CacheManager()
+    manager[AcceptedKey.INTENT, "col1"] = IntentType.TEXT
+
+    encoder1 = TextEncoder(n_components=3)
+    tf1 = encoder1.fit(X1)
+    X1_transformed = tf1.transform(X=X1)
+    print()
+    print(X1_transformed)
+
+    assert isinstance(tf1.transformer.steps[-2][1], TfidfVectorizer)
+    assert isinstance(tf1.transformer.steps[-1][1], TruncatedSVDWrapper)
+
+    # X2 = pd.DataFrame(
+    #     data=["<p> Hello </p>", "World", "<h1> Tag </h1>", 123],
+    #     columns=["col2"],
+    # )
+    #
+    # encoder2 = TextEncoder()
+    # tf2 = encoder2.fit(X2)
+    # X2_transformed = tf2.transform(X=X2)
+    # print(X2_transformed)
+    #
+    # assert any(isinstance(tf, ToString) for n, tf in tf2.transformer.steps)
+    # assert any(isinstance(tf, HTMLRemover) for n,
+    # tf in tf2.transformer.steps)
+    # assert isinstance(tf2.transformer.steps[0][1], ToString)
+    # assert isinstance(tf2.transformer.steps[1][1], HTMLRemover)
+    # assert isinstance(tf2.transformer.steps[2][1], DataSeriesSelector)
+    # assert isinstance(tf2.transformer.steps[3][1], TfidfVectorizer)
+
+
+def test_smart_text_wrong_intent():
+    import pandas as pd
+
+    from foreshadow.smart import TextEncoder
+
+    X1 = pd.DataFrame(data=["1", "4", "a", "a"], columns=["col1"])
+
+    manager = CacheManager()
+    manager[AcceptedKey.INTENT, "col1"] = IntentType.TEXT
+
+    encoder1 = TextEncoder(cache_manager=manager)
+
+    with pytest.raises(ValueError) as e:
+        encoder1.fit(X1)
+        assert "empty vocabulary" in str(e)
