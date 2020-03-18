@@ -195,14 +195,16 @@ class DataSetParser(ABC, FeaturizerMixin):
         idx_to_normalize: List[int] = []
         idx_to_retain: List[int] = []
 
+        IGNORE_COLS = (
+            "attribute_name",  # Already represented as ngrams
+            "sample",  # Ignore sample columns which may be of type int
+            "total_val",  # Intent prediction should not be based on # data points
+            "num_distincts",  # Use `normalized_distinct_rate` instead
+            "num_nans",  # Captured in `nan_rate`
+        )
+
         for i, col in enumerate(df.columns):
-            # Do not include 'attribute_name' in metafeatures
-            # Information from 'attribute_name' is represented by
-            # text metafeatures from the ngram featurization step
-            if "attribute_name" in col:
-                continue
-            # Ignore sample columns which may be of type int
-            if "sample" in col:
+            if col in IGNORE_COLS:
                 continue
 
             # Save columns that are either numeric or that have been marked

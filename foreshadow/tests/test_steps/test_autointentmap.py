@@ -31,9 +31,5 @@ def test_autointentmapping(step):
         [np.arange(i, i + 2) for i in range(100)], columns=["1", "2"]
     )
     step.get_mapping(df)
-    assert step.cache_manager["intent", "1"] == "Numeric"
-    # TODO this part DOES NOT make sense. Shouldn't both intents be Droppable?
-    #  For now I'm temporarily change it to one Numeric and one Droppable to
-    #  pass the test. We need to revisit this on the auto intent resolving
-    #  side.
+    assert step.cache_manager["intent", "1"] == "Droppable"
     assert step.cache_manager["intent", "2"] == "Droppable"

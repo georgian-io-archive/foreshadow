@@ -14,4 +14,4 @@ def test_resolver_overall():
     cs = CacheManager()
     ir = IntentMapper(cache_manager=cs)
     ir.fit(data)
-    assert cs["intent", "financials"] == "Numeric"
+    assert cs["intent", "financials"] == "Droppable"
