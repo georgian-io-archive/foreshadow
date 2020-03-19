@@ -23,24 +23,6 @@ The Developer Guide
 
    developers
 
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-
-   contrib
-
-API
----
-.. toctree::
-   :maxdepth: 2
-
-   api
-
-.. toctree::
-   :maxdepth: 1
-
-   architecture
-
 Changelog
 ---------
 .. toctree::
