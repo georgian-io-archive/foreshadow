@@ -13,7 +13,12 @@ import pandas as pd
 import scipy.stats as ss
 from sklearn.pipeline import Pipeline
 
-from foreshadow.concrete import NaNFiller, NoTransform, SimpleImputer
+from foreshadow.concrete import (
+    NaNFiller,
+    NoTransform,
+    PowerTransformer,
+    SimpleImputer,
+)
 from foreshadow.concrete.externals import (
     HashingEncoder,
     MinMaxScaler,
@@ -88,18 +93,20 @@ class Scaler(SmartTransformer):
         best_dist = max(p_vals, key=p_vals.get)
         best_dist = best_dist if p_vals[best_dist] >= self.p_val else None
         if best_dist is None:
-            return Pipeline(
+            selected_transformer = Pipeline(
                 [
                     # Turning off the BoxCox transformer because if the test
                     # dataset has an even smaller negative min, it will
                     # break the pipeline.
                     # TODO add a different transformer if necessary
                     # ("box_cox", BoxCox()),
-                    ("robust_scaler", RobustScaler())
+                    ("power_transformer", PowerTransformer()),
+                    ("robust_scaler", RobustScaler()),
                 ]
             )
         else:
-            return distributions[best_dist]
+            selected_transformer = distributions[best_dist]
+        return selected_transformer
 
 
 def will_remove_uncommon(X, temp_uncommon_remover):
