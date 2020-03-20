@@ -29,15 +29,21 @@ data scientists to spend more time on data science and less time on code.
 Key Features
 ------------
 - Scikit-Learn compatible
-- Automatic column intent inference (currently supports Numerical and Categorical Types)
+- Automatic column intent inference
+    - Numerical
+    - Categorical
+    - Text
+    - Droppable (All values in a column are either the same or different)
 - Allow user override on column intent and transformation functions
 - Automatic feature preprocessing depending on the column intent type
+    - Numerical: imputation followed by scaling
+    - Categorical: a variety of categorical encoding
+    - Text: TFIDF followed by SVD
 - Automatic model selection
 - Rapid pipeline development / iteration
 
 Features in the road map
 ------------------------
-- Automatic column intent inference for DateTime, Text and Droppable types
 - Automatic feature engineering
 - Automatic parameter optimization
 
