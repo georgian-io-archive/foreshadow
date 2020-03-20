@@ -193,7 +193,6 @@ def test_smart_encoder_more_than_30_levels():
     from foreshadow.smart import CategoricalEncoder
     from foreshadow.concrete import HashingEncoder
     from foreshadow.concrete import NaNFiller
-    from foreshadow.pipeline import Pipeline
 
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)

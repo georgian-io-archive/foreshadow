@@ -170,17 +170,12 @@ class Foreshadow(BaseEstimator):
         y_df = check_df(y_df)
         self.data_columns = X_df.columns.values.tolist()
 
-        if self.X_preparer is not None:
-            self.pipeline = Pipeline(
-                [
-                    ("X_preparer", self.X_preparer),
-                    ("estimator_wrapper", self.estimator_wrapper),
-                ]
-            )
-        else:
-            self.pipeline = Pipeline(
-                [("estimator_wrapper", self.estimator_wrapper)]
-            )
+        self.pipeline = Pipeline(
+            [
+                ("X_preparer", self.X_preparer),
+                ("estimator_wrapper", self.estimator_wrapper),
+            ]
+        )
 
         self.pipeline.fit(X_df, y_df)
         self.has_fitted = True
