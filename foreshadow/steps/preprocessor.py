@@ -122,10 +122,11 @@ class Preprocessor(PreparerStep, AutoIntentMixin):
                 list_of_tuples.append(
                     (column, transformation_pipeline, column)
                 )
-        text_transformation_pipeline = _configure_text_transformation_pipeline(
-            num_of_non_text_features=len(X.columns) - len(text_features)
-        )
-        list_of_tuples.append(
-            ("text_preprocessing", text_transformation_pipeline, text_features)
-        )
+        if len(text_features) > 0:
+            text_trans_pipeline = _configure_text_transformation_pipeline(
+                num_of_non_text_features=len(X.columns) - len(text_features)
+            )
+            list_of_tuples.append(
+                ("text_preprocessing", text_trans_pipeline, text_features)
+            )
         return list_of_tuples
