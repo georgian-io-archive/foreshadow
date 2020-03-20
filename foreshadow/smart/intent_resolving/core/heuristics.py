@@ -397,7 +397,7 @@ def contains_structure(
         pd.Series -- Booleans for each column
     """
     # [TODO] Include '|' and '/', '\'
-    pattern = re.compile("[,;\[\]\{\}\(\)]")  # noqa
+    pattern = re.compile(r"[,;\[\]\{\}\(\)]")
 
     result = []
     for col in raw.columns:
@@ -405,3 +405,63 @@ def contains_structure(
         matches = series.apply(lambda x: bool(re.search(pattern, x)))
         result.append(_safe_div(matches.sum(), len(series)) >= threshold)
     return pd.Series(result, index=raw.columns)
+
+
+def maybe_datetime(df: pd.DataFrame) -> pd.Series:
+    """Check `samples` to see if col may be datetime.
+
+    Performs two types of checks:
+        1) Whether any sample is time-like
+        2) Whether any sample is date-like
+
+    Arguments:
+        df {pd.DataFrame} -- Metafeature dataframe.
+
+    Returns:
+        pd.Series -- Booleans
+    """
+    # Contains month is not used as it leads to too many false positives
+    def contains_month(x: str) -> bool:
+        MONTHS = (
+            "JAN",
+            "FEB",
+            "MAR",
+            "APR",
+            "MAY",
+            "JUN",
+            "JUL",
+            "AUG",
+            "SEPT",
+            "OCT",
+            "NOV",
+            "DEC",
+        )
+        return any(month in x.upper() for month in MONTHS)
+
+    def is_time(x: str) -> bool:
+        # One / two digits, followed either (' ',  '-' or ':') and two digits
+        if bool(re.search(r"(^|\D)\d{1,2}(\s|[-:])\d{2}($|\D)", str(x))):
+            return True
+        # Digit, with optional whitespace, followed by AM/PM (case-insensitive)
+        return bool(
+            re.search(r"(^|\D)\d+\s?(AM|PM)($|\W)", str(x), re.IGNORECASE)
+        )
+
+    def is_date(x: str) -> bool:
+        # One / two / four digits followed by either (' ', ', ', '-' or '/') and four digits
+        if bool(
+            re.search(r"(^|\D)(\d{1,2}|\d{4})(,?\s|[-/])\d{4}($|\D)", str(x))
+        ):
+            return True
+        # Four digits followed by either (' ', '-' or '/') and one / two / four digits
+        return bool(
+            re.search(r"(^|\D)\d{4}(,?\s|[-/])(\d{1,2}|\d{4})($|\D)", str(x))
+        )
+
+    # Pick out sample columns, while ignoring other metafeatures including `samples_set`
+    samples = df[
+        [col for col in df.columns if "sample" in col and "samples" not in col]
+    ]
+    return samples.apply(
+        lambda row: any((is_time(x) or is_date(x)) for x in row), axis=1
+    )
