@@ -80,7 +80,6 @@ def get_transformer(class_name, source_lib=None):
                 "foreshadow.intents",
                 "foreshadow.steps",
                 "foreshadow.cachemanager",
-                "foreshadow.pipeline",
                 "foreshadow.preparer",
                 "foreshadow.estimators",
                 "foreshadow.utils",

@@ -1,10 +1,8 @@
 """Core end-to-end pipeline, foreshadow."""
 
-import inspect
-import warnings
 from typing import List, NoReturn, Union
 
-from sklearn.model_selection._search import BaseSearchCV
+from sklearn.pipeline import Pipeline
 
 from foreshadow.base import BaseEstimator
 from foreshadow.cachemanager import CacheManager
@@ -15,7 +13,6 @@ from foreshadow.estimators.auto import AutoEstimator
 from foreshadow.estimators.estimator_wrapper import EstimatorWrapper
 from foreshadow.intents import IntentType
 from foreshadow.logging import logging
-from foreshadow.pipeline import SerializablePipeline
 from foreshadow.preparer import DataPreparer
 from foreshadow.utils import (
     AcceptedKey,
@@ -49,15 +46,7 @@ class Foreshadow(BaseEstimator):
 
     """
 
-    def __init__(
-        self,
-        X_preparer=None,
-        y_preparer=None,
-        estimator=None,
-        problem_type=None,
-        optimizer=None,
-        optimizer_kwargs=None,
-    ):
+    def __init__(self, estimator=None, problem_type=None):
         if problem_type not in [
             ProblemType.CLASSIFICATION,
             ProblemType.REGRESSION,
@@ -71,23 +60,16 @@ class Foreshadow(BaseEstimator):
                 )
             )
         self.problem_type = problem_type
-        self.X_preparer = X_preparer
-        self.y_preparer = y_preparer
-        self.estimator = estimator
-        self.optimizer = optimizer
-        self.optimizer_kwargs = (
-            {} if optimizer_kwargs is None else optimizer_kwargs
+        self._X_preparer = DataPreparer(cache_manager=CacheManager())
+        self._y_preprarer = DataPreparer(
+            cache_manager=CacheManager(),
+            y_var=True,
+            problem_type=self.problem_type,
         )
+        self.estimator = estimator
         self.pipeline = None
         self.data_columns = None
         self.has_fitted = False
-
-        if isinstance(self.estimator, AutoEstimator) and optimizer is not None:
-            warnings.warn(
-                "An automatic estimator cannot be used with an optimizer."
-                " Proceeding without use of optimizer"
-            )
-            self.optimizer = None
 
         if self.y_preparer is not None:
             self.estimator_wrapper = EstimatorWrapper(
@@ -112,21 +94,7 @@ class Foreshadow(BaseEstimator):
 
         .. # noqa: I201
         """
-        return self._X_preprocessor
-
-    @X_preparer.setter
-    def X_preparer(self, dp):
-        if dp is not None:
-            if dp is False:
-                self._X_preprocessor = None
-            elif isinstance(dp, DataPreparer):
-                self._X_preprocessor = dp
-            else:
-                raise ValueError(
-                    "Invalid value: '{}' " "passed as X_preparer".format(dp)
-                )
-        else:
-            self._X_preprocessor = DataPreparer(cache_manager=CacheManager())
+        return self._X_preparer
 
     @property
     def y_preparer(self):  # noqa
@@ -144,23 +112,7 @@ class Foreshadow(BaseEstimator):
 
         .. # noqa: I201
         """
-        return self._y_preprocessor
-
-    @y_preparer.setter
-    def y_preparer(self, yp):
-        if yp is not None:
-            if yp is False:
-                self._y_preprocessor = None
-            elif isinstance(yp, DataPreparer):
-                self._y_preprocessor = yp
-            else:
-                raise ValueError("Invalid value passed as y_preparer")
-        else:
-            self._y_preprocessor = DataPreparer(
-                cache_manager=CacheManager(),
-                y_var=True,
-                problem_type=self.problem_type,
-            )
+        return self._y_preprarer
 
     @property
     def estimator(self):  # noqa
@@ -195,31 +147,6 @@ class Foreshadow(BaseEstimator):
                 else True
             )
 
-    @property
-    def optimizer(self):  # noqa
-        """Optimizer class that will fit the model.
-
-        Performs a grid or random search algorithm on the parameter space from
-        the preprocessors and estimators in the pipeline
-
-        :getter: Returns optimizer class
-
-        :setter: Verifies Optimizer class, defaults to None
-
-        Returns:
-            the optimizer object
-
-        .. # noqa: I201
-        """
-        return self._optimizer
-
-    @optimizer.setter
-    def optimizer(self, o):
-        if o is None or (inspect.isclass(o) and issubclass(o, BaseSearchCV)):
-            self._optimizer = o
-        else:
-            raise ValueError("Invalid optimizer: '{}' passed.".format(o))
-
     def _reset(self):
         if hasattr(self, "pipeline"):
             del self.pipeline
@@ -243,45 +170,12 @@ class Foreshadow(BaseEstimator):
         y_df = check_df(y_df)
         self.data_columns = X_df.columns.values.tolist()
 
-        if self.X_preparer is not None:
-            self.pipeline = SerializablePipeline(
-                [
-                    ("X_preparer", self.X_preparer),
-                    ("estimator_wrapper", self.estimator_wrapper),
-                ]
-            )
-        else:
-            self.pipeline = SerializablePipeline(
-                [("estimator_wrapper", self.estimator_wrapper)]
-            )
-
-        # TODO we may need this for future development but right now it's
-        #  dragging down code coverage
-        # if self.optimizer is not None:
-        #     self.pipeline.fit(X_df, y_df)
-        #     params = ParamSpec(self.pipeline, X_df, y_df)
-        #     self.opt_instance = self.optimizer(
-        #         estimator=self.pipeline,
-        #         param_distributions=params,
-        #         **{
-        #             "iid": True,
-        #             "scoring": "accuracy",
-        #             "n_iter": 10,
-        #             "return_train_score": True,
-        #         }
-        #     )
-        #     self.tuner = Tuner(self.pipeline, params, self.opt_instance)
-        #     self.tuner.fit(X_df, y_df)
-        #     self.pipeline = self.tuner.transform(self.pipeline)
-        #     # extract trained preprocessors
-        #     if self.X_preparer is not None:
-        #         self.X_preparer = self.pipeline.steps[0][1]
-        #     if self.y_preparer is not None:
-        #         self.y_preparer = self.opt_instance.best_estimator_.steps[1][
-        #             1
-        #         ].preprocessor
-        # else:
-        #     self.pipeline.fit(X_df, y_df)
+        self.pipeline = Pipeline(
+            [
+                ("X_preparer", self.X_preparer),
+                ("estimator_wrapper", self.estimator_wrapper),
+            ]
+        )
 
         self.pipeline.fit(X_df, y_df)
         self.has_fitted = True
@@ -358,85 +252,6 @@ class Foreshadow(BaseEstimator):
         y_df = check_df(y_df)
         self._prepare_predict(data_df.columns)
         return self.pipeline.score(data_df, y_df, sample_weight)
-
-    # TODO all serialization/deserialization code has been turned off
-    #  temporarily since we are not using it right now and it's dragging
-    #  down the code coverage.
-    # def dict_serialize(self, deep=False):
-    #     """Serialize the init parameters of the foreshadow object.
-    #
-    #     Args:
-    #         deep (bool): If True, will return the parameters for this
-    #         estimator recursively
-    #
-    #     Returns:
-    #         dict: The initialization parameters of the foreshadow object.
-    #
-    #     """
-    #     serialized = super().dict_serialize(deep=False)
-    #     serialized["estimator"] = self._customize_serialized_estimator(
-    #         self.estimator
-    #     )
-    #     return serialized
-
-    # @staticmethod
-    # def _customize_serialized_estimator(estimator):
-    #     if isinstance(estimator, AutoEstimator):
-    #         """For third party automl estimator, the estimator_kwargs
-    #         have different format and structure. To reduce verbosity,
-    #         this field is removed from the serialized object.
-    #         """
-    #         serialized_estimator = estimator.serialize()
-    #         serialized_estimator.pop("estimator_kwargs")
-    #     else:
-    #         serialized_estimator = estimator.get_params()
-    #         serialized_estimator["_class"] = (
-    #             estimator.__module__ + "." + type(estimator).__name__
-    #         )
-    #         serialized_estimator["_method"] = "dict"
-    #
-    #     result = serialized_estimator
-    #     return result
-
-    # @classmethod
-    # def dict_deserialize(cls, data):
-    #     """Deserialize the dictionary form of a foreshadow object.
-    #
-    #     Args:
-    #         data: The dictionary to parse as foreshadow object is
-    #         constructed.
-    #
-    #     Returns:
-    #         object: A re-constructed foreshadow object.
-    #
-    #     """
-    #     serialized_estimator = data.pop("estimator")
-    #     estimator = cls._reconstruct_estimator(serialized_estimator)
-    #
-    #     params = _make_deserializable(data)
-    #     data_columns = params.pop("data_columns")
-    #     params["estimator"] = estimator
-    #
-    #     ret_tf = cls(**params)
-    #     ret_tf.data_columns = data_columns
-    #     return ret_tf
-    #
-    # @classmethod
-    # def _reconstruct_estimator(cls, data):
-    #     estimator_type = data.pop("_class")
-    #     _ = data.pop("_method")
-    #
-    #     if estimator_type == AutoEstimator.__name__:
-    #         class_name = estimator_type
-    #         module_path = None
-    #     else:
-    #         class_name = estimator_type.split(".")[-1]
-    #         module_path = ".".join(estimator_type.split(".")[0:-1])
-    #
-    #     estimator_class = get_transformer(class_name, source_lib=module_path)
-    #     estimator = estimator_class()
-    #     estimator.set_params(**data)
-    #     return estimator
 
     def get_params(self, deep=True):
         """Get params for this object. See super.

@@ -1,5 +1,6 @@
 import pytest
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.pipeline import Pipeline
 
 from foreshadow.cachemanager import CacheManager
 from foreshadow.intents import IntentType
@@ -175,13 +176,12 @@ def test_smart_encoder_less_than_30_levels():
     from foreshadow.smart import CategoricalEncoder
     from foreshadow.concrete import OneHotEncoder
     from foreshadow.concrete import NaNFiller
-    from foreshadow.pipeline import SerializablePipeline
 
     np.random.seed(0)
     leq_30_random_data = np.random.choice(30, size=500)
     smart_coder = CategoricalEncoder()
     transformer = smart_coder.fit(leq_30_random_data).transformer
-    assert isinstance(transformer, SerializablePipeline)
+    assert isinstance(transformer, Pipeline)
     assert isinstance(transformer.steps[0][1], NaNFiller)
     assert isinstance(transformer.steps[1][1], OneHotEncoder)
     assert len(transformer.steps) == 2
@@ -193,7 +193,6 @@ def test_smart_encoder_more_than_30_levels():
     from foreshadow.smart import CategoricalEncoder
     from foreshadow.concrete import HashingEncoder
     from foreshadow.concrete import NaNFiller
-    from foreshadow.pipeline import SerializablePipeline
 
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
@@ -201,7 +200,7 @@ def test_smart_encoder_more_than_30_levels():
     gt_30_random_data[0] = np.nan
     smart_coder = CategoricalEncoder()
     transformer = smart_coder.fit(gt_30_random_data).transformer
-    assert isinstance(transformer, SerializablePipeline)
+    assert isinstance(transformer, Pipeline)
     assert isinstance(transformer.steps[0][1], NaNFiller)
     assert isinstance(transformer.steps[1][1], HashingEncoder)
     assert len(transformer.steps) == 2
@@ -375,13 +374,12 @@ def test_smart_encoder_delimmited():
     from foreshadow.smart import CategoricalEncoder
     from foreshadow.concrete import DummyEncoder
     from foreshadow.concrete import NaNFiller
-    from foreshadow.pipeline import SerializablePipeline
 
     data = pd.DataFrame({"test": ["a", "a,b,c", "a,b", "a,c"]})
     smart_coder = CategoricalEncoder()
     transformer = smart_coder.fit(data).transformer
 
-    assert isinstance(transformer, SerializablePipeline)
+    assert isinstance(transformer, Pipeline)
     assert isinstance(transformer.steps[0][1], NaNFiller)
     assert isinstance(transformer.steps[1][1], DummyEncoder)
     assert len(transformer.steps) == 2
@@ -392,14 +390,13 @@ def test_smart_encoder_more_than_30_levels_with_overwritten_cutoff():
     from foreshadow.smart import CategoricalEncoder
     from foreshadow.concrete import OneHotEncoder
     from foreshadow.concrete import NaNFiller
-    from foreshadow.pipeline import SerializablePipeline
 
     np.random.seed(0)
     gt_30_random_data = np.random.choice(31, size=500)
     smart_coder = CategoricalEncoder(unique_num_cutoff=35)
     transformer = smart_coder.fit(gt_30_random_data).transformer
 
-    assert isinstance(transformer, SerializablePipeline)
+    assert isinstance(transformer, Pipeline)
     assert isinstance(transformer.steps[0][1], NaNFiller)
     assert isinstance(transformer.steps[1][1], OneHotEncoder)
     assert len(transformer.steps) == 2

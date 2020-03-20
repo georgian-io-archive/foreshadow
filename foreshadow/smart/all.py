@@ -32,7 +32,6 @@ from foreshadow.concrete.internals import (
     UncommonRemover,
 )
 from foreshadow.logging import logging
-from foreshadow.pipeline import SerializablePipeline
 from foreshadow.utils import (
     AcceptedKey,
     DataSeriesSelector,
@@ -89,7 +88,7 @@ class Scaler(SmartTransformer):
         best_dist = max(p_vals, key=p_vals.get)
         best_dist = best_dist if p_vals[best_dist] >= self.p_val else None
         if best_dist is None:
-            return SerializablePipeline(
+            return Pipeline(
                 [
                     # Turning off the BoxCox transformer because if the test
                     # dataset has an even smaller negative min, it will
@@ -198,9 +197,7 @@ class CategoricalEncoder(SmartTransformer):
             return_df=True, use_cat_names=True, handle_unknown="ignore"
         )
 
-        final_pipeline = SerializablePipeline(
-            [("fill_na", NaNFiller(fill_value="NaN"))]
-        )
+        final_pipeline = Pipeline([("fill_na", NaNFiller(fill_value="NaN"))])
 
         if self.y_var:
             return LabelEncoder()
@@ -326,7 +323,7 @@ class MultiImputer(SmartTransformer):
         if X.isnull().values.any():
             return self._choose_multi(X)
         else:
-            return SerializablePipeline([("null", None)])
+            return Pipeline([("null", None)])
 
 
 class FinancialCleaner(SmartTransformer):
@@ -345,10 +342,10 @@ class FinancialCleaner(SmartTransformer):
             An initialized financial cleaning transformer
 
         """
-        us_pipeline = SerializablePipeline(
+        us_pipeline = Pipeline(
             [("prepare", PrepareFinancial()), ("convert", ConvertFinancial())]
         )
-        eu_pipeline = SerializablePipeline(
+        eu_pipeline = Pipeline(
             [
                 ("prepare", PrepareFinancial()),
                 ("convert", ConvertFinancial(is_euro=True)),
@@ -534,7 +531,7 @@ class NeitherProcessor(SmartTransformer):
         if len(steps) == 1:
             transformer = tfidf
         else:
-            transformer = SerializablePipeline(steps)
+            transformer = Pipeline(steps)
 
         return self._can_fit(transformer, X)
 
