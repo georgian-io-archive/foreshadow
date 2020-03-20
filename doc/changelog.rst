@@ -2,6 +2,18 @@
 
 .. towncrier release notes start
 
+Foreshadow 1.0.0 (2020-03-20)
+=============================
+
+Features
+--------
+
+- AutoIntent Resolving Dependency upgrade
+    The automl intent resolving model has now been retrained with pandas 0.25 and sklearn 0.22 (autointent-resolving-dependency-upgrade)
+- Adding support for Text Intent and Text transformation pipeline
+    Foreshadow now supports Text Intent and has a pipeline processing Text using TFIDF and TruncatedSVD. (text-transformation-pipeline)
+
+
 Foreshadow 0.4.5 (2020-03-09)
 =============================
 
