@@ -584,6 +584,11 @@ def test_foreshadow_adults_small_classification_override_upfront():
     assert shadow.get_intent("age") == IntentType.CATEGORICAL
     assert shadow.get_intent("workclass") == IntentType.CATEGORICAL
     score = shadow.score(X_test, y_test)
+    summary = shadow.get_data_summary()
+    assert summary.shape[1] == 3
+    assert summary.at["intent", "age"] == IntentType.CATEGORICAL
+    assert summary.at["intent", "workclass"] == IntentType.CATEGORICAL
+    assert summary.at["intent", "class"] == "Label"
     print(score)
 
 

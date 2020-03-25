@@ -1,8 +1,8 @@
 """Test the data_preparer.py file."""
 import pytest
 
-from foreshadow.concrete import NoTransform
 from foreshadow.smart import CategoricalEncoder
+from foreshadow.steps import FeatureSummarizerMapper
 from foreshadow.utils import ProblemType
 from foreshadow.utils.testing import get_file_path
 
@@ -54,11 +54,13 @@ def test_data_preparer_y_variable(problem_type):
     from foreshadow.preparer import DataPreparer
 
     dp = DataPreparer(y_var=True, problem_type=problem_type)
-    assert len(dp.steps) == 1
     if problem_type == ProblemType.REGRESSION:
-        assert isinstance(dp.steps[0][1], NoTransform)
+        assert len(dp.steps) == 1
+        assert isinstance(dp.steps[0][1], FeatureSummarizerMapper)
     else:
-        assert isinstance(dp.steps[0][1], CategoricalEncoder)
+        assert len(dp.steps) == 2
+        assert isinstance(dp.steps[0][1], FeatureSummarizerMapper)
+        assert isinstance(dp.steps[1][1], CategoricalEncoder)
 
 
 @pytest.mark.parametrize("cleaner_kwargs", [({}), (None)])
@@ -95,10 +97,10 @@ def test_data_preparer_get_params(deep):
     params = dp.get_params(deep=deep)
     assert "cleaner_kwargs" in params
     assert "cache_manager" in params
-    assert "engineerer_kwargs" in params
+    # assert "engineerer_kwargs" in params
     assert "intent_kwargs" in params
     assert "preprocessor_kwargs" in params
-    assert "reducer_kwargs" in params
+    # assert "reducer_kwargs" in params
     assert "y_var" in params
     assert "steps" in params
 

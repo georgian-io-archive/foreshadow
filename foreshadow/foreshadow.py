@@ -1,7 +1,10 @@
 """Core end-to-end pipeline, foreshadow."""
 
+import warnings
 from typing import List, NoReturn, Union
 
+import pandas as pd
+from sklearn.exceptions import DataConversionWarning
 from sklearn.pipeline import Pipeline
 
 from foreshadow.base import BaseEstimator
@@ -21,6 +24,9 @@ from foreshadow.utils import (
     ProblemType,
     check_df,
 )
+
+
+warnings.filterwarnings(action="ignore", category=DataConversionWarning)
 
 
 class Foreshadow(BaseEstimator):
@@ -474,3 +480,19 @@ class Foreshadow(BaseEstimator):
         self.X_preparer.cache_manager[AcceptedKey.CUSTOMIZED_TRANSFORMERS][
             ConfigKey.CUSTOMIZED_CLEANERS
         ] = data_cleaners
+
+    def get_data_summary(self) -> pd.DataFrame:
+        """Get summary statistics and identified intent for training dataset.
+
+        Returns:
+            a DataFrame, in which each column represent the summary of a column
+
+        """
+        if not self.has_fitted:
+            logging.info("The foreshadow object is not trained yet.")
+            return None
+        X_summary = self.X_preparer.cache_manager[AcceptedKey.SUMMARY]
+        y_summary = self.y_preparer.cache_manager[AcceptedKey.SUMMARY]
+
+        X_summary[y_summary.columns[0]] = y_summary
+        return X_summary
