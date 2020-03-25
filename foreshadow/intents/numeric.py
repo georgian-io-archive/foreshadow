@@ -1,7 +1,5 @@
 """Numeric intent."""
 
-from collections import OrderedDict
-
 import pandas as pd
 
 from foreshadow.metrics import (
@@ -11,7 +9,7 @@ from foreshadow.metrics import (
     num_valid,
     unique_heur,
 )
-from foreshadow.utils import get_outliers, mode_freq
+from foreshadow.utils import get_outliers, standard_col_summary
 
 from .base import BaseIntent
 
@@ -55,27 +53,26 @@ class Numeric(BaseIntent):
 
     @classmethod
     def column_summary(cls, df):  # noqa
-        data = df.iloc[:, 0]
-        nan_num = int(data.isnull().sum())
+        result = standard_col_summary(df)
 
         data_transformed = pd.to_numeric(df.iloc[:, 0], errors="coerce")
-        invalid_num = int(data_transformed.isnull().sum() - nan_num)
-        outliers = get_outliers(data_transformed).values.tolist()
-        mode, top10 = mode_freq(data)
+        invalid_pct = (
+            data_transformed.isnull().sum() * 100.0 / result["count"]
+            - result["nan_pct"]
+        )
+        outliers = get_outliers(data_transformed, count=5).values.tolist()
 
-        return OrderedDict(
+        result.update(
             [
-                ("nan", nan_num),
-                ("invalid", invalid_num),
+                ("invalid_pct", invalid_pct),
                 ("mean", float(data_transformed.mean())),
                 ("std", float(data_transformed.std())),
                 ("min", float(data_transformed.min())),
-                ("25th", float(data_transformed.quantile(0.25))),
-                ("median", float(data_transformed.quantile(0.5))),
-                ("75th", float(data_transformed.quantile(0.75))),
+                ("25%", float(data_transformed.quantile(0.25))),
+                ("50%", float(data_transformed.quantile(0.5))),
+                ("75%", float(data_transformed.quantile(0.75))),
                 ("max", float(data_transformed.max())),
-                ("mode", mode),
-                ("top10", top10),
-                ("10outliers", outliers),
+                ("5_outliers", outliers),
             ]
         )
+        return result

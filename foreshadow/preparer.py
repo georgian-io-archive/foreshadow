@@ -13,8 +13,6 @@ from foreshadow.steps import (
 )
 from foreshadow.utils import ConfigureCacheManagerMixin, ProblemType
 
-from .concrete import NoTransform
-
 
 def _none_to_dict(name, val, cache_manager=None):
     """Transform input kwarg to valid dict, handling sentinel value.
@@ -72,66 +70,90 @@ class DataPreparer(Pipeline, ConfigureCacheManagerMixin):
         cleaner_kwargs=None,
         intent_kwargs=None,
         summarizer_kwargs=None,
-        engineerer_kwargs=None,
+        # engineerer_kwargs=None,
         preprocessor_kwargs=None,
-        reducer_kwargs=None,
+        # reducer_kwargs=None,
         exporter_kwargs=None,
         problem_type=None,
         y_var=None,
         **kwargs
     ):
-        flattener_kwargs = _none_to_dict(
+        self.flattener_kwargs = _none_to_dict(
             "flattener_kwargs", flattener_kwargs, cache_manager
         )
-        cleaner_kwargs_ = _none_to_dict(
+        self.cleaner_kwargs = _none_to_dict(
             "cleaner_kwargs", cleaner_kwargs, cache_manager
         )
-        intent_kwargs_ = _none_to_dict(
+        self.intent_kwargs = _none_to_dict(
             "intent_kwargs", intent_kwargs, cache_manager
         )
-        summarizer_kwargs_ = _none_to_dict(
+        self.summarizer_kwargs = _none_to_dict(
             "summarizer_kwargs", summarizer_kwargs, cache_manager
         )
         # # engineerer_kwargs_ = _none_to_dict(
         # #     "engineerer_kwargs", engineerer_kwargs, cache_manager
         # # )
-        preprocessor_kwargs_ = _none_to_dict(
+        self.preprocessor_kwargs = _none_to_dict(
             "preprocessor_kwargs", preprocessor_kwargs, cache_manager
         )
         # # reducer_kwargs_ = _none_to_dict(
         # #     "reducer_kwargs", reducer_kwargs, cache_manager
         # # )
-        exporter_kwargs_ = _none_to_dict(
+        self.exporter_kwargs = _none_to_dict(
             "exporter_kwargs", exporter_kwargs, cache_manager
         )
+        self.y_var = y_var
+        self.problem_type = problem_type
         if not y_var:
             steps = [
-                ("data_flattener", FlattenMapper(**flattener_kwargs)),
-                ("data_cleaner", CleanerMapper(**cleaner_kwargs_)),
-                ("intent", IntentMapper(**intent_kwargs_)),
+                ("data_flattener", FlattenMapper(**self.flattener_kwargs)),
+                ("data_cleaner", CleanerMapper(**self.cleaner_kwargs)),
+                ("intent", IntentMapper(**self.intent_kwargs)),
                 (
                     "feature_summarizer",
-                    FeatureSummarizerMapper(**summarizer_kwargs_),
+                    FeatureSummarizerMapper(**self.summarizer_kwargs),
                 ),
                 # (
                 #     "feature_engineerer",
-                #     FeatureEngineererMapper(**engineerer_kwargs_),
+                #     FeatureEngineererMapper(**self.engineerer_kwargs_),
                 # ),
-                ("feature_preprocessor", Preprocessor(**preprocessor_kwargs_)),
-                # ("feature_reducer", FeatureReducerMapper(**reducer_kwargs_)),
-                ("feature_exporter", DataExporterMapper(**exporter_kwargs_)),
+                (
+                    "feature_preprocessor",
+                    Preprocessor(**self.preprocessor_kwargs),
+                ),
+                # (
+                #       "feature_reducer",
+                #       FeatureReducerMapper(**self.reducer_kwargs)
+                # ),
+                (
+                    "feature_exporter",
+                    DataExporterMapper(**self.exporter_kwargs),
+                ),
             ]
         else:
             if problem_type == ProblemType.REGRESSION:
-                steps = [("output", NoTransform())]
+                steps = [
+                    (
+                        "feature_summarizer",
+                        FeatureSummarizerMapper(
+                            y_var, problem_type, **self.summarizer_kwargs
+                        ),
+                    )
+                ]
             elif problem_type == ProblemType.CLASSIFICATION:
                 steps = [
+                    (
+                        "feature_summarizer",
+                        FeatureSummarizerMapper(
+                            y_var, problem_type, **self.summarizer_kwargs
+                        ),
+                    ),
                     (
                         "output",
                         CategoricalEncoder(
                             y_var=True, cache_manager=cache_manager
                         ),
-                    )
+                    ),
                 ]
             else:
                 raise ValueError(

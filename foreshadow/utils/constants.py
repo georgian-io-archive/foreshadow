@@ -48,6 +48,7 @@ class ConfigKey:
 class AcceptedKey:
     """Accepted keys of the CacheManager."""
 
+    SUMMARY = "summary"
     INTENT = "intent"
     DOMAIN = "domain"
     METASTAT = "metastat"

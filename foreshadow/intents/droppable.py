@@ -1,6 +1,7 @@
 """Droppable intent. It does nothing."""
 
 from foreshadow.intents import BaseIntent
+from foreshadow.utils import standard_col_summary
 
 
 class Droppable(BaseIntent):
@@ -35,6 +36,4 @@ class Droppable(BaseIntent):
 
     @classmethod
     def column_summary(cls, df):  # noqa
-        raise NotImplementedError(
-            "Column Summary is not implemented by " "the Droppable class."
-        )
+        return standard_col_summary(df)
