@@ -32,11 +32,17 @@ class AutoEstimator(BaseEstimator):
         problem_type=None,
         auto=None,
         include_preprocessors=False,
+        allowed_seconds=300,
+        random_state=None,
+        n_jobs=1,
         estimator_kwargs=None,
     ):
         self.problem_type = problem_type
         self.auto = auto
         self.include_preprocessors = include_preprocessors
+        self.allowed_secondes = allowed_seconds
+        self.random_state = random_state
+        self.n_jobs = n_jobs
         self.estimator_kwargs = estimator_kwargs
         self.estimator_class = None
         self.estimator = None
@@ -202,9 +208,15 @@ class AutoEstimator(BaseEstimator):
                 self.problem_type, self.include_preprocessors
             )
             if "max_time_mins" not in self.estimator_kwargs:
-                self.estimator_kwargs["max_time_mins"] = 5
+                self.estimator_kwargs["max_time_mins"] = int(
+                    self.allowed_secondes / 60
+                )
             if "verbosity" not in self.estimator_kwargs:
-                self.estimator_kwargs["verbosity"] = 3
+                self.estimator_kwargs["verbosity"] = 2
+            if "random_state" not in self.estimator_kwargs:
+                self.estimator_kwargs["random_state"] = self.random_state
+            if "n_jobs" not in self.estimator_kwargs:
+                self.estimator_kwargs["n_jobs"] = self.n_jobs
         elif (
             self.auto == "autosklearn"
             and not any(

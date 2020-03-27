@@ -1,8 +1,10 @@
 """Core end-to-end pipeline, foreshadow."""
 
+import random
 import warnings
 from typing import List, NoReturn, Union
 
+import numpy as np
 import pandas as pd
 from sklearn.exceptions import DataConversionWarning
 from sklearn.pipeline import Pipeline
@@ -52,7 +54,16 @@ class Foreshadow(BaseEstimator):
 
     """
 
-    def __init__(self, estimator=None, problem_type=None):
+    def __init__(
+        self,
+        problem_type,
+        random_state=None,
+        n_jobs=1,
+        estimator=None,
+        allowed_seconds=300,
+        estimator_kwargs=None,
+    ):
+
         if problem_type not in [
             ProblemType.CLASSIFICATION,
             ProblemType.REGRESSION,
@@ -66,12 +77,22 @@ class Foreshadow(BaseEstimator):
                 )
             )
         self.problem_type = problem_type
+        self.random_state = random_state
+        self.n_jobs = n_jobs
+
         self._X_preparer = DataPreparer(cache_manager=CacheManager())
+        self.configure_multiprocessing(self.n_jobs)
         self._y_preprarer = DataPreparer(
             cache_manager=CacheManager(),
             y_var=True,
             problem_type=self.problem_type,
         )
+        if estimator is not None and estimator_kwargs is not None:
+            raise ValueError(
+                "estimator and estimator_kwargs are mutually exclusive"
+            )
+        self.allowed_seconds = allowed_seconds
+        self.estimator_kwargs = estimator_kwargs
         self.estimator = estimator
         self.pipeline = None
         self.data_columns = None
@@ -147,13 +168,23 @@ class Foreshadow(BaseEstimator):
             else:
                 raise ValueError("Invalid value passed as estimator")
         else:
+            include_preprocessors = (
+                False if self.X_preparer is not None else True
+            )
             self._estimator = AutoEstimator(
-                include_preprocessors=False
-                if self.X_preparer is not None
-                else True
+                self.problem_type,
+                auto="tpot",
+                include_preprocessors=include_preprocessors,
+                allowed_seconds=self.allowed_seconds,
+                random_state=self.random_state,
+                n_jobs=self.n_jobs,
+                estimator_kwargs=self.estimator_kwargs,
             )
 
     def _reset(self):
+        if self.random_state is not None:
+            random.seed(self.random_state)
+            np.random.seed(self.random_state)
         if hasattr(self, "pipeline"):
             del self.pipeline
         if hasattr(self, "tuner"):

@@ -259,6 +259,13 @@ class SimpleFillImputer(SmartTransformer):
 
         med_y = np.median(X)
         mad_y = np.median(np.abs(np.subtract(X, med_y)))
+
+        if mad_y == 0:
+            # ToDo: Investigate for the best imputation method in this case
+            return FancyImputer(
+                "SimpleFill", impute_kwargs={"fill_method": "median"}
+            )
+
         z_scor = [0.6745 * (y - med_y) / mad_y for y in X]
 
         z_bool = (
