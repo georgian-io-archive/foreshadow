@@ -185,6 +185,8 @@ def test_smart_encoder_less_than_30_levels():
     assert isinstance(transformer.steps[0][1], NaNFiller)
     assert isinstance(transformer.steps[1][1], OneHotEncoder)
     assert len(transformer.steps) == 2
+    res = smart_coder.transform(leq_30_random_data)
+    assert len(res.columns) == 30
 
 
 def test_smart_encoder_more_than_30_levels():
