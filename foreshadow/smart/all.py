@@ -201,7 +201,10 @@ class CategoricalEncoder(SmartTransformer):
         )
 
         ohe = OneHotEncoder(
-            return_df=True, use_cat_names=True, handle_unknown="ignore"
+            cols=X.columns.to_list(),
+            return_df=True,
+            use_cat_names=True,
+            handle_unknown="ignore",
         )
 
         final_pipeline = Pipeline([("fill_na", NaNFiller(fill_value="NaN"))])
@@ -227,7 +230,10 @@ class CategoricalEncoder(SmartTransformer):
             final_pipeline.steps.append(("one_hot_encoder", ohe))
         else:
             final_pipeline.steps.append(
-                ("hash_encoder", HashingEncoder(n_components=30))
+                (
+                    "hash_encoder",
+                    HashingEncoder(n_components=30, cols=X.columns.to_list()),
+                )
             )
 
         return final_pipeline
@@ -251,7 +257,6 @@ class SimpleFillImputer(SmartTransformer):
 
     def _choose_simple(self, X):
         X = X[~np.isnan(X)]
-
         # Uses modified z score method
         # http://colingorrie.github.io/outlier-detection.html
         # Assumes data is has standard distribution
@@ -299,6 +304,7 @@ class SimpleFillImputer(SmartTransformer):
         ratio = s.isnull().sum() / s.count()
 
         if 0 < ratio <= self.threshold:
+
             return self._choose_simple(s.values)
         else:
             return SimpleImputer()
