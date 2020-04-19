@@ -58,13 +58,13 @@ class Numeric(BaseIntent):
         data_transformed = pd.to_numeric(df.iloc[:, 0], errors="coerce")
         invalid_pct = (
             data_transformed.isnull().sum() * 100.0 / result["count"]
-            - result["nan_pct"]
+            - result["nan_percent"]
         )
         outliers = get_outliers(data_transformed, count=5).values.tolist()
 
         result.update(
             [
-                ("invalid_pct", invalid_pct),
+                ("invalid_percent", invalid_pct),
                 ("mean", float(data_transformed.mean())),
                 ("std", float(data_transformed.std())),
                 ("min", float(data_transformed.min())),

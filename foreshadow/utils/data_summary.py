@@ -31,7 +31,7 @@ def standard_col_summary(df):  # noqa
     result = OrderedDict(
         [
             ("count", count),
-            ("nan_pct", nan_pct),
+            ("nan_percent", nan_pct),
             ("unique", unique),
             ("top10", top10),
         ]
