@@ -61,7 +61,7 @@ class Foreshadow(BaseEstimator):
         n_jobs=1,
         estimator=None,
         allowed_seconds=300,
-        estimator_kwargs=None,
+        auto_estimator_kwargs=None,
     ):
 
         if problem_type not in [
@@ -87,12 +87,12 @@ class Foreshadow(BaseEstimator):
             y_var=True,
             problem_type=self.problem_type,
         )
-        if estimator is not None and estimator_kwargs is not None:
+        if estimator is not None and auto_estimator_kwargs is not None:
             raise ValueError(
                 "estimator and estimator_kwargs are mutually exclusive"
             )
         self.allowed_seconds = allowed_seconds
-        self.estimator_kwargs = estimator_kwargs
+        self.auto_estimator_kwargs = auto_estimator_kwargs
         self.estimator = estimator
         self.pipeline = None
         self.data_columns = None
@@ -178,7 +178,7 @@ class Foreshadow(BaseEstimator):
                 allowed_seconds=self.allowed_seconds,
                 random_state=self.random_state,
                 n_jobs=self.n_jobs,
-                estimator_kwargs=self.estimator_kwargs,
+                estimator_kwargs=self.auto_estimator_kwargs,
             )
 
     def _reset(self):
