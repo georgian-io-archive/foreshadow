@@ -190,7 +190,6 @@ python-versions = "*"
 version = "1.0.25"
 
 [package.dependencies]
-ecos = ">=2"
 multiprocess = "*"
 numpy = ">=1.15"
 osqp = ">=0.4.1"
